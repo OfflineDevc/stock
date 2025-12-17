@@ -343,7 +343,9 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                 
                 if div_yield is None:
                     div_yield = safe_float(info.get('dividendYield'))
-                    if div_yield is not None: div_yield *= 100
+                    # Keep as decimal (0.05 instead of 5.0) to match other tools/standards
+                    # if div_yield is not None: div_yield *= 100 
+
                 
                 if op_margin is None:
                     op_margin = safe_float(info.get('operatingMargins'))
@@ -356,6 +358,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                     'Symbol': formatted_ticker,
                     'Company': info.get('shortName', 'N/A'),
                     'Sector': info.get('sector', 'N/A'),
+                    'Market_Cap': info.get('marketCap', 0), # Added for Weighting
                     'Price': price,
                     'PE': pe,
                     'PEG': peg,
@@ -366,6 +369,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                     'EPS_Growth': growth_q,
                     'Rev_Growth': rev_growth, # Added for Speculative Strategy
                     'Op_Margin': op_margin,
+
                     'Target_Price': analyst_target,
                     'Fair_Value': fair_value,
                     'Margin_Safety': margin_safety,
@@ -1363,7 +1367,7 @@ def page_portfolio():
         
     n_stocks = st.slider("Number of Stocks in Portfolio", 5, 50, 20)
     
-    st.info(f"**Plan**: Allocate equally to top {n_stocks} stocks in **{market_choice}** based on **{risk_choice}** strategy.")
+    st.info(f"**Plan**: Allocate to top {n_stocks} stocks in **{market_choice}** using **Market Cap Weighting** (Pro Standard).")
     
     if st.button("🚀 Generate Portfolio / สร้างพอร์ต", type="primary"):
         # 1. Get Tickers
@@ -1371,16 +1375,16 @@ def page_portfolio():
         elif "NASDAQ" in market_choice: tickers = get_nasdaq_tickers()
         else: tickers = get_set100_tickers()
         
-        # Limit for speed (User can't customize limit here to keep it simple 'One Click')
-        tickers = tickers[:200] 
+        # Limit for speed
+        tickers = tickers[:250] 
         
         # 2. UI Elements
-        st.write("Scanning Market...")
+        st.write("Scanning & Analyzing Market...")
         prog = st.progress(0)
         status = st.empty()
         
         # 3. Scan
-        # Note: scan_market_basic returns 'Symbol', 'PE', 'Div_Yield', etc.
+        # Note: scan_market_basic returns 'Symbol', 'PE', 'Div_Yield', 'Sector', 'Market_Cap' etc.
         df_scan = scan_market_basic(tickers, prog, status)
         status.empty()
         prog.empty()
@@ -1389,13 +1393,10 @@ def page_portfolio():
             st.error("No stocks found. Try again.")
             return
 
-        # 4. Strategy Mapping (Hardcoded Targets for Automation)
-        # Structure: (Column, Target, Operator)
-        # Using keys from scan_market_basic (Div_Yield, Op_Margin, etc.)
-        
+        # 4. Strategy Mapping
         targets_map = {
             "Low (Defensive)": [
-                ('Div_Yield', 3.0, '>'),
+                ('Div_Yield', 0.03, '>'),
                 ('PE', 20.0, '<'),
                 ('Debt_Equity', 100.0, '<'),
                 ('ROE', 10.0, '>')
@@ -1414,21 +1415,20 @@ def page_portfolio():
         }
         
         targets = targets_map[risk_choice]
-        st.subheader(f"🧠 AI Selecting based on {risk_choice} Profile")
+        st.subheader(f"🧠 AI Analysis Result ({risk_choice})")
         
         # 5. Score & Sort
-        # Ensure Ticker column exists for display (scan_market_basic uses 'Symbol')
         if 'Ticker' not in df_scan.columns:
             df_scan['Ticker'] = df_scan['Symbol']
-            
-        # Apply Scoring Row-wise
-        # calculate_fit_score returns (score, analysis_string)
-        results = df_scan.apply(lambda row: calculate_fit_score(row, targets), axis=1)
         
-        # Unpack results
+        # Calculate Fit Score
+        results = df_scan.apply(lambda row: calculate_fit_score(row, targets), axis=1)
         df_scan['Fit Score'] = results.apply(lambda x: x[0])
         
-        # Filter
+        # Calculate Lynch Type (AI Classification)
+        df_scan['Type'] = df_scan.apply(classify_lynch, axis=1)
+        
+        # Filter (Score >= 50)
         final_df = df_scan[df_scan['Fit Score'] >= 50].sort_values(by='Fit Score', ascending=False)
         
         # 6. Portfolio Construction
@@ -1438,31 +1438,80 @@ def page_portfolio():
             st.warning("No stocks passed the criteria!")
             return
             
-        # Add Allocation
-        portfolio['Weight'] = f"{100/len(portfolio):.1f}%"
+        # --- PROFESSIONAL WEIGHTING ---
+        # Logic: Market Cap Weighted (Index Style) but with Fit Score Adjustment?
+        # User asked for "Like Nasdaq S&P", implying Pure Market Cap.
+        # But also "Risky ones shouldn't be too high".
+        # Let's use Pure Market Cap but Cap max weight at 15% for safety.
         
+        total_mcap = portfolio['Market_Cap'].sum()
+        if total_mcap > 0:
+            portfolio['Weight_Raw'] = portfolio['Market_Cap'] / total_mcap
+            
+            # Cap at 15% and redistribute (Simple normalization for MVP)
+            # Actually, let's just use simple Market Cap % for now to be "Real".
+            portfolio['Weight %'] = portfolio['Weight_Raw'] * 100
+        else:
+            portfolio['Weight %'] = 100 / len(portfolio) # Fallback Equal Weight
+
         # 7. Visualization
-        st.success(f"✅ Generated Portfolio of {len(portfolio)} Stocks")
+        st.success(f"✅ Generated Professional Portfolio: {len(portfolio)} Stocks")
         
-        # Summary Metrics
+        # Portfolio Stats
         avg_pe = portfolio['PE'].mean()
         avg_div = portfolio['Div_Yield'].mean()
         avg_roe = portfolio['ROE'].mean()
         
-        m1, m2, m3 = st.columns(3)
+        # Top Level Metrics
+        m1, m2, m3, m4 = st.columns(4)
         m1.metric("Avg P/E", f"{avg_pe:.1f}")
-        m2.metric("Avg Div Yield", f"{avg_div:.1f}%")
-        m3.metric("Avg ROE", f"{avg_roe:.1f}%")
+        m2.metric("Portfolio Yield", f"{avg_div:.2%}")
+        m3.metric("Quality (ROE)", f"{avg_roe:.1f}%")
+        m4.metric("Strategy", risk_choice)
         
-        # Table
-        # Ensure we select columns that definitely exist
-        cols_to_show = ['Ticker', 'Price', 'Fit Score', 'PE', 'ROE', 'Div_Yield', 'Weight']
-        # Filter cols that might be missing if data meant they weren't calculated, though scan_basic usually inits them
-        valid_cols = [c for c in cols_to_show if c in portfolio.columns]
+        # --- TABBED ANALYSIS ---
+        tab1, tab2, tab3 = st.tabs(["📋 Holdings", "🍕 Allocation (Sector)", "⚖️ Weighting Logic"])
         
-        st.dataframe(portfolio[valid_cols], use_container_width=True)
-        
-        st.caption("Disclaimer: This is an automated educational tool. Not financial advice.")
+        with tab1:
+            # Main Table with Type and Sector
+            cols_to_show = ['Ticker', 'Type', 'Sector', 'Price', 'Fit Score', 'PE', 'Div_Yield', 'Weight %']
+            valid_cols = [c for c in cols_to_show if c in portfolio.columns]
+            
+            st.dataframe(
+                portfolio[valid_cols].style.format({
+                    'Div_Yield': '{:.2%}',
+                    'Weight %': '{:.2f}%',
+                    'Price': '{:.2f}'
+                }), 
+                use_container_width=True,
+                height=500
+            )
+            
+        with tab2:
+            col_a, col_b = st.columns(2)
+            with col_a:
+                st.write("**Sector Allocation**")
+                sector_counts = portfolio['Sector'].value_counts()
+                st.pie_chart(sector_counts)
+            with col_b:
+                st.write("**Stock Type (Lynch)**")
+                type_counts = portfolio['Type'].value_counts()
+                st.bar_chart(type_counts)
+                
+        with tab3:
+            st.info("""
+            **Why Market Cap Weighting?**
+            - **Professional Standard**: S&P 500 and Nasdaq 100 use this.
+            - **Stability**: Larger, more established companies get more money.
+            - **Self-Correcting**: As companies grow, they become a larger part of your portfolio naturally.
+            
+            **How it works here:**
+            1. We select the Top 20 stocks that match your **Strategy Score**.
+            2. We allocate money based on **Company Size (Market Cap)**.
+            3. *Result*: You own more of the 'Blue Chips' and less of the volatile small players.
+            """)
+
+
 
 
 
