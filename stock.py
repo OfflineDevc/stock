@@ -1521,7 +1521,8 @@ def page_portfolio():
         df_scan['Type'] = df_scan.apply(classify_lynch, axis=1)
         
         # Filter (Score >= 50)
-        final_df = df_scan[df_scan['Fit Score'] >= 50].sort_values(by='Fit Score', ascending=False)
+        # Sort by Score (Primary) and Market Cap (Secondary - for Tie Breaking)
+        final_df = df_scan[df_scan['Fit Score'] >= 50].sort_values(by=['Fit Score', 'Market_Cap'], ascending=[False, False])
         
         # 6. Portfolio Construction
         portfolio = final_df.head(n_stocks).copy()
