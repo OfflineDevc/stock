@@ -942,48 +942,147 @@ def page_single_stock():
 
 def page_glossary():
     st.title(get_text('glossary_title'))
+    lang = st.session_state.get('lang', 'EN')
     
+    # ---------------------------------------------------------
+    # GLOSSARY CONTENT DATABASE
+    # ---------------------------------------------------------
+    GLOSSARY_DATA = {
+        'PE': {
+            'EN': {
+                'title': "P/E Ratio (Price-to-Earnings)",
+                'concept': "The Price Tag of a Money Printer",
+                'desc': "Imagine a machine that prints $1 every year. How much would you pay for it? The P/E ratio is that price.",
+                'formula': "$$ P/E = \\frac{\\text{Share Price}}{\\text{Earnings Per Share (EPS)}} $$",
+                'details': [
+                    "**P/E = 10**: You pay $10 to get $1/year (10% return). Cheap!",
+                    "**P/E = 50**: You pay $50 to get $1/year (2% return). Expensive, unless it grows fast.",
+                ],
+                'rule': "General Rule: < 15 is Value, > 30 is Growth/Expensive."
+            },
+            'TH': {
+                'title': "P/E Ratio (ราคาต่อกำไรสุทธิ)",
+                'concept': "ป้ายบอกราคาของ 'เครื่องผลิตเงิน'",
+                'desc': "สมมุติมีเครื่องจักรผลิตเงินได้ปีละ 1 บาท คุณจะยอมจ่ายซื้อเครื่องนี้ราคากี่บาท? P/E คือราคานั้น",
+                'formula': "$$ P/E = \\frac{\\text{ราคาหุ้น}}{\\text{กำไรต่อหุ้น (EPS)}} $$",
+                'details': [
+                    "**P/E = 10**: จ่าย 10 บาท ได้คืนปีละ 1 บาท (ผลตอบแทน 10%) = **ถูก**",
+                    "**P/E = 50**: จ่าย 50 บาท ได้คืนปีละ 1 บาท (ผลตอบแทน 2%) = **แพง** (นอกจากว่าจะโตเร็วมาก)",
+                ],
+                'rule': "หลักการทั่วไป: ต่ำกว่า 15 คือหุ้นถูก (Value), สูงกว่า 30 คือหุ้นเติบโตหรือแพง"
+            }
+        },
+        'PEG': {
+            'EN': {
+                'title': "PEG Ratio",
+                'concept': "The 'Fairness' of the Price Tag",
+                'desc': "It fixes the flaw of P/E. A high P/E is okay if the company is growing super fast. PEG tells you if you are overpaying for that growth.",
+                'formula': "$$ PEG = \\frac{\\text{P/E Ratio}}{\\text{Growth Rate (\\%)}} $$",
+                'details': [
+                    "**PEG = 1.0**: Fair Price. You pay 20 P/E for 20% growth.",
+                    "**PEG < 1.0**: **Super Cheap**. You find a fast Ferrari for the price of a Toyota.",
+                    "**PEG > 1.5**: **Overpriced**. You are paying too much for the hype."
+                ],
+                'rule': "Peter Lynch's Favorite: < 1.0 is a Buy."
+            },
+            'TH': {
+                'title': "PEG Ratio (ความคุ้มค่าเทียบการเติบโต)",
+                'concept': "ความแฟร์ของราคา",
+                'desc': "ค่า P/E ดูอย่างเดียวไม่ได้ เพราะของดีมักแพง (P/E สูง) PEG ช่วยบอกว่าที่แพงน่ะ แพงสมเหตุสมผลไหมโดยเทียบกับการเติบโต",
+                'formula': "$$ PEG = \\frac{\\text{P/E Ratio}}{\\text{อัตราการเติบโต (\\%)}} $$",
+                'details': [
+                    "**PEG = 1.0**: **ราคายุติธรรม** (เช่น P/E 20 และโต 20% ต่อปี)",
+                    "**PEG < 1.0**: **ถูกมาก** (เหมือนเจอรถเฟอร์รารี่ ในราคาโตโยต้า)",
+                    "**PEG > 1.5**: **เริ่มแพง** (จ่ายแพงเกินความจริง)"
+                ],
+                'rule': "กฎเหล็ก Peter Lynch: ต่ำกว่า 1.0 คือน่าซื้อมาก"
+            }
+        },
+        'ROE': {
+            'EN': {
+                'title': "ROE (Return on Equity)",
+                'concept': "The CEO's Scorecard",
+                'desc': "If you give the CEO $100 of shareholder money, how much profit do they generate in a year?",
+                'formula': "$$ ROE = \\frac{\\text{Net Income}}{\\text{Shareholder's Equity}} $$",
+                'details': [
+                    "**ROE = 20%**: The CEO turns $100 into $20 profit. **Excellent**.",
+                    "**ROE = 5%**: The CEO turns $100 into $5 profit. **Bad** (Savings account is safer).",
+                ],
+                'rule': "Warren Buffett loves companies with consistently high ROE (>15%)."
+            },
+            'TH': {
+                'title': "ROE (ผลตอบแทนส่วนผู้ถือหุ้น)",
+                'concept': "เกรดเฉลี่ยของ CEO",
+                'desc': "ถ้าเราให้เงินลงทุนไป 100 บาท ผู้บริหารสามารถเอาไปทำกำไรกลับมาได้กี่บาท?",
+                'formula': "$$ ROE = \\frac{\\text{กำไรสุทธิ}}{\\text{ส่วนของผู้ถือหุ้น}} $$",
+                'details': [
+                    "**ROE = 20%**: ให้เงิน 100 ทำกำไรได้ 20 บาท **เยี่ยมมาก**",
+                    "**ROE = 5%**: ให้เงิน 100 ทำกำไรได้ 5 บาท **แย่** (ฝากแบงค์ดีกว่า)",
+                ],
+                'rule': "Warren Buffett ชอบบริษัทที่ ROE สูงสม่ำเสมอ (>15%) เพราะเหมือนเครื่องปั๊มเงิน"
+            }
+        },
+        'Div': {
+            'EN': {
+                'title': "Dividend Yield",
+                'concept': "The 'Rent' form owning Assets",
+                'desc': "The cash the company pays you just for holding the stock. Like rent from a condo.",
+                'formula': "$$ Yield = \\frac{\\text{Annual Dividend per Share}}{\\text{Share Price}} \\times 100 $$",
+                'details': [
+                    "**3% - 5%**: Healthy income (Defensive stocks).",
+                    "**> 8%**: **WARNING**. Often a 'Dividend Trap'. The price might have crashed.",
+                ],
+                'rule': "Look for Consistency (years paid) over just high %."
+            },
+            'TH': {
+                'title': "Dividend Yield (อัตราปันผล)",
+                'concept': "ค่าเช่าจากการเป็นเจ้าของ",
+                'desc': "เงินสดที่บริษัทโอนเข้าบัญชีเราทุกปี เพียงแค่เราถือหุ้นไว้ เหมือนค่าเช่าคอนโด",
+                'formula': "$$ Yield = \\frac{\\text{เงินปันผลต่อปี}}{\\text{ราคาหุ้น}} \\times 100 $$",
+                'details': [
+                    "**3% - 5%**: ปันผลดี เหมาะถือยาว (หุ้นปลอดภัย)",
+                    "**> 8%**: **ต้องระวัง** อาจเป็นกับดัก (Dividend Trap) คือราคาหุ้นตกหนักจน % ดูเยอะ",
+                ],
+                'rule': "สำคัญคือความสม่ำเสมอ (จ่ายมานานแค่ไหน) มากกว่าแค่ % สูงๆ"
+            }
+        },
+        'DE': {
+            'EN': {
+                'title': "Debt/Equity (D/E)",
+                'concept': "The 'Risk Meter'",
+                'desc': "How much debt the company has compared to its own money. High debt = High chance of bankruptcy in crisis.",
+                'formula': "$$ D/E = \\frac{\\text{Total Debt}}{\\text{Shareholder's Equity}} $$",
+                'details': [
+                    "**< 0.5 (50%)**: Very Safe. Cash rich.",
+                    "**> 1.5 (150%)**: Risky. Heavy interest payments eat profits.",
+                ],
+                'rule': "Avoid high D/E unless it's a stable Utility or Bank."
+            },
+            'TH': {
+                'title': "Debt/Equity (หนี้สินต่อทุน)",
+                'concept': "มิเตอร์วัดความเสี่ยง",
+                'desc': "บริษัทกู้หนี้มาเยอะแค่ไหนเทียบกับเงินตัวเอง ยิ่งหนี้เยอะ ยิ่งเสี่ยงเจ๊งเวลาเศรษฐกิจไม่ดี",
+                'formula': "$$ D/E = \\frac{\\text{หนี้สินรวม}}{\\text{ส่วนของผู้ถือหุ้น}} $$",
+                'details': [
+                    "**< 0.5 (50%)**: ปลอดภัยมาก รวยเงินสด",
+                    "**> 1.5 (150%)**: เริ่มเสี่ยง กำไรหามาได้ต้องเอาไปจ่ายดอกเบี้ยหมด",
+                ],
+                'rule': "เลี่ยงหุ้นหนี้เยอะ นอกจากพวก โรงไฟฟ้า หรือ ธนาคาร ที่เป็นธุรกิจพิเศษ"
+            }
+        }
+    }
 
-    
-    with st.expander("P/E Ratio (Price-to-Earnings)", expanded=True):
-        st.write("""
-        **What it is:** The price you pay for $1 of earnings.
-        - **Low (< 15)**: Cheap (Value stock) or dying company.
-        - **High (> 30)**: Expensive, but market expects high growth.
-        - **Why it matters:** Tells you if a stock is 'on sale' or 'overpriced'.
-        """)
-        
-    with st.expander("PEG Ratio (Price/Earnings-to-Growth)"):
-        st.write("""
-        **What it is:** P/E Ratio divided by Growth Rate.
-        - **< 1.0**: Undervalued (Growth is cheap).
-        - **> 1.5**: Expensive relative to growth.
-        - **Why it matters:** Better than P/E for growth stocks. A P/E of 50 is fine if growth is 50% (PEG = 1).
-        """)
-        
-    with st.expander("ROE (Return on Equity)"):
-        st.write("""
-        **What it is:** How efficiently management uses your money.
-        - **> 15%**: Great management (Warren Buffett likes this).
-        - **< 10%**: Mediocre or capital intensive.
-        - **Why it matters:** Shows quality. High ROE companies compound wealth faster.
-        """)
-    
-    with st.expander("Dividend Yield"):
-        st.write("""
-        **What it is:** Annual cash return just for holding the stock.
-        - **4-6%**: Good income.
-        - **> 10%**: Danger zone (Yield trap?).
-        - **Why it matters:** Income generation. Important for retirees.
-        """)
-    
-    with st.expander("Debt/Equity Ratio"):
-        st.write("""
-        **What it is:** How much debt the company has vs. shareholder money.
-        - **< 50%**: Safe.
-        - **> 100%**: Risky (unless it's a bank or utility).
-        - **Why it matters:** High debt kills companies during recessions.
-        """)
+    # RENDER LOOP
+    for key, data in GLOSSARY_DATA.items():
+        content = data[lang]
+        with st.expander(f"📘 {content['title']}", expanded=(key=='PE')):
+            st.markdown(f"### 💡 {content['concept']}")
+            st.write(content['desc'])
+            st.info(content['rule'])
+            st.latex(content['formula'])
+            for line in content['details']:
+                st.markdown(f"- {line}")
+
 
 # ---------------------------------------------------------
 # MAIN ROUTER
