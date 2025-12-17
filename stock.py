@@ -337,16 +337,18 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                 if fair_value and price and fair_value != 0:
                     margin_safety = ((fair_value - price) / fair_value) * 100
 
-                # Scale Percentages (Decimal -> %)
-                # Scale Percentages (Decimal -> %)
-                roe = safe_float(info.get('returnOnEquity'))
-                if roe is not None: roe *= 100
+                # Scale Percentages (Decimal -> %) - ONLY if not already recovered
+                if roe is None:
+                    roe = safe_float(info.get('returnOnEquity'))
+                    if roe is not None: roe *= 100
                 
-                div_yield = safe_float(info.get('dividendYield'))
-                if div_yield is not None: div_yield *= 100
+                if div_yield is None:
+                    div_yield = safe_float(info.get('dividendYield'))
+                    if div_yield is not None: div_yield *= 100
                 
-                op_margin = safe_float(info.get('operatingMargins'))
-                if op_margin is not None: op_margin *= 100
+                if op_margin is None:
+                    op_margin = safe_float(info.get('operatingMargins'))
+                    if op_margin is not None: op_margin *= 100
                 
                 rev_growth = safe_float(info.get('revenueGrowth'))
                 if rev_growth is not None: rev_growth *= 100
@@ -583,6 +585,9 @@ def calculate_fit_score(row, targets):
             # Format nicely
             pct_off = (diff / target_val) * 100 if target_val != 0 else 0
             details.append(f"❌ {metric} ({pct_off:+.0f}%)")
+        else:
+             # NEW: Show passing metrics to explain Score 100
+             details.append(f"✅")
 
     # If all metrics were N/A (e.g. Cloud Block), return special status text
     if valid_targets_count == 0:
