@@ -1,16 +1,8 @@
-
-import requests
 import streamlit as st
 import yfinance as yf
 import pandas as pd
 import numpy as np
 import time
-
-# Set up a session with a browser User-Agent
-session = requests.Session()
-session.headers.update({
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
-})
 
 # --- LOCALIZATION & TEXT ASSETS ---
 TRANS = {
@@ -147,7 +139,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
         if debug_container: debug_container.write(f"Attempting download for {len(dl_tickers)} tickers...")
         
         # Download 1 day of data
-        bulk = yf.download(dl_tickers, period="1d", group_by='ticker', progress=False, session=session)
+        bulk = yf.download(dl_tickers, period="1d", group_by='ticker', progress=False)
         
         if debug_container: 
             debug_container.write(f"Bulk Shape: {bulk.shape}")
@@ -196,7 +188,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
             if ".BK" in ticker: formatted_ticker = ticker
             else: formatted_ticker = ticker.replace('.', '-')
                 
-            stock = yf.Ticker(formatted_ticker, session=session)
+            stock = yf.Ticker(formatted_ticker)
             
             # 1. Get Price from Bulk (Fast, Reliable)
             price = price_map.get(formatted_ticker)
