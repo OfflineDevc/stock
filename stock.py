@@ -236,9 +236,15 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                 if peg is None and pe is not None and growth_q is not None and growth_q > 0:
                     try: peg = pe / (growth_q * 100)
                     except: pass
+                
+                # Init variables potentially missing from empty 'info'
+                roe = None
+                op_margin = None
+                div_yield = None
+                debt_equity = None
 
                 # --- NEW: MANUAL EPS/PE RECOVERY (If Cloud Blocked Key Metrics) ---
-                if (pe is None or roe is None or op_margin is None) and price:
+                if (pe is None) and price: # Check PE primarily, others follow
                     try:
                         # Fetch Financials (Income Stmt & Balance Sheet)
                         inc = stock.quarterly_income_stmt
@@ -247,10 +253,6 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                         if i == 0 and debug_container:
                             debug_container.write(f"- Income Stmt Shape: {inc.shape}")
                             debug_container.write(f"- Balance Sheet Shape: {bal.shape}")
-                            debug_container.write(f"- Dividends Shape: {stock.dividends.shape}")
-                            # NEW: Print Indices to verify labels
-                            debug_container.write(f"- Income Index: {inc.index.tolist()[:20]}") # First 20
-                            debug_container.write(f"- Balance Index: {bal.index.tolist()[:20]}")
                         
                         eps_ttm = None
                         
@@ -268,16 +270,13 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
 
                         # INCOME STATEMENT METRICS (TTM)
                         if not inc.empty:
-                            if i == 0 and debug_container:
-                                debug_container.write(f"- Searching for 'Total Revenue' in: {[x for x in inc.index if 'Revenue' in x]}")
-
                             # EPS
                             eps_ttm = get_ttm(inc, 'Diluted EPS')
                             if eps_ttm and eps_ttm > 0:
                                 eps = eps_ttm
                                 if price: pe = price / eps_ttm if pe is None else pe
                             
-                            if i == 0 and debug_container: debug_container.write(f"- Calc EPS TTM: {eps_ttm} -> PE: {pe}")
+                            if i == 0 and debug_container and eps_ttm: debug_container.write(f"- Calc EPS TTM: {eps_ttm} -> PE: {pe}")
 
                             # Net Income (for ROE)
                             net_income_ttm = get_ttm(inc, 'Net Income')
@@ -290,11 +289,8 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                             # Revenue (for Margin)
                             revenue_ttm = get_ttm(inc, 'Total Revenue')
                             
-                            if i == 0 and debug_container: 
-                                debug_container.write(f"- Calc NetInc: {net_income_ttm}, OpInc: {op_income_ttm}, Rev: {revenue_ttm}")
-
                             # Operating Margin Calculation
-                            if op_margin is None and op_income_ttm and revenue_ttm and revenue_ttm > 0:
+                            if op_income_ttm and revenue_ttm and revenue_ttm > 0:
                                 op_margin = (op_income_ttm / revenue_ttm) * 100
 
                         # BALANCE SHEET METRICS (Latest Quarter)
