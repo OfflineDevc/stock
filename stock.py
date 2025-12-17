@@ -248,17 +248,18 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                     margin_safety = ((fair_value - price) / fair_value) * 100
 
                 # Scale Percentages (Decimal -> %)
+                # Scale Percentages (Decimal -> %)
                 roe = safe_float(info.get('returnOnEquity'))
-                if roe: roe *= 100
+                if roe is not None: roe *= 100
                 
                 div_yield = safe_float(info.get('dividendYield'))
-                # User requested raw for yield (reverted scaling)
+                if div_yield is not None: div_yield *= 100
                 
                 op_margin = safe_float(info.get('operatingMargins'))
-                if op_margin: op_margin *= 100
+                if op_margin is not None: op_margin *= 100
                 
                 rev_growth = safe_float(info.get('revenueGrowth'))
-                if rev_growth: rev_growth *= 100
+                if rev_growth is not None: rev_growth *= 100
                 
                 data_list.append({
                     'Symbol': formatted_ticker,
@@ -459,7 +460,7 @@ def classify_lynch(row):
 
 def calculate_fit_score(row, targets):
     score = 0
-    max_score = len(targets) * 10
+    valid_targets_count = 0 
     details = []
 
     for metric, target_val, operator in targets:
@@ -467,6 +468,8 @@ def calculate_fit_score(row, targets):
         if pd.isna(actual_val) or actual_val is None:
             details.append(f"⚪ N/A")
             continue
+        
+        valid_targets_count += 1
 
         hit = False
         diff = 0
@@ -490,6 +493,11 @@ def calculate_fit_score(row, targets):
             pct_off = (diff / target_val) * 100 if target_val != 0 else 0
             details.append(f"❌ {metric} ({pct_off:+.0f}%)")
 
+    # If all metrics were N/A (e.g. Cloud Block), return special status text
+    if valid_targets_count == 0:
+        return 0, "⚠️ Limited Data (Cloud)"
+
+    max_score = valid_targets_count * 10
     final_score = int((score / max_score) * 100) if max_score > 0 else 0
     analysis_str = ", ".join(details) if details else "✅ Perfect Match"
     return final_score, analysis_str
@@ -646,6 +654,10 @@ def page_scanner():
             col_config[p] = st.column_config.NumberColumn(p, format="%.1f%%")
 
         st.dataframe(final_df, column_order=final_cols, column_config=col_config, hide_index=True, use_container_width=True)
+        
+        # Cloud Warning Check: If we have results but Scores are 0 (Limited Data)
+        if 'Fit_Score' in final_df.columns and (final_df['Fit_Score'] == 0).all():
+            st.warning("⚠️ **Limited Data Detected**: Advanced metrics (P/E, PEG) appear to be blocked by the data provider on this server. Prices and Performance metrics are valid.")
         
         with st.expander("📋 View Stage 1 Data (All Scanned Stocks)"):
             st.dataframe(
