@@ -1343,6 +1343,106 @@ def page_howto():
 
 
 
+
+def page_portfolio():
+    st.title("🤖 Auto Portfolio (Jitta Style) / จัดพอร์ตอัตโนมัติ")
+    st.markdown("---")
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.subheader("1. Market / ตลาด")
+        market_choice = st.radio("Select Market", ["S&P 500", "SET 100", "NASDAQ 100"], horizontal=True)
+        
+    with col2:
+        st.subheader("2. Risk Profile / ความเสี่ยง")
+        risk_choice = st.select_slider(
+            "Select your acceptable risk", 
+            options=["Low (Defensive)", "Medium (Balanced)", "High (Aggressive)"],
+            value="Medium (Balanced)"
+        )
+        
+    n_stocks = st.slider("Number of Stocks in Portfolio / จำนวนหุ้นในพอร์ต", 5, 50, 20)
+    
+    st.info(f"**Plan**: Allocate equally to top {n_stocks} stocks in **{market_choice}** based on **{risk_choice}** strategy.")
+    
+    if st.button("🚀 Generate Portfolio / สร้างพอร์ต", type="primary"):
+        # 1. Get Tickers
+        if "S&P" in market_choice: tickers = get_sp500_tickers()
+        elif "NASDAQ" in market_choice: tickers = get_nasdaq_tickers()
+        else: tickers = get_set100_tickers()
+        
+        # Limit for speed in this demo mode (User can't customize limit here to keep it simple 'One Click')
+        # We scan first 200 to find good candidates.
+        tickers = tickers[:200] 
+        
+        # 2. UI Elements
+        st.write("Scanning Market...")
+        prog = st.progress(0)
+        status = st.empty()
+        
+        # 3. Scan
+        df = scan_market_basic(tickers, prog, status)
+        status.empty()
+        prog.empty()
+        
+        if df.empty:
+            st.error("No stocks found. Try again.")
+            return
+
+        # 4. Strategy Mapping
+        # Low -> High Yield (Safe, Cash Flow)
+        # Medium -> GARP (Growth at Reasonable Price)
+        # High -> Speculative (Growth focus)
+        
+        strat_map = {
+            "Low (Defensive)": "High Yield",
+            "Medium (Balanced)": "GARP",
+            "High (Aggressive)": "Speculative"
+        }
+        
+        selected_strat = strat_map[risk_choice]
+        st.subheader(f"🧠 AI Selecting: {selected_strat} Strategy")
+        
+        # 5. Score & Sort
+        scored_df = calculate_fit_score(df, selected_strat)
+        
+        # Filter out bad scores (e.g. Fit Score < 50)
+        final_df = scored_df[scored_df['Fit Score'] >= 50].sort_values(by='Fit Score', ascending=False)
+        
+        # 6. Portfolio Construction
+        portfolio = final_df.head(n_stocks).copy()
+        
+        if portfolio.empty:
+            st.warning("No stocks passed the criteria!")
+            return
+            
+        # Add Allocation
+        portfolio['Weight'] = f"{100/len(portfolio):.1f}%"
+        
+        # 7. Visualization
+        st.success(f"✅ Generated Portfolio of {len(portfolio)} Stocks")
+        
+        # Summary Metrics
+        avg_pe = portfolio['PE'].mean()
+        avg_div = portfolio['Div Yield'].mean()
+        avg_roe = portfolio['ROE'].mean()
+        
+        m1, m2, m3 = st.columns(3)
+        m1.metric("Avg P/E", f"{avg_pe:.1f}")
+        m2.metric("Avg Div Yield", f"{avg_div:.1f}%")
+        m3.metric("Avg ROE", f"{avg_roe:.1f}%")
+        
+        # Table
+        st.dataframe(portfolio[['Ticker', 'Price', 'Fit Score', 'PE', 'ROE', 'Div Yield', 'Weight']], use_container_width=True)
+        
+        # Simple Bar Chart of Sectors if available (Sector column might be missing in basic scan? 
+        # Scan basic doesn't fetch sector. We skipped that for speed. 
+        # So we just show Weights or Fit Scores)
+        
+        st.caption("Disclaimer: This is an automated educational tool. Not financial advice.")
+
+
+
 # MAIN ROUTER
 # ---------------------------------------------------------
 if __name__ == "__main__":
@@ -1351,10 +1451,12 @@ if __name__ == "__main__":
     st.session_state['lang'] = 'EN' if "English" in lang_choice else 'TH'
 
     st.sidebar.title("Menu")
-    page = st.sidebar.radio("Go to", ["Scanner", "Single Stock", "Glossary", "How to Use"])
+    page = st.sidebar.radio("Go to", ["Scanner", "Auto Portfolio", "Single Stock", "Glossary", "How to Use"])
     
     if page == "Scanner":
         page_scanner()
+    elif page == "Auto Portfolio":
+        page_portfolio()
     elif page == "Single Stock":
         page_single_stock()
     elif page == "Glossary":
