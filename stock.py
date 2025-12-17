@@ -943,145 +943,285 @@ def page_single_stock():
 def page_glossary():
     st.title(get_text('glossary_title'))
     lang = st.session_state.get('lang', 'EN')
-    
-    # ---------------------------------------------------------
-    # GLOSSARY CONTENT DATABASE
-    # ---------------------------------------------------------
-    GLOSSARY_DATA = {
-        'PE': {
-            'EN': {
-                'title': "P/E Ratio (Price-to-Earnings)",
-                'concept': "The Price Tag of a Money Printer",
-                'desc': "Imagine a machine that prints $1 every year. How much would you pay for it? The P/E ratio is that price.",
-                'formula': "$$ P/E = \\frac{\\text{Share Price}}{\\text{Earnings Per Share (EPS)}} $$",
-                'details': [
-                    "**P/E = 10**: You pay $10 to get $1/year (10% return). Cheap!",
-                    "**P/E = 50**: You pay $50 to get $1/year (2% return). Expensive, unless it grows fast.",
-                ],
-                'rule': "General Rule: < 15 is Value, > 30 is Growth/Expensive."
+
+    tab1, tab2, tab3 = st.tabs(["🎛️ Settings & Tools", "📊 Financial Metrics", "🧠 Peter Lynch Categories"])
+
+    # ==========================================
+    # 1. SETTINGS & TOOLS
+    # ==========================================
+    with tab1:
+        SETTINGS_DATA = {
+            'Universe': {
+                'EN': {
+                    'title': "Universe & Scale",
+                    'desc': "Where are we looking for stocks?",
+                    'details': [
+                        "**S&P 500**: 500 largest companies in the US. Stable, standard.",
+                        "**NASDAQ 100**: Top 100 non-financial US companies. Heavy on Tech.",
+                        "**SET 100**: Top 100 liquid stocks in Thailand.",
+                        "**Scan Limit**: How many stocks to fetch initially. Higher = Slower but more complete.",
+                        "**Deep Analyze (Stage 2)**: We only download full price history for the 'Winners' of Stage 1 to save time."
+                    ]
+                },
+                'TH': {
+                    'title': "ตลาดและขอบเขต (Universe)",
+                    'desc': "เรากำลังหาหุ้นจากตระกร้าไหน?",
+                    'details': [
+                        "**S&P 500**: 500 บริษัทใหญ่สุดในอเมริกา (มาตรฐานโลก)",
+                        "**NASDAQ 100**: 100 บริษัทเน้นเทคโนโลยีในอเมริกา (ซิ่งกว่า)",
+                        "**SET 100**: 100 หุ้นสภาพคล่องสูงในไทย",
+                        "**Scan Limit**: จำนวนหุ้นที่จะสแกนรอบแรก ยิ่งเยอะยิ่งเจอนาน",
+                        "**Deep Analyze**: ระบบจะดึงงบย้อนหลัง 5-10 ปี เฉพาะตัวที่ผ่านเข้ารอบสุดท้ายเท่านั้น เพื่อความรวดเร็ว"
+                    ]
+                }
             },
-            'TH': {
-                'title': "P/E Ratio (ราคาต่อกำไรสุทธิ)",
-                'concept': "ป้ายบอกราคาของ 'เครื่องผลิตเงิน'",
-                'desc': "สมมุติมีเครื่องจักรผลิตเงินได้ปีละ 1 บาท คุณจะยอมจ่ายซื้อเครื่องนี้ราคากี่บาท? P/E คือราคานั้น",
-                'formula': "$$ P/E = \\frac{\\text{ราคาหุ้น}}{\\text{กำไรต่อหุ้น (EPS)}} $$",
-                'details': [
-                    "**P/E = 10**: จ่าย 10 บาท ได้คืนปีละ 1 บาท (ผลตอบแทน 10%) = **ถูก**",
-                    "**P/E = 50**: จ่าย 50 บาท ได้คืนปีละ 1 บาท (ผลตอบแทน 2%) = **แพง** (นอกจากว่าจะโตเร็วมาก)",
-                ],
-                'rule': "หลักการทั่วไป: ต่ำกว่า 15 คือหุ้นถูก (Value), สูงกว่า 30 คือหุ้นเติบโตหรือแพง"
-            }
-        },
-        'PEG': {
-            'EN': {
-                'title': "PEG Ratio",
-                'concept': "The 'Fairness' of the Price Tag",
-                'desc': "It fixes the flaw of P/E. A high P/E is okay if the company is growing super fast. PEG tells you if you are overpaying for that growth.",
-                'formula': "$$ PEG = \\frac{\\text{P/E Ratio}}{\\text{Growth Rate (\\%)}} $$",
-                'details': [
-                    "**PEG = 1.0**: Fair Price. You pay 20 P/E for 20% growth.",
-                    "**PEG < 1.0**: **Super Cheap**. You find a fast Ferrari for the price of a Toyota.",
-                    "**PEG > 1.5**: **Overpriced**. You are paying too much for the hype."
-                ],
-                'rule': "Peter Lynch's Favorite: < 1.0 is a Buy."
+            'Strategy': {
+                'EN': {
+                    'title': "Strategy Mandate",
+                    'desc': "Preset filters for different investment styles.",
+                    'details': [
+                        "**GARP**: Growth at Reasonable Price. Good companies not too expensive.",
+                        "**Deep Value**: Ugly cheap companies. High risk, high reward if they survive.",
+                        "**High Yield**: Dividend focus. For income seekers.",
+                        "**Speculative**: Betting on future growth. Ignore current profits."
+                    ]
+                },
+                'TH': {
+                    'title': "กลยุทธ์การลงทุน (Strategy)",
+                    'desc': "สูตรสำเร็จสำหรับการคัดกรองหุ้นสไตล์ต่างๆ",
+                    'details': [
+                        "**GARP**: หุ้นเติบโตในราคาที่สมเหตุสมผล (สายกลาง)",
+                        "**Deep Value**: หุ้นถูกจัดๆ (อาจจะมีปัญหาชั่วคราว) กำไรเยอะถ้าฟื้นตัว",
+                        "**High Yield**: เน้นปันผลสูง กินดอกเบี้ย",
+                        "**Speculative**: เก็งกำไรอนาคต ไม่สน P/E สนแค่ยอดขายโตไหม"
+                    ]
+                }
             },
-            'TH': {
-                'title': "PEG Ratio (ความคุ้มค่าเทียบการเติบโต)",
-                'concept': "ความแฟร์ของราคา",
-                'desc': "ค่า P/E ดูอย่างเดียวไม่ได้ เพราะของดีมักแพง (P/E สูง) PEG ช่วยบอกว่าที่แพงน่ะ แพงสมเหตุสมผลไหมโดยเทียบกับการเติบโต",
-                'formula': "$$ PEG = \\frac{\\text{P/E Ratio}}{\\text{อัตราการเติบโต (\\%)}} $$",
-                'details': [
-                    "**PEG = 1.0**: **ราคายุติธรรม** (เช่น P/E 20 และโต 20% ต่อปี)",
-                    "**PEG < 1.0**: **ถูกมาก** (เหมือนเจอรถเฟอร์รารี่ ในราคาโตโยต้า)",
-                    "**PEG > 1.5**: **เริ่มแพง** (จ่ายแพงเกินความจริง)"
-                ],
-                'rule': "กฎเหล็ก Peter Lynch: ต่ำกว่า 1.0 คือน่าซื้อมาก"
-            }
-        },
-        'ROE': {
-            'EN': {
-                'title': "ROE (Return on Equity)",
-                'concept': "The CEO's Scorecard",
-                'desc': "If you give the CEO $100 of shareholder money, how much profit do they generate in a year?",
-                'formula': "$$ ROE = \\frac{\\text{Net Income}}{\\text{Shareholder's Equity}} $$",
-                'details': [
-                    "**ROE = 20%**: The CEO turns $100 into $20 profit. **Excellent**.",
-                    "**ROE = 5%**: The CEO turns $100 into $5 profit. **Bad** (Savings account is safer).",
-                ],
-                'rule': "Warren Buffett loves companies with consistently high ROE (>15%)."
-            },
-            'TH': {
-                'title': "ROE (ผลตอบแทนส่วนผู้ถือหุ้น)",
-                'concept': "เกรดเฉลี่ยของ CEO",
-                'desc': "ถ้าเราให้เงินลงทุนไป 100 บาท ผู้บริหารสามารถเอาไปทำกำไรกลับมาได้กี่บาท?",
-                'formula': "$$ ROE = \\frac{\\text{กำไรสุทธิ}}{\\text{ส่วนของผู้ถือหุ้น}} $$",
-                'details': [
-                    "**ROE = 20%**: ให้เงิน 100 ทำกำไรได้ 20 บาท **เยี่ยมมาก**",
-                    "**ROE = 5%**: ให้เงิน 100 ทำกำไรได้ 5 บาท **แย่** (ฝากแบงค์ดีกว่า)",
-                ],
-                'rule': "Warren Buffett ชอบบริษัทที่ ROE สูงสม่ำเสมอ (>15%) เพราะเหมือนเครื่องปั๊มเงิน"
-            }
-        },
-        'Div': {
-            'EN': {
-                'title': "Dividend Yield",
-                'concept': "The 'Rent' form owning Assets",
-                'desc': "The cash the company pays you just for holding the stock. Like rent from a condo.",
-                'formula': "$$ Yield = \\frac{\\text{Annual Dividend per Share}}{\\text{Share Price}} \\times 100 $$",
-                'details': [
-                    "**3% - 5%**: Healthy income (Defensive stocks).",
-                    "**> 8%**: **WARNING**. Often a 'Dividend Trap'. The price might have crashed.",
-                ],
-                'rule': "Look for Consistency (years paid) over just high %."
-            },
-            'TH': {
-                'title': "Dividend Yield (อัตราปันผล)",
-                'concept': "ค่าเช่าจากการเป็นเจ้าของ",
-                'desc': "เงินสดที่บริษัทโอนเข้าบัญชีเราทุกปี เพียงแค่เราถือหุ้นไว้ เหมือนค่าเช่าคอนโด",
-                'formula': "$$ Yield = \\frac{\\text{เงินปันผลต่อปี}}{\\text{ราคาหุ้น}} \\times 100 $$",
-                'details': [
-                    "**3% - 5%**: ปันผลดี เหมาะถือยาว (หุ้นปลอดภัย)",
-                    "**> 8%**: **ต้องระวัง** อาจเป็นกับดัก (Dividend Trap) คือราคาหุ้นตกหนักจน % ดูเยอะ",
-                ],
-                'rule': "สำคัญคือความสม่ำเสมอ (จ่ายมานานแค่ไหน) มากกว่าแค่ % สูงๆ"
-            }
-        },
-        'DE': {
-            'EN': {
-                'title': "Debt/Equity (D/E)",
-                'concept': "The 'Risk Meter'",
-                'desc': "How much debt the company has compared to its own money. High debt = High chance of bankruptcy in crisis.",
-                'formula': "$$ D/E = \\frac{\\text{Total Debt}}{\\text{Shareholder's Equity}} $$",
-                'details': [
-                    "**< 0.5 (50%)**: Very Safe. Cash rich.",
-                    "**> 1.5 (150%)**: Risky. Heavy interest payments eat profits.",
-                ],
-                'rule': "Avoid high D/E unless it's a stable Utility or Bank."
-            },
-            'TH': {
-                'title': "Debt/Equity (หนี้สินต่อทุน)",
-                'concept': "มิเตอร์วัดความเสี่ยง",
-                'desc': "บริษัทกู้หนี้มาเยอะแค่ไหนเทียบกับเงินตัวเอง ยิ่งหนี้เยอะ ยิ่งเสี่ยงเจ๊งเวลาเศรษฐกิจไม่ดี",
-                'formula': "$$ D/E = \\frac{\\text{หนี้สินรวม}}{\\text{ส่วนของผู้ถือหุ้น}} $$",
-                'details': [
-                    "**< 0.5 (50%)**: ปลอดภัยมาก รวยเงินสด",
-                    "**> 1.5 (150%)**: เริ่มเสี่ยง กำไรหามาได้ต้องเอาไปจ่ายดอกเบี้ยหมด",
-                ],
-                'rule': "เลี่ยงหุ้นหนี้เยอะ นอกจากพวก โรงไฟฟ้า หรือ ธนาคาร ที่เป็นธุรกิจพิเศษ"
+            'Strict': {
+                'EN': {
+                    'title': "Strict Mode & Filters",
+                    'desc': "Hard pass criteria. If a stock fails these, it is deleted immediately.",
+                    'details': [
+                        "**Strict Mode**: Checked metrics must pass the threshold. PROHIBITS bad stocks.",
+                        "**Sector Filter**: Only look at specific industries.",
+                        "**Timeframes (YTD, 1Y)**: Measure price performance over these periods."
+                    ]
+                },
+                'TH': {
+                    'title': "โหมดเข้มงวด (Strict Mode)",
+                    'desc': "เกณฑ์ที่ 'ห้ามพลาด' โดยเด็ดขาด",
+                    'details': [
+                        "**Strict Mode**: ถ้าติ๊กเลือกค่าไหน หุ้นที่ไม่ผ่านเกณฑ์นั้นจะถูกลบทิ้งทันที (ไม่เอามาคิดคะแนน)",
+                        "**Sector**: เลือกเฉพาะอุตสาหกรรมที่สนใจ",
+                        "**Timeframes**: ช่วงเวลาที่จะดูผลตอบแทนราคา (YTD = ตั้งแต่ต้นปีถึงปัจจุบัน)"
+                    ]
+                }
             }
         }
-    }
+        
+        for key, data in SETTINGS_DATA.items():
+            content = data[lang]
+            with st.expander(f"⚙️ {content['title']}"):
+                st.write(content['desc'])
+                for line in content['details']:
+                    st.markdown(f"- {line}")
 
-    # RENDER LOOP
-    for key, data in GLOSSARY_DATA.items():
-        content = data[lang]
-        with st.expander(f"📘 {content['title']}", expanded=(key=='PE')):
-            st.markdown(f"### 💡 {content['concept']}")
-            st.write(content['desc'])
-            st.info(content['rule'])
-            st.markdown(content['formula'])
-            for line in content['details']:
-                st.markdown(f"- {line}")
+    # ==========================================
+    # 2. METRICS
+    # ==========================================
+    with tab2:
+        METRICS_DATA = {
+            'PE': {
+                'EN': {
+                    'title': "P/E Ratio",
+                    'concept': "Price Tag",
+                    'desc': "Price you pay for $1 of earnings.",
+                    'formula': "$$ P/E = \\frac{Price}{EPS} $$",
+                    'rule': "< 15 (Value), > 30 (Growth/Expensive)"
+                },
+                'TH': {
+                    'title': "P/E Ratio",
+                    'concept': "ป้ายราคาหุ้น",
+                    'desc': "คุณจ่ายเงินกี่บาท เพื่อซื้อกำไร 1 บาทของบริษัท",
+                    'formula': "$$ P/E = \\frac{\\text{ราคา}}{\\text{กำไรต่อหุ้น}} $$",
+                    'rule': "ต่ำกว่า 15 = ถูก, สูงกว่า 30 = แพง (หรือโตแรง)"
+                }
+            },
+            'PEG': {
+                'EN': {
+                    'title': "PEG Ratio",
+                    'concept': "Fairness of Price",
+                    'desc': "P/E adjusted for growth. Fixes the issue where high P/E looks bad but is actually okay for fast growers.",
+                    'formula': "$$ PEG = \\frac{P/E}{Growth\\%} $$",
+                    'rule': "< 1.0 (Cheap), > 1.5 (Expensive)"
+                },
+                'TH': {
+                    'title': "PEG Ratio",
+                    'concept': "ความแฟร์ของราคา",
+                    'desc': "เอาความถูกแพง (P/E) มาหารด้วยความแรง (Growth) เพื่อดูว่าที่แพงน่ะ แพงสมเหตุสมผลไหม",
+                    'formula': "$$ PEG = \\frac{P/E}{\\text{การเติบโต}} $$",
+                    'rule': "ต่ำกว่า 1.0 = น่าซื้อ, เกิน 1.5 = เริ่มไม่คุ้ม"
+                }
+            },
+            'EVEBITDA': {
+               'EN': {
+                    'title': "EV/EBITDA",
+                    'concept': "The Takeover Price",
+                    'desc': "Uses Enterprise Value (Debt included) vs Cash Flow (EBITDA). Better than P/E for debt-heavy companies.",
+                    'formula': "$$ \\frac{Market Cap + Debt - Cash}{EBITDA} $$",
+                    'rule': "< 10 is generally healthy."
+                },
+                'TH': {
+                    'title': "EV/EBITDA",
+                    'concept': "ราคาเหมาเข่ง",
+                    'desc': "มองภาพรวมทั้งหนี้สินและเงินสด เทียบกับกระแสเงินสดสดที่ทำได้ (EBITDA) ดีกว่า P/E สำหรับหุ้นที่มีหนี้เยอะหรือค่าเสื่อมเยอะ",
+                    'formula': "$$ \\frac{\\text{มูลค่าบริษัท + หนี้ - เงินสด}}{EBITDA} $$",
+                    'rule': "ต่ำกว่า 10 มักจะถือว่าถูก"
+                } 
+            },
+            'ROE': {
+                'EN': {
+                    'title': "ROE",
+                    'concept': "Management Quality",
+                    'desc': "Return on Equity. How much profit they generate from shareholder money.",
+                    'formula': "$$ ROE = \\frac{Net Income}{Equity} $$",
+                    'rule': "> 15% is Great (Buffett Style)"
+                },
+                'TH': {
+                    'title': "ROE",
+                    'concept': "ฝีมือผู้บริหาร",
+                    'desc': "เอาเงินผู้ถือหุ้นไป 100 บาท ทำกำไรกลับมาได้กี่บาท",
+                    'formula': "$$ ROE = \\frac{\\text{กำไรสุทธิ}}{\\text{ส่วนของผู้ถือหุ้น}} $$",
+                    'rule': "เกิน 15% ถือว่าเก่งมาก (Buffett ชอบ)"
+                }
+            },
+             'Margin': {
+                'EN': {
+                    'title': "Operating Margin",
+                    'concept': "Profitability Power",
+                    'desc': "Percentage of revenue left after paying for production costs (before tax/interest).",
+                    'formula': "$$ \\frac{Operating Income}{Revenue} $$",
+                    'rule': "Higher is better. > 15% indicates a 'Moat'."
+                },
+                'TH': {
+                    'title': "Operating Margin",
+                    'concept': "อำนาจในการทำกำไร",
+                    'desc': "ขายของ 100 บาท หักต้นทุนการผลิตแล้วเหลือเข้าบริษัทกี่บาท (บ่งบอกความแข็งแกร่งของแบรนด์)",
+                    'formula': "$$ \\frac{\\text{กำไรจากการดำเนินงาน}}{\\text{ยอดขาย}} $$",
+                    'rule': "ยิ่งมากยิ่งดี. เกิน 15% แปลว่าแกร่ง คู่แข่งสู้ยาก"
+                }
+            },
+            'DE': {
+                'EN': {
+                    'title': "Debt/Equity",
+                    'concept': "Bankruptcy Risk",
+                    'desc': "How much debt do they have?",
+                    'formula': "$$ D/E = \\frac{Total Debt}{Equity} $$",
+                    'rule': "< 100% (1.0) is safe."
+                },
+                'TH': {
+                    'title': "Debt/Equity",
+                    'concept': "ความเสี่ยงเจ๊ง",
+                    'desc': "มีหนี้กี่บาท เทียบกับเงินตัวเอง",
+                    'formula': "$$ D/E = \\frac{\\text{หนี้สินรวม}}{\\text{ส่วนของผู้ถือหุ้น}} $$",
+                    'rule': "ไม่ควรเกิน 100% (1.0) ยกเว้นกลุ่มการเงิน"
+                }
+            }
+        }
+
+        for key, data in METRICS_DATA.items():
+            content = data[lang]
+            with st.expander(f"📊 {content['title']} - {content['concept']}"):
+                st.write(content['desc'])
+                st.info(f"Target: {content['rule']}")
+                st.markdown(content['formula'])
+
+    # ==========================================
+    # 3. PETER LYNCH
+    # ==========================================
+    with tab3:
+        st.markdown("### 🧠 The Six Categories of Peter Lynch")
+        st.caption("From the book 'One Up on Wall Street'. Knowing what you own is key.")
+        
+        LYNCH_DATA = {
+            'FastGrower': {
+                'EN': {
+                    'title': "🚀 Fast Growers",
+                    'desc': "Aggressive growth companies (20-25% a year).",
+                    'strat': "The big winners. Land of the 10-baggers. Volatile but rewarding.",
+                    'risk': "If growth slows, price crashes hard."
+                },
+                'TH': {
+                    'title': "🚀 Fast Growers (หุ้นโตเร็ว)",
+                    'desc': "บริษัทขนาดเล็ก-กลาง ที่เติบโตปีละ 20-25%",
+                    'strat': "นี่คือกลุ่มที่จะเปลี่ยนชีวิต (10 เด้ง) ซื้อเมื่อยังโต ขายเมื่อหยุดโต",
+                    'risk': "ถ้าไตรมาสไหนโตน้อยกว่าคาด ราคาจะร่วงหนักมาก"
+                }
+            },
+            'Stalwart': {
+                'EN': {
+                    'title': "🐘 Stalwarts",
+                    'desc': "Large, old companies (Coca-Cola, PTT). Grow 10-12%.",
+                    'strat': "Buy for recession protection and steady 30-50% gains.",
+                    'risk': "Don't expect them to double quickly."
+                },
+                'TH': {
+                    'title': "🐘 Stalwarts (หุ้นแข็งแกร่ง)",
+                    'desc': "ยักษ์ใหญ่ที่โตช้าลง (10-12%) เช่น PTT, SCC, Coke",
+                    'strat': "เอาไว้หลบภัยเศรษฐกิจ กินกำไรเรื่อยๆ 30-50% พอได้ ไม่หวือหวา",
+                    'risk': "อย่าไปหวังให้มันโตเป็นเด้งในเวลาสั้นๆ"
+                }
+            },
+            'SlowGrower': {
+                'EN': {
+                    'title': "🐢 Slow Growers",
+                    'desc': "Grow slightly faster than GDP. Usually pay high dividends.",
+                    'strat': "Buy for the Dividend Yield only.",
+                    'risk': "Capital appreciation is minimal."
+                },
+                'TH': {
+                    'title': "🐢 Slow Growers (หุ้นโตช้า)",
+                    'desc': "โตเท่าๆกับ GDP ประเทศ เน้นจ่ายปันผล",
+                    'strat': "ซื้อเพื่อกินปันผลอย่างเดียว อย่าหวังส่วนต่างราคา",
+                    'risk': "ถ้าราคาไม่ขึ้น และปันผลก็งด = จบเห่"
+                }
+            },
+            'Cyclical': {
+                'EN': {
+                    'title': "🔄 Cyclicals",
+                    'desc': "Rise and fall with the economy (Cars, Steel, Airlines).",
+                    'strat': "Timing is everything. Buy when P/E is HIGH (earnings low), Sell when P/E is LOW.",
+                    'risk': "Holding them at the wrong cycle can lose 80%."
+                },
+                'TH': {
+                    'title': "🔄 Cyclicals (หุ้นวัฏจักร)",
+                    'desc': "กำไรขึ้นลงตามรอบศก. (น้ำมัน, เรือ, เหล็ก)",
+                    'strat': "จังหวะคือทุกอย่าง! ซื้อเมื่อ P/E สูง (กำไรตกต่ำสุดขีด) ขายเมื่อ P/E ต่ำ",
+                    'risk': "ถ้าถือผิดรอบ อาจขาดทุนยับและรอนานเป็นปีกว่าจะหลุดดอย"
+                }
+            },
+             'AssetPlay': {
+                'EN': {
+                    'title': "🏰 Asset Plays",
+                    'desc': "Company sitting on valuable assets (Land, Cash) worth more than stock price.",
+                    'strat': "Buy and wait for the value to be unlocked.",
+                    'risk': "The 'Value Trap'. Management might never sell the assets."
+                },
+                'TH': {
+                    'title': "🏰 Asset Plays (หุ้นทรัพย์สินมาก)",
+                    'desc': "มีที่ดิน, เงินสด หรือของมีค่า ที่มูลค่ามากกว่าราคาหุ้นทั้งบริษัท",
+                    'strat': "ซื้อแล้วรอให้ตลาดรับรู้ หรือมีการขายสินทรัพย์",
+                    'risk': "อาจจะเป็นกับดัก ถ้าผู้บริหารกอดสมบัติไว้ไม่ยอมทำอะไร"
+                }
+            }
+        }
+        
+        for key, data in LYNCH_DATA.items():
+            content = data[lang]
+            with st.expander(content['title']):
+                st.write(f"**Definition**: {content['desc']}")
+                st.write(f"**Strategy**: {content['strat']}")
+                st.error(f"**Risk**: {content['risk']}")
 
 
 # ---------------------------------------------------------
