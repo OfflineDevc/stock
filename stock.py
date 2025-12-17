@@ -1444,7 +1444,8 @@ def page_portfolio():
                     if years >= 3:
                         # Rev CAGR
                         try:
-                            s, e = fin['Total Revenue'].iloc[0], fin['Total Revenue'].iloc[-1]
+                            s = float(fin['Total Revenue'].iloc[0])
+                            e = float(fin['Total Revenue'].iloc[-1])
                             if s > 0 and e > 0:
                                 updates['Rev_CAGR_5Y'] = ((e/s)**(1/(years-1)) - 1) * 100
                             else: updates['Rev_CAGR_5Y'] = None
@@ -1452,7 +1453,8 @@ def page_portfolio():
                         
                         # NI CAGR
                         try:
-                            s, e = fin['Net Income'].iloc[0], fin['Net Income'].iloc[-1]
+                            s = float(fin['Net Income'].iloc[0])
+                            e = float(fin['Net Income'].iloc[-1])
                             if s > 0 and e > 0: # Ensure positive for power calc
                                 updates['NI_CAGR_5Y'] = ((e/s)**(1/(years-1)) - 1) * 100
                             else: updates['NI_CAGR_5Y'] = None
@@ -1570,19 +1572,26 @@ def page_portfolio():
             cols_to_show = ['Ticker', 'Type', 'Sector', 'Price', 'Fit Score', 'PE', 'PEG', 'Rev_CAGR_5Y', 'NI_CAGR_5Y', 'Div_Yield', 'Weight %']
             valid_cols = [c for c in cols_to_show if c in portfolio.columns]
             
+            # Use Column Config for Safe Formatting (Handles None/NaN automatically)
+            col_cfg = {
+                "Price": st.column_config.NumberColumn(format="%.2f"),
+                "Fit Score": st.column_config.ProgressColumn("Score", format="%d", min_value=0, max_value=100),
+                "PE": st.column_config.NumberColumn(format="%.1f"),
+                "PEG": st.column_config.NumberColumn(format="%.2f"),
+                "Rev_CAGR_5Y": st.column_config.NumberColumn("Rev CAGR", format="%.1f%%"),
+                "NI_CAGR_5Y": st.column_config.NumberColumn("NI CAGR", format="%.1f%%"),
+                "Div_Yield": st.column_config.NumberColumn("Yield", format="%.2f%%"),
+                "Weight %": st.column_config.NumberColumn("Weight", format="%.2f%%")
+            }
+            
             st.dataframe(
-                portfolio[valid_cols].style.format({
-                    'Div_Yield': '{:.2%}',
-                    'Weight %': '{:.2f}%',
-                    'Price': '{:.2f}',
-                    'PE': '{:.1f}',
-                    'PEG': '{:.2f}',
-                    'Rev_CAGR_5Y': '{:.1f}%',
-                    'NI_CAGR_5Y': '{:.1f}%'
-                }), 
+                portfolio[valid_cols],
+                column_config=col_cfg,
                 width="stretch",
-                height=500
+                height=500,
+                hide_index=True
             )
+
 
             
         with tab2:
