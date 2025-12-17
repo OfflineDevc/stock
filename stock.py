@@ -1,9 +1,16 @@
 
+import requests
 import streamlit as st
 import yfinance as yf
 import pandas as pd
 import numpy as np
 import time
+
+# Set up a session with a browser User-Agent
+session = requests.Session()
+session.headers.update({
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'
+})
 
 # --- LOCALIZATION & TEXT ASSETS ---
 TRANS = {
@@ -145,20 +152,37 @@ def scan_market_basic(tickers, progress_bar, status_text):
             if ".BK" in ticker: formatted_ticker = ticker
             else: formatted_ticker = ticker.replace('.', '-')
                 
-            stock = yf.Ticker(formatted_ticker)
-            info = stock.info 
+            stock = yf.Ticker(formatted_ticker, session=session) # Try passing session
             
-            # Debug empty info
+            # 1. Try Fetching Full Info
+            try:
+                info = stock.info
+            except: 
+                info = {}
+            
+            # 2. Fallback to Fast Info if Info is empty
+            fast_info = {}
             if not info or 'currentPrice' not in info:
-                # console log for cloud logs
-                print(f"FAILED {ticker}: Info empty or Price missing") 
+                try: 
+                    # fast_info is a property, returns an object, let's dict-ify it manually or access attrs
+                    fi = stock.fast_info
+                    if fi.last_price:
+                        fast_info['currentPrice'] = fi.last_price
+                        fast_info['previousClose'] = fi.previous_close
+                        info['currentPrice'] = fi.last_price # Backfill
+                        # fast_info doesn't have PE/PEG/etc.
+                except: pass
+
+            # Debug check
+            if 'currentPrice' not in info:
+                print(f"FAILED {ticker}: No Price Data") 
                 continue
             
             # Found valid data
             status_text.caption(f"Stage 1: Scanning **{ticker}** ({i+1}/{total}) | ✅ Found: {len(data_list)+1}")
             
             if 'currentPrice' in info:
-                price = safe_float(info.get('currentPrice'))
+                price = safe_float(info.get('currentPrice', fast_info.get('currentPrice')))
                 eps = safe_float(info.get('trailingEps'))
                 book_val = safe_float(info.get('bookValue'))
                 pe = safe_float(info.get('trailingPE'))
