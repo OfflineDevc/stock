@@ -1445,13 +1445,17 @@ def page_portfolio():
                         # Rev CAGR
                         try:
                             s, e = fin['Total Revenue'].iloc[0], fin['Total Revenue'].iloc[-1]
-                            updates['Rev_CAGR_5Y'] = ((e/s)**(1/(years-1)) - 1) * 100
+                            if s > 0 and e > 0:
+                                updates['Rev_CAGR_5Y'] = ((e/s)**(1/(years-1)) - 1) * 100
+                            else: updates['Rev_CAGR_5Y'] = None
                         except: updates['Rev_CAGR_5Y'] = None
                         
                         # NI CAGR
                         try:
                             s, e = fin['Net Income'].iloc[0], fin['Net Income'].iloc[-1]
-                            updates['NI_CAGR_5Y'] = ((e/s)**(1/(years-1)) - 1) * 100
+                            if s > 0 and e > 0: # Ensure positive for power calc
+                                updates['NI_CAGR_5Y'] = ((e/s)**(1/(years-1)) - 1) * 100
+                            else: updates['NI_CAGR_5Y'] = None
                         except: updates['NI_CAGR_5Y'] = None
             except: pass
             
@@ -1471,9 +1475,15 @@ def page_portfolio():
             # But user wants "Auto Portfolio" to be good.
             # Let's enrich all (max 200).
             enriched = df_scan.apply(enrich_row, axis=1)
-            df_scan = pd.concat([df_scan, enriched], axis=1)
+            
+            # Fix: avoid Duplicate PEG columns manually
+            # pd.concat creates duplicates if columns exist in both
+            for col in enriched.columns:
+                df_scan[col] = enriched[col]
+            
             enrich_prog.progress(1.0)
             enrich_prog.empty()
+
 
         # 4. Strategy Mapping
         targets_map = {
