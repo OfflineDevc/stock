@@ -16,6 +16,8 @@ TRANS = {
         'val_header': "📊 Valuation Metrics",
         'prof_header': "📈 Profitability & Growth",
         'risk_header': "🛡️ Risk",
+        'sector_label': "Select Sectors (Optional)",
+        'lynch_label': "Select Lynch Categories (Optional)",
         'execute_btn': "🚀 Execute 2-Stage Screen",
         'main_title': "📈 Stock Scanner by kun p. & yahoo finance",
         'scan_limit': "Scan Limit",
@@ -40,6 +42,8 @@ TRANS = {
         'val_header': "📊 ค่าความถูกแพง (Valuation)",
         'prof_header': "📈 การทำกำไรและการเติบโต",
         'risk_header': "🛡️ ความเสี่ยง (หนี้สิน)",
+        'sector_label': "เลือกกลุ่มอุตสาหกรรม (Optional)",
+        'lynch_label': "เลือกประเภทหุ้นตาม Lynch (Optional)",
         'execute_btn': "🚀 เริ่มสแกนหุ้น (2 ขั้นตอน)",
         'main_title': "📈 โปรแกรมสแกนหุ้น โดย kun p. & yahoo finance",
         'scan_limit': "จำกัดจำนวนสแกน", 
@@ -648,6 +652,26 @@ def page_scanner():
     with st.sidebar.expander(get_text('risk_header'), expanded=False):
         risk_de = st.slider("Max Debt/Equity %", 0, 500, int(t_de), step=10)
 
+    # --- 4. Filters (Optional) ---
+    st.sidebar.markdown("---") 
+    st.sidebar.subheader("4. Additional Filters")
+    
+    # Sector Filter
+    SECTORS = [
+        "Technology", "Healthcare", "Financial Services", "Consumer Cyclical", 
+        "Industrials", "Consumer Defensive", "Energy", "Utilities", 
+        "Basic Materials", "Real Estate", "Communication Services"
+    ]
+    selected_sectors = st.sidebar.multiselect(get_text('sector_label'), SECTORS, default=[])
+
+    # Lynch Category Filter
+    LYNCH_TYPES = [
+        "🚀 Fast Grower", "🏰 Asset Play", "🐢 Slow Grower", 
+        "🐘 Stalwart", "🔄 Cyclical", "😐 Average", "⚪ Unknown"
+    ]
+    selected_lynch = st.sidebar.multiselect(get_text('lynch_label'), LYNCH_TYPES, default=[])
+
+
     # Main Dashboard
     st.title(get_text('main_title'))
     st.info(get_text('about_desc'))
@@ -682,7 +706,12 @@ def page_scanner():
                 if "Op_Margin" in strict_criteria: df = df[df['Op_Margin'].fillna(0) >= prof_margin]
                 if "Div_Yield" in strict_criteria: df = df[df['Div_Yield'].fillna(0) >= prof_div]
                 if "Debt_Equity" in strict_criteria: df = df[df['Debt_Equity'].fillna(999) <= risk_de]
-                st.warning(f"Strict Mode: {original_len} -> {len(df)} remaining")
+                
+            # Sector Filtering (Pre-Result)
+            if selected_sectors:
+                df = df[df['Sector'].isin(selected_sectors)]
+                
+            st.warning(f"Strict/Filter Mode: {original_len} -> {len(df)} remaining")
 
             # Scoring Targets
             if strategy == "Speculative Growth":
@@ -697,6 +726,10 @@ def page_scanner():
                 df['Fit_Score'] = results[0]
                 df['Analysis'] = results[1]
                 df['Lynch_Category'] = df.apply(classify_lynch, axis=1)
+                
+                # Lynch Filtering (Post-Calc)
+                if selected_lynch:
+                    df = df[df['Lynch_Category'].isin(selected_lynch)]
                 
                 # Sort and Cut
                 df = df.sort_values(by='Fit_Score', ascending=False)
