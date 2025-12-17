@@ -133,23 +133,27 @@ def scan_market_basic(tickers, progress_bar, status_text):
     
     for i, ticker in enumerate(tickers):
         # Update UI every 5 items to reduce lag overhead
-        if i % 3 == 0: # Faster update for smaller list
+        # Update UI every 5 items to reduce lag overhead
+        if i % 3 == 0: 
             progress = (i + 1) / total
             progress_bar.progress(progress)
             status_text.caption(f"Stage 1: Scanning **{ticker}** ({i+1}/{total})")
         
+        # Rate Limiting Prevention
+        time.sleep(0.1)
+
         try:
-            # Fix: Only replace dot with dash for US tickers (e.g. BRK.B -> BRK-B)
-            # International tickers use dot suffixes (e.g. PTT.BK), so we shouldn't touch them.
-            if ".BK" in ticker:
-                formatted_ticker = ticker
-            else:
-                formatted_ticker = ticker.replace('.', '-')
+            # Fix: Only replace dot with dash for US tickers
+            if ".BK" in ticker: formatted_ticker = ticker
+            else: formatted_ticker = ticker.replace('.', '-')
                 
             stock = yf.Ticker(formatted_ticker)
-            # yfinance 'info' is costly, but needed for PE, PEG, etc.
-            # We accept the cost for Stage 1.
             info = stock.info 
+            
+            # Debug empty info
+            if not info or 'currentPrice' not in info:
+                # print(f"Skipped {ticker}: No Data") # Console log
+                continue
             
             if 'currentPrice' in info:
                 price = safe_float(info.get('currentPrice'))
