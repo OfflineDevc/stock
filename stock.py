@@ -582,7 +582,7 @@ def calculate_fit_score(row, targets):
             details.append(f"❌ {metric} ({pct_off:+.0f}%)")
         else:
              # NEW: Show passing metrics to explain Score 100
-             details.append(f"✅")
+             details.append(f"✅ {metric}")
 
     # If all metrics were N/A (e.g. Cloud Block), return special status text
     if valid_targets_count == 0:
