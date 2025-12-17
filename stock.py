@@ -199,10 +199,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
             
             # DEBUG: Log first item to see what's happening on Cloud
             if i == 0 and debug_container:
-                debug_container.write(f"🔍 **DEBUG: Analyzing {formatted_ticker}**")
-                debug_container.write(f"- Price from Bulk: {price}")
-                debug_container.write(f"- Info Keys (Count {len(info)}): {list(info.keys())[:10]}")
-                debug_container.write(f"- PE: {info.get('trailingPE')}, PEG: {info.get('pegRatio')}")
+                pass # Clean logs
             
             # Fallback Price if not in Bulk
             if not price and 'currentPrice' in info:
@@ -251,8 +248,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                         bal = stock.quarterly_balance_sheet
                         
                         if i == 0 and debug_container:
-                            debug_container.write(f"- Income Stmt Shape: {inc.shape}")
-                            debug_container.write(f"- Balance Sheet Shape: {bal.shape}")
+                            debug_container.write(f"🔍 Analying {formatted_ticker} (Cloud Recovery Mode)")
                         
                         eps_ttm = None
                         
@@ -276,8 +272,6 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                                 eps = eps_ttm
                                 if price: pe = price / eps_ttm if pe is None else pe
                             
-                            if i == 0 and debug_container and eps_ttm: debug_container.write(f"- Calc EPS TTM: {eps_ttm} -> PE: {pe}")
-
                             # Net Income (for ROE)
                             net_income_ttm = get_ttm(inc, 'Net Income')
                             if net_income_ttm is None: net_income_ttm = get_ttm(inc, 'Net Income Common Stockholders')
@@ -302,8 +296,6 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                             elif 'Total Equity Gross Minority Interest' in bal.index: 
                                 equity = pd.to_numeric(bal.loc['Total Equity Gross Minority Interest'], errors='coerce').iloc[0]
                             
-                            if i == 0 and debug_container: debug_container.write(f"- Calc Equity: {equity}")
-
                             # ROE Calculation
                             if roe is None and net_income_ttm and equity and equity > 0:
                                 roe = (net_income_ttm / equity) * 100
@@ -369,7 +361,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                     'PB': safe_float(info.get('priceToBook')),
                     'ROE': roe,
                     'Div_Yield': div_yield,
-                    'Debt_Equity': safe_float(info.get('debtToEquity')), 
+                    'Debt_Equity': debt_equity if debt_equity is not None else safe_float(info.get('debtToEquity')), 
                     'EPS_Growth': growth_q,
                     'Rev_Growth': rev_growth, # Added for Speculative Strategy
                     'Op_Margin': op_margin,
@@ -761,7 +753,12 @@ def page_scanner():
         
         # Cloud Warning Check: If we have results but Scores are 0 (Limited Data)
         if 'Fit_Score' in final_df.columns and (final_df['Fit_Score'] == 0).all():
-            st.warning("⚠️ **Limited Data Detected**: Advanced metrics (P/E, PEG) appear to be blocked by the data provider on this server. Prices and Performance metrics are valid.")
+            st.warning("⚠️ **Data Recovery Mode Active**: Advanced metrics (P/E, ROE) were manually calculated from financial statements due to Cloud restrictions.")
+        else:
+            if final_df.shape[0] > 0 and 'YF_Obj' not in final_df.columns:
+                 # Check if we have many N/A in key columns
+                 if final_df['PE'].isna().sum() > len(final_df) * 0.5:
+                      st.warning("⚠️ **Cloud Data Limitation**: Some advanced metrics might be missing. Using manual recovery where possible.")
         
         with st.expander("📋 View Stage 1 Data (All Scanned Stocks)"):
             # FIX: Drop YF_Obj to avoid Arrow Serialization Error
