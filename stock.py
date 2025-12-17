@@ -1079,7 +1079,7 @@ def page_glossary():
             st.markdown(f"### 💡 {content['concept']}")
             st.write(content['desc'])
             st.info(content['rule'])
-            st.latex(content['formula'])
+            st.markdown(content['formula'])
             for line in content['details']:
                 st.markdown(f"- {line}")
 
