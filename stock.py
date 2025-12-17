@@ -138,7 +138,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
         if debug_container: debug_container.write(f"Attempting download for {len(dl_tickers)} tickers...")
         
         # Download 1 day of data
-        bulk = yf.download(dl_tickers, period="1d", group_by='ticker', progress=False)
+        bulk = yf.download(dl_tickers, period="1d", group_by='ticker', progress=False, auto_adjust=True)
         
         if debug_container: 
             debug_container.write(f"Bulk Shape: {bulk.shape}")
@@ -697,9 +697,10 @@ def page_scanner():
         df = scan_market_basic(tickers, st.progress(0), st.empty(), debug_container)
 
         if not df.empty:
+            original_len = len(df)
+            
             # Strict Logic
             if strict_criteria:
-                original_len = len(df)
                 if "PE" in strict_criteria: df = df[df['PE'].fillna(999) <= val_pe]
                 if "PEG" in strict_criteria: df = df[df['PEG'].fillna(999) <= val_peg]
                 if "ROE" in strict_criteria: df = df[df['ROE'].fillna(0) >= prof_roe]
@@ -711,7 +712,8 @@ def page_scanner():
             if selected_sectors:
                 df = df[df['Sector'].isin(selected_sectors)]
                 
-            st.warning(f"Strict/Filter Mode: {original_len} -> {len(df)} remaining")
+            if strict_criteria or selected_sectors:
+                st.warning(f"Strict/Filter Mode: {original_len} -> {len(df)} remaining")
 
             # Scoring Targets
             if strategy == "Speculative Growth":
