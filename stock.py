@@ -1361,7 +1361,7 @@ def page_portfolio():
             value="Medium (Balanced)"
         )
         
-    n_stocks = st.slider("Number of Stocks in Portfolio / จำนวนหุ้นในพอร์ต", 5, 50, 20)
+    n_stocks = st.slider("Number of Stocks in Portfolio", 5, 50, 20)
     
     st.info(f"**Plan**: Allocate equally to top {n_stocks} stocks in **{market_choice}** based on **{risk_choice}** strategy.")
     
@@ -1371,8 +1371,7 @@ def page_portfolio():
         elif "NASDAQ" in market_choice: tickers = get_nasdaq_tickers()
         else: tickers = get_set100_tickers()
         
-        # Limit for speed in this demo mode (User can't customize limit here to keep it simple 'One Click')
-        # We scan first 200 to find good candidates.
+        # Limit for speed (User can't customize limit here to keep it simple 'One Click')
         tickers = tickers[:200] 
         
         # 2. UI Elements
@@ -1381,33 +1380,56 @@ def page_portfolio():
         status = st.empty()
         
         # 3. Scan
-        df = scan_market_basic(tickers, prog, status)
+        # Note: scan_market_basic returns 'Symbol', 'PE', 'Div_Yield', etc.
+        df_scan = scan_market_basic(tickers, prog, status)
         status.empty()
         prog.empty()
         
-        if df.empty:
+        if df_scan.empty:
             st.error("No stocks found. Try again.")
             return
 
-        # 4. Strategy Mapping
-        # Low -> High Yield (Safe, Cash Flow)
-        # Medium -> GARP (Growth at Reasonable Price)
-        # High -> Speculative (Growth focus)
+        # 4. Strategy Mapping (Hardcoded Targets for Automation)
+        # Structure: (Column, Target, Operator)
+        # Using keys from scan_market_basic (Div_Yield, Op_Margin, etc.)
         
-        strat_map = {
-            "Low (Defensive)": "High Yield",
-            "Medium (Balanced)": "GARP",
-            "High (Aggressive)": "Speculative"
+        targets_map = {
+            "Low (Defensive)": [
+                ('Div_Yield', 3.0, '>'),
+                ('PE', 20.0, '<'),
+                ('Debt_Equity', 100.0, '<'),
+                ('ROE', 10.0, '>')
+            ],
+            "Medium (Balanced)": [ # GARP
+                ('PEG', 1.5, '<'),
+                ('PE', 30.0, '<'),
+                ('ROE', 12.0, '>'),
+                ('Op_Margin', 10.0, '>')
+            ],
+            "High (Aggressive)": [ # Speculative
+                ('Rev_Growth', 15.0, '>'), 
+                ('PEG', 2.0, '<'),
+                ('ROE', 5.0, '>')
+            ]
         }
         
-        selected_strat = strat_map[risk_choice]
-        st.subheader(f"🧠 AI Selecting: {selected_strat} Strategy")
+        targets = targets_map[risk_choice]
+        st.subheader(f"🧠 AI Selecting based on {risk_choice} Profile")
         
         # 5. Score & Sort
-        scored_df = calculate_fit_score(df, selected_strat)
+        # Ensure Ticker column exists for display (scan_market_basic uses 'Symbol')
+        if 'Ticker' not in df_scan.columns:
+            df_scan['Ticker'] = df_scan['Symbol']
+            
+        # Apply Scoring Row-wise
+        # calculate_fit_score returns (score, analysis_string)
+        results = df_scan.apply(lambda row: calculate_fit_score(row, targets), axis=1)
         
-        # Filter out bad scores (e.g. Fit Score < 50)
-        final_df = scored_df[scored_df['Fit Score'] >= 50].sort_values(by='Fit Score', ascending=False)
+        # Unpack results
+        df_scan['Fit Score'] = results.apply(lambda x: x[0])
+        
+        # Filter
+        final_df = df_scan[df_scan['Fit Score'] >= 50].sort_values(by='Fit Score', ascending=False)
         
         # 6. Portfolio Construction
         portfolio = final_df.head(n_stocks).copy()
@@ -1424,7 +1446,7 @@ def page_portfolio():
         
         # Summary Metrics
         avg_pe = portfolio['PE'].mean()
-        avg_div = portfolio['Div Yield'].mean()
+        avg_div = portfolio['Div_Yield'].mean()
         avg_roe = portfolio['ROE'].mean()
         
         m1, m2, m3 = st.columns(3)
@@ -1433,13 +1455,15 @@ def page_portfolio():
         m3.metric("Avg ROE", f"{avg_roe:.1f}%")
         
         # Table
-        st.dataframe(portfolio[['Ticker', 'Price', 'Fit Score', 'PE', 'ROE', 'Div Yield', 'Weight']], use_container_width=True)
+        # Ensure we select columns that definitely exist
+        cols_to_show = ['Ticker', 'Price', 'Fit Score', 'PE', 'ROE', 'Div_Yield', 'Weight']
+        # Filter cols that might be missing if data meant they weren't calculated, though scan_basic usually inits them
+        valid_cols = [c for c in cols_to_show if c in portfolio.columns]
         
-        # Simple Bar Chart of Sectors if available (Sector column might be missing in basic scan? 
-        # Scan basic doesn't fetch sector. We skipped that for speed. 
-        # So we just show Weights or Fit Scores)
+        st.dataframe(portfolio[valid_cols], use_container_width=True)
         
         st.caption("Disclaimer: This is an automated educational tool. Not financial advice.")
+
 
 
 
