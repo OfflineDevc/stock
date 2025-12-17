@@ -340,13 +340,13 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                 if roe is None:
                     roe = safe_float(info.get('returnOnEquity'))
                     if roe is not None: roe *= 100
-                
                 if div_yield is None:
                     div_yield = safe_float(info.get('dividendYield'))
-                    # Keep as decimal (0.05 instead of 5.0) to match other tools/standards
-                    # if div_yield is not None: div_yield *= 100 
+                    # Auto-Fix: If Yahoo returns 3.0 for 3%, normalize to 0.03
+                    if div_yield is not None and div_yield > 2.0: 
+                        # Assuming no stock yields > 200% naturally without being an error or edge case
+                        div_yield /= 100.0
 
-                
                 if op_margin is None:
                     op_margin = safe_float(info.get('operatingMargins'))
                     if op_margin is not None: op_margin *= 100
@@ -1492,11 +1492,15 @@ def page_portfolio():
             with col_a:
                 st.write("**Sector Allocation**")
                 sector_counts = portfolio['Sector'].value_counts()
-                st.pie_chart(sector_counts)
+                # Fix AttributeError: convert Series to DataFrame with clear columns
+                if not sector_counts.empty:
+                    df_sector = pd.DataFrame({'Sector': sector_counts.index, 'Count': sector_counts.values})
+                    st.bar_chart(df_sector.set_index('Sector')) # bar_chart is safer/cleaner than pie in Streamlit basic
             with col_b:
                 st.write("**Stock Type (Lynch)**")
                 type_counts = portfolio['Type'].value_counts()
                 st.bar_chart(type_counts)
+
                 
         with tab3:
             st.info("""
