@@ -231,21 +231,78 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                     except: pass
 
                 # --- NEW: MANUAL EPS/PE RECOVERY (If Cloud Blocked Key Metrics) ---
-                if pe is None or eps is None:
+                if (pe is None or roe is None or op_margin is None) and price:
                     try:
-                        # Attempt to fetch specific financial statement (different endpoint)
-                        # We only do this if PE is missing to save time/requests
+                        # Fetch Financials (Income Stmt & Balance Sheet)
                         inc = stock.quarterly_income_stmt
-                        if not inc.empty and 'Diluted EPS' in inc.index:
-                            # Sum last 4 quarters for TTM
-                            eps_ttm = inc.loc['Diluted EPS'].iloc[:4].sum()
-                            if eps_ttm and eps_ttm > 0:
-                                eps = eps_ttm
-                                if price: pe = price / eps_ttm
+                        bal = stock.quarterly_balance_sheet
+                        
+                        eps_ttm = None
+                        net_income_ttm = None
+                        op_income_ttm = None
+                        revenue_ttm = None
+                        
+                        # INCOME STATEMENT METRICS (TTM)
+                        if not inc.empty:
+                            # EPS
+                            if 'Diluted EPS' in inc.index:
+                                eps_ttm = inc.loc['Diluted EPS'].iloc[:4].sum()
+                                if eps_ttm and eps_ttm > 0:
+                                    eps = eps_ttm
+                                    pe = price / eps_ttm if pe is None else pe
+                            
+                            # Net Income (for ROE)
+                            if 'Net Income' in inc.index:
+                                net_income_ttm = inc.loc['Net Income'].iloc[:4].sum()
                                 
-                                # Try Growth (compare TTM to Prev TTM?)
-                                # Too complex for fast scan, stick to PE recovery
-                    except: pass
+                            # Op Income (for Margin)
+                            if 'Operating Income' in inc.index:
+                                op_income_ttm = inc.loc['Operating Income'].iloc[:4].sum()
+                                
+                            # Revenue (for Margin)
+                            if 'Total Revenue' in inc.index:
+                                revenue_ttm = inc.loc['Total Revenue'].iloc[:4].sum()
+                                
+                            # Operating Margin Calculation
+                            if op_margin is None and op_income_ttm and revenue_ttm and revenue_ttm > 0:
+                                op_margin = (op_income_ttm / revenue_ttm) * 100
+
+                        # BALANCE SHEET METRICS (Latest Quarter)
+                        if not bal.empty:
+                            # Stockholders Equity (for ROE, Debt/Eq)
+                            equity = None
+                            if 'Stockholders Equity' in bal.index:
+                                equity = bal.loc['Stockholders Equity'].iloc[0]
+                            elif 'Total Equity Gross Minority Interest' in bal.index: # Fallback
+                                equity = bal.loc['Total Equity Gross Minority Interest'].iloc[0]
+                                
+                            # ROE Calculation
+                            if roe is None and net_income_ttm and equity and equity > 0:
+                                roe = (net_income_ttm / equity) * 100
+                                
+                            # Debt/Equity Calculation
+                            if debt_equity is None and equity and equity > 0:
+                                total_debt = 0
+                                if 'Total Debt' in bal.index:
+                                    total_debt = bal.loc['Total Debt'].iloc[0]
+                                debt_equity = (total_debt / equity) * 100
+
+                        # DIVIDEND YIELD RECOVERY
+                        if div_yield is None:
+                            try:
+                                divs = stock.dividends
+                                if not divs.empty:
+                                    # Sum last 1 year (approx)
+                                    # Assuming data is sorted by date ascending usually, but series is time series.
+                                    # Let's just take last 4 payments if they are within 1 year logic? 
+                                    # Simple proxy: sum last 4
+                                    yield_val = divs.iloc[-4:].sum()
+                                    if yield_val > 0: div_yield = (yield_val / price) * 100
+                            except: pass
+
+                    except Exception as e:
+                        # if debug_container: debug_container.write(f"Recovery Failed {ticker}: {e}")
+                        pass
                 
                 # --- NEW: REALISTIC FAIR VALUE ---
                 # Primary: Analyst Consensus Target (Expert Opinion)
