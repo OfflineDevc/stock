@@ -92,11 +92,34 @@ st.markdown("""
 # ---------------------------------------------------------
 # 2. Data Caching & Fetching
 # ---------------------------------------------------------
+
+def filter_dual_class(tickers):
+    """
+    Removes duplicate dual-class shares. 
+    Preferences: GOOGL > GOOG, FOXA > FOX, NWSA > NWS, BRK.B > BRK.A
+    """
+    # Key = Keep, Value = Drop
+    duals = {
+        'GOOGL': 'GOOG',
+        'FOXA': 'FOX',
+        'NWSA': 'NWS',
+        'BRK.B': 'BRK.A',
+        'BRK-B': 'BRK-A' 
+    }
+    
+    final_list = list(tickers)
+    for keep, drop in duals.items():
+        if keep in final_list and drop in final_list:
+            final_list.remove(drop)
+            
+    return final_list
+
 @st.cache_data(ttl=86400)
 def get_sp500_tickers():
     url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
     tables = pd.read_html(url, storage_options={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'})
-    return tables[0]['Symbol'].tolist()
+    raw_tickers = tables[0]['Symbol'].tolist()
+    return filter_dual_class(raw_tickers)
 
 @st.cache_data(ttl=86400)
 def get_set100_tickers():
@@ -116,7 +139,9 @@ def get_set100_tickers():
 def get_nasdaq_tickers():
     url = 'https://en.wikipedia.org/wiki/Nasdaq-100'
     tables = pd.read_html(url, match='Ticker', storage_options={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'})
-    return tables[0]['Ticker'].tolist()
+    raw_tickers = tables[0]['Ticker'].tolist()
+    return filter_dual_class(raw_tickers)
+
 
 def safe_float(val):
     try:
@@ -343,9 +368,11 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                 if div_yield is None:
                     div_yield = safe_float(info.get('dividendYield'))
                     # Auto-Fix: If Yahoo returns 3.0 for 3%, normalize to 0.03
-                    if div_yield is not None and div_yield > 2.0: 
+                    if div_yield is not None and div_yield > 0.0: 
                         # Assuming no stock yields > 200% naturally without being an error or edge case
                         div_yield /= 100.0
+                    
+                    
 
                 if op_margin is None:
                     op_margin = safe_float(info.get('operatingMargins'))
