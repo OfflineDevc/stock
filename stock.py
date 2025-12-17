@@ -138,6 +138,34 @@ def scan_market_basic(tickers, progress_bar, status_text):
     data_list = []
     total = len(tickers)
     
+    # --- BULK DOWNLOAD STRATEGY (Anti-Blocking) ---
+    # Fetch prices for ALL tickers in one go. ('/charts' endpoint is robust)
+    status_text.text("Stage 1: Bulk Downloading Prices...")
+    price_map = {}
+    try:
+        dl_tickers = [t.replace('.', '-') if ".BK" not in t else t for t in tickers]
+        # Download 1 day of data
+        bulk = yf.download(dl_tickers, period="1d", group_by='ticker', progress=False, session=session)
+        
+        # Parse MultiIndex
+        if len(dl_tickers) == 1:
+            t = dl_tickers[0]
+            if not bulk.empty:
+                try: price_map[t] = bulk['Close'].iloc[-1]
+                except: pass
+        else:
+            for t in dl_tickers:
+                try:
+                    # Check if ticker in columns (Level 0)
+                    if t in bulk.columns:
+                        p = bulk[t]['Close'].iloc[-1]
+                        if not pd.isna(p): price_map[t] = p
+                except: pass
+    except Exception as e:
+        print(f"Bulk DL Failed: {e}")
+
+    total = len(tickers)
+    
     for i, ticker in enumerate(tickers):
         # Update UI every 5 items to reduce lag overhead
         # Update UI every 5 items to reduce lag overhead
@@ -152,37 +180,37 @@ def scan_market_basic(tickers, progress_bar, status_text):
             if ".BK" in ticker: formatted_ticker = ticker
             else: formatted_ticker = ticker.replace('.', '-')
                 
-            stock = yf.Ticker(formatted_ticker, session=session) # Try passing session
+            stock = yf.Ticker(formatted_ticker, session=session)
             
-            # 1. Try Fetching Full Info
-            try:
-                info = stock.info
-            except: 
-                info = {}
+            # 1. Get Price from Bulk (Fast, Reliable)
+            price = price_map.get(formatted_ticker)
             
-            # 2. Fallback to Fast Info if Info is empty
-            fast_info = {}
-            if not info or 'currentPrice' not in info:
+            # 2. Try Fetching Fundamentals (Info)
+            try: info = stock.info
+            except: info = {}
+            
+            # Fallback Price if not in Bulk
+            if not price and 'currentPrice' in info:
+                price = safe_float(info.get('currentPrice'))
+            
+            # Skip if no price at all
+            if not price:
+                 # Last ditch: fast_info
                 try: 
-                    # fast_info is a property, returns an object, let's dict-ify it manually or access attrs
                     fi = stock.fast_info
-                    if fi.last_price:
-                        fast_info['currentPrice'] = fi.last_price
-                        fast_info['previousClose'] = fi.previous_close
-                        info['currentPrice'] = fi.last_price # Backfill
-                        # fast_info doesn't have PE/PEG/etc.
+                    if fi.last_price: price = fi.last_price
                 except: pass
-
-            # Debug check
-            if 'currentPrice' not in info:
+            
+            if not price:
                 print(f"FAILED {ticker}: No Price Data") 
                 continue
             
-            # Found valid data
-            status_text.caption(f"Stage 1: Scanning **{ticker}** ({i+1}/{total}) | ✅ Found: {len(data_list)+1}")
+            # Found data (Price at least)
+            status_text.caption(f"Stage 1: Analyzing **{ticker}** | ✅ Found: {len(data_list)+1}")
             
-            if 'currentPrice' in info:
-                price = safe_float(info.get('currentPrice', fast_info.get('currentPrice')))
+            # Use found price, treat info as optional but preferred
+            if price:
+                # Extract Fundamentals (might be None if info failed)
                 eps = safe_float(info.get('trailingEps'))
                 book_val = safe_float(info.get('bookValue'))
                 pe = safe_float(info.get('trailingPE'))
