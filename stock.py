@@ -422,7 +422,8 @@ def analyze_history_deep(df_candidates, progress_bar, status_text):
             divs = stock.dividends
             if not divs.empty:
                 # Resample to yearly to count years with dividends
-                divs_yearly = divs.resample('Y').sum()
+                # FIX: 'Y' is deprecated, use 'YE'
+                divs_yearly = divs.resample('YE').sum()
                 divs_yearly = divs_yearly[divs_yearly > 0]
                 
                 if not divs_yearly.empty:
@@ -727,15 +728,24 @@ def page_scanner():
         for p in ["1M", "3M", "6M", "YTD", "1Y", "3Y", "5Y"]:
             col_config[p] = st.column_config.NumberColumn(p, format="%.1f%%")
 
-        st.dataframe(final_df, column_order=final_cols, column_config=col_config, hide_index=True, use_container_width=True)
+        if 'YF_Obj' in final_df.columns:
+            display_df = final_df.drop(columns=['YF_Obj'])
+        else:
+            display_df = final_df
+
+        st.dataframe(display_df, column_order=final_cols, column_config=col_config, hide_index=True, use_container_width=True)
         
         # Cloud Warning Check: If we have results but Scores are 0 (Limited Data)
         if 'Fit_Score' in final_df.columns and (final_df['Fit_Score'] == 0).all():
             st.warning("⚠️ **Limited Data Detected**: Advanced metrics (P/E, PEG) appear to be blocked by the data provider on this server. Prices and Performance metrics are valid.")
         
         with st.expander("📋 View Stage 1 Data (All Scanned Stocks)"):
+            # FIX: Drop YF_Obj to avoid Arrow Serialization Error
+            if 'YF_Obj' in df.columns: dump_df = df.drop(columns=['YF_Obj'])
+            else: dump_df = df
+            
             st.dataframe(
-                df.drop(columns=['YF_Obj']),
+                dump_df,
                 column_config={
                     "Price": st.column_config.NumberColumn(format=currency_fmt),
                     "PE": st.column_config.NumberColumn(format="%.1f"),
@@ -745,7 +755,8 @@ def page_scanner():
                     "Op_Margin": st.column_config.NumberColumn(format="%.1f%%"),
                     "Debt_Equity": st.column_config.NumberColumn(format="%.0f%%"),
                     "Upside": st.column_config.NumberColumn(format="%.1f%%"),
-                }
+                },
+                use_container_width=True
             ) 
 
         # --- Manual Deep Dive Section ---
