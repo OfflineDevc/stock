@@ -197,6 +197,13 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
             try: info = stock.info
             except: info = {}
             
+            # DEBUG: Log first item to see what's happening on Cloud
+            if i == 0 and debug_container:
+                debug_container.write(f"🔍 **DEBUG: Analyzing {formatted_ticker}**")
+                debug_container.write(f"- Price from Bulk: {price}")
+                debug_container.write(f"- Info Keys (Count {len(info)}): {list(info.keys())[:10]}")
+                debug_container.write(f"- PE: {info.get('trailingPE')}, PEG: {info.get('pegRatio')}")
+            
             # Fallback Price if not in Bulk
             if not price and 'currentPrice' in info:
                 price = safe_float(info.get('currentPrice'))
@@ -236,6 +243,13 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                         # Fetch Financials (Income Stmt & Balance Sheet)
                         inc = stock.quarterly_income_stmt
                         bal = stock.quarterly_balance_sheet
+                        
+                        if i == 0 and debug_container:
+                            debug_container.write(f"- Income Stmt Shape: {inc.shape}")
+                            debug_container.write(f"- Balance Sheet Shape: {bal.shape}")
+                            debug_container.write(f"- Dividends Shape: {stock.dividends.shape}")
+                        
+                        eps_ttm = None
                         
                         eps_ttm = None
                         net_income_ttm = None
