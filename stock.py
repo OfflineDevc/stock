@@ -1345,7 +1345,7 @@ def page_howto():
 
 
 def page_portfolio():
-    st.title("🤖 Auto Portfolio (Jitta Style) / จัดพอร์ตอัตโนมัติ")
+    st.title("🤖 Auto Portfolio / จัดพอร์ตอัตโนมัติ")
     st.markdown("---")
     
     col1, col2 = st.columns(2)
