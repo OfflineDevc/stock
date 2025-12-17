@@ -331,14 +331,8 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                                     total_debt = pd.to_numeric(bal.loc['Total Debt'], errors='coerce').iloc[0]
                                 debt_equity = (total_debt / equity) * 100
 
-                        # DIVIDEND YIELD RECOVERY
-                        if div_yield is None:
-                            try:
-                                divs = stock.dividends
-                                if not divs.empty:
-                                    yield_val = divs.iloc[-4:].sum()
-                                    if yield_val > 0: div_yield = (yield_val / price) * 100
-                            except: pass
+                        # DIVIDEND YIELD RECOVERY - REMOVED AS REQUESTED (User: "Don't use formula")
+                        # if div_yield is None: ... (Removed)
 
                     except Exception as e:
                         if i == 0 and debug_container: debug_container.error(f"Recovery ERROR: {e}")
@@ -366,13 +360,16 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                     roe = safe_float(info.get('returnOnEquity'))
                     if roe is not None: roe *= 100
                 if div_yield is None:
-                    div_yield = safe_float(info.get('dividendYield'))
-                    # Auto-Fix: If Yahoo returns 3.0 for 3%, normalize to 0.03
-                    if div_yield is not None and div_yield > 0.0: 
-                        # Assuming no stock yields > 200% naturally without being an error or edge case
+                    # Prefer Trailing Annual (Real paid) over Forward (Projected)
+                    div_yield = safe_float(info.get('trailingAnnualDividendYield'))
+                    if div_yield is None:
+                        div_yield = safe_float(info.get('dividendYield'))
+                    
+                    # Auto-Fix: Yahoo usually sends 0.05 for 5%. 
+                    # If we get > 1.0 (e.g. 5.0), it's likely a scaling error.
+                    if div_yield is not None and div_yield > 1.0: 
                         div_yield /= 100.0
-                    
-                    
+
 
                 if op_margin is None:
                     op_margin = safe_float(info.get('operatingMargins'))
