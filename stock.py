@@ -134,25 +134,37 @@ def safe_float(val):
         return None
 
 # --- Stage 1: Fast Scan (Basic Metrics) ---
-def scan_market_basic(tickers, progress_bar, status_text):
+def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
     data_list = []
     total = len(tickers)
     
     # --- BULK DOWNLOAD STRATEGY (Anti-Blocking) ---
-    # Fetch prices for ALL tickers in one go. ('/charts' endpoint is robust)
     status_text.text("Stage 1: Bulk Downloading Prices...")
     price_map = {}
+    
     try:
         dl_tickers = [t.replace('.', '-') if ".BK" not in t else t for t in tickers]
+        if debug_container: debug_container.write(f"Attempting download for {len(dl_tickers)} tickers...")
+        
         # Download 1 day of data
         bulk = yf.download(dl_tickers, period="1d", group_by='ticker', progress=False, session=session)
+        
+        if debug_container: 
+            debug_container.write(f"Bulk Shape: {bulk.shape}")
+            debug_container.write(f"Bulk Cols: {bulk.columns}")
+            if not bulk.empty: debug_container.write(f"Sample: {bulk.iloc[:, :2].head()}")
         
         # Parse MultiIndex
         if len(dl_tickers) == 1:
             t = dl_tickers[0]
             if not bulk.empty:
-                try: price_map[t] = bulk['Close'].iloc[-1]
-                except: pass
+                try: 
+                    # Handle different 1-ticker shapes
+                    if 'Close' in bulk.columns: p = bulk['Close'].iloc[-1]
+                    else: p = bulk.iloc[0,0] # Fallback blindly
+                    price_map[t] = p
+                except Exception as e:
+                    if debug_container: debug_container.error(f"1-Ticker Parse Error: {e}")
         else:
             for t in dl_tickers:
                 try:
@@ -161,8 +173,12 @@ def scan_market_basic(tickers, progress_bar, status_text):
                         p = bulk[t]['Close'].iloc[-1]
                         if not pd.isna(p): price_map[t] = p
                 except: pass
+                
+        if debug_container: debug_container.write(f"Price Map Keys: {list(price_map.keys())[:5]}")
+        
     except Exception as e:
         print(f"Bulk DL Failed: {e}")
+        if debug_container: debug_container.error(f"Bulk DL Exception: {e}")
 
     total = len(tickers)
     
@@ -549,6 +565,10 @@ def page_scanner():
     if 'scan_results' not in st.session_state: st.session_state['scan_results'] = None
     if 'deep_results' not in st.session_state: st.session_state['deep_results'] = None
 
+    
+    # DEBUG EXPANDER
+    debug_container = st.expander("🛠️ Debug Logs (Open if No Data)", expanded=False)
+
     if st.button(get_text('execute_btn'), type="primary"):
         # --- STAGE 1 ---
         tickers = []
@@ -559,7 +579,7 @@ def page_scanner():
             tickers = tickers[:num_stocks]
         
         st.info(f"Stage 1: Scanning {len(tickers)} stocks...")
-        df = scan_market_basic(tickers, st.progress(0), st.empty())
+        df = scan_market_basic(tickers, st.progress(0), st.empty(), debug_container)
 
         if not df.empty:
             # Strict Logic
