@@ -822,7 +822,7 @@ def page_scanner():
         else:
             display_df = final_df
 
-        st.dataframe(display_df, column_order=final_cols, column_config=col_config, hide_index=True, use_container_width=True)
+        st.dataframe(display_df, column_order=final_cols, column_config=col_config, hide_index=True, width="stretch")
         
         # Cloud Warning Check: If we have results but Scores are 0 (Limited Data)
         if 'Fit_Score' in final_df.columns and (final_df['Fit_Score'] == 0).all():
@@ -850,7 +850,7 @@ def page_scanner():
                     "Debt_Equity": st.column_config.NumberColumn(format="%.0f%%"),
                     "Upside": st.column_config.NumberColumn(format="%.1f%%"),
                 },
-                use_container_width=True
+                width="stretch"
             ) 
 
         # --- Manual Deep Dive Section ---
@@ -1569,7 +1569,7 @@ def page_portfolio():
                     'Rev_CAGR_5Y': '{:.1f}%',
                     'NI_CAGR_5Y': '{:.1f}%'
                 }), 
-                use_container_width=True,
+                width="stretch",
                 height=500
             )
 
