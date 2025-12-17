@@ -248,6 +248,9 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                             debug_container.write(f"- Income Stmt Shape: {inc.shape}")
                             debug_container.write(f"- Balance Sheet Shape: {bal.shape}")
                             debug_container.write(f"- Dividends Shape: {stock.dividends.shape}")
+                            # NEW: Print Indices to verify labels
+                            debug_container.write(f"- Income Index: {inc.index.tolist()[:20]}") # First 20
+                            debug_container.write(f"- Balance Index: {bal.index.tolist()[:20]}")
                         
                         eps_ttm = None
                         
