@@ -73,12 +73,7 @@ st.set_page_config(
 # Custom CSS for Professional Look
 st.markdown("""
     <style>
-    .stMetric {
-        background-color: #f8f9fa;
-        padding: 15px;
-        border-radius: 8px;
-        border: 1px solid #e9ecef;
-    }
+    /* .stMetric removed for Dark Mode compatibility */
     .stDataFrame {
         font-family: 'IBM Plex Mono', 'Consolas', monospace;
         font-size: 0.95rem;
