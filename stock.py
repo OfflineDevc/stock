@@ -1427,6 +1427,54 @@ def page_portfolio():
             st.error("No stocks found. Try again.")
             return
 
+        # 3.5 Enrichment (Fetch Financials for CAGR & Better PEG)
+        # This is "Deep Info" requested by user.
+        st.write("🔍 Deep Scanning (Financials & CAGR)...")
+        enrich_prog = st.progress(0)
+        
+        # Helper to process row
+        def enrich_row(row):
+            stock = row['YF_Obj']
+            updates = {}
+            try:
+                fin = stock.financials
+                if not fin.empty:
+                    fin = fin.T.sort_index()
+                    years = len(fin)
+                    if years >= 3:
+                        # Rev CAGR
+                        try:
+                            s, e = fin['Total Revenue'].iloc[0], fin['Total Revenue'].iloc[-1]
+                            updates['Rev_CAGR_5Y'] = ((e/s)**(1/(years-1)) - 1) * 100
+                        except: updates['Rev_CAGR_5Y'] = None
+                        
+                        # NI CAGR
+                        try:
+                            s, e = fin['Net Income'].iloc[0], fin['Net Income'].iloc[-1]
+                            updates['NI_CAGR_5Y'] = ((e/s)**(1/(years-1)) - 1) * 100
+                        except: updates['NI_CAGR_5Y'] = None
+            except: pass
+            
+            # Smart PEG Fill (using historical Growth if avail)
+            if pd.isna(row.get('PEG')) or row.get('PEG') == 0:
+                # Try using calculated CAGR for PEG
+                pe = row.get('PE')
+                cagr = updates.get('NI_CAGR_5Y')
+                if pe and cagr and cagr > 0:
+                     updates['PEG'] = pe / cagr
+            
+            return pd.Series(updates)
+
+        # Apply Enrichment
+        if not df_scan.empty:
+            # We only really need to enrich the "likely" candidates to save time?
+            # But user wants "Auto Portfolio" to be good.
+            # Let's enrich all (max 200).
+            enriched = df_scan.apply(enrich_row, axis=1)
+            df_scan = pd.concat([df_scan, enriched], axis=1)
+            enrich_prog.progress(1.0)
+            enrich_prog.empty()
+
         # 4. Strategy Mapping
         targets_map = {
             "Low (Defensive)": [
@@ -1508,18 +1556,23 @@ def page_portfolio():
         
         with tab1:
             # Main Table with Type and Sector
-            cols_to_show = ['Ticker', 'Type', 'Sector', 'Price', 'Fit Score', 'PE', 'Div_Yield', 'Weight %']
+            cols_to_show = ['Ticker', 'Type', 'Sector', 'Price', 'Fit Score', 'PE', 'PEG', 'Rev_CAGR_5Y', 'NI_CAGR_5Y', 'Div_Yield', 'Weight %']
             valid_cols = [c for c in cols_to_show if c in portfolio.columns]
             
             st.dataframe(
                 portfolio[valid_cols].style.format({
                     'Div_Yield': '{:.2%}',
                     'Weight %': '{:.2f}%',
-                    'Price': '{:.2f}'
+                    'Price': '{:.2f}',
+                    'PE': '{:.1f}',
+                    'PEG': '{:.2f}',
+                    'Rev_CAGR_5Y': '{:.1f}%',
+                    'NI_CAGR_5Y': '{:.1f}%'
                 }), 
                 use_container_width=True,
                 height=500
             )
+
             
         with tab2:
             col_a, col_b = st.columns(2)
