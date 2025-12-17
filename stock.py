@@ -250,13 +250,23 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                 eps = safe_float(info.get('trailingEps'))
                 book_val = safe_float(info.get('bookValue'))
                 pe = safe_float(info.get('trailingPE'))
+                
+                # Auto-Calc PE if missing
+                if pe is None and price and eps and eps > 0:
+                    pe = price / eps
+                    
                 growth_q = safe_float(info.get('earningsQuarterlyGrowth')) 
+                # Fallback Growth (Yearly)
+                if growth_q is None:
+                    growth_q = safe_float(info.get('earningsGrowth'))
+
                 peg = safe_float(info.get('pegRatio'))
                 
                 # Fix PEG
                 if peg is None and pe is not None and growth_q is not None and growth_q > 0:
                     try: peg = pe / (growth_q * 100)
                     except: pass
+
                 
                 # Init variables potentially missing from empty 'info'
                 roe = None
