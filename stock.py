@@ -230,6 +230,23 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                     try: peg = pe / (growth_q * 100)
                     except: pass
 
+                # --- NEW: MANUAL EPS/PE RECOVERY (If Cloud Blocked Key Metrics) ---
+                if pe is None or eps is None:
+                    try:
+                        # Attempt to fetch specific financial statement (different endpoint)
+                        # We only do this if PE is missing to save time/requests
+                        inc = stock.quarterly_income_stmt
+                        if not inc.empty and 'Diluted EPS' in inc.index:
+                            # Sum last 4 quarters for TTM
+                            eps_ttm = inc.loc['Diluted EPS'].iloc[:4].sum()
+                            if eps_ttm and eps_ttm > 0:
+                                eps = eps_ttm
+                                if price: pe = price / eps_ttm
+                                
+                                # Try Growth (compare TTM to Prev TTM?)
+                                # Too complex for fast scan, stick to PE recovery
+                    except: pass
+                
                 # --- NEW: REALISTIC FAIR VALUE ---
                 # Primary: Analyst Consensus Target (Expert Opinion)
                 analyst_target = safe_float(info.get('targetMeanPrice'))
