@@ -137,10 +137,8 @@ def scan_market_basic(tickers, progress_bar, status_text):
         if i % 3 == 0: 
             progress = (i + 1) / total
             progress_bar.progress(progress)
-            status_text.caption(f"Stage 1: Scanning **{ticker}** ({i+1}/{total})")
-        
-        # Rate Limiting Prevention
-        time.sleep(0.1)
+        # Rate Limiting Prevention (Aggressive for Cloud)
+        time.sleep(0.5)
 
         try:
             # Fix: Only replace dot with dash for US tickers
@@ -152,8 +150,12 @@ def scan_market_basic(tickers, progress_bar, status_text):
             
             # Debug empty info
             if not info or 'currentPrice' not in info:
-                # print(f"Skipped {ticker}: No Data") # Console log
+                # console log for cloud logs
+                print(f"FAILED {ticker}: Info empty or Price missing") 
                 continue
+            
+            # Found valid data
+            status_text.caption(f"Stage 1: Scanning **{ticker}** ({i+1}/{total}) | ✅ Found: {len(data_list)+1}")
             
             if 'currentPrice' in info:
                 price = safe_float(info.get('currentPrice'))
