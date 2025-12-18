@@ -772,7 +772,11 @@ def page_scanner():
                     df = df[df['Lynch_Category'].isin(selected_lynch)]
                 
                 # Sort and Cut
-                df = df.sort_values(by='Fit_Score', ascending=False)
+                if 'Market_Cap' in df.columns:
+                     df = df.sort_values(by=['Fit_Score', 'Market_Cap'], ascending=[False, False])
+                else:
+                     df = df.sort_values(by='Fit_Score', ascending=False)
+                
                 top_candidates = df.head(top_n_deep)
                 
                 # --- STAGE 2 ---
