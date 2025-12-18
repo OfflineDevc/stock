@@ -725,79 +725,89 @@ def calculate_fit_score(row, targets):
 # ---------------------------------------------------------
 
 def page_scanner():
-    st.sidebar.header(get_text('sidebar_title'))
-
-    st.sidebar.subheader("1. Universe & Scale")
-    market_choice = st.sidebar.selectbox(get_text('market_label'), ["S&P 500", "NASDAQ 100", "SET 100 (Thailand)"])
-    num_stocks = st.sidebar.slider(get_text('scan_limit'), 10, 600, 50)
-    top_n_deep = st.sidebar.slider("Analyze Top N Deeply (Stage 2)", 5, 50, 10)
-
-    st.sidebar.markdown("---")
-    st.sidebar.subheader("2. Strategy Mandate")
-    strategy = st.sidebar.selectbox(get_text('strategy_label'), ["Custom", "Growth at Reasonable Price (GARP)", "Deep Value", "High Yield", "Speculative Growth"])
-
-    st.sidebar.subheader(get_text('mode_header'))
-    strict_criteria = st.sidebar.multiselect(get_text('strict_label'), 
-                                             ["PE", "PEG", "ROE", "Op_Margin", "Div_Yield", "Debt_Equity"],
-                                             default=[],
-                                             help="Selected metrics must PASS the threshold or the stock is removed.")
-
-    perf_metrics_select = st.sidebar.multiselect(get_text('perf_label'),
-                                                ["1M", "3M", "6M", "YTD", "1Y", "3Y", "5Y"],
-                                                default=["YTD", "1Y"],
-                                                help="Show price return % for these periods.")
-
-    t_peg, t_pe, t_roe, t_de, t_evebitda = 1.5, 25.0, 0.15, 100.0, 12.0
-    t_div, t_margin = 0.0, 0.10
-    t_rev_growth = 0.0
-
-    if strategy == "Growth at Reasonable Price (GARP)":
-        t_peg = 1.2; t_pe = 30.0; t_roe = 0.15
-    elif strategy == "Deep Value":
-        t_peg = 1.0; t_pe = 15.0; t_evebitda = 8.0; t_roe = 0.08
-    elif strategy == "High Yield":
-        t_div = 0.03; t_pe = 20.0; t_roe = 0.10
-    elif strategy == "Speculative Growth":
-        t_pe = 500.0; t_peg = 5.0; t_roe = 0.05; t_rev_growth = 20.0
-
-    with st.sidebar.expander(get_text('val_header'), expanded=True):
-        val_pe = st.slider("Max P/E Ratio", 5.0, 500.0, float(t_pe))
-        val_peg = st.slider("Max PEG Ratio", 0.1, 10.0, float(t_peg))
-        val_evebitda = st.slider("Max EV/EBITDA", 1.0, 50.0, float(t_evebitda))
-
-    with st.sidebar.expander(get_text('prof_header'), expanded=True):
-        prof_roe = st.slider("Min ROE %", 0, 50, int(t_roe*100)) / 100
-        prof_margin = st.slider("Min Op Margin %", 0, 50, int(t_margin*100)) / 100
-        prof_div = st.slider("Min Dividend Yield %", 0, 15, int(t_div*100)) / 100
-        if strategy == "Speculative Growth":
-            growth_min = st.slider("Min Revenue Growth %", 0, 100, int(t_rev_growth))
-
-    with st.sidebar.expander(get_text('risk_header'), expanded=False):
-        risk_de = st.slider("Max Debt/Equity %", 0, 500, int(t_de), step=10)
-
-    # --- 4. Filters (Optional) ---
-    st.sidebar.markdown("---") 
-    st.sidebar.subheader("4. Additional Filters")
-    
-    # Sector Filter
-    SECTORS = [
-        "Technology", "Healthcare", "Financial Services", "Consumer Cyclical", 
-        "Industrials", "Consumer Defensive", "Energy", "Utilities", 
-        "Basic Materials", "Real Estate", "Communication Services"
-    ]
-    selected_sectors = st.sidebar.multiselect(get_text('sector_label'), SECTORS, default=[])
-
-    # Lynch Category Filter
-    LYNCH_TYPES = [
-        "🚀 Fast Grower", "🏰 Asset Play", "🐢 Slow Grower", 
-        "🐘 Stalwart", "🔄 Cyclical", "😐 Average", "⚪ Unknown"
-    ]
-    selected_lynch = st.sidebar.multiselect(get_text('lynch_label'), LYNCH_TYPES, default=[])
-
-
-    # Main Dashboard
     st.title(get_text('main_title'))
     st.info(get_text('about_desc'))
+
+    # --- PROFESSIONAL UI: MAIN CONFIGURATION ---
+    # Moved all controls from Sidebar to Main Page Expander
+    with st.expander("🛠️ **Scanner Configuration & Settings**", expanded=True):
+        
+        # Row 1: High Level Strategy
+        c_uni, c_strat = st.columns(2)
+        with c_uni:
+             st.subheader("1. Universe & Scale")
+             market_choice = st.selectbox(get_text('market_label'), ["S&P 500", "NASDAQ 100", "SET 100 (Thailand)"])
+             num_stocks = st.slider(get_text('scan_limit'), 10, 503, 50)
+             top_n_deep = st.slider("Analyze Top N Deeply (Stage 2)", 5, 50, 10)
+        
+        with c_strat:
+             st.subheader("2. Strategy Mandate")
+             strategy = st.selectbox(get_text('strategy_label'), ["Custom", "Growth at Reasonable Price (GARP)", "Deep Value", "High Yield", "Speculative Growth"])
+             
+             # Mode & Period
+             strict_criteria = st.multiselect(get_text('strict_label'), 
+                                                  ["PE", "PEG", "ROE", "Op_Margin", "Div_Yield", "Debt_Equity"],
+                                                  default=[],
+                                                  help="Selected metrics must PASS the threshold or the stock is removed.")
+             perf_metrics_select = st.multiselect(get_text('perf_label'),
+                                                     ["1M", "3M", "6M", "YTD", "1Y", "3Y", "5Y"],
+                                                     default=["YTD", "1Y"],
+                                                     help="Show price return % for these periods.")
+
+        st.markdown("---")
+        
+        # Row 2: Detailed Thresholds
+        st.subheader("3. Criteria Thresholds")
+        
+        # Defaults
+        t_peg, t_pe, t_roe, t_de, t_evebitda = 1.5, 25.0, 0.15, 100.0, 12.0
+        t_div, t_margin = 0.0, 0.10
+        t_rev_growth = 0.0
+    
+        if strategy == "Growth at Reasonable Price (GARP)":
+            t_peg = 1.2; t_pe = 30.0; t_roe = 0.15
+        elif strategy == "Deep Value":
+            t_peg = 1.0; t_pe = 15.0; t_evebitda = 8.0; t_roe = 0.08
+        elif strategy == "High Yield":
+            t_div = 0.03; t_pe = 20.0; t_roe = 0.10
+        elif strategy == "Speculative Growth":
+            t_pe = 500.0; t_peg = 5.0; t_roe = 0.05; t_rev_growth = 20.0
+            
+        c_val, c_prof, c_risk = st.columns(3)
+        
+        with c_val:
+             st.markdown(f"**{get_text('val_header')}**")
+             val_pe = st.slider("Max P/E Ratio", 5.0, 500.0, float(t_pe))
+             val_peg = st.slider("Max PEG Ratio", 0.1, 10.0, float(t_peg))
+             val_evebitda = st.slider("Max EV/EBITDA", 1.0, 50.0, float(t_evebitda))
+             
+        with c_prof:
+             st.markdown(f"**{get_text('prof_header')}**")
+             prof_roe = st.slider("Min ROE %", 0, 50, int(t_roe*100)) / 100
+             prof_margin = st.slider("Min Op Margin %", 0, 50, int(t_margin*100)) / 100
+             prof_div = st.slider("Min Dividend Yield %", 0, 15, int(t_div*100)) / 100
+             if strategy == "Speculative Growth":
+                 growth_min = st.slider("Min Revenue Growth %", 0, 100, int(t_rev_growth))
+        
+        with c_risk:
+             st.markdown(f"**{get_text('risk_header')}**")
+             risk_de = st.slider("Max Debt/Equity %", 0, 500, int(t_de), step=10)
+             
+             # Filters
+             st.caption("Optional Filters")
+             SECTORS = [
+                "Technology", "Healthcare", "Financial Services", "Consumer Cyclical", 
+                "Industrials", "Consumer Defensive", "Energy", "Utilities", 
+                "Basic Materials", "Real Estate", "Communication Services"
+            ]
+             selected_sectors = st.multiselect(get_text('sector_label'), SECTORS, default=[])
+            
+             LYNCH_TYPES = [
+                "🚀 Fast Grower", "🏰 Asset Play", "🐢 Slow Grower", 
+                "🐘 Stalwart", "🔄 Cyclical", "😐 Average", "⚪ Unknown"
+            ]
+             selected_lynch = st.multiselect(get_text('lynch_label'), LYNCH_TYPES, default=[])
+
     st.caption(f"Universe: {market_choice} | Strategy: {strategy} | Scan Limit: {num_stocks}")
 
     if 'scan_results' not in st.session_state: st.session_state['scan_results'] = None
@@ -1472,7 +1482,7 @@ def page_howto():
 
 
 def page_portfolio():
-    st.title("🤖 Auto Portfolio / จัดพอร์ตอัตโนมัติ")
+    st.title("Intelligent Portfolio")
     st.markdown("---")
     
     
