@@ -761,42 +761,58 @@ def calculate_fit_score(row, targets):
     valid_targets_count = 0 
     details = []
 
+    # Safe Defaults for Sorting so N/A doesn't break the scan but gets penalized
+    # "Low is Good" metrics (PE, PEG, Debt) -> Default to High (999)
+    # "High is Good" metrics (ROE, Margin, Yield) -> Default to Low (-99)
+    
     for metric, target_val, operator in targets:
         actual_val = row.get(metric)
-        if pd.isna(actual_val) or actual_val is None:
-            details.append(f"⚪ N/A")
-            continue
+        passed_val = actual_val
+        is_missing = pd.isna(actual_val) or actual_val is None
         
+        # Assign Penalty Value for Logic Check
+        if is_missing:
+            if metric in ['PE', 'PEG', 'Debt_Equity', 'PB']:
+                passed_val = 9999.0 # Penalize High
+            elif metric in ['ROE', 'Op_Margin', 'Rev_Growth', 'EPS_Growth', 'Div_Yield']:
+                passed_val = -9999.0 # Penalize Low
+            else:
+                passed_val = 0.0 # Neutral
+
+        # Count as valid target attempt if we have data OR if we forced a penalty
         valid_targets_count += 1
 
         hit = False
         diff = 0
+        
+        # Check against Target
         if operator == '<':
-            if actual_val <= target_val:
+            if passed_val <= target_val:
                 score += 10; hit = True
             else:
-                diff = actual_val - target_val
-                if diff <= target_val * 0.2: score += 5
-                elif diff <= target_val * 0.5: score += 2
+                # If it's missing (9999), it won't get bonus points
+                diff = passed_val - target_val
+                if not is_missing:
+                    if diff <= target_val * 0.2: score += 5
+                    elif diff <= target_val * 0.5: score += 2
         elif operator == '>':
-            if actual_val >= target_val:
+            if passed_val >= target_val:
                 score += 10; hit = True
             else:
-                diff = actual_val - target_val
-                if abs(diff) <= target_val * 0.2: score += 5
-                elif abs(diff) <= target_val * 0.5: score += 2
+                if not is_missing:
+                    diff = passed_val - target_val
+                    if abs(diff) <= target_val * 0.2: score += 5
+                    elif abs(diff) <= target_val * 0.5: score += 2
 
         if not hit:
-            # Format nicely
-            pct_off = (diff / target_val) * 100 if target_val != 0 else 0
-            details.append(f"❌ {metric} ({pct_off:+.0f}%)")
+            if is_missing:
+                 # Explicitly mention N/A failure
+                 details.append(f"❌ {metric} (N/A)")
+            else:
+                 pct_off = (diff / target_val) * 100 if target_val != 0 else 0
+                 details.append(f"❌ {metric} ({pct_off:+.0f}%)")
         else:
-             # NEW: Show passing metrics to explain Score 100
              details.append(f"✅ {metric}")
-
-    # If all metrics were N/A (e.g. Cloud Block), return special status text
-    if valid_targets_count == 0:
-        return 0, "⚠️ Limited Data (Cloud)"
 
     max_score = valid_targets_count * 10
     final_score = int((score / max_score) * 100) if max_score > 0 else 0
