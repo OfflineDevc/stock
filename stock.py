@@ -1422,8 +1422,8 @@ def page_portfolio():
         elif "NASDAQ" in market_choice: tickers = get_nasdaq_tickers()
         else: tickers = get_set100_tickers()
         
-        # Limit for speed
-        tickers = tickers[:250] 
+        # Limit for speed - Removed by user request (Full Scan)
+        # tickers = tickers[:250] 
         
         # 2. UI Elements
         st.write("Scanning & Analyzing Market...")
