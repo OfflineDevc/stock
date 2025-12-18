@@ -14,8 +14,8 @@ def inject_custom_css():
         /* 1. Google Font: Inter (Professional & Minimal) */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         
-        html, body, [class*="css"]  {
-            font-family: 'Inter', sans-serif;
+        html, body, .stApp {
+            font-family: 'Inter', sans-serif !important;
         }
 
         /* 2. Main Container Animation (Fade In) */
