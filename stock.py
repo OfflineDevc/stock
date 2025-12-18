@@ -1,5 +1,6 @@
 import streamlit as st
 import yfinance as yf
+import altair as alt # Visuals
 import pandas as pd
 import numpy as np
 import time
@@ -1402,6 +1403,15 @@ def page_portfolio():
             value="Medium (Balanced)"
         )
         
+        risk_descs = {
+            "Low (Defensive)": "🛡️ **Defensive**: Focus on **Dividends** and **Stability**. Low Debt, steady Cash Flow. Good for preserving capital.",
+            "Medium (Balanced)": "⚖️ **Balanced (GARP)**: Growth at Reasonable Price. Mix of **Value** and **Growth**. The sweet spot for most investors.",
+            "High (Aggressive)": "🚀 **Aggressive**: Focus on **High Growth**. Ignores Dividends. Higher Risk (Debt/Volatility) accepted for max returns.",
+            "All Weather (Ray Dalio Proxy)": "🌤️ **All Weather**: Balanced across seasons. **40% Bonds** (Utilities), **30% Stocks** (Tech), **15% Cmdty** (Energy), **15% Cash** (Finance)."
+        }
+        st.info(risk_descs.get(risk_choice, "")) # Changed to info for better visibility as requested
+
+        
     n_stocks = st.slider("Number of Stocks in Portfolio", 5, 50, 20)
     
     st.info(f"**Plan**: Allocate to top {n_stocks} stocks in **{market_choice}** using **Market Cap Weighting** (Pro Standard).")
@@ -1639,18 +1649,38 @@ def page_portfolio():
 
             
         with tab2:
-            col_a, col_b = st.columns(2)
-            with col_a:
-                st.write("**Sector Allocation**")
-                sector_counts = portfolio['Sector'].value_counts()
-                # Fix AttributeError: convert Series to DataFrame with clear columns
-                if not sector_counts.empty:
-                    df_sector = pd.DataFrame({'Sector': sector_counts.index, 'Count': sector_counts.values})
-                    st.bar_chart(df_sector.set_index('Sector')) # bar_chart is safer/cleaner than pie in Streamlit basic
-            with col_b:
-                st.write("**Stock Type (Lynch)**")
-                type_counts = portfolio['Type'].value_counts()
-                st.bar_chart(type_counts)
+             c1, c2 = st.columns([2, 1])
+             with c1:
+                 # Check if All Weather Strategy is active
+                 if risk_choice == "All Weather (Ray Dalio Proxy)" and 'Bucket' in portfolio.columns:
+                     st.subheader("🌍 Asset Allocation")
+                     
+                     # Aggregation
+                     alloc_df = portfolio.groupby('Bucket')['Weight %'].sum().reset_index()
+                     
+                     # Donut Chart (Altair)
+                     base = alt.Chart(alloc_df).encode(theta=alt.Theta("Weight %", stack=True))
+                     pie = base.mark_arc(outerRadius=120, innerRadius=80).encode(
+                        color=alt.Color("Bucket"),
+                        order=alt.Order("Weight %", sort="descending"),
+                        tooltip=["Bucket", "Weight %"]
+                     )
+                     text = base.mark_text(radius=140).encode(
+                        text=alt.Text("Weight %", format=".1f"),
+                        order=alt.Order("Weight %", sort="descending"),
+                         color=alt.value("white")
+                     )
+                     st.altair_chart(pie + text, use_container_width=True)
+                     
+                 else:
+                     st.subheader("Sector Allocation")
+                     sector_counts = portfolio['Sector'].value_counts()
+                     if not sector_counts.empty:
+                         st.bar_chart(sector_counts)
+             
+             with c2:
+                 st.subheader("Type Allocation")
+                 st.bar_chart(portfolio['Type'].value_counts())
 
                 
         with tab3:
