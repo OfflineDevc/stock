@@ -1550,13 +1550,148 @@ def page_scanner():
 
     if 'scan_results' not in st.session_state: st.session_state['scan_results'] = None
     
-    # ... (Rest of scanner logic omitted for brevity, logic remains same)
-    
-    # Note: To avoid overly large replacement, I am assuming the execute button part is similar
-    # I will focus on replacing line 820+ execution part in a separate block if needed.
-    # For now, replacing the header part in page_scanner as requested.
+    # DEBUG EXPANDER
+    if 'deep_results' not in st.session_state: st.session_state['deep_results'] = None
+    debug_container = st.expander("🛠️ Debug Logs (Open if No Data)", expanded=False)
 
-# ... [Skipping middle part logic] ...
+    # 2-Stage Scan Execution
+    if st.button(get_text('execute_btn'), type="primary", use_container_width=True):
+        st.write(get_text('stage1_msg'))
+        prog = st.progress(0)
+        status = st.empty()
+        
+        # 1. Get Tickers
+        if "S&P" in market_choice: tickers = get_sp500_tickers()
+        elif "NASDAQ" in market_choice: tickers = get_nasdaq_tickers()
+        else: tickers = get_set100_tickers()
+        
+        tickers = tickers[:num_stocks] # Limit scan
+        
+        # 2. Stage 1 Scan
+        df_basic = scan_market_basic(tickers, prog, status, debug_container)
+        
+        if df_basic.empty:
+            st.error("No data fetched.")
+            return
+
+        st.success(get_text('stage2_msg'))
+        
+        # 3. Filtering Stage 1 (Fast)
+        # Apply strict filters before fetching deep data
+        filtered = df_basic.copy()
+        
+        # Strict Logic
+        if strict_criteria:
+            if "PE" in strict_criteria: filtered = filtered[filtered['PE'].fillna(999) <= val_pe]
+            if "PEG" in strict_criteria: filtered = filtered[(filtered['PEG'].fillna(999) <= val_peg) & (filtered['PEG'] > 0)]
+            if "ROE" in strict_criteria: filtered = filtered[filtered['ROE'].fillna(0) >= prof_roe] # Basic ROE check
+            if "Op_Margin" in strict_criteria: filtered = filtered[filtered['Op_Margin'].fillna(0) >= prof_margin]
+            if "Div_Yield" in strict_criteria: filtered = filtered[filtered['Div_Yield'].fillna(0) >= prof_div]
+            if "Debt_Equity" in strict_criteria: filtered = filtered[filtered['Debt_Equity'].fillna(999) <= risk_de]
+        
+        # 4. Filter by Sector
+        if selected_sectors:
+            filtered = filtered[filtered['Sector'].isin(selected_sectors)]
+            
+        if strict_criteria or selected_sectors:
+             st.info(f"Filtered {len(df_basic)} -> {len(filtered)} stocks based on strict criteria.")
+        
+        if filtered.empty:
+            st.warning(get_text('no_data'))
+            return
+            
+        # 5. Determine Scoring Targets based on Strategy
+        if strategy == "Speculative Growth":
+            targets = [('Rev_Growth', float(growth_min), '>'), ('EPS_Growth', 0.15, '>'),
+                       ('ROE', prof_roe, '>'), ('Debt_Equity', risk_de, '<')]
+        else:
+            targets = [('PEG', val_peg, '<'), ('PE', val_pe, '<'), ('ROE', prof_roe, '>'),
+                       ('Op_Margin', prof_margin, '>'), ('Div_Yield', prof_div, '>'), ('Debt_Equity', risk_de, '<')]
+        
+        # 6. Calc Score
+        results = filtered.apply(lambda row: calculate_fit_score(row, targets), axis=1, result_type='expand')
+        if not filtered.empty:
+            filtered['Fit_Score'] = results[0]
+            filtered['Analysis'] = results[1]
+            filtered['Lynch_Category'] = filtered.apply(classify_lynch, axis=1)
+            
+            # Lynch Filtering
+            if selected_lynch:
+                filtered = filtered[filtered['Lynch_Category'].isin(selected_lynch)]
+            
+            # Sort
+            if 'Market_Cap' in filtered.columns:
+                 filtered = filtered.sort_values(by=['Fit_Score', 'Market_Cap'], ascending=[False, False])
+            else:
+                 filtered = filtered.sort_values(by='Fit_Score', ascending=False)
+            
+            top_candidates = filtered.head(top_n_deep)
+            
+            # --- STAGE 2: DEEP DIVE ---
+            time.sleep(0.5)
+            deep_metrics = analyze_history_deep(top_candidates, st.progress(0), st.empty())
+            final_df = top_candidates.merge(deep_metrics, on='Symbol', how='left')
+            
+            st.session_state['scan_results'] = filtered
+            st.session_state['deep_results'] = final_df
+        else:
+            st.error(get_text('no_data'))
+            return
+
+    # Display Logic
+    if st.session_state['deep_results'] is not None:
+        final_df = st.session_state['deep_results']
+        currency_fmt = "฿%.2f" if "SET" in market_choice or (len(final_df) > 0 and ".BK" in str(final_df['Symbol'].iloc[0])) else "$%.2f"
+
+        st.markdown(f"### {get_text('results_header')}")
+        
+        # Columns
+        core_cols = ["Fit_Score", "Symbol", "Price"]
+        if strategy == "High Yield": strat_cols = ["Div_Yield", "Div_Streak", "Fair_Value", "Margin_Safety", "Analysis"]
+        elif strategy == "Deep Value": strat_cols = ["PE", "PB", "Lynch_Category", "Fair_Value", "Margin_Safety", "Analysis"]
+        elif strategy == "Speculative Growth": strat_cols = ["Rev_Growth", "PEG", "Lynch_Category", "Fair_Value", "Analysis"]
+        else: strat_cols = ["PEG", "Rev_CAGR_5Y", "NI_CAGR_5Y", "Fair_Value", "Margin_Safety", "Analysis"]
+        
+        perf_cols = [c for c in perf_metrics_select if c in final_df.columns]
+        final_cols = core_cols + perf_cols + strat_cols
+        
+        # Filter valid cols
+        valid_final_cols = [c for c in final_cols if c in final_df.columns]
+
+        col_config = {
+            "Fit_Score": st.column_config.ProgressColumn("Score", format="%d", min_value=0, max_value=100),
+            "Symbol": "Ticker", "Price": st.column_config.NumberColumn("Price", format=currency_fmt),
+            "Fair_Value": st.column_config.NumberColumn("Fair Value", format=currency_fmt),
+            "Margin_Safety": st.column_config.NumberColumn("Safety", format="%.1f%%"),
+            "Rev_Growth": st.column_config.NumberColumn("Rev Growth (Q)", format="%.1f%%"),
+            "Div_Yield": st.column_config.NumberColumn("Yield %", format="%.2f%%"),
+            "Analysis": st.column_config.TextColumn("Details", width="large")
+        }
+        for p in ["1M", "3M", "6M", "YTD", "1Y", "3Y", "5Y"]:
+            col_config[p] = st.column_config.NumberColumn(p, format="%.1f%%")
+
+        if 'YF_Obj' in final_df.columns:
+            display_df = final_df.drop(columns=['YF_Obj'])
+        else:
+            display_df = final_df
+
+        st.dataframe(display_df, column_order=valid_final_cols, column_config=col_config, hide_index=True, width="stretch")
+        
+        # Chart
+        st.markdown("### 🔬 Interactive Historical Charts")
+        if 'Symbol' in final_df.columns:
+             sel = st.selectbox("Select Stock to View:", final_df['Symbol'].unique())
+             if sel:
+                 try:
+                     # Attempt to get object
+                     row = final_df[final_df['Symbol'] == sel].iloc[0]
+                     if 'YF_Obj' in row:
+                         stock = row['YF_Obj']
+                         hist = stock.history(period="2y")
+                         st.line_chart(hist['Close'])
+                 except: pass # fallback
+
+
 
 def page_portfolio():
     st.title("Intelligent Portfolio")
@@ -1840,7 +1975,105 @@ def page_portfolio():
 
 
 
-# MAIN ROUTER
+
+def page_howto():
+    st.title("📖 How to Use / คู่มือการใช้งาน")
+    lang = st.session_state.get('lang', 'EN')
+    
+    HOWTO_DATA = {
+        'Intro': {
+            'EN': """
+            **Welcome to the Stock Scanner!**  
+             This tool is designed to help you **find good stocks quickly** without reading 100 annual reports.  
+             It works in 2 stages:  
+             1. **Wide Scan**: Checks hundreds of stocks for basic criteria (Price, P/E).  
+             2. **Deep Dive**: Digs into the history of the best ones to find "consistency".
+            """,
+            'TH': """
+            **ยินดีต้อนรับสู่โปรแกรมสแกนหุ้น!**  
+            เครื่องมือนี้ช่วยให้คุณ **หาหุ้นดีๆ ได้ในไม่กี่วินาที** โดยไม่ต้องนั่งอ่านงบเองเป็นร้อยบริษัท  
+            หลักการทำงานมี 2 ขั้นตอน:  
+            1. **สแกนกว้าง (Wide Scan)**: กวาดดูหุ้นทั้งตลาด เพื่อคัดตัวที่เข้าเกณฑ์พื้นฐาน (เช่น P/E ต่ำ).  
+            2. **เจาะลึก (Deep Dive)**: เอาตัวที่เข้ารอบมาดูประวัติย้อนหลังว่า "ดีจริงไหม" หรือแค่ฟลุ๊ค
+            """
+        },
+        'Step1': {
+            'EN': {
+                'title': "Step 1: Setup (Universe & Scale)",
+                'desc': """
+                - **Select Market**: Choose S&P 500 (US Big Caps) or SET 100 (Thai Big Caps).
+                - **Scan Limit**: Start with **50** for speed. Use **500** when you have time (takes 2-3 mins).
+                """
+            },
+            'TH': {
+                'title': "ขั้นตอนที่ 1: ตั้งค่าขอบเขต (Setup)",
+                'desc': """
+                - **เลือกตลาด (Market)**: เช่น S&P 500 (หุ้นใหญ่เมกา) หรือ SET 100 (หุ้นใหญ่ไทย)
+                - **จำนวนสแกน (Limit)**: มือใหม่แนะนำ **50 ตัวแรก** ก่อนเพื่อทดสอบ ถ้าจริงจังค่อยปรับเป็น 500 (ใช้เวลา 2-3 นาที)
+                """
+            }
+        },
+        'Step2': {
+            'EN': {
+                'title': "Step 2: Strategy (The 'Brain')",
+                'desc': """
+                This is the most important part.  
+                - **GARP**: Balanced. Good for most people.
+                - **Dividend**: If you want cash flow > 4%.
+                - **Deep Value**: If you want to buy very cheap stocks (Risky).
+                - **Speculative**: If you want growth at any price.
+                """
+            },
+            'TH': {
+                'title': "ขั้นตอนที่ 2: เลือกกลยุทธ์ (The Brain)",
+                'desc': """
+                ส่วนที่สำคัญที่สุด โปรแกรมจะคัดหุ้นตามสูตรที่คุณเลือก:  
+                - **GARP (แนะนำ)**: หุ้นเติบโตในราคาที่ไม่แพงเกินไป (สายกลาง)
+                - **High Yield**: เน้นหุ้นปันผลเยอะ (>3-4%)
+                - **Deep Value**: เน้นหุ้นถูกมากๆ (P/E ต่ำ) แต่อาจมีความเสี่ยง
+                - **Speculative**: เน้นหุ้นซิ่ง ยอดขายโตแรง ไม่สน P/E
+                """
+            }
+        },
+        'Step3': {
+            'EN': {
+                'title': "Step 3: Execution & Results",
+                'desc': """
+                - Click **🚀 Execute**.
+                - Wait for the progress bar.
+                - **The Table**:
+                    - **Fit Score**: 100 is perfect match.
+                    - **Fair Value**: The 'Real' price vs Market Price.
+                    - **Margin of Safety**: How much discount? (Positive is GOOD).
+                """
+            },
+            'TH': {
+                'title': "ขั้นตอนที่ 3: ดูผลลัพธ์ (Execution)",
+                'desc': """
+                - กดปุ่ม **🚀 เริ่มสแกน**
+                - **ตารางผลลัพธ์**:
+                    - **Fit Score**: คะแนนความตรงโจทย์ (เต็ม 100)
+                    - **Fair Value**: ราคาที่ควรจะเป็น (ประเมินโดยนักวิเคราะห์/สูตร)
+                    - **Margin of Safety**: ส่วนลดจากราคาจริง (ยิ่งเยอะยิ่งดี = มีแต้มต่อ)
+                """
+            }
+        }
+    }
+    
+    # Render Intro
+    st.info(HOWTO_DATA['Intro'][lang])
+    st.markdown("---")
+    
+    # Render Steps
+    st.header(HOWTO_DATA['Step1'][lang]['title'])
+    st.write(HOWTO_DATA['Step1'][lang]['desc'])
+    
+    st.header(HOWTO_DATA['Step2'][lang]['title'])
+    st.write(HOWTO_DATA['Step2'][lang]['desc'])
+    
+    st.header(HOWTO_DATA['Step3'][lang]['title'])
+    st.write(HOWTO_DATA['Step3'][lang]['desc'])
+
 # ---------------------------------------------------------
 if __name__ == "__main__":
     inject_custom_css() # Apply Professional Styles
