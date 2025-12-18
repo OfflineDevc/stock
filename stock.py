@@ -1390,111 +1390,123 @@ def page_portfolio():
     st.title("🤖 Auto Portfolio / จัดพอร์ตอัตโนมัติ")
     st.markdown("---")
     
-    col1, col2 = st.columns(2)
-    with col1:
-        st.subheader("1. Market / ตลาด")
-        market_choice = st.radio("Select Market", ["S&P 500", "SET 100", "NASDAQ 100"], horizontal=True)
-        
-    with col2:
-        st.subheader("2. Risk Profile / ความเสี่ยง")
-        risk_choice = st.select_slider(
-            "Select your acceptable risk", 
-            options=["Low (Defensive)", "Medium (Balanced)", "High (Aggressive)", "All Weather (Ray Dalio Proxy)"],
-            value="Medium (Balanced)"
-        )
-        
-        risk_descs = {
-            "Low (Defensive)": "🛡️ **Defensive**: Focus on **Dividends** and **Stability**. Low Debt, steady Cash Flow. Good for preserving capital.",
-            "Medium (Balanced)": "⚖️ **Balanced (GARP)**: Growth at Reasonable Price. Mix of **Value** and **Growth**. The sweet spot for most investors.",
-            "High (Aggressive)": "🚀 **Aggressive**: Focus on **High Growth**. Ignores Dividends. Higher Risk (Debt/Volatility) accepted for max returns.",
-            "All Weather (Ray Dalio Proxy)": "🌤️ **All Weather**: Balanced across seasons. **40% Bonds** (Utilities), **30% Stocks** (Tech), **15% Cmdty** (Energy), **15% Cash** (Finance)."
-        }
-        st.info(risk_descs.get(risk_choice, "")) # Changed to info for better visibility as requested
-
-        
-    n_stocks = st.slider("Number of Stocks in Portfolio", 5, 50, 20)
     
-    st.info(f"**Plan**: Allocate to top {n_stocks} stocks in **{market_choice}** using **Market Cap Weighting** (Pro Standard).")
-    
-    if st.button("🚀 Generate Portfolio / สร้างพอร์ต", type="primary"):
-        # 1. Get Tickers
-        if "S&P" in market_choice: tickers = get_sp500_tickers()
-        elif "NASDAQ" in market_choice: tickers = get_nasdaq_tickers()
-        else: tickers = get_set100_tickers()
+    # 1. Configuration Panel (Professional Layout)
+    with st.expander("⚙️ **Portfolio Configuration & Settings**", expanded=True):
+        c1, c2 = st.columns([1, 1])
         
-        # Limit for speed - Removed by user request (Full Scan)
-        # tickers = tickers[:250] 
-        
-        # 2. UI Elements
-        st.write("Scanning & Analyzing Market...")
-        prog = st.progress(0)
-        status = st.empty()
-        
-        # 3. Scan
-        # Note: scan_market_basic returns 'Symbol', 'PE', 'Div_Yield', 'Sector', 'Market_Cap' etc.
-        df_scan = scan_market_basic(tickers, prog, status)
-        status.empty()
-        prog.empty()
-        
-        if df_scan.empty:
-            st.error("No stocks found. Try again.")
-            return
+        with c1:
+             st.subheader("1. Asset Universe")
+             market_choice = st.radio("Select Market", ["S&P 500", "SET 100", "NASDAQ 100"], horizontal=True, key="p_market")
+             n_stocks = st.slider("Max Holdings Count", 5, 50, 20, key="p_n")
+             
+        with c2:
+             st.subheader("2. Strategic Profile")
+             risk_choice = st.select_slider(
+                "Risk Tolerance / Strategy", 
+                options=["Low (Defensive)", "Medium (Balanced)", "High (Aggressive)", "All Weather (Ray Dalio Proxy)"],
+                value="Medium (Balanced)",
+                key="p_risk"
+             )
+             
+             risk_descs = {
+                "Low (Defensive)": "🛡️ **Defensive**: Focus on **Dividends** and **Stability**. Low Debt, steady Cash Flow. Good for preserving capital.",
+                "Medium (Balanced)": "⚖️ **Balanced (GARP)**: Growth at Reasonable Price. Mix of **Value** and **Growth**. The sweet spot for most investors.",
+                "High (Aggressive)": "🚀 **Aggressive**: Focus on **High Growth**. Ignores Dividends. Higher Risk (Debt/Volatility) accepted for max returns.",
+                "All Weather (Ray Dalio Proxy)": "🌤️ **All Weather**: Balanced across seasons. **40% Bonds** (Utilities), **30% Stocks** (Tech), **15% Cmdty** (Energy), **15% Cash** (Finance)."
+             }
+             st.info(risk_descs.get(risk_choice, ""))
 
+
+    # Action Area
+    col_btn, col_info = st.columns([1, 3])
+    with col_btn:
+        generate_btn = st.button("🚀 Generate Portfolio", type="primary", use_container_width=True)
+    with col_info:
+        st.caption(f"**Target**: Top {n_stocks} stocks in **{market_choice}** using **Market Cap Weighting**.")
+    
+    if generate_btn:
+        # Modern Status Container
+        with st.status("� **Processing Market Data...**", expanded=True) as status_box:
+            # 1. Get Tickers
+            st.write("📡 Fetching Ticker List...")
+            if "S&P" in market_choice: tickers = get_sp500_tickers()
+            elif "NASDAQ" in market_choice: tickers = get_nasdaq_tickers()
+            else: tickers = get_set100_tickers()
+            
+            # Limit for speed - Removed by user request (Full Scan)
+            # tickers = tickers[:250] 
+            
+            # 2. Scanning
+            st.write(f"🔬 Scanning {len(tickers)} stocks for fundamentals...")
+            prog = st.progress(0)
+            
+            # Adapt scan_market_basic to use status box if needed, or just let it run
+            # scan_market_basic expects 'status_text' which was st.empty()
+            # We can pass an empty placeholder inside the status box
+            
+            scan_placeholder = st.empty()
+            df_scan = scan_market_basic(tickers, prog, scan_placeholder)
+            
+            if df_scan.empty:
+                status_box.update(label="❌ Scan Failed: No data found.", state="error")
+                st.error("No stocks found. Try again.")
+                return
+            status_box.update(label="✅ **Market Scan Complete!**", state="complete")
+        
         # 3.5 Enrichment (Fetch Financials for CAGR & Better PEG)
         # This is "Deep Info" requested by user.
-        st.write("🔍 Deep Scanning (Financials & CAGR)...")
-        enrich_prog = st.progress(0)
+        with st.status("🔍 **Deep Analysis (Financials & CAGR)...**", expanded=True) as enrich_status:
+            enrich_prog = st.progress(0)
         
-        # Helper to process row
-        def enrich_row(row):
-            stock = row['YF_Obj']
-            updates = {}
-            try:
-                fin = stock.financials
-                if not fin.empty:
-                    fin = fin.T.sort_index()
-                    years = len(fin)
-                    if years >= 3:
-                        # Rev CAGR
-                        try:
-                            s = float(fin['Total Revenue'].iloc[0])
-                            e = float(fin['Total Revenue'].iloc[-1])
-                            if s > 0 and e > 0:
-                                updates['Rev_CAGR_5Y'] = ((e/s)**(1/(years-1)) - 1) * 100
-                            else: updates['Rev_CAGR_5Y'] = None
-                        except: updates['Rev_CAGR_5Y'] = None
-                        
-                        # NI CAGR
-                        try:
-                            s = float(fin['Net Income'].iloc[0])
-                            e = float(fin['Net Income'].iloc[-1])
-                            if s > 0 and e > 0: # Ensure positive for power calc
-                                updates['NI_CAGR_5Y'] = ((e/s)**(1/(years-1)) - 1) * 100
-                            else: updates['NI_CAGR_5Y'] = None
-                        except: updates['NI_CAGR_5Y'] = None
-            except: pass
-            
-            # Smart PEG Fill (using historical Growth if avail)
-            if pd.isna(row.get('PEG')) or row.get('PEG') == 0:
-                # Try using calculated CAGR for PEG
-                pe = row.get('PE')
-                cagr = updates.get('NI_CAGR_5Y')
-                if pe and cagr and cagr > 0:
-                     updates['PEG'] = pe / cagr
-            
-            return pd.Series(updates)
+            # Helper to process row
+            def enrich_row(row):
+                stock = row['YF_Obj']
+                updates = {}
+                try:
+                    fin = stock.financials
+                    if not fin.empty:
+                        fin = fin.T.sort_index()
+                        years = len(fin)
+                        if years >= 3:
+                            # Rev CAGR
+                            try:
+                                s = float(fin['Total Revenue'].iloc[0])
+                                e = float(fin['Total Revenue'].iloc[-1])
+                                if s > 0 and e > 0:
+                                    updates['Rev_CAGR_5Y'] = ((e/s)**(1/(years-1)) - 1) * 100
+                                else: updates['Rev_CAGR_5Y'] = None
+                            except: updates['Rev_CAGR_5Y'] = None
+                            
+                            # NI CAGR
+                            try:
+                                s = float(fin['Net Income'].iloc[0])
+                                e = float(fin['Net Income'].iloc[-1])
+                                if s > 0 and e > 0: # Ensure positive for power calc
+                                    updates['NI_CAGR_5Y'] = ((e/s)**(1/(years-1)) - 1) * 100
+                                else: updates['NI_CAGR_5Y'] = None
+                            except: updates['NI_CAGR_5Y'] = None
+                except: pass
+                
+                # Smart PEG Fill (using historical Growth if avail)
+                if pd.isna(row.get('PEG')) or row.get('PEG') == 0:
+                    # Try using calculated CAGR for PEG
+                    pe = row.get('PE')
+                    cagr = updates.get('NI_CAGR_5Y')
+                    if pe and cagr and cagr > 0:
+                         updates['PEG'] = pe / cagr
+                
+                enrich_prog.progress(0.5) # Simulated progress
+                return pd.Series(updates)
 
-        # Apply Enrichment
-        if not df_scan.empty:
-            # We only really need to enrich the "likely" candidates to save time?
-            # But user wants "Auto Portfolio" to be good.
-            # Let's enrich all (max 200).
-            enriched = df_scan.apply(enrich_row, axis=1)
+            # Apply Enrichment
+            if not df_scan.empty:
+                enriched = df_scan.apply(enrich_row, axis=1)
+                
+                for col in enriched.columns:
+                    df_scan[col] = enriched[col]
             
-            # Fix: avoid Duplicate PEG columns manually
-            # pd.concat creates duplicates if columns exist in both
-            for col in enriched.columns:
-                df_scan[col] = enriched[col]
+            enrich_status.update(label="✅ **Deep Analysis Complete!**", state="complete")
             
             enrich_prog.progress(1.0)
             enrich_prog.empty()
