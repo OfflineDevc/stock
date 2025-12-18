@@ -375,12 +375,11 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                     if div_yield is None:
                         div_yield = safe_float(info.get('dividendYield'))
                     
+                    
                     # Auto-Fix: Yahoo usually sends 0.05 for 5%. 
                     # If we get > 1.0 (e.g. 5.0), it's likely a scaling error.
-                    if div_yield is not None and div_yield > 100.0: 
+                    if div_yield is not None and div_yield > 1.0: 
                         div_yield /= 100.0
-
-
                 if op_margin is None:
                     op_margin = safe_float(info.get('operatingMargins'))
                     if op_margin is not None: op_margin *= 100
@@ -1399,7 +1398,7 @@ def page_portfolio():
         st.subheader("2. Risk Profile / ความเสี่ยง")
         risk_choice = st.select_slider(
             "Select your acceptable risk", 
-            options=["Low (Defensive)", "Medium (Balanced)", "High (Aggressive)"],
+            options=["Low (Defensive)", "Medium (Balanced)", "High (Aggressive)", "All Weather (Ray Dalio Proxy)"],
             value="Medium (Balanced)"
         )
         
@@ -1509,6 +1508,12 @@ def page_portfolio():
                 ('Rev_Growth', 15.0, '>'), 
                 ('PEG', 2.0, '<'),
                 ('ROE', 5.0, '>')
+            ],
+            "All Weather (Ray Dalio Proxy)": [ # Quality & Stability
+                ('ROE', 12.0, '>'),          # High Quality
+                ('Debt_Equity', 80.0, '<'),  # Low Leverage
+                ('PE', 25.0, '<'),           # Reasonable Price
+                ('Op_Margin', 10.0, '>')     # Profitable
             ]
         }
         
@@ -1544,7 +1549,42 @@ def page_portfolio():
         # Let's use Pure Market Cap but Cap max weight at 15% for safety.
         
         total_mcap = portfolio['Market_Cap'].sum()
-        if total_mcap > 0:
+        
+        if risk_choice == "All Weather (Ray Dalio Proxy)":
+            # --- Ray Dalio Style Allocator ---
+            # 1. Classify Buckets
+            def get_bucket(row):
+                sec = row.get('Sector', '')
+                if sec in ['Utilities', 'Healthcare', 'Consumer Defensive']: return 'Defensive (Bonds)'
+                if sec in ['Technology', 'Consumer Cyclical', 'Communication Services']: return 'Growth (Stocks)'
+                if sec in ['Energy', 'Basic Materials', 'Real Estate', 'Industrials']: return 'Inflation (Cmdty)'
+                if sec in ['Financial Services']: return 'Financials (Cash)'
+                return 'Other'
+            
+            portfolio['Bucket'] = portfolio.apply(get_bucket, axis=1)
+            
+            # 2. Target Weights (Ray Dalio Inspired)
+            targets = {'Defensive (Bonds)': 0.40, 'Growth (Stocks)': 0.30, 
+                       'Inflation (Cmdty)': 0.15, 'Financials (Cash)': 0.15}
+            
+            # 3. Calculate
+            portfolio['Weight %'] = 0.0
+            
+            # Check availability
+            available_buckets = portfolio['Bucket'].unique()
+            total_target_available = sum([targets.get(b, 0) for b in available_buckets])
+            
+            if total_target_available > 0:
+                for bucket in available_buckets:
+                    bucket_weight = targets.get(bucket, 0) / total_target_available # Re-normalize
+                    subset = portfolio[portfolio['Bucket'] == bucket]
+                    sub_mcap = subset['Market_Cap'].sum()
+                    if sub_mcap > 0:
+                        # Distribute bucket weight by Market Cap within bucket
+                        weights = (subset['Market_Cap'] / sub_mcap) * bucket_weight * 100
+                        portfolio.loc[subset.index, 'Weight %'] = weights
+        
+        elif total_mcap > 0:
             portfolio['Weight_Raw'] = portfolio['Market_Cap'] / total_mcap
             
             # Cap at 15% and redistribute (Simple normalization for MVP)
