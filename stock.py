@@ -1623,11 +1623,14 @@ def page_portfolio():
         
         with tab1:
             # Main Table with Type and Sector
-            cols_to_show = ['Ticker', 'Type', 'Sector', 'Price', 'Fit Score', 'PE', 'PEG', 'Rev_CAGR_5Y', 'NI_CAGR_5Y', 'Div_Yield', 'Weight %']
+            # Added 'Bucket' to show Asset Class (Bonds/Stocks etc)
+            cols_to_show = ['Ticker', 'Bucket', 'Type', 'Sector', 'Price', 'Fit Score', 'PE', 'PEG', 'Rev_CAGR_5Y', 'NI_CAGR_5Y', 'Div_Yield', 'Weight %']
             valid_cols = [c for c in cols_to_show if c in portfolio.columns]
             
             # Use Column Config for Safe Formatting (Handles None/NaN automatically)
             col_cfg = {
+                "Ticker": st.column_config.TextColumn("Symbol"),
+                "Bucket": st.column_config.TextColumn("Asset Class (Proxy)"), # Renamed for User Clarity
                 "Price": st.column_config.NumberColumn(format="%.2f"),
                 "Fit Score": st.column_config.ProgressColumn("Score", format="%d", min_value=0, max_value=100),
                 "PE": st.column_config.NumberColumn(format="%.1f"),
@@ -1654,22 +1657,22 @@ def page_portfolio():
                  # Check if All Weather Strategy is active
                  if risk_choice == "All Weather (Ray Dalio Proxy)" and 'Bucket' in portfolio.columns:
                      st.subheader("🌍 Asset Allocation")
+                     st.caption("Breakdown by Individual Holding & Asset Class")
                      
-                     # Aggregation
-                     alloc_df = portfolio.groupby('Bucket')['Weight %'].sum().reset_index()
-                     
-                     # Donut Chart (Altair)
-                     base = alt.Chart(alloc_df).encode(theta=alt.Theta("Weight %", stack=True))
-                     pie = base.mark_arc(outerRadius=120, innerRadius=80).encode(
-                        color=alt.Color("Bucket"),
+                     # Donut Chart (Altair) - Individual Stocks
+                     base = alt.Chart(portfolio).encode(theta=alt.Theta("Weight %", stack=True))
+                     pie = base.mark_arc(outerRadius=120, innerRadius=60).encode(
+                        color=alt.Color("Bucket", legend=alt.Legend(title="Asset Class")), # Color by Bucket
                         order=alt.Order("Weight %", sort="descending"),
-                        tooltip=["Bucket", "Weight %"]
+                        tooltip=["Ticker", "Bucket", "Weight %", "Sector"] # Hover details
                      )
                      text = base.mark_text(radius=140).encode(
-                        text=alt.Text("Weight %", format=".1f"),
+                        text=alt.Text("Ticker"), # Show Ticker Labels
                         order=alt.Order("Weight %", sort="descending"),
-                         color=alt.value("white")
+                        color=alt.value("white") 
                      )
+                     # Add secondary text for %? Hard in one layer. Tooltip is sufficient.
+                     
                      st.altair_chart(pie + text, use_container_width=True)
                      
                  else:
