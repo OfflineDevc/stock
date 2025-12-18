@@ -1138,17 +1138,17 @@ def page_single_stock():
                 
                 with col1:
                     st.markdown("**Valuation**")
-                    st.write(f"- P/E: **{row.get('PE', 0):.1f}**")
-                    st.write(f"- PEG: **{row.get('PEG', 0):.2f}**")
-                    st.write(f"- P/B: **{row.get('PB', 0):.2f}**")
-                    st.write(f"- Fair Value: **{row.get('Fair_Value', 0):.2f}**")
+                    st.write(f"- P/E: **{row.get('PE') if row.get('PE') is not None else 0:.1f}**")
+                    st.write(f"- PEG: **{row.get('PEG') if row.get('PEG') is not None else 0:.2f}**")
+                    st.write(f"- P/B: **{row.get('PB') if row.get('PB') is not None else 0:.2f}**")
+                    st.write(f"- Fair Value: **{row.get('Fair_Value') if row.get('Fair_Value') is not None else 0:.2f}**")
                 
                 with col2:
                     st.markdown("**Quality**")
-                    st.write(f"- ROE: **{row.get('ROE', 0):.1f}%**")
-                    st.write(f"- Margin: **{row.get('Op_Margin', 0):.1f}%**")
-                    st.write(f"- Debt/Equity: **{row.get('Debt_Equity', 0):.0f}%**")
-                    st.write(f"- Dividend: **{row.get('Div_Yield', 0):.2f}%**")
+                    st.write(f"- ROE: **{row.get('ROE') if row.get('ROE') is not None else 0:.1f}%**")
+                    st.write(f"- Margin: **{row.get('Op_Margin') if row.get('Op_Margin') is not None else 0:.1f}%**")
+                    st.write(f"- Debt/Equity: **{row.get('Debt_Equity') if row.get('Debt_Equity') is not None else 0:.0f}%**")
+                    st.write(f"- Dividend: **{row.get('Div_Yield') if row.get('Div_Yield') is not None else 0:.2f}%**")
                 
                 # Show Chart
                 st.markdown("### 📉 5-Year Price Trend")
