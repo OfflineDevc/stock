@@ -10,7 +10,6 @@ import datetime
 # --- PROFESSIONAL UI OVERHAUL ---
 def inject_custom_css():
     st.markdown("""
-    <style>
         /* 1. Google Font: Inter (Professional & Minimal) */
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
         
@@ -28,19 +27,32 @@ def inject_custom_css():
             100% { opacity: 1; transform: translateY(0); }
         }
 
-        /* 3. Expander Styling (Cleaner) */
+        /* 3. Metric Cards (Card Look) - RESTORED SAFELY */
+        [data-testid="stMetric"] {
+            background-color: #ffffff;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid #f0f2f6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: transform 0.2s;
+        }
+        
+        [data-testid="stMetric"]:hover {
+             transform: translateY(-2px);
+             box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        /* 4. Expander Styling (Cleaner) */
         .streamlit-expanderHeader {
             background-color: #f8f9fa;
             border-radius: 8px;
             font-weight: 600;
         }
 
-        /* 4. HIDE STREAMLIT DEFAULT MENU & FOOTER (Prevent Leaks) */
+        /* 5. HIDE BUTTONS & MENU (Privacy) */
         #MainMenu {visibility: hidden;}
         footer {visibility: hidden;}
         .stDeployButton {display:none;}
-        
-        /* NOTE: Removed Custom Button & Header Styling to prevent UI disappearance issues */
     </style>
     """, unsafe_allow_html=True)
 
