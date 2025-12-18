@@ -1831,7 +1831,7 @@ if __name__ == "__main__":
     st.session_state['lang'] = 'EN' if "English" in lang_choice else 'TH'
 
     st.sidebar.title("Menu")
-    page = st.sidebar.radio("Go to", ["Scanner", "Auto Portfolio", "Single Stock", "Glossary", "How to Use"])
+    page = st.sidebar.radio("Go to", ["Scanner", "Auto Portfolio", "Single Stock", "Portfolio HealthCheck", "Stock AI Analysis", "Glossary", "How to Use"])
     
     if page == "Scanner":
         page_scanner()
@@ -1839,6 +1839,16 @@ if __name__ == "__main__":
         page_portfolio()
     elif page == "Single Stock":
         page_single_stock()
+    elif page == "Portfolio HealthCheck":
+        st.title("🏥 Portfolio Health Check")
+        st.markdown("---")
+        st.warning("🚧 **Feature Under Development** 🚧")
+        st.info("Check back soon for AI-powered portfolio diagnostics!")
+    elif page == "Stock AI Analysis":
+        st.title("🧠 Stock AI Analysis")
+        st.markdown("---")
+        st.warning("🚧 **Feature Under Development** 🚧")
+        st.info("Coming soon: Deep Learning Fundamental Analysis.")
     elif page == "Glossary":
         page_glossary()
     elif page == "How to Use":
