@@ -86,6 +86,12 @@ def inject_custom_css():
             border-radius: 8px;
             font-weight: 600;
         }
+
+        /* 6. HIDE STREAMLIT DEFAULT MENU & FOOTER (Prevent Leaks) */
+        #MainMenu {visibility: hidden;}
+        footer {visibility: hidden;}
+        header {visibility: hidden;}
+        .stDeployButton {display:none;}
     </style>
     """, unsafe_allow_html=True)
 
