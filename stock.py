@@ -1656,35 +1656,40 @@ def page_portfolio():
         with tab2:
              c1, c2 = st.columns([2, 1])
              with c1:
-                 # Check if All Weather Strategy is active
+                 st.subheader("🌍 Portfolio Allocation")
+                 st.caption("Breakdown by Individual Holding & Group")
+                 
+                 # Prepare Chart Data
                  if risk_choice == "All Weather (Ray Dalio Proxy)":
-                     st.subheader("🌍 Asset Allocation")
-                     st.caption("Breakdown by Individual Holding & Asset Class")
-                     
-                     # Chart Data: Combined
                      chart_df = full_portfolio.copy()
-                     chart_df['Label'] = chart_df['Ticker'] + " (" + chart_df['Weight %'].map('{:.1f}%'.format) + ")"
-
-                     # Donut Chart (Altair) - Individual Stocks
-                     base = alt.Chart(chart_df).encode(theta=alt.Theta("Weight %", stack=True))
-                     pie = base.mark_arc(outerRadius=120, innerRadius=60).encode(
-                        color=alt.Color("Bucket", legend=alt.Legend(title="Asset Class")), # Color by Bucket
-                        order=alt.Order("Weight %", sort="descending"),
-                        tooltip=["Ticker", "Bucket", "Weight %", "Sector"] # Hover details
-                     )
-                     text = base.mark_text(radius=150).encode(
-                        text=alt.Text("Label"), # Show Ticker Labels with %
-                        order=alt.Order("Weight %", sort="descending"),
-                        color=alt.value("white") # Or black depending on theme? Streamlit theme handles mostly.
-                     )
-                     
-                     st.altair_chart(pie + text, use_container_width=True)
-                     
+                     color_col = "Bucket"
+                     legend_title = "Asset Class"
                  else:
-                     st.subheader("Sector Allocation")
-                     sector_counts = portfolio['Sector'].value_counts()
-                     if not sector_counts.empty:
-                         st.bar_chart(sector_counts)
+                     chart_df = portfolio.copy()
+                     # For standard, use Sector as the grouping color
+                     chart_df['Bucket'] = chart_df['Sector'] 
+                     color_col = "Bucket" 
+                     legend_title = "Sector"
+
+                 # Create Label for Chart
+                 chart_df['Label'] = chart_df['Ticker'] + " (" + chart_df['Weight %'].map('{:.1f}%'.format) + ")"
+
+                 # Donut Chart (Altair) - Individual Stocks
+                 base = alt.Chart(chart_df).encode(theta=alt.Theta("Weight %", stack=True))
+                 
+                 pie = base.mark_arc(outerRadius=120, innerRadius=60).encode(
+                    color=alt.Color(color_col, legend=alt.Legend(title=legend_title)), 
+                    order=alt.Order("Weight %", sort="descending"),
+                    tooltip=["Ticker", "Bucket", "Weight %", "Sector"] 
+                 )
+                 
+                 text = base.mark_text(radius=160).encode( # Increased radius for visibility
+                    text=alt.Text("Label"), 
+                    order=alt.Order("Weight %", sort="descending"),
+                    color=alt.value("white") 
+                 )
+                 
+                 st.altair_chart(pie + text, use_container_width=True)
              
              with c2:
                  st.subheader("Type Allocation")
