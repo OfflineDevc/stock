@@ -556,17 +556,21 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                 rev_growth = safe_float(info.get('revenueGrowth'))
                 if rev_growth is not None: rev_growth *= 100
                 
+                # FALLBACKS for Metadata (If info fails)
+                company_name = info.get('shortName') or info.get('longName') or formatted_ticker
+                sector = info.get('sector') or "Unknown"
+                
                 data_list.append({
                     'Symbol': formatted_ticker,
-                    'Company': info.get('shortName', 'N/A'),
-                    'Sector': info.get('sector', 'N/A'),
+                    'Company': company_name,
+                    'Sector': sector,
                     'Market_Cap': info.get('marketCap', 0), # Added for Weighting
                     'Price': price,
                     'PE': pe,
                     'PEG': peg,
                     'PB': safe_float(info.get('priceToBook')),
                     'ROE': roe,
-                    'Div_Yield': div_yield,
+                    'Div_Yield': div_yield if div_yield is not None else 0.0,
                     'Debt_Equity': debt_equity if debt_equity is not None else safe_float(info.get('debtToEquity')), 
                     'EPS_Growth': growth_q,
                     'Rev_Growth': rev_growth, # Added for Speculative Strategy
