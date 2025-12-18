@@ -5,7 +5,92 @@ import pandas as pd
 import numpy as np
 import time
 
+import datetime
+
+# --- PROFESSIONAL UI OVERHAUL ---
+def inject_custom_css():
+    st.markdown("""
+    <style>
+        /* 1. Google Font: Inter (Professional & Minimal) */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+        
+        html, body, [class*="css"]  {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* 2. Main Container Animation (Fade In) */
+        .main .block-container {
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; transform: translateY(10px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 3. Button Styling (Minimal & Rounded) */
+        div.stButton > button {
+            background-color: #f0f2f6; /* Soft Gray */
+            color: #31333F;
+            border: 1px solid #dbe2e8;
+            border-radius: 12px; /* Smooth Rounding */
+            font-weight: 600;
+            padding: 0.5rem 1rem;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Soft Shadow */
+        }
+        
+        div.stButton > button:hover {
+            transform: translateY(-2px); /* Lift Effect */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-color: #3b82f6; /* Blue Accent */
+            background-color: #ffffff;
+            color: #3b82f6;
+        }
+        
+        div.stButton > button:active {
+            transform: scale(0.98); /* Click Press Effect */
+        }
+        
+        /* Primary Button (Generate) specialized */
+        button[kind="primary"] {
+            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
+            color: white !important;
+            border: none;
+            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
+        }
+        
+        button[kind="primary"]:hover {
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
+        }
+
+        /* 4. Metric Cards (Card Look) */
+        [data-testid="stMetric"] {
+            background-color: #ffffff;
+            padding: 1rem;
+            border-radius: 12px;
+            border: 1px solid #f0f2f6;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: transform 0.2s;
+        }
+        
+        [data-testid="stMetric"]:hover {
+             transform: translateY(-2px);
+             box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        }
+
+        /* 5. Expander Styling (Cleaner) */
+        .streamlit-expanderHeader {
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
 # --- LOCALIZATION & TEXT ASSETS ---
+
 TRANS = {
     'EN': {
         'sidebar_title': "🏛️ Scanner Controls",
@@ -1729,6 +1814,8 @@ def page_portfolio():
 # MAIN ROUTER
 # ---------------------------------------------------------
 if __name__ == "__main__":
+    inject_custom_css() # Apply Professional Styles
+    
     st.sidebar.title("🌐 Language / ภาษา")
     lang_choice = st.sidebar.radio("Language / ภาษา", ["English (EN)", "Thai (TH)"], horizontal=True)
     st.session_state['lang'] = 'EN' if "English" in lang_choice else 'TH'
