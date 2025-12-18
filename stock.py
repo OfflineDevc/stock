@@ -556,21 +556,17 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                 rev_growth = safe_float(info.get('revenueGrowth'))
                 if rev_growth is not None: rev_growth *= 100
                 
-                # FALLBACKS for Metadata (If info fails)
-                company_name = info.get('shortName') or info.get('longName') or formatted_ticker
-                sector = info.get('sector') or "Unknown"
-                
                 data_list.append({
                     'Symbol': formatted_ticker,
-                    'Company': company_name,
-                    'Sector': sector,
+                    'Company': info.get('shortName', 'N/A'),
+                    'Sector': info.get('sector', 'N/A'),
                     'Market_Cap': info.get('marketCap', 0), # Added for Weighting
                     'Price': price,
                     'PE': pe,
                     'PEG': peg,
                     'PB': safe_float(info.get('priceToBook')),
                     'ROE': roe,
-                    'Div_Yield': div_yield if div_yield is not None else 0.0,
+                    'Div_Yield': div_yield,
                     'Debt_Equity': debt_equity if debt_equity is not None else safe_float(info.get('debtToEquity')), 
                     'EPS_Growth': growth_q,
                     'Rev_Growth': rev_growth, # Added for Speculative Strategy
@@ -765,58 +761,42 @@ def calculate_fit_score(row, targets):
     valid_targets_count = 0 
     details = []
 
-    # Safe Defaults for Sorting so N/A doesn't break the scan but gets penalized
-    # "Low is Good" metrics (PE, PEG, Debt) -> Default to High (999)
-    # "High is Good" metrics (ROE, Margin, Yield) -> Default to Low (-99)
-    
     for metric, target_val, operator in targets:
         actual_val = row.get(metric)
-        passed_val = actual_val
-        is_missing = pd.isna(actual_val) or actual_val is None
+        if pd.isna(actual_val) or actual_val is None:
+            details.append(f"⚪ N/A")
+            continue
         
-        # Assign Penalty Value for Logic Check
-        if is_missing:
-            if metric in ['PE', 'PEG', 'Debt_Equity', 'PB']:
-                passed_val = 9999.0 # Penalize High
-            elif metric in ['ROE', 'Op_Margin', 'Rev_Growth', 'EPS_Growth', 'Div_Yield']:
-                passed_val = -9999.0 # Penalize Low
-            else:
-                passed_val = 0.0 # Neutral
-
-        # Count as valid target attempt if we have data OR if we forced a penalty
         valid_targets_count += 1
 
         hit = False
         diff = 0
-        
-        # Check against Target
         if operator == '<':
-            if passed_val <= target_val:
+            if actual_val <= target_val:
                 score += 10; hit = True
             else:
-                # If it's missing (9999), it won't get bonus points
-                diff = passed_val - target_val
-                if not is_missing:
-                    if diff <= target_val * 0.2: score += 5
-                    elif diff <= target_val * 0.5: score += 2
+                diff = actual_val - target_val
+                if diff <= target_val * 0.2: score += 5
+                elif diff <= target_val * 0.5: score += 2
         elif operator == '>':
-            if passed_val >= target_val:
+            if actual_val >= target_val:
                 score += 10; hit = True
             else:
-                if not is_missing:
-                    diff = passed_val - target_val
-                    if abs(diff) <= target_val * 0.2: score += 5
-                    elif abs(diff) <= target_val * 0.5: score += 2
+                diff = actual_val - target_val
+                if abs(diff) <= target_val * 0.2: score += 5
+                elif abs(diff) <= target_val * 0.5: score += 2
 
         if not hit:
-            if is_missing:
-                 # Explicitly mention N/A failure
-                 details.append(f"❌ {metric} (N/A)")
-            else:
-                 pct_off = (diff / target_val) * 100 if target_val != 0 else 0
-                 details.append(f"❌ {metric} ({pct_off:+.0f}%)")
+            # Format nicely
+            pct_off = (diff / target_val) * 100 if target_val != 0 else 0
+            details.append(f"❌ {metric} ({pct_off:+.0f}%)")
         else:
+             # NEW: Show passing metrics to explain Score 100
              details.append(f"✅ {metric}")
+
+    # If all metrics were N/A (e.g. Cloud Block), return special status text
+    if valid_targets_count == 0:
+        return 0, "⚠️ Limited Data (Cloud)"
 
     max_score = valid_targets_count * 10
     final_score = int((score / max_score) * 100) if max_score > 0 else 0
