@@ -1553,68 +1553,65 @@ def page_portfolio():
             return
             
         # --- PROFESSIONAL WEIGHTING ---
-        # Logic: Market Cap Weighted (Index Style) but with Fit Score Adjustment?
-        # User asked for "Like Nasdaq S&P", implying Pure Market Cap.
-        # But also "Risky ones shouldn't be too high".
-        # Let's use Pure Market Cap but Cap max weight at 15% for safety.
-        
         total_mcap = portfolio['Market_Cap'].sum()
         
-        if risk_choice == "All Weather (Ray Dalio Proxy)":
-            # --- Ray Dalio Style Allocator ---
-            # 1. Classify Buckets
-            def get_bucket(row):
-                sec = row.get('Sector', '')
-                if sec in ['Utilities', 'Healthcare', 'Consumer Defensive']: return 'Defensive (Bonds)'
-                if sec in ['Technology', 'Consumer Cyclical', 'Communication Services']: return 'Growth (Stocks)'
-                if sec in ['Energy', 'Basic Materials', 'Real Estate', 'Industrials']: return 'Inflation (Cmdty)'
-                if sec in ['Financial Services']: return 'Financials (Cash)'
-                return 'Other'
-            
-            portfolio['Bucket'] = portfolio.apply(get_bucket, axis=1)
-            
-            # 2. Target Weights (Ray Dalio Inspired)
-            targets = {'Defensive (Bonds)': 0.40, 'Growth (Stocks)': 0.30, 
-                       'Inflation (Cmdty)': 0.15, 'Financials (Cash)': 0.15}
-            
-            # 3. Calculate
-            portfolio['Weight %'] = 0.0
-            
-            # Check availability
-            available_buckets = portfolio['Bucket'].unique()
-            total_target_available = sum([targets.get(b, 0) for b in available_buckets])
-            
-            if total_target_available > 0:
-                for bucket in available_buckets:
-                    bucket_weight = targets.get(bucket, 0) / total_target_available # Re-normalize
-                    subset = portfolio[portfolio['Bucket'] == bucket]
-                    sub_mcap = subset['Market_Cap'].sum()
-                    if sub_mcap > 0:
-                        # Distribute bucket weight by Market Cap within bucket
-                        weights = (subset['Market_Cap'] / sub_mcap) * bucket_weight * 100
-                        portfolio.loc[subset.index, 'Weight %'] = weights
+        # Combined Portfolio for Charting
+        full_portfolio = pd.DataFrame()
+        assets_df = pd.DataFrame()
         
-        elif total_mcap > 0:
-            portfolio['Weight_Raw'] = portfolio['Market_Cap'] / total_mcap
+        if risk_choice == "All Weather (Ray Dalio Proxy)":
+            # --- Ray Dalio Real Asset Allocator ---
+            # 1. Equity Portion (30%)
+            # We take the top stocks found (Quality filtered) and allocate 30% total.
+            equity_weight = 0.30
             
-            # Cap at 15% and redistribute (Simple normalization for MVP)
-            # Actually, let's just use simple Market Cap % for now to be "Real".
-            portfolio['Weight %'] = portfolio['Weight_Raw'] * 100
+            if total_mcap > 0:
+                portfolio['Weight_Raw'] = portfolio['Market_Cap'] / total_mcap
+                portfolio['Weight %'] = portfolio['Weight_Raw'] * equity_weight * 100
+                portfolio['Bucket'] = "Equities (Stock)"
+            else:
+                portfolio['Weight %'] = (equity_weight * 100) / len(portfolio)
+                portfolio['Bucket'] = "Equities (Stock)"
+
+            # 2. Core Assets (70%) - Fixed ETFs
+            # TLT (Long Bond) 40%, IEF (Interm) 15%, GLD (Gold) 7.5%, DBC (Cmdty) 7.5%
+            assets_data = [
+                {'Ticker': 'TLT', 'Bucket': 'Long Bonds', 'Weight %': 40.0, 'Price': 95.0, 'Company': 'iShares 20+ Year Treasury Bond ETF', 'Sector': 'ETF'},
+                {'Ticker': 'IEF', 'Bucket': 'Interm Bonds', 'Weight %': 15.0, 'Price': 92.0, 'Company': 'iShares 7-10 Year Treasury Bond ETF', 'Sector': 'ETF'},
+                {'Ticker': 'GLD', 'Bucket': 'Gold', 'Weight %': 7.5, 'Price': 185.0, 'Company': 'SPDR Gold Shares', 'Sector': 'ETF'},
+                {'Ticker': 'DBC', 'Bucket': 'Commodities', 'Weight %': 7.5, 'Price': 22.0, 'Company': 'Invesco DB Commodity Index', 'Sector': 'ETF'}
+            ]
+            assets_df = pd.DataFrame(assets_data)
+            
+            # Combine
+            full_portfolio = pd.concat([portfolio, assets_df], ignore_index=True)
+            
         else:
-            portfolio['Weight %'] = 100 / len(portfolio) # Fallback Equal Weight
+            # Standard Strategy
+            if total_mcap > 0:
+                portfolio['Weight_Raw'] = portfolio['Market_Cap'] / total_mcap
+                # Cap at 15% and redistribute (Simple normalization for MVP)
+                # Actually, let's just use simple Market Cap % for now to be "Real".
+                portfolio['Weight %'] = portfolio['Weight_Raw'] * 100
+            else:
+                portfolio['Weight %'] = 100 / len(portfolio) # Fallback Equal Weight
+            
+            portfolio['Bucket'] = portfolio['Sector'] # Default bucket is sector
+            full_portfolio = portfolio.copy()
+
 
         # 7. Visualization
-        st.success(f"✅ Generated Professional Portfolio: {len(portfolio)} Stocks")
+        st.success(f"✅ Generated Professional Portfolio: {len(portfolio)} Stocks + {len(assets_df)} Assets")
         
-        # Portfolio Stats
+        # Portfolio Stats (Equity Only)
         avg_pe = portfolio['PE'].mean()
         avg_div = portfolio['Div_Yield'].mean()
         avg_roe = portfolio['ROE'].mean()
         
         # Top Level Metrics
         m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Avg P/E", f"{avg_pe:.1f}")
-        m2.metric("Portfolio Yield", f"{avg_div:.2%}")
+        m1.metric("Avg P/E (Equity)", f"{avg_pe:.1f}")
+        m2.metric("Equity Yield", f"{avg_div:.2%}")
         m3.metric("Quality (ROE)", f"{avg_roe:.1f}%")
         m4.metric("Strategy", risk_choice)
         
@@ -1624,13 +1621,12 @@ def page_portfolio():
         with tab1:
             # Main Table with Type and Sector
             # Added 'Bucket' to show Asset Class (Bonds/Stocks etc)
-            cols_to_show = ['Ticker', 'Bucket', 'Type', 'Sector', 'Price', 'Fit Score', 'PE', 'PEG', 'Rev_CAGR_5Y', 'NI_CAGR_5Y', 'Div_Yield', 'Weight %']
-            valid_cols = [c for c in cols_to_show if c in portfolio.columns]
+            cols_to_show = ['Ticker', 'Company', 'Bucket', 'Type', 'Sector', 'Price', 'Fit Score', 'PE', 'PEG', 'Rev_CAGR_5Y', 'NI_CAGR_5Y', 'Div_Yield', 'Weight %']
             
             # Use Column Config for Safe Formatting (Handles None/NaN automatically)
             col_cfg = {
                 "Ticker": st.column_config.TextColumn("Symbol"),
-                "Bucket": st.column_config.TextColumn("Asset Class (Proxy)"), # Renamed for User Clarity
+                "Bucket": st.column_config.TextColumn("Asset Class"), 
                 "Price": st.column_config.NumberColumn(format="%.2f"),
                 "Fit Score": st.column_config.ProgressColumn("Score", format="%d", min_value=0, max_value=100),
                 "PE": st.column_config.NumberColumn(format="%.1f"),
@@ -1641,13 +1637,19 @@ def page_portfolio():
                 "Weight %": st.column_config.NumberColumn("Weight", format="%.2f%%")
             }
             
-            st.dataframe(
-                portfolio[valid_cols],
-                column_config=col_cfg,
-                width="stretch",
-                height=500,
-                hide_index=True
-            )
+            if risk_choice == "All Weather (Ray Dalio Proxy)":
+                st.subheader("1. Equity Holdings (30%)")
+                valid_cols = [c for c in cols_to_show if c in portfolio.columns]
+                st.dataframe(portfolio[valid_cols], column_config=col_cfg, width="stretch", hide_index=True)
+                
+                st.subheader("2. Core Asset Allocation (70%)")
+                st.info("These are standard ETF Proxies for the Asset Classes.")
+                asset_cols = ['Ticker', 'Company', 'Bucket', 'Weight %', 'Price']
+                st.dataframe(assets_df[asset_cols], column_config=col_cfg, width="stretch", hide_index=True)
+                
+            else:
+                valid_cols = [c for c in cols_to_show if c in portfolio.columns]
+                st.dataframe(portfolio[valid_cols], column_config=col_cfg, width="stretch", height=500, hide_index=True)
 
 
             
@@ -1655,23 +1657,26 @@ def page_portfolio():
              c1, c2 = st.columns([2, 1])
              with c1:
                  # Check if All Weather Strategy is active
-                 if risk_choice == "All Weather (Ray Dalio Proxy)" and 'Bucket' in portfolio.columns:
+                 if risk_choice == "All Weather (Ray Dalio Proxy)":
                      st.subheader("🌍 Asset Allocation")
                      st.caption("Breakdown by Individual Holding & Asset Class")
                      
+                     # Chart Data: Combined
+                     chart_df = full_portfolio.copy()
+                     chart_df['Label'] = chart_df['Ticker'] + " (" + chart_df['Weight %'].map('{:.1f}%'.format) + ")"
+
                      # Donut Chart (Altair) - Individual Stocks
-                     base = alt.Chart(portfolio).encode(theta=alt.Theta("Weight %", stack=True))
+                     base = alt.Chart(chart_df).encode(theta=alt.Theta("Weight %", stack=True))
                      pie = base.mark_arc(outerRadius=120, innerRadius=60).encode(
                         color=alt.Color("Bucket", legend=alt.Legend(title="Asset Class")), # Color by Bucket
                         order=alt.Order("Weight %", sort="descending"),
                         tooltip=["Ticker", "Bucket", "Weight %", "Sector"] # Hover details
                      )
-                     text = base.mark_text(radius=140).encode(
-                        text=alt.Text("Ticker"), # Show Ticker Labels
+                     text = base.mark_text(radius=150).encode(
+                        text=alt.Text("Label"), # Show Ticker Labels with %
                         order=alt.Order("Weight %", sort="descending"),
-                        color=alt.value("white") 
+                        color=alt.value("white") # Or black depending on theme? Streamlit theme handles mostly.
                      )
-                     # Add secondary text for %? Hard in one layer. Tooltip is sufficient.
                      
                      st.altair_chart(pie + text, use_container_width=True)
                      
