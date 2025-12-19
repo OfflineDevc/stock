@@ -592,7 +592,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                     # Auto-Fix: Yahoo usually sends 0.05 for 5%. 
                     # If we get > 1.0 (e.g. 5.0), it's likely a scaling error.
                     if div_yield is not None and div_yield > 1.0: 
-                        div_yield /= 100.0
+                        div_yield * 100.0
                 if op_margin is None:
                     op_margin = safe_float(info.get('operatingMargins'))
                     if op_margin is not None: op_margin *= 100
