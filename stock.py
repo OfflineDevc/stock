@@ -587,8 +587,8 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                 
                 data_list.append({
                     'Symbol': formatted_ticker,
-                    'Company': info.get('shortName', 'N/A'),
-                    'Sector': info.get('sector', 'N/A'),
+                    'Company': info.get('shortName') or info.get('longName') or formatted_ticker,
+                    'Sector': info.get('sector') or info.get('industry') or "Unknown",
                     'Market_Cap': info.get('marketCap', 0), # Added for Weighting
                     'Price': price,
                     'PE': pe,
