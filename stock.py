@@ -658,15 +658,17 @@ def analyze_history_deep(df_candidates, progress_bar, status_text):
                     try:
                         start_rev = fin['Total Revenue'].iloc[0]
                         end_rev = fin['Total Revenue'].iloc[-1]
-                        val = (end_rev / start_rev) ** (1/(years-1)) - 1
-                        cagr_rev = val * 100
+                        if start_rev > 0 and end_rev > 0:
+                            val = (end_rev / start_rev) ** (1/(years-1)) - 1
+                            cagr_rev = val * 100
                     except: pass
                     
                     try:
                         start_ni = fin['Net Income'].iloc[0]
                         end_ni = fin['Net Income'].iloc[-1]
-                        val = (end_ni / start_ni) ** (1/(years-1)) - 1
-                        cagr_ni = val * 100
+                        if start_ni > 0 and end_ni > 0:
+                            val = (end_ni / start_ni) ** (1/(years-1)) - 1
+                            cagr_ni = val * 100
                     except: pass
             
             # 2. Dividend History (For High Yield Analysis)
@@ -1011,6 +1013,18 @@ def page_scanner():
                 deep_metrics = analyze_history_deep(top_candidates, st.progress(0), st.empty())
                 final_df = top_candidates.merge(deep_metrics, on='Symbol', how='left')
                 
+                # --- BACKFILL MERGE (Restored) ---
+                if 'Derived_PEG' in final_df.columns:
+                     final_df['PEG'] = final_df['PEG'].fillna(final_df['Derived_PEG'])
+                
+                if 'Derived_FV' in final_df.columns:
+                     final_df['Fair_Value'] = final_df['Fair_Value'].fillna(final_df['Derived_FV'])
+                     # Recalculate Margin of Safety
+                     final_df['Margin_Safety'] = final_df.apply(
+                        lambda r: ((r['Fair_Value'] - r['Price']) / r['Fair_Value'] * 100) 
+                        if (pd.notnull(r['Fair_Value']) and r['Fair_Value'] != 0) else 0, axis=1
+                     )
+                
                 st.session_state['scan_results'] = df
                 st.session_state['deep_results'] = final_df
             else:
@@ -1048,25 +1062,22 @@ def page_scanner():
             col_config[p] = st.column_config.NumberColumn(p, format="%.1f%%")
 
         if 'YF_Obj' in final_df.columns:
-            display_df = final_df.drop(columns=['YF_Obj'])
+            display_df = final_df.drop(columns=['YF_Obj'], errors='ignore')
         else:
             display_df = final_df
 
         st.dataframe(display_df, column_order=final_cols, column_config=col_config, hide_index=True, width="stretch")
         
-        # Cloud Warning Check: If we have results but Scores are 0 (Limited Data)
+        # Cloud Warning Check
         if 'Fit_Score' in final_df.columns and (final_df['Fit_Score'] == 0).all():
-            st.warning("⚠️ **Data Recovery Mode Active**: Advanced metrics (P/E, ROE) were manually calculated from financial statements due to Cloud restrictions.")
+            st.warning("⚠️ **Data Recovery Mode Active**: Advanced metrics (P/E, ROE) were manually calculated due to Cloud restrictions.")
         else:
             if final_df.shape[0] > 0 and 'YF_Obj' not in final_df.columns:
-                 # Check if we have many N/A in key columns
                  if final_df['PE'].isna().sum() > len(final_df) * 0.5:
-                      st.warning("⚠️ **Cloud Data Limitation**: Some advanced metrics might be missing. Using manual recovery where possible.")
+                      st.warning("⚠️ **Cloud Data Limitation**: Some advanced metrics might be missing.")
         
         with st.expander("📋 View Stage 1 Data (All Scanned Stocks)"):
-            # FIX: Drop YF_Obj to avoid Arrow Serialization Error
-            if 'YF_Obj' in df.columns: dump_df = df.drop(columns=['YF_Obj'])
-            else: dump_df = df
+            dump_df = df.drop(columns=['YF_Obj'], errors='ignore')
             
             st.dataframe(
                 dump_df,
@@ -1169,6 +1180,15 @@ def page_single_stock():
                     deep_row = deep_metrics.iloc[0]
                     # Merge manually for display
                     for k, v in deep_row.items(): row[k] = v
+
+                    # --- BACKFILL COALESCE (Restored) ---
+                    if (pd.isna(row.get('PEG')) or row.get('PEG') is None) and row.get('Derived_PEG'):
+                        row['PEG'] = row['Derived_PEG']
+                    
+                    if (pd.isna(row.get('Fair_Value')) or row.get('Fair_Value') is None) and row.get('Derived_FV'):
+                        row['Fair_Value'] = row['Derived_FV']
+                        if row.get('Price') and row['Fair_Value'] != 0:
+                             row['Margin_Safety'] = ((row['Fair_Value'] - row['Price']) / row['Fair_Value']) * 100
 
                 # NEW: Business Summary
                 try:
