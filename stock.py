@@ -1120,9 +1120,16 @@ def page_single_stock():
                 
                 # Top Header
                 st.subheader(f"{row['Symbol']} - {row['Company']}")
+                
+                # Calculate Lynch Category if missing
+                lynch_cat = row.get('Lynch_Category')
+                if not lynch_cat:
+                    lynch_cat = classify_lynch(row)
+                
                 c1, c2, c3 = st.columns(3)
                 c1.metric("Price", f"{price} {row.get('Currency', '')}")
-                c1.metric("Sector", row['Sector'])
+                c2.metric("Sector", row['Sector'])
+                c3.metric("Lynch Type", lynch_cat)
                 
                 # Fetch deeper data for context
                 deep_metrics = analyze_history_deep(df, MockProgress(), st.empty())
@@ -1150,6 +1157,21 @@ def page_single_stock():
                 score, details = calculate_fit_score(row, [('Div_Yield', 4.0, '>'), ('Op_Margin', 10.0, '>')])
                 c_s3.metric("Dividend Score", f"{score}/100")
                 if details != "✅ Perfect Match": c_s3.caption(details)
+
+                # 4. Multibagger Score (New)
+                c_s4 = c_s1 # Reuse or create new row? Let's use correct layout.
+                # Actually let's just make it 4 columns if space permits
+                
+                # RE-LAYOUT to 4 COLUMNS
+                # But st.columns(3) is above. I need to edit the column setup to make it work gracefully.
+                # Since I am in 'multi_replace', I can't easily change the `st.columns(3)` line which is far above line 1137.
+                # I'll just append it to the bottom or use expander.
+                
+                st.caption("---")
+                c_m1, c_m2 = st.columns(2)
+                score, details = calculate_fit_score(row, [('Rev_Growth', 30.0, '>'), ('EPS_Growth', 20.0, '>'), ('PEG', 2.0, '<')])
+                c_m1.metric("🚀 Multibagger Score", f"{score}/100")
+                if details != "✅ Perfect Match": c_m1.caption(details)
                 
                 st.markdown("---")
                 st.subheader("🔍 Financial Health Check")
@@ -1499,7 +1521,7 @@ def page_scanner():
         
         with c_strat:
              st.subheader(get_text('strat_mandate'))
-             strategy = st.selectbox(get_text('strategy_label'), ["Custom", "Growth at Reasonable Price (GARP)", "Deep Value", "High Yield", "Speculative Growth"])
+             strategy = st.selectbox(get_text('strategy_label'), ["Custom", "Growth at Reasonable Price (GARP)", "Deep Value", "High Yield", "Speculative Growth", "Multibagger (High Risk)"])
              
              # Mode & Period
              strict_criteria = st.multiselect(get_text('strict_label'), 
@@ -1529,6 +1551,8 @@ def page_scanner():
             t_div = 0.03; t_pe = 20.0; t_roe = 0.10
         elif strategy == "Speculative Growth":
             t_pe = 500.0; t_peg = 5.0; t_roe = 0.05; t_rev_growth = 20.0
+        elif strategy == "Multibagger (High Risk)":
+            t_pe = 999.0; t_peg = 3.0; t_roe = 0.05; t_rev_growth = 30.0
             
         c_val, c_prof, c_risk = st.columns(3)
         
@@ -1543,7 +1567,7 @@ def page_scanner():
              prof_roe = st.slider("Min ROE %", 0, 50, int(t_roe*100)) / 100
              prof_margin = st.slider("Min Op Margin %", 0, 50, int(t_margin*100)) / 100
              prof_div = st.slider("Min Dividend Yield %", 0, 15, int(t_div*100)) / 100
-             if strategy == "Speculative Growth":
+             if strategy == "Speculative Growth" or strategy == "Multibagger (High Risk)":
                  growth_min = st.slider("Min Revenue Growth %", 0, 100, int(t_rev_growth))
         
         with c_risk:
@@ -1623,6 +1647,9 @@ def page_scanner():
         if strategy == "Speculative Growth":
             targets = [('Rev_Growth', float(growth_min), '>'), ('EPS_Growth', 0.15, '>'),
                        ('ROE', prof_roe, '>'), ('Debt_Equity', risk_de, '<')]
+        elif strategy == "Multibagger (High Risk)":
+             targets = [('Rev_Growth', float(growth_min), '>'), ('EPS_Growth', 0.20, '>'),
+                       ('ROE', prof_roe, '>'), ('PEG', 2.0, '<')] # Cheap Growth check
         else:
             targets = [('PEG', val_peg, '<'), ('PE', val_pe, '<'), ('ROE', prof_roe, '>'),
                        ('Op_Margin', prof_margin, '>'), ('Div_Yield', prof_div, '>'), ('Debt_Equity', risk_de, '<')]
