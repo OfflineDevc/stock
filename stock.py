@@ -6,6 +6,8 @@ import numpy as np
 import time
 
 import datetime
+import re
+import requests
 from deep_translator import GoogleTranslator
 
 # --- TRANSLATION HELPER ---
@@ -13,12 +15,35 @@ from deep_translator import GoogleTranslator
 def translate_text(text, target_lang='th'):
     try:
         if not text: return ""
-        # Chunking might be needed for very long text, but summaries are usually < 5000 chars
         translator = GoogleTranslator(source='auto', target=target_lang)
         return translator.translate(text)
     except Exception as e:
-        return text # Fallback to original
+        return text 
 
+@st.cache_data(ttl=86400, show_spinner=False)
+def get_yahoo_profile_fallback(ticker):
+    """Scrapes Sector/Industry from Yahoo Profile page if API fails."""
+    try:
+        url = f"https://finance.yahoo.com/quote/{ticker}/profile"
+        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+        
+        # Method 1: Regex on Text (Fastest)
+        r = requests.get(url, headers=headers, timeout=5)
+        html = r.text
+        
+        sector = "Unknown"
+        industry = "Unknown"
+        
+        # Yahoo often uses JSON data inside scripts.
+        sec_match = re.search(r'"sector":"([^"]+)"', html)
+        if sec_match: sector = sec_match.group(1)
+        
+        ind_match = re.search(r'"industry":"([^"]+)"', html)
+        if ind_match: industry = ind_match.group(1)
+
+        return {'Sector': sector, 'Industry': industry}
+    except:
+        return {'Sector': "Unknown", 'Industry': "Unknown"}
 
 # --- PROFESSIONAL UI OVERHAUL ---
 def inject_custom_css():
@@ -585,10 +610,16 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                 rev_growth = safe_float(info.get('revenueGrowth'))
                 if rev_growth is not None: rev_growth *= 100
                 
+                # --- METADATA FALLBACK (Scraping) ---
+                sec_val = info.get('sector') or info.get('industry')
+                if not sec_val:
+                    fb = get_yahoo_profile_fallback(formatted_ticker)
+                    sec_val = fb['Sector']
+                
                 data_list.append({
                     'Symbol': formatted_ticker,
                     'Company': info.get('shortName') or info.get('longName') or formatted_ticker,
-                    'Sector': info.get('sector') or info.get('industry') or "Unknown",
+                    'Sector': sec_val or "Unknown",
                     'Market_Cap': info.get('marketCap', 0), # Added for Weighting
                     'Price': price,
                     'PE': pe,
