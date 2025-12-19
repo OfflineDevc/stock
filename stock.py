@@ -6,8 +6,6 @@ import numpy as np
 import time
 
 import datetime
-import re
-import requests
 from deep_translator import GoogleTranslator
 
 # --- TRANSLATION HELPER ---
@@ -15,78 +13,12 @@ from deep_translator import GoogleTranslator
 def translate_text(text, target_lang='th'):
     try:
         if not text: return ""
+        # Chunking might be needed for very long text, but summaries are usually < 5000 chars
         translator = GoogleTranslator(source='auto', target=target_lang)
         return translator.translate(text)
     except Exception as e:
-        return text 
+        return text # Fallback to original
 
-@st.cache_data(ttl=86400, show_spinner=False)
-def get_yahoo_profile_fallback(ticker):
-    """Scrapes Sector/Industry from Yahoo Profile page using robust JSON extraction."""
-    import json
-    
-    # User requested robust future-proof method (No Static Map)
-    
-    try:
-        url = f"https://finance.yahoo.com/quote/{ticker}/profile"
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
-            'Accept-Language': 'en-US,en;q=0.9'
-        }
-        
-        r = requests.get(url, headers=headers, timeout=5)
-        html = r.text
-        
-        sector = "Unknown"
-        industry = "Unknown"
-
-        # STRATEGY 1: Parse the internal JSON State (Kyubey / QuoteSummaryStore)
-        # Yahoo stores data in 'root.App.main = {...}' OR 'window.YAHOO.context = ...'
-        # Modern layouts often use a script with 'root.App.main'
-        
-        json_pattern = r'root\.App\.main\s*=\s*({.*?});'
-        json_match = re.search(json_pattern, html)
-        
-        if json_match:
-            try:
-                data = json.loads(json_match.group(1))
-                # Navigate: context -> dispatcher -> stores -> QuoteSummaryStore -> assetProfile
-                # Paths change, so we try to search blindly for 'assetProfile'
-                # But safer to walk if possible.
-                stores = data.get('context', {}).get('dispatcher', {}).get('stores', {})
-                qs_store = stores.get('QuoteSummaryStore', {})
-                profile = qs_store.get('assetProfile', {})
-                
-                if profile:
-                    sector = profile.get('sector', "Unknown")
-                    industry = profile.get('industry', "Unknown")
-            except: pass
-            
-        # STRATEGY 2: Fallback Regex (If JSON structure changed)
-        # Look for "sector":"Technology" (raw in text)
-        if sector == "Unknown":
-            sec_match = re.search(r'"sector":\s*"([^"]+)"', html)
-            if sec_match: sector = sec_match.group(1)
-            
-            ind_match = re.search(r'"industry":\s*"([^"]+)"', html)
-            if ind_match: industry = ind_match.group(1)
-
-        # Method 2: Visual HTML Backup (if JSON failed)
-        if sector == "Unknown":
-             # Loose Regex: Look for "Sector(s)" then ANY tag closer, then value
-             # e.g. >Sector(s)</span> <span>Technology</span>
-             # e.g. >Sector(s)</span>: Technology<
-             v_match = re.search(r'Sector\(s\)[^<]*<[^>]+>\s*([^<]+)<', html, re.DOTALL)
-             if v_match: sector = v_match.group(1).strip()
-             
-             # Fallback 2.1: Simple "Sector: Value"
-             if not v_match:
-                 v_match = re.search(r'Sector\(s\).*?:\s*([A-Z][a-zA-Z\s]+)', html)
-                 if v_match: sector = v_match.group(1).strip()
-
-        return {'Sector': sector, 'Industry': industry}
-    except:
-        return {'Sector': "Unknown", 'Industry': "Unknown"}
 
 # --- PROFESSIONAL UI OVERHAUL ---
 def inject_custom_css():
@@ -524,11 +456,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
 
                 peg = safe_float(info.get('pegRatio'))
                 
-                # Fallback: Try Trailing PEG (if Forward PEG is missing)
-                if peg is None:
-                    peg = safe_float(info.get('trailingPegRatio'))
-                
-                # Fix PEG (Manual Calc)
+                # Fix PEG
                 if peg is None and pe is not None and growth_q is not None and growth_q > 0:
                     try: peg = pe / (growth_q * 100)
                     except: pass
@@ -653,16 +581,10 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                 rev_growth = safe_float(info.get('revenueGrowth'))
                 if rev_growth is not None: rev_growth *= 100
                 
-                # --- METADATA FALLBACK (Scraping) ---
-                sec_val = info.get('sector') or info.get('industry')
-                if not sec_val:
-                    fb = get_yahoo_profile_fallback(formatted_ticker)
-                    sec_val = fb['Sector']
-                
                 data_list.append({
                     'Symbol': formatted_ticker,
-                    'Company': info.get('shortName') or info.get('longName') or formatted_ticker,
-                    'Sector': sec_val or "Unknown",
+                    'Company': info.get('shortName', 'N/A'),
+                    'Sector': info.get('sector', 'N/A'),
                     'Market_Cap': info.get('marketCap', 0), # Added for Weighting
                     'Price': price,
                     'PE': pe,
@@ -835,37 +757,6 @@ def analyze_history_deep(df_candidates, progress_bar, status_text):
             'Div_Streak': div_streak_str,
             'Insight': insight_str if insight_str else "Stable"
         }
-        
-        # --- BACKFILL LOGIC (User Request: Use CAGR if PEG/FV Missing) ---
-        # We use the row (Stage 1 data) to check if we need to patch holes
-        
-        # 1. Derived PEG
-        derived_peg = None
-        pe = row.get('PE')
-        
-        # Prefer NI Growth (Earnings), then Rev Growth
-        growth_proxy = cagr_ni if (cagr_ni and cagr_ni > 0) else cagr_rev
-        
-        if pe and pe > 0 and growth_proxy and growth_proxy > 0:
-             derived_peg = pe / growth_proxy
-        
-        data_item['Derived_PEG'] = derived_peg
-
-        # 2. Derived Fair Value (Lynch)
-        derived_fv = None
-        price = row.get('Price')
-        
-        # EPS = Price / PE
-        eps_est = 0
-        if price and pe and pe > 0:
-            eps_est = price / pe
-            
-        if eps_est > 0 and growth_proxy and growth_proxy > 0:
-            # Lynch Fair Value = EPS * GrowthRate
-            derived_fv = eps_est * growth_proxy
-        
-        data_item['Derived_FV'] = derived_fv
-        
         # Merge perf metrics
         data_item.update(perf)
         enhanced_data.append(data_item)
@@ -1116,18 +1007,6 @@ def page_scanner():
                 deep_metrics = analyze_history_deep(top_candidates, st.progress(0), st.empty())
                 final_df = top_candidates.merge(deep_metrics, on='Symbol', how='left')
                 
-                # --- BACKFILL MERGE ---
-                if 'Derived_PEG' in final_df.columns:
-                     final_df['PEG'] = final_df['PEG'].fillna(final_df['Derived_PEG'])
-                
-                if 'Derived_FV' in final_df.columns:
-                     final_df['Fair_Value'] = final_df['Fair_Value'].fillna(final_df['Derived_FV'])
-                     # Recalculate Margin of Safety
-                     final_df['Margin_Safety'] = final_df.apply(
-                        lambda r: ((r['Fair_Value'] - r['Price']) / r['Fair_Value'] * 100) 
-                        if (pd.notnull(r['Fair_Value']) and r['Fair_Value'] != 0) else 0, axis=1
-                     )
-                
                 st.session_state['scan_results'] = df
                 st.session_state['deep_results'] = final_df
             else:
@@ -1261,7 +1140,7 @@ def page_single_stock():
             df = scan_market_basic([ticker], MockProgress(), st.empty())
             
             if not df.empty:
-                row = df.iloc[0].copy()
+                row = df.iloc[0]
                 price = row['Price']
                 
                 # Top Header
@@ -1286,16 +1165,6 @@ def page_single_stock():
                     deep_row = deep_metrics.iloc[0]
                     # Merge manually for display
                     for k, v in deep_row.items(): row[k] = v
-                    
-                    # --- BACKFILL COALESCE ---
-                    if (pd.isna(row.get('PEG')) or row.get('PEG') is None) and row.get('Derived_PEG'):
-                        row['PEG'] = row['Derived_PEG']
-                    
-                    if (pd.isna(row.get('Fair_Value')) or row.get('Fair_Value') is None) and row.get('Derived_FV'):
-                        row['Fair_Value'] = row['Derived_FV']
-                        # Recalculate Margin Safety
-                        if row.get('Price') and row['Fair_Value'] != 0:
-                             row['Margin_Safety'] = ((row['Fair_Value'] - row['Price']) / row['Fair_Value']) * 100
 
                 # NEW: Business Summary
                 try:
@@ -1309,25 +1178,6 @@ def page_single_stock():
                          with st.expander(f"{get_text('biz_summary')}: {row['Company']}", expanded=False):
                              st.write(summary)
                 except: pass
-                
-                # --- DEBUG LOG (User Request) ---
-                with st.expander("🛠️ Debug Raw Data (Send to Developer)"):
-                     try:
-                         # Show Merged Row (excluding object)
-                         safe_row = row.drop(['YF_Obj']) if 'YF_Obj' in row else row
-                         st.write("Final Processed Data:", safe_row.to_dict())
-                         
-                         # Show Raw Info keys
-                         if 'YF_Obj' in row:
-                              info = row['YF_Obj'].info
-                              st.write("Raw Yahoo Info (Source):", {
-                                  k: info.get(k) for k in [
-                                      'sector', 'industry', 'pegRatio', 'trailingPegRatio', 
-                                      'revenueGrowth', 'earningsGrowth', 'longName', 'shortName'
-                                  ]
-                              })
-                     except Exception as e:
-                         st.error(f"Debug Error: {e}")
 
                 # strategy checks
                 st.markdown("### 🎯 Strategy Fit Scorecard")
