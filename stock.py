@@ -1138,6 +1138,15 @@ def page_single_stock():
                     # Merge manually for display
                     for k, v in deep_row.items(): row[k] = v
 
+                # NEW: Business Summary
+                try:
+                    stock_obj = row['YF_Obj']
+                    summary = stock_obj.info.get('longBusinessSummary')
+                    if summary:
+                         with st.expander(f"📝 **Business Summary: {row['Company']}**", expanded=False):
+                             st.write(summary)
+                except: pass
+
                 # strategy checks
                 st.markdown("### 🎯 Strategy Fit Scorecard")
                 
