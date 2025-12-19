@@ -157,7 +157,13 @@ TRANS = {
         'menu_ai': "Stock AI Analysis",
         'under_dev': "🚧 Feature Under Development 🚧",
         'dev_soon': "Check back soon for AI-powered diagnostics!",
-        'dev_dl': "Coming soon: Deep Learning Fundamental Analysis."
+        'dev_dl': "Coming soon: Deep Learning Fundamental Analysis.",
+        'biz_summary': "📝 **Business Summary**",
+        'lynch_type': "Lynch Type",
+        'score_garp': "GARP Score",
+        'score_value': "Deep Value Score",
+        'score_div': "Dividend Score",
+        'score_multi': "🚀 Multibagger Score",
     },
     'TH': {
         'sidebar_title': "🏛️ ตั้งค่าการสแกน",
@@ -225,7 +231,13 @@ TRANS = {
         'menu_ai': "วิเคราะห์หุ้นด้วย AI",
         'under_dev': "🚧 ระบบกำลังพัฒนา 🚧",
         'dev_soon': "พบกับระบบตรวจสุขภาพพอร์ตด้วย AI เร็วๆ นี้!",
-        'dev_dl': "พบกับการวิเคราะห์ปัจจัยพื้นฐานด้วย Deep Learning เร็วๆ นี้"
+        'dev_dl': "พบกับการวิเคราะห์ปัจจัยพื้นฐานด้วย Deep Learning เร็วๆ นี้",
+        'biz_summary': "📝 **สรุปข้อมูลธุรกิจ** (จาก Yahoo Finance)",
+        'lynch_type': "ประเภท Lynch",
+        'score_garp': "คะแนน GARP (เติบโตรอบคอบ)",
+        'score_value': "คะแนน Value (หุ้นคุณค่า)",
+        'score_div': "คะแนน Dividend (ปันผล)",
+        'score_multi': "🚀 คะแนน Multibagger (หุ้นเด้ง)",
     }
 }
 
@@ -1126,10 +1138,13 @@ def page_single_stock():
                 if not lynch_cat:
                     lynch_cat = classify_lynch(row)
                 
+                if not lynch_cat:
+                    lynch_cat = classify_lynch(row)
+                
                 c1, c2, c3 = st.columns(3)
                 c1.metric("Price", f"{price} {row.get('Currency', '')}")
                 c2.metric("Sector", row['Sector'])
-                c3.metric("Lynch Type", lynch_cat)
+                c3.metric(get_text('lynch_type'), lynch_cat)
                 
                 # Fetch deeper data for context
                 deep_metrics = analyze_history_deep(df, MockProgress(), st.empty())
@@ -1143,7 +1158,7 @@ def page_single_stock():
                     stock_obj = row['YF_Obj']
                     summary = stock_obj.info.get('longBusinessSummary')
                     if summary:
-                         with st.expander(f"📝 **Business Summary: {row['Company']}**", expanded=False):
+                         with st.expander(f"{get_text('biz_summary')}: {row['Company']}", expanded=False):
                              st.write(summary)
                 except: pass
 
@@ -1154,17 +1169,17 @@ def page_single_stock():
                 
                 # 1. GARP Score
                 score, details = calculate_fit_score(row, [('PEG', 1.2, '<'), ('EPS_Growth', 0.15, '>'), ('ROE', 15.0, '>')])
-                c_s1.metric("GARP Score", f"{score}/100")
+                c_s1.metric(get_text('score_garp'), f"{score}/100")
                 if details != "✅ Perfect Match": c_s1.caption(details)
 
                 # 2. Value Score
                 score, details = calculate_fit_score(row, [('PE', 15.0, '<'), ('PB', 1.5, '<'), ('Debt_Equity', 50.0, '<')])
-                c_s2.metric("Deep Value Score", f"{score}/100")
+                c_s2.metric(get_text('score_value'), f"{score}/100")
                 if details != "✅ Perfect Match": c_s2.caption(details)
                 
                 # 3. Dividend Score
                 score, details = calculate_fit_score(row, [('Div_Yield', 4.0, '>'), ('Op_Margin', 10.0, '>')])
-                c_s3.metric("Dividend Score", f"{score}/100")
+                c_s3.metric(get_text('score_div'), f"{score}/100")
                 if details != "✅ Perfect Match": c_s3.caption(details)
 
                 # 4. Multibagger Score (New)
@@ -1179,7 +1194,7 @@ def page_single_stock():
                 st.caption("---")
                 c_m1, c_m2 = st.columns(2)
                 score, details = calculate_fit_score(row, [('Rev_Growth', 30.0, '>'), ('EPS_Growth', 20.0, '>'), ('PEG', 2.0, '<')])
-                c_m1.metric("🚀 Multibagger Score", f"{score}/100")
+                c_m1.metric(get_text('score_multi'), f"{score}/100")
                 if details != "✅ Perfect Match": c_m1.caption(details)
                 
                 st.markdown("---")
