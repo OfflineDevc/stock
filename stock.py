@@ -41,6 +41,17 @@ def get_yahoo_profile_fallback(ticker):
         ind_match = re.search(r'"industry":"([^"]+)"', html)
         if ind_match: industry = ind_match.group(1)
 
+        # Method 2: Visual HTML Backup (if JSON failed)
+        if sector == "Unknown":
+             # Look for ">Sector(s)</span> ... >Technology</span>"
+             # We use a loose regex to catch the next tag content
+             v_match = re.search(r'>Sector\(s\)<.*?<span[^>]*>(.*?)</span>', html, re.DOTALL)
+             if v_match: sector = v_match.group(1)
+             
+        if industry == "Unknown":
+             v_match = re.search(r'>Industry<.*?<span[^>]*>(.*?)</span>', html, re.DOTALL)
+             if v_match: industry = v_match.group(1)
+
         return {'Sector': sector, 'Industry': industry}
     except:
         return {'Sector': "Unknown", 'Industry': "Unknown"}
@@ -1243,6 +1254,16 @@ def page_single_stock():
                     deep_row = deep_metrics.iloc[0]
                     # Merge manually for display
                     for k, v in deep_row.items(): row[k] = v
+                    
+                    # --- BACKFILL COALESCE ---
+                    if (pd.isna(row.get('PEG')) or row.get('PEG') is None) and row.get('Derived_PEG'):
+                        row['PEG'] = row['Derived_PEG']
+                    
+                    if (pd.isna(row.get('Fair_Value')) or row.get('Fair_Value') is None) and row.get('Derived_FV'):
+                        row['Fair_Value'] = row['Derived_FV']
+                        # Recalculate Margin Safety
+                        if row.get('Price') and row['Fair_Value'] != 0:
+                             row['Margin_Safety'] = ((row['Fair_Value'] - row['Price']) / row['Fair_Value']) * 100
 
                 # NEW: Business Summary
                 try:
