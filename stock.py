@@ -456,7 +456,11 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
 
                 peg = safe_float(info.get('pegRatio'))
                 
-                # Fix PEG
+                # Fallback: Try Trailing PEG (if Forward PEG is missing)
+                if peg is None:
+                    peg = safe_float(info.get('trailingPegRatio'))
+                
+                # Fix PEG (Manual Calc)
                 if peg is None and pe is not None and growth_q is not None and growth_q > 0:
                     try: peg = pe / (growth_q * 100)
                     except: pass
