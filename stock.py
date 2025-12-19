@@ -20,6 +20,21 @@ def translate_text(text, target_lang='th'):
         return text # Fallback to original
 
 
+# --- CACHING HELPERS (Optimization) ---
+@st.cache_data(ttl=3600*12, show_spinner=False)
+def fetch_cached_info(ticker):
+    """Cache the heavy API call for stock metadata."""
+    try:
+        return yf.Ticker(ticker).info
+    except: return {}
+
+@st.cache_data(ttl=3600*12, show_spinner=False)
+def fetch_cached_history(ticker, period='5y'):
+    """Cache the history fetch for deep analysis."""
+    try:
+        return yf.Ticker(ticker).history(period=period)
+    except: return pd.DataFrame()
+
 # --- PROFESSIONAL UI OVERHAUL ---
 def inject_custom_css():
     st.markdown("""
@@ -354,7 +369,9 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
     
     try:
         dl_tickers = [t.replace('.', '-') if ".BK" not in t else t for t in tickers]
-        if debug_container: debug_container.write(f"Attempting download for {len(dl_tickers)} tickers...")
+        # Bulk Download 1 day to prime the cache (Optional but good for prices)
+        
+        if debug_container: debug_container.write(f"Attempting bulk download for {len(dl_tickers)} tickers...")
         
         # Download 1 day of data
         bulk = yf.download(dl_tickers, period="1d", group_by='ticker', progress=False, auto_adjust=True)
@@ -399,32 +416,30 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
             progress = (i + 1) / total
             progress_bar.progress(progress)
         # Rate Limiting Prevention (Aggressive for Cloud)
-        time.sleep(0.5)
+        time.sleep(0.01) # User Feedback: "Waiting time". We add caching + slight delay to handle rate limits.
 
         try:
             # Fix: Only replace dot with dash for US tickers
             if ".BK" in ticker: formatted_ticker = ticker
             else: formatted_ticker = ticker.replace('.', '-')
                 
+            # OPTIMIZATION: Use Cached Info
+            info = fetch_cached_info(formatted_ticker)
+            
+            # Create yf.Ticker object for later use (e.g., financials)
             stock = yf.Ticker(formatted_ticker)
-            
-            # 1. Get Price from Bulk (Fast, Reliable)
-            price = price_map.get(formatted_ticker)
-            
-            # 2. Try Fetching Fundamentals (Info)
-            try: info = stock.info
-            except: info = {}
             
             # DEBUG: Log first item to see what's happening on Cloud
             if i == 0 and debug_container:
                 pass # Clean logs
             
-            # Fallback Price if not in Bulk
-            if not price and 'currentPrice' in info:
-                price = safe_float(info.get('currentPrice'))
+            # Price from Bulk or Info
+            price = info.get('regularMarketPrice') or info.get('currentPrice')
+            if price is None:
+                 # Try from bulk map
+                 if formatted_ticker in price_map: price = price_map[formatted_ticker]
             
-            # Skip if no price at all
-            if not price:
+            if price is None:
                  # Last ditch: fast_info
                 try: 
                     fi = stock.fast_info
@@ -476,8 +491,8 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                 if (pe is None) and price: # Check PE primarily, others follow
                     try:
                         # Fetch Financials (Income Stmt & Balance Sheet)
-                        inc = stock.quarterly_income_stmt
-                        bal = stock.quarterly_balance_sheet
+                        inc = fetch_cached_financials(formatted_ticker) # Use cached financials
+                        bal = stock.quarterly_balance_sheet # Quarterly balance sheet is not cached yet
                         
                         if i == 0 and debug_container:
                             debug_container.write(f"🔍 Analying {formatted_ticker} (Cloud Recovery Mode)")
@@ -623,25 +638,14 @@ def analyze_history_deep(df_candidates, progress_bar, status_text):
         progress = (i + 1) / total
         progress_bar.progress(progress)
         ticker = row['Symbol']
-        status_text.caption(f"Stage 2: Deep Analysis of **{ticker}** ({i+1}/{total})")
-        
         stock = row['YF_Obj']
+        status_text.caption(f"Stage 2: Deep Analysis of **{ticker}** ({i+1}/{total})")
         
         # Metrics
         consistency_str = "N/A"
         insight_str = ""
         cagr_rev = None
         cagr_ni = None
-        
-        try:
-            # 1. Financials (Income Statement)
-            fin = stock.financials
-            if not fin.empty:
-                fin = fin.T.sort_index() # Oldest -> Newest
-                years = len(fin)
-                
-                if years >= 3:
-                    # Consistency (Net Income)
                     ni_series = fin['Net Income'].dropna()
                     if len(ni_series) > 1:
                         diffs = ni_series.diff().dropna()
