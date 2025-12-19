@@ -645,35 +645,44 @@ def analyze_history_deep(df_candidates, progress_bar, status_text):
         consistency_str = "N/A"
         insight_str = ""
         cagr_rev = None
-        cagr_ni = None
-                    ni_series = fin['Net Income'].dropna()
-                    if len(ni_series) > 1:
-                        diffs = ni_series.diff().dropna()
-                        pos_years = (diffs > 0).sum()
-                        total_intervals = len(diffs)
-                        consistency_str = f"{pos_years}/{total_intervals} Yrs"
-                        
-                        if pos_years == total_intervals:
-                            insight_str += "✅ Consistent Growth "
-                        elif pos_years <= total_intervals / 2:
-                            insight_str += "⚠️ Earnings Volatile "
-                            
-                    # CAGR Calculation
-                    try:
-                        start_rev = fin['Total Revenue'].iloc[0]
-                        end_rev = fin['Total Revenue'].iloc[-1]
-                        if start_rev > 0 and end_rev > 0:
-                            val = (end_rev / start_rev) ** (1/(years-1)) - 1
-                            cagr_rev = val * 100
-                    except: pass
+        div_streak_str = "None"
+
+        try:
+            fin = stock.financials
+            if not fin.empty:
+                fin = fin.T.sort_index()
+                
+                years = len(fin)
+
+                # Consistency (Net Income)
+                ni_series = fin['Net Income'].dropna()
+                if len(ni_series) > 1:
+                    diffs = ni_series.diff().dropna()
+                    pos_years = (diffs > 0).sum()
+                    total_intervals = len(diffs)
+                    consistency_str = f"{pos_years}/{total_intervals} Yrs"
                     
-                    try:
-                        start_ni = fin['Net Income'].iloc[0]
-                        end_ni = fin['Net Income'].iloc[-1]
-                        if start_ni > 0 and end_ni > 0:
-                            val = (end_ni / start_ni) ** (1/(years-1)) - 1
-                            cagr_ni = val * 100
-                    except: pass
+                    if pos_years == total_intervals:
+                        insight_str += "✅ Consistent Growth "
+                    elif pos_years <= total_intervals / 2:
+                        insight_str += "⚠️ Earnings Volatile "
+                        
+                # CAGR Calculation
+                try:
+                    start_rev = fin['Total Revenue'].iloc[0]
+                    end_rev = fin['Total Revenue'].iloc[-1]
+                    if start_rev > 0 and end_rev > 0:
+                        val = (end_rev / start_rev) ** (1/(years-1)) - 1
+                        cagr_rev = val * 100
+                except: pass
+                
+                try:
+                    start_ni = fin['Net Income'].iloc[0]
+                    end_ni = fin['Net Income'].iloc[-1]
+                    if start_ni > 0 and end_ni > 0:
+                        val = (end_ni / start_ni) ** (1/(years-1)) - 1
+                        cagr_ni = val * 100
+                except: pass
             
             # 2. Dividend History (For High Yield Analysis)
             # Fetch max history to find streak
