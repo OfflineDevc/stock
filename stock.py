@@ -1256,6 +1256,25 @@ def page_single_stock():
                          with st.expander(f"{get_text('biz_summary')}: {row['Company']}", expanded=False):
                              st.write(summary)
                 except: pass
+                
+                # --- DEBUG LOG (User Request) ---
+                with st.expander("🛠️ Debug Raw Data (Send to Developer)"):
+                     try:
+                         # Show Merged Row (excluding object)
+                         safe_row = row.drop(['YF_Obj']) if 'YF_Obj' in row else row
+                         st.write("Final Processed Data:", safe_row.to_dict())
+                         
+                         # Show Raw Info keys
+                         if 'YF_Obj' in row:
+                              info = row['YF_Obj'].info
+                              st.write("Raw Yahoo Info (Source):", {
+                                  k: info.get(k) for k in [
+                                      'sector', 'industry', 'pegRatio', 'trailingPegRatio', 
+                                      'revenueGrowth', 'earningsGrowth', 'longName', 'shortName'
+                                  ]
+                              })
+                     except Exception as e:
+                         st.error(f"Debug Error: {e}")
 
                 # strategy checks
                 st.markdown("### 🎯 Strategy Fit Scorecard")
