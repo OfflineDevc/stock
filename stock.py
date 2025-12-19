@@ -6,6 +6,19 @@ import numpy as np
 import time
 
 import datetime
+from deep_translator import GoogleTranslator
+
+# --- TRANSLATION HELPER ---
+@st.cache_data(ttl=86400, show_spinner=False)
+def translate_text(text, target_lang='th'):
+    try:
+        if not text: return ""
+        # Chunking might be needed for very long text, but summaries are usually < 5000 chars
+        translator = GoogleTranslator(source='auto', target=target_lang)
+        return translator.translate(text)
+    except Exception as e:
+        return text # Fallback to original
+
 
 # --- PROFESSIONAL UI OVERHAUL ---
 def inject_custom_css():
@@ -1158,6 +1171,10 @@ def page_single_stock():
                     stock_obj = row['YF_Obj']
                     summary = stock_obj.info.get('longBusinessSummary')
                     if summary:
+                         # Translate if TH selected
+                         if st.session_state.get('lang', 'EN') == 'TH':
+                             summary = translate_text(summary, 'th')
+
                          with st.expander(f"{get_text('biz_summary')}: {row['Company']}", expanded=False):
                              st.write(summary)
                 except: pass
