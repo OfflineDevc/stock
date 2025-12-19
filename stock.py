@@ -1122,49 +1122,9 @@ def page_scanner():
 # PAGES: Single Stock & Glossary
 # ---------------------------------------------------------
 
-@st.cache_data(ttl=86400)
-def get_global_ticker_map():
-    """Returns a list of 'TICKER | Company Name' for autocomplete."""
-    ticker_list = []
-    
-    # 1. S&P 500
-    try:
-        url = 'https://en.wikipedia.org/wiki/List_of_S%26P_500_companies'
-        tables = pd.read_html(url, storage_options={'User-Agent': 'Mozilla/5.0'})
-        df = tables[0]
-        # Format: "MMM | 3M Company"
-        ticker_list.extend([f"{row['Symbol']} | {row['Security']}" for _, row in df.iterrows()])
-    except: pass
-    
-    # 2. NASDAQ 100
-    try:
-        url = 'https://en.wikipedia.org/wiki/Nasdaq-100'
-        tables = pd.read_html(url, match='Ticker', storage_options={'User-Agent': 'Mozilla/5.0'})
-        df = tables[0]
-        ticker_list.extend([f"{row['Ticker']} | {row['Company']}" for _, row in df.iterrows()])
-    except: pass
-    
-    # 3. SET 100 (Hardcoded names or just tickers)
-    # For now, just append tickers as "PTT.BK | PTT.BK"
-    set100 = get_set100_tickers()
-    ticker_list.extend([f"{t} | {t}" for t in set100])
-    
-    return sorted(list(set(ticker_list)))
-
 def page_single_stock():
     st.title(get_text('deep_dive_title'))
-    
-    # Autocomplete Search
-    search_mode = st.radio("Search Method", ["🔍 Search List", "✏️ Type Custom Ticker"], horizontal=True, label_visibility="collapsed")
-    
-    ticker = None
-    if search_mode == "🔍 Search List":
-        ticker_options = get_global_ticker_map()
-        search_input = st.selectbox(get_text('search_ticker'), ticker_options, index=None, placeholder="Type to search (e.g. Apple, PTT)...")
-        if search_input:
-            ticker = search_input.split(' | ')[0]
-    else:
-        ticker = st.text_input(get_text('search_ticker'), placeholder="Enter Ticker (e.g. BTC-USD, OR.BK)")
+    ticker = st.text_input(get_text('search_ticker'))
     
     if st.button(get_text('analyze_btn')) and ticker:
         with st.spinner(f"Analyzing {ticker}..."):
