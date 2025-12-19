@@ -645,6 +645,7 @@ def analyze_history_deep(df_candidates, progress_bar, status_text):
         consistency_str = "N/A"
         insight_str = ""
         cagr_rev = None
+        cagr_ni = None
         div_streak_str = "None"
 
         try:
