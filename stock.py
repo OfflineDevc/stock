@@ -761,6 +761,37 @@ def analyze_history_deep(df_candidates, progress_bar, status_text):
             'Div_Streak': div_streak_str,
             'Insight': insight_str if insight_str else "Stable"
         }
+        
+        # --- BACKFILL LOGIC (User Request: Use CAGR if PEG/FV Missing) ---
+        # We use the row (Stage 1 data) to check if we need to patch holes
+        
+        # 1. Derived PEG
+        derived_peg = None
+        pe = row.get('PE')
+        
+        # Prefer NI Growth (Earnings), then Rev Growth
+        growth_proxy = cagr_ni if (cagr_ni and cagr_ni > 0) else cagr_rev
+        
+        if pe and pe > 0 and growth_proxy and growth_proxy > 0:
+             derived_peg = pe / growth_proxy
+        
+        data_item['Derived_PEG'] = derived_peg
+
+        # 2. Derived Fair Value (Lynch)
+        derived_fv = None
+        price = row.get('Price')
+        
+        # EPS = Price / PE
+        eps_est = 0
+        if price and pe and pe > 0:
+            eps_est = price / pe
+            
+        if eps_est > 0 and growth_proxy and growth_proxy > 0:
+            # Lynch Fair Value = EPS * GrowthRate
+            derived_fv = eps_est * growth_proxy
+        
+        data_item['Derived_FV'] = derived_fv
+        
         # Merge perf metrics
         data_item.update(perf)
         enhanced_data.append(data_item)
@@ -1010,6 +1041,18 @@ def page_scanner():
                 time.sleep(0.5)
                 deep_metrics = analyze_history_deep(top_candidates, st.progress(0), st.empty())
                 final_df = top_candidates.merge(deep_metrics, on='Symbol', how='left')
+                
+                # --- BACKFILL MERGE ---
+                if 'Derived_PEG' in final_df.columns:
+                     final_df['PEG'] = final_df['PEG'].fillna(final_df['Derived_PEG'])
+                
+                if 'Derived_FV' in final_df.columns:
+                     final_df['Fair_Value'] = final_df['Fair_Value'].fillna(final_df['Derived_FV'])
+                     # Recalculate Margin of Safety
+                     final_df['Margin_Safety'] = final_df.apply(
+                        lambda r: ((r['Fair_Value'] - r['Price']) / r['Fair_Value'] * 100) 
+                        if (pd.notnull(r['Fair_Value']) and r['Fair_Value'] != 0) else 0, axis=1
+                     )
                 
                 st.session_state['scan_results'] = df
                 st.session_state['deep_results'] = final_df
