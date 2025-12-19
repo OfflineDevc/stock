@@ -22,35 +22,67 @@ def translate_text(text, target_lang='th'):
 
 @st.cache_data(ttl=86400, show_spinner=False)
 def get_yahoo_profile_fallback(ticker):
-    """Scrapes Sector/Industry from Yahoo Profile page if API fails."""
+    """Scrapes Sector/Industry from Yahoo Profile page using robust JSON extraction."""
+    import json
+    
+    # User requested robust future-proof method (No Static Map)
+    
     try:
         url = f"https://finance.yahoo.com/quote/{ticker}/profile"
-        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36'}
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36',
+            'Accept-Language': 'en-US,en;q=0.9'
+        }
         
-        # Method 1: Regex on Text (Fastest)
         r = requests.get(url, headers=headers, timeout=5)
         html = r.text
         
         sector = "Unknown"
         industry = "Unknown"
+
+        # STRATEGY 1: Parse the internal JSON State (Kyubey / QuoteSummaryStore)
+        # Yahoo stores data in 'root.App.main = {...}' OR 'window.YAHOO.context = ...'
+        # Modern layouts often use a script with 'root.App.main'
         
-        # Yahoo often uses JSON data inside scripts.
-        sec_match = re.search(r'"sector":"([^"]+)"', html)
-        if sec_match: sector = sec_match.group(1)
+        json_pattern = r'root\.App\.main\s*=\s*({.*?});'
+        json_match = re.search(json_pattern, html)
         
-        ind_match = re.search(r'"industry":"([^"]+)"', html)
-        if ind_match: industry = ind_match.group(1)
+        if json_match:
+            try:
+                data = json.loads(json_match.group(1))
+                # Navigate: context -> dispatcher -> stores -> QuoteSummaryStore -> assetProfile
+                # Paths change, so we try to search blindly for 'assetProfile'
+                # But safer to walk if possible.
+                stores = data.get('context', {}).get('dispatcher', {}).get('stores', {})
+                qs_store = stores.get('QuoteSummaryStore', {})
+                profile = qs_store.get('assetProfile', {})
+                
+                if profile:
+                    sector = profile.get('sector', "Unknown")
+                    industry = profile.get('industry', "Unknown")
+            except: pass
+            
+        # STRATEGY 2: Fallback Regex (If JSON structure changed)
+        # Look for "sector":"Technology" (raw in text)
+        if sector == "Unknown":
+            sec_match = re.search(r'"sector":\s*"([^"]+)"', html)
+            if sec_match: sector = sec_match.group(1)
+            
+            ind_match = re.search(r'"industry":\s*"([^"]+)"', html)
+            if ind_match: industry = ind_match.group(1)
 
         # Method 2: Visual HTML Backup (if JSON failed)
         if sector == "Unknown":
-             # Look for ">Sector(s)</span> ... >Technology</span>"
-             # We use a loose regex to catch the next tag content
-             v_match = re.search(r'>Sector\(s\)<.*?<span[^>]*>(.*?)</span>', html, re.DOTALL)
-             if v_match: sector = v_match.group(1)
+             # Loose Regex: Look for "Sector(s)" then ANY tag closer, then value
+             # e.g. >Sector(s)</span> <span>Technology</span>
+             # e.g. >Sector(s)</span>: Technology<
+             v_match = re.search(r'Sector\(s\)[^<]*<[^>]+>\s*([^<]+)<', html, re.DOTALL)
+             if v_match: sector = v_match.group(1).strip()
              
-        if industry == "Unknown":
-             v_match = re.search(r'>Industry<.*?<span[^>]*>(.*?)</span>', html, re.DOTALL)
-             if v_match: industry = v_match.group(1)
+             # Fallback 2.1: Simple "Sector: Value"
+             if not v_match:
+                 v_match = re.search(r'Sector\(s\).*?:\s*([A-Z][a-zA-Z\s]+)', html)
+                 if v_match: sector = v_match.group(1).strip()
 
         return {'Sector': sector, 'Industry': industry}
     except:
