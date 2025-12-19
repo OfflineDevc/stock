@@ -1155,12 +1155,16 @@ def page_single_stock():
     st.title(get_text('deep_dive_title'))
     
     # Autocomplete Search
-    ticker_options = get_global_ticker_map()
-    search_input = st.selectbox(get_text('search_ticker'), ticker_options, index=None, placeholder="Type to search (e.g. Apple, PTT)...")
+    search_mode = st.radio("Search Method", ["🔍 Search List", "✏️ Type Custom Ticker"], horizontal=True, label_visibility="collapsed")
     
     ticker = None
-    if search_input:
-        ticker = search_input.split(' | ')[0]
+    if search_mode == "🔍 Search List":
+        ticker_options = get_global_ticker_map()
+        search_input = st.selectbox(get_text('search_ticker'), ticker_options, index=None, placeholder="Type to search (e.g. Apple, PTT)...")
+        if search_input:
+            ticker = search_input.split(' | ')[0]
+    else:
+        ticker = st.text_input(get_text('search_ticker'), placeholder="Enter Ticker (e.g. BTC-USD, OR.BK)")
     
     if st.button(get_text('analyze_btn')) and ticker:
         with st.spinner(f"Analyzing {ticker}..."):
