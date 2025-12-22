@@ -66,133 +66,72 @@ def fetch_cached_history(ticker, period='5y'):
     return pd.DataFrame()
 
 # --- PROFESSIONAL UI OVERHAUL ---
-# --- PROFESSIONAL UI OVERHAUL ---
-def inject_custom_css(theme):
-    # --- THEME VARIABLES ---
-    if theme == 'Dark':
-        # Minimal Dark Grey (Zinc/Slate Style)
-        bg_color = "#18181b" 
-        text_color = "#e4e4e7" 
-        card_bg = "#27272a" 
-        tab_bg = "#27272a" 
-        tab_active_bg = "#3b82f6" 
-        tab_active_text = "#ffffff"
-        tab_text = "#a1a1aa" 
-        border_color = "#3f3f46"
-        metric_val_color = "#60a5fa"
-    else:
-        bg_color = "#ffffff"
-        text_color = "#31333F"
-        card_bg = "#ffffff"
-        tab_bg = "#f0f2f6"
-        tab_active_bg = "#003366" 
-        tab_active_text = "#ffffff"
-        tab_text = "#003366"
-        border_color = "#003366"
-        metric_val_color = "#003366"
-
-    st.markdown(f"""
+def inject_custom_css():
+    st.markdown("""
         <style>
         /* Main Font */
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
-        html, body, [class*="css"] {{
+        html, body, [class*="css"] {
             font-family: 'Roboto', sans-serif;
-            color: {text_color};
-            background-color: {bg_color};
-        }}
-        
-        /* FORCE TEXT COLORS */
-        h1, h2, h3, h4, h5, h6, span, div, p, label {{
-            color: {text_color} !important;
-        }}
-        
-        /* Expander Header Correctness */
-        .streamlit-expanderHeader {{
-            background-color: {card_bg} !important;
-            color: {text_color} !important;
-            border-radius: 8px;
-        }}
-        
-        /* Fix Layout Processing (Status) & Alerts */
-        [data-testid="stStatusWidget"], .stAlert {{
-            background-color: {card_bg} !important;
-            color: {text_color} !important;
-            border: 1px solid {border_color};
-        }}
-        
-        /* Input & Selectbox Text */
-        .stSelectbox div[data-baseweb="select"] div {{
-            color: {text_color} !important;
-        }}
-        
-        /* Fix "Stockub" Title specifically if it uses st.title */
-        .css-10trblm {{
-            color: {text_color} !important;
-        }}
+        }
         
         /* Hides the default top padding */
-        .block-container {{
+        .block-container {
             padding-top: 1rem;
-        }}
+        }
         
         /* Hide Streamlit Header/Toolbar */
-        header {{visibility: hidden;}}
-        [data-testid="stToolbar"] {{visibility: hidden;}}
-        .stDeployButton {{display:none;}}
+        header {visibility: hidden;}
+        [data-testid="stToolbar"] {visibility: hidden;}
+        .stDeployButton {display:none;}
 
         /* CFA-Style Blue Header for Tabs (Full Width) */
-        .stTabs [data-baseweb="tab-list"] {{
-            gap: 0px; 
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 0px; /* Remove gap between tabs */
             background-color: transparent; 
             padding: 0px;
-            border-bottom: 2px solid {border_color};
-        }}
+            border-bottom: 2px solid #003366;
+        }
 
-        .stTabs [data-baseweb="tab"] {{
-            flex-grow: 1; 
+        .stTabs [data-baseweb="tab"] {
+            flex-grow: 1; /* Stretch to fill width */
             height: 50px;
             white-space: pre-wrap;
-            background-color: {tab_bg}; 
-            border-radius: 0px; 
-            color: {tab_text} !important; 
+            background-color: #f8f9fa; /* Light gray for unselected */
+            border-radius: 0px; /* No corners */
+            color: #003366; 
             font-weight: 600;
-            border: none; 
+            border: none; /* Clean Look */
             display: flex;
             align-items: center;
             justify-content: center;
-        }}
+        }
 
-        .stTabs [aria-selected="true"] {{
-            background-color: {tab_active_bg} !important; 
-            color: {tab_active_text} !important;
+        .stTabs [aria-selected="true"] {
+            background-color: #003366 !important; /* Active Blue */
+            color: #ffffff !important;
             font-weight: 700;
-        }}
+        }
         
         /* Metrics & Buttons */
-        div[data-testid="stMetricValue"] {{
+        div[data-testid="stMetricValue"] {
             font-size: 1.4rem !important;
-            color: {metric_val_color} !important;
-        }}
-        
-        [data-testid="stMetric"] {{
-            background-color: {card_bg};
-            border: 1px solid {border_color}33; /* 20% opacity */
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }}
+            color: #003366;
+        }
         
         /* Primary Button Blue */
-        div.stButton > button:first-child {{
-            background-color: {tab_active_bg};
-            color: white !important;
+        div.stButton > button:first-child {
+            background-color: #003366;
+            color: white;
             border-radius: 5px;
             border: none;
             padding: 0.5rem 1rem;
-        }}
-        div.stButton > button:first-child:hover {{
-            background-color: {metric_val_color}; /* Lighter on hover */
-            color: white !important;
+        }
+        div.stButton > button:first-child:hover {
+            background-color: #002244;
+            color: white;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
-        }}
+        }
         </style>
     """, unsafe_allow_html=True)
 
@@ -2571,7 +2510,7 @@ def page_howto():
 # ---------------------------------------------------------
 if __name__ == "__main__":
     st.set_page_config(page_title="Stockub Pro", layout="wide", page_icon="📈")
-
+    inject_custom_css() # Apply Professional Styles
     
     # --- TOP TABS NAVIGATION (CFA Style) ---
     # Define Tabs (Rendered at the very top)
@@ -2586,25 +2525,14 @@ if __name__ == "__main__":
     ])
 
     # --- HEADER & NAVIGATION (Now Below Tabs) ---
-    c_logo, c_lang = st.columns([7, 3])
+    c_logo, c_lang = st.columns([8, 2])
     with c_logo:
         st.caption("Professional Stock Analytics Platform")
         
     with c_lang:
-        c_l1, c_l2 = st.columns([1, 1])
-        with c_l1:
-            lang_choice = st.radio("Language", ["EN", "TH"], horizontal=True, label_visibility="collapsed")
-            st.session_state['lang'] = 'EN' if "EN" in lang_choice else 'TH'
-        with c_l2:
-             # Theme Toggle
-            if 'theme' not in st.session_state: st.session_state['theme'] = 'Light'
-            theme_switch = st.toggle("🌙 Dark Mode", value=(st.session_state['theme'] == 'Dark'))
-            new_theme = 'Dark' if theme_switch else 'Light'
-            if new_theme != st.session_state['theme']:
-                st.session_state['theme'] = new_theme
-                st.rerun()
-    
-    inject_custom_css(st.session_state['theme']) # Apply Dynamic CSS
+        # Move Language Switcher to Top Right
+        lang_choice = st.radio("Language / ภาษา", ["English (EN)", "Thai (TH)"], horizontal=True, label_visibility="collapsed")
+        st.session_state['lang'] = 'EN' if "English" in lang_choice else 'TH'
     
     with tab_scan:
         page_scanner()
