@@ -68,83 +68,64 @@ def fetch_cached_history(ticker, period='5y'):
 # --- PROFESSIONAL UI OVERHAUL ---
 def inject_custom_css():
     st.markdown("""
-    <style>
-        /* 1. Google Font: Inter (Professional & Minimal) */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
-        
-        html, body, [class*="css"]  {
-            font-family: 'Inter', sans-serif;
-        }
-
-        /* 2. Main Container Animation (Fade In) */
-        .main .block-container {
-            animation: fadeIn 0.8s ease-in-out;
-        }
-
-        @keyframes fadeIn {
-            0% { opacity: 0; transform: translateY(10px); }
-            100% { opacity: 1; transform: translateY(0); }
-        }
-
-        /* 3. Button Styling (Minimal & Rounded) */
-        div.stButton > button {
-            background-color: #f0f2f6; /* Soft Gray */
-            color: #31333F;
-            border: 1px solid #dbe2e8;
-            border-radius: 12px; /* Smooth Rounding */
-            font-weight: 600;
-            padding: 0.5rem 1rem;
-            transition: all 0.2s ease-in-out;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* Soft Shadow */
+        <style>
+        /* Main Font */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+        html, body, [class*="css"] {
+            font-family: 'Roboto', sans-serif;
         }
         
-        div.stButton > button:hover {
-            transform: translateY(-2px); /* Lift Effect */
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            border-color: #3b82f6; /* Blue Accent */
+        /* Hides the default top padding */
+        .block-container {
+            padding-top: 1rem;
+        }
+
+        /* CFA-Style Blue Header for Tabs */
+        .stTabs [data-baseweb="tab-list"] {
+            gap: 10px;
+            background-color: #f0f2f6; 
+            padding: 10px 10px 0px 10px;
+            border-radius: 10px 10px 0px 0px;
+            border-bottom: 2px solid #003366;
+        }
+
+        .stTabs [data-baseweb="tab"] {
+            height: 50px;
+            white-space: pre-wrap;
             background-color: #ffffff;
-            color: #3b82f6;
+            border-radius: 5px 5px 0px 0px;
+            color: #003366; /* CFA Blue Text */
+            font-weight: 600;
+            border: 1px solid #e0e0e0;
+            border-bottom: none;
         }
-        
-        div.stButton > button:active {
-            transform: scale(0.98); /* Click Press Effect */
-        }
-        
-        /* Primary Button (Generate) specialized */
-        button[kind="primary"] {
-            background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%);
-            color: white !important;
+
+        .stTabs [aria-selected="true"] {
+            background-color: #003366 !important; /* CFA Blue Background */
+            color: #ffffff !important;
             border: none;
-            box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
         }
         
-        button[kind="primary"]:hover {
-            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            box-shadow: 0 6px 12px rgba(37, 99, 235, 0.3);
-        }
-
-        /* 4. Metric Cards (Card Look) */
-        [data-testid="stMetric"] {
-            background-color: #ffffff;
-            padding: 1rem;
-            border-radius: 12px;
-            border: 1px solid #f0f2f6;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-            transition: transform 0.2s;
+        /* Metrics & Buttons */
+        div[data-testid="stMetricValue"] {
+            font-size: 1.4rem !important;
+            color: #003366;
         }
         
-        [data-testid="stMetric"]:hover {
-             transform: translateY(-2px);
-             box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+        /* Primary Button Blue */
+        div.stButton > button:first-child {
+            background-color: #003366;
+            color: white;
+            border-radius: 5px;
+            border: none;
+            padding: 0.5rem 1rem;
         }
-
-        /* 5. Expander Styling (Cleaner) */
-        .streamlit-expanderHeader {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            font-weight: 600;
+        div.stButton > button:first-child:hover {
+            background-color: #002244;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
-    </style>
+        </style>
     """, unsafe_allow_html=True)
 
 # --- LOCALIZATION & TEXT ASSETS ---
@@ -2521,32 +2502,52 @@ def page_howto():
 
 # ---------------------------------------------------------
 if __name__ == "__main__":
+    st.set_page_config(page_title="Stockub Pro", layout="wide", page_icon="📈")
     inject_custom_css() # Apply Professional Styles
     
-    st.sidebar.title("🌐 Language / ภาษา")
-    lang_choice = st.sidebar.radio("Language / ภาษา", ["English (EN)", "Thai (TH)"], horizontal=True)
-    st.session_state['lang'] = 'EN' if "English" in lang_choice else 'TH'
+    # --- HEADER & NAVIGATION (Top Bar) ---
+    c_logo, c_lang = st.columns([8, 2])
+    with c_logo:
+        st.caption("Professional Stock Analytics Platform")
+        
+    with c_lang:
+        # Move Language Switcher to Top Right
+        lang_choice = st.radio("Language / ภาษา", ["English (EN)", "Thai (TH)"], horizontal=True, label_visibility="collapsed")
+        st.session_state['lang'] = 'EN' if "English" in lang_choice else 'TH'
 
-    st.sidebar.title("Menu")
-    page = st.sidebar.radio("Go to", ["Scanner", "Auto Portfolio", "Single Stock", "Portfolio HealthCheck", "Stock AI Analysis", "Glossary", "How to Use"])
+    # --- TOP TABS NAVIGATION (CFA Style) ---
+    # Define Tabs
+    tab_scan, tab_port, tab_single, tab_health, tab_ai, tab_gloss, tab_help = st.tabs([
+        "🔍 Market Scanner", 
+        "🤖 Auto Portfolio", 
+        "📈 Single Stock Analysis", 
+        "🩺 Portfolio Health", 
+        "🧠 AI Insight", 
+        "📖 Glossary", 
+        "❓ How to Use"
+    ])
     
-    if page == "Scanner":
+    with tab_scan:
         page_scanner()
-    elif page == "Auto Portfolio":
+        
+    with tab_port:
         page_portfolio()
-    elif page == "Single Stock":
+        
+    with tab_single:
         page_single_stock()
-    elif page == "Portfolio HealthCheck":
+        
+    with tab_health:
         st.title(get_text('menu_health'))
         st.markdown("---")
-        st.warning(get_text('under_dev'))
-        st.info(get_text('dev_soon'))
-    elif page == "Stock AI Analysis":
+        st.info("Coming soon in Q1 2026. This module will analyze your upload portfolio for risk factors.")
+        
+    with tab_ai:
         st.title(get_text('menu_ai'))
         st.markdown("---")
-        st.warning(get_text('under_dev'))
-        st.info(get_text('dev_dl'))
-    elif page == "Glossary":
+        st.info("Deep Learning module integration in progress.")
+        
+    with tab_gloss:
         page_glossary()
-    elif page == "How to Use":
+        
+    with tab_help:
         page_howto()
