@@ -2240,8 +2240,163 @@ def page_portfolio():
             **How it works here:**
             1. We select the Top 20 stocks that match your **Strategy Score**.
             2. We allocate money based on **Company Size (Market Cap)**.
-            3. *Result*: You own more of the 'Blue Chips' and less of the volatile small players.
-            """)
+             """)
+
+    # ------------------------------------------------------------------
+    # 8. BACKTEST & SIMULATION (NEW)
+    # ------------------------------------------------------------------
+    st.markdown("---")
+    st.subheader("🕑 Historical Backtest & Simulation")
+    st.caption("See how this portfolio would have performed in the past vs S&P 500.")
+    
+    with st.expander("⚙️ Backtest Configuration", expanded=True):
+        c_bt1, c_bt2, c_bt3 = st.columns(3)
+        bt_mode = c_bt1.radio("Investment Mode", ["Lump Sum (One-Time)", "DCA (Monthly)"], index=0)
+        bt_period = c_bt2.selectbox("Time Period", ["YTD", "1Y", "3Y", "5Y"], index=1)
+        bt_amount = c_bt3.number_input(f"Investment Amount ({currency_fmt[0]})", min_value=1000, value=10000, step=1000)
+    
+    if st.button("🚀 Run Backtest", type="primary", use_container_width=True):
+        with st.spinner("Processing Historical Data... (This may take 15-30s)"):
+            try:
+                # 1. Prepare Data
+                tickers = portfolio['Ticker'].tolist()
+                weights = portfolio['Weight %'].tolist()
+                valid_weights = [w/100 for w in weights] # Convert to decimal
+                
+                start_date = None
+                if bt_period == "YTD": start_date = f"{pd.Timestamp.now().year}-01-01"
+                elif bt_period == "1Y": start_date = pd.Timestamp.now() - pd.DateOffset(years=1)
+                elif bt_period == "3Y": start_date = pd.Timestamp.now() - pd.DateOffset(years=3)
+                elif bt_period == "5Y": start_date = pd.Timestamp.now() - pd.DateOffset(years=5)
+                
+                # Fetch Data (Batch if possible, but yfinance batch is tricky with mixed markets)
+                # To be robust, let's fetch individually but optimize
+                
+                # Fetch Benchmark (SPY)
+                spy = yf.Ticker("SPY") # Use SPY as universal benchmark
+                spy_hist = spy.history(start=start_date)
+                
+                if spy_hist.empty:
+                    st.error("Could not fetch comparison data.")
+                    return
+
+                # Align dates
+                common_index = spy_hist.index
+                portfolio_value = pd.Series(0.0, index=common_index)
+                
+                # 2. Simulation Loop
+                # We need Close prices for all tickers aligned to common_index
+                price_matrix = pd.DataFrame(index=common_index)
+                
+                # Progress bar
+                bt_prog = st.progress(0)
+                n = len(tickers)
+                
+                for i, t in enumerate(tickers):
+                    try:
+                        h = yf.Ticker(t).history(start=start_date)['Close']
+                        # Reindex to match SPY (Forward fill for holidays diffs)
+                        h = h.reindex(common_index, method='ffill')
+                        price_matrix[t] = h
+                    except: pass
+                    bt_prog.progress((i+1)/n)
+                bt_prog.empty()
+                
+                # Fill remaining NANs (listing date issues)
+                price_matrix = price_matrix.fillna(method='bfill').fillna(method='ffill').fillna(0)
+                
+                # --- CALCULATION ENGINE ---
+                benchmark_value = pd.Series(0.0, index=common_index)
+                
+                if "Lump Sum" in bt_mode:
+                    # Logic: Buy at T0
+                    
+                    # Portfolio
+                    shares = []
+                    initial_prices = price_matrix.iloc[0]
+                    for i, t in enumerate(tickers):
+                        alloc = bt_amount * valid_weights[i]
+                        p = initial_prices[t]
+                        if p > 0: shares.append(alloc / p)
+                        else: shares.append(0)
+                    
+                    # Compute Daily Value
+                    # Value = Sum(Shares * Price_t)
+                    for i, t in enumerate(tickers):
+                        portfolio_value += price_matrix[t] * shares[i]
+                        
+                    # Benchmark
+                    spy_shares = bt_amount / spy_hist['Close'].iloc[0]
+                    benchmark_value = spy_hist['Close'] * spy_shares
+                    
+                else: # DCA
+                    # Logic: Add capital every 30 days
+                    cash_invested = 0
+                    port_shares = [0.0] * len(tickers)
+                    spy_shares = 0.0
+                    
+                    # Iterate days
+                    next_invest_day = common_index[0]
+                    
+                    # Vectorized approach is hard for DCA variable dates. Loop is safer.
+                    p_vals = []
+                    b_vals = []
+                    
+                    for date in common_index:
+                        # Check Invest
+                        if date >= next_invest_day:
+                            cash_invested += bt_amount
+                            
+                            # Buy Portfolio
+                            current_prices = price_matrix.loc[date]
+                            for i, t in enumerate(tickers):
+                                alloc = bt_amount * valid_weights[i]
+                                p = current_prices[t]
+                                if p > 0: port_shares[i] += alloc / p
+                            
+                            # Buy Benchmark
+                            p_spy = spy_hist.loc[date]['Close']
+                            spy_shares += bt_amount / p_spy
+                            
+                            next_invest_day = date + pd.DateOffset(days=30)
+                        
+                        # Calc Value Today
+                        val_today = 0
+                        current_prices = price_matrix.loc[date]
+                        for i, t in enumerate(tickers):
+                            val_today += port_shares[i] * current_prices[t]
+                        p_vals.append(val_today)
+                        
+                        b_vals.append(spy_shares * spy_hist.loc[date]['Close'])
+                        
+                    portfolio_value = pd.Series(p_vals, index=common_index)
+                    benchmark_value = pd.Series(b_vals, index=common_index)
+                    bt_amount = cash_invested # Log actual total
+
+                # 3. Results
+                end_val = portfolio_value.iloc[-1]
+                bench_val = benchmark_value.iloc[-1]
+                
+                p_ret = ((end_val - bt_amount) / bt_amount) * 100
+                b_ret = ((bench_val - bt_amount) / bt_amount) * 100
+                
+                # Metrics
+                bc1, bc2, bc3 = st.columns(3)
+                bc1.metric("Final Portfolio Value", f"{currency_fmt[0]}{end_val:,.2f}", f"{p_ret:+.2f}%")
+                bc2.metric("S&P 500 Benchmark", f"{currency_fmt[0]}{bench_val:,.2f}", f"{b_ret:+.2f}%")
+                
+                diff = p_ret - b_ret
+                bc3.metric("Alpha (vs Market)", f"{diff:+.2f}%", "Winning" if diff > 0 else "Losing", delta_color="normal")
+                
+                # Chart
+                chart_data = pd.DataFrame({
+                    "My Portfolio": portfolio_value,
+                    "S&P 500 (SPY)": benchmark_value
+                })
+                st.line_chart(chart_data)
+                
+            except Exception as e:
+                st.error(f"Backtest Failed: {str(e)}")
 
 
 
