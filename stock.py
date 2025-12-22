@@ -363,49 +363,8 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
     data_list = []
     total = len(tickers)
     
-    # --- BULK DOWNLOAD STRATEGY (Anti-Blocking) ---
-    status_text.text("Stage 1: Bulk Downloading Prices...")
-    price_map = {}
-    
-    try:
-        dl_tickers = [t.replace('.', '-') if ".BK" not in t else t for t in tickers]
-        # Bulk Download 1 day to prime the cache (Optional but good for prices)
-        
-        if debug_container: debug_container.write(f"Attempting bulk download for {len(dl_tickers)} tickers...")
-        
-        # Download 1 day of data
-        bulk = yf.download(dl_tickers, period="1d", group_by='ticker', progress=False, auto_adjust=True)
-        
-        if debug_container: 
-            debug_container.write(f"Bulk Shape: {bulk.shape}")
-            debug_container.write(f"Bulk Cols: {bulk.columns}")
-            if not bulk.empty: debug_container.write(f"Sample: {bulk.iloc[:, :2].head()}")
-        
-        # Parse MultiIndex
-        if len(dl_tickers) == 1:
-            t = dl_tickers[0]
-            if not bulk.empty:
-                try: 
-                    # Handle different 1-ticker shapes
-                    if 'Close' in bulk.columns: p = bulk['Close'].iloc[-1]
-                    else: p = bulk.iloc[0,0] # Fallback blindly
-                    price_map[t] = p
-                except Exception as e:
-                    if debug_container: debug_container.error(f"1-Ticker Parse Error: {e}")
-        else:
-            for t in dl_tickers:
-                try:
-                    # Check if ticker in columns (Level 0)
-                    if t in bulk.columns:
-                        p = bulk[t]['Close'].iloc[-1]
-                        if not pd.isna(p): price_map[t] = p
-                except: pass
-                
-        if debug_container: debug_container.write(f"Price Map Keys: {list(price_map.keys())[:5]}")
-        
-    except Exception as e:
-        print(f"Bulk DL Failed: {e}")
-        if debug_container: debug_container.error(f"Bulk DL Exception: {e}")
+    status_text.text("Stage 1: Analyzing stocks individually (Better Reliability)...")
+
 
     total = len(tickers)
     
@@ -435,9 +394,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
             
             # Price from Bulk or Info
             price = info.get('regularMarketPrice') or info.get('currentPrice')
-            if price is None:
-                 # Try from bulk map
-                 if formatted_ticker in price_map: price = price_map[formatted_ticker]
+
             
             if price is None:
                  # Last ditch: fast_info
