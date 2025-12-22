@@ -70,21 +70,22 @@ def fetch_cached_history(ticker, period='5y'):
 def inject_custom_css(theme):
     # --- THEME VARIABLES ---
     if theme == 'Dark':
-        bg_color = "#0e1117"
-        text_color = "#fafafa" # White-ish
-        card_bg = "#262730"
-        tab_bg = "#262730"
-        tab_active_bg = "#3b82f6" # Bright Blue
+        # Minimal Dark Grey (Zinc/Slate Style)
+        bg_color = "#18181b" 
+        text_color = "#e4e4e7" 
+        card_bg = "#27272a" 
+        tab_bg = "#27272a" 
+        tab_active_bg = "#3b82f6" 
         tab_active_text = "#ffffff"
-        tab_text = "#a0a0a0"
-        border_color = "#3b82f6"
-        metric_val_color = "#60a5fa" # Light Blue
+        tab_text = "#a1a1aa" 
+        border_color = "#3f3f46"
+        metric_val_color = "#60a5fa"
     else:
         bg_color = "#ffffff"
         text_color = "#31333F"
         card_bg = "#ffffff"
         tab_bg = "#f0f2f6"
-        tab_active_bg = "#003366" # Deep Navy
+        tab_active_bg = "#003366" 
         tab_active_text = "#ffffff"
         tab_text = "#003366"
         border_color = "#003366"
