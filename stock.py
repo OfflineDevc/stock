@@ -2515,13 +2515,13 @@ if __name__ == "__main__":
     # --- TOP TABS NAVIGATION (CFA Style) ---
     # Define Tabs (Rendered at the very top)
     tab_scan, tab_port, tab_single, tab_health, tab_ai, tab_gloss, tab_help = st.tabs([
-        "🔍 Market Scanner", 
-        "🤖 Auto Portfolio", 
-        "📈 Single Stock Analysis", 
-        "🩺 Portfolio Health", 
-        "🧠 AI Insight", 
-        "📖 Glossary", 
-        "❓ How to Use"
+        "Market Scanner", 
+        "Auto Portfolio", 
+        "Single Stock Analysis", 
+        "Portfolio Health", 
+        "AI Insight", 
+        "Glossary", 
+        "How to Use"
     ])
 
     # --- HEADER & NAVIGATION (Now Below Tabs) ---
