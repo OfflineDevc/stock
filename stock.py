@@ -23,20 +23,47 @@ def translate_text(text, target_lang='th'):
 # --- CACHING HELPERS (Optimization) ---
 @st.cache_data(ttl=3600*12, show_spinner=False)
 def fetch_cached_info(ticker):
-    """Cache the heavy API call for stock metadata."""
+    """Cache the heavy API call for stock metadata (with Retry)."""
+    retries = 3
+    for attempt in range(retries):
+        try:
+            return yf.Ticker(ticker).info
+        except Exception as e:
+            err_msg = str(e).lower()
+            if "too many requests" in err_msg or "rate limited" in err_msg or "429" in err_msg:
+                if attempt < retries - 1:
+                    sleep_time = (2 ** attempt) + (0.1 * (attempt+1)) # Exponential Backoff: 1.1s, 2.2s, 4.3s
+                    print(f"[{ticker}] Rate Limited. Retrying in {sleep_time:.2f}s...")
+                    time.sleep(sleep_time)
+                    continue
+            
+            print(f"[{ticker}] Info Error: {e}")
+            return {'__error__': str(e)}
+    return {}
+
+@st.cache_data(ttl=3600*12, show_spinner=False)
+def fetch_cached_financials(ticker):
+    """Cache the financials fetch."""
     try:
-        return yf.Ticker(ticker).info
-    except Exception as e:
-        print(f"[{ticker}] Info Error: {e}")
-        return {'__error__': str(e)}
+        return yf.Ticker(ticker).financials
+    except: return pd.DataFrame()
 
 
 @st.cache_data(ttl=3600*12, show_spinner=False)
 def fetch_cached_history(ticker, period='5y'):
-    """Cache the history fetch for deep analysis."""
-    try:
-        return yf.Ticker(ticker).history(period=period)
-    except: return pd.DataFrame()
+    """Cache the history fetch for deep analysis (with Retry)."""
+    retries = 3
+    for attempt in range(retries):
+        try:
+            return yf.Ticker(ticker).history(period=period)
+        except Exception as e:
+            err_msg = str(e).lower()
+            if "too many requests" in err_msg or "rate limited" in err_msg or "429" in err_msg:
+                 if attempt < retries - 1:
+                    time.sleep((2 ** attempt))
+                    continue
+            return pd.DataFrame()
+    return pd.DataFrame()
 
 # --- PROFESSIONAL UI OVERHAUL ---
 def inject_custom_css():
