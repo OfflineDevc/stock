@@ -1359,9 +1359,9 @@ def page_single_stock():
                             st.dataframe(recs.tail(10), use_container_width=True)
                         
                         # Analyst Targets
-                        tgt_ mean = row.get('Target_Price')
-                        if tgt_ mean:
-                            st.metric("Consensus Target Price", f"{tgt_ mean}", f"vs Current: {price}")
+                        tgt_mean = row.get('Target_Price')
+                        if tgt_mean:
+                            st.metric("Consensus Target Price", f"{tgt_mean}", f"vs Current: {price}")
                         else:
                             st.info("No analyst target price available.")
                             
