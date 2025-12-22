@@ -4,6 +4,7 @@ import altair as alt # Visuals
 import pandas as pd
 import numpy as np
 import time
+import random
 
 import datetime
 from deep_translator import GoogleTranslator
@@ -24,16 +25,60 @@ def translate_text(text, target_lang='th'):
 @st.cache_data(ttl=3600*12, show_spinner=False)
 def fetch_cached_info(ticker):
     """Cache the heavy API call for stock metadata."""
-    try:
-        return yf.Ticker(ticker).info
-    except: return {}
+    retries = 3
+    for i in range(retries):
+        try:
+            return yf.Ticker(ticker).info
+        except Exception as e:
+            if "rate limit" in str(e).lower() or "too many requests" in str(e).lower():
+                if i < retries - 1:
+                    time.sleep(2 ** i + random.random())
+                    continue
+            if i == retries - 1:
+                return {} # Return empty on final failure
+    return {}
 
 @st.cache_data(ttl=3600*12, show_spinner=False)
 def fetch_cached_history(ticker, period='5y'):
     """Cache the history fetch for deep analysis."""
-    try:
-        return yf.Ticker(ticker).history(period=period)
-    except: return pd.DataFrame()
+    retries = 3
+    for i in range(retries):
+        try:
+            return yf.Ticker(ticker).history(period=period)
+        except Exception as e:
+            if "rate limit" in str(e).lower() or "too many requests" in str(e).lower():
+                if i < retries - 1:
+                    time.sleep(2 ** i + random.random())
+                    continue
+    return pd.DataFrame()
+
+@st.cache_data(ttl=3600*12, show_spinner=False)
+def fetch_cached_financials(ticker):
+    """Cache the financials fetch."""
+    retries = 3
+    for i in range(retries):
+        try:
+            return yf.Ticker(ticker).financials
+        except Exception as e:
+            if "rate limit" in str(e).lower() or "too many requests" in str(e).lower():
+                if i < retries - 1:
+                    time.sleep(2 ** i + random.random())
+                    continue
+    return pd.DataFrame()
+
+@st.cache_data(ttl=3600*24, show_spinner=False)
+def fetch_cached_dividends(ticker):
+    """Cache the dividends fetch."""
+    retries = 3
+    for i in range(retries):
+        try:
+            return yf.Ticker(ticker).dividends
+        except Exception as e:
+            if "rate limit" in str(e).lower() or "too many requests" in str(e).lower():
+                if i < retries - 1:
+                    time.sleep(2 ** i + random.random())
+                    continue
+    return pd.Series(dtype=float)
 
 # --- PROFESSIONAL UI OVERHAUL ---
 def inject_custom_css():
@@ -374,7 +419,20 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
         if debug_container: debug_container.write(f"Attempting bulk download for {len(dl_tickers)} tickers...")
         
         # Download 1 day of data
-        bulk = yf.download(dl_tickers, period="1d", group_by='ticker', progress=False, auto_adjust=True)
+        bulk = pd.DataFrame()
+        retries = 3
+        for i in range(retries):
+            try:
+                bulk = yf.download(dl_tickers, period="1d", group_by='ticker', progress=False, auto_adjust=True)
+                break
+            except Exception as e:
+                if "rate limit" in str(e).lower() or "too many requests" in str(e).lower():
+                    if i < retries - 1:
+                        if debug_container: debug_container.warning(f"Rate limit hit, retrying in {2**i}s...")
+                        time.sleep(2 ** i + random.random())
+                        continue
+                if debug_container: debug_container.error(f"Bulk Download Error: {e}")
+                break
         
         if debug_container: 
             debug_container.write(f"Bulk Shape: {bulk.shape}")
@@ -428,6 +486,9 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
             
             # Create yf.Ticker object for later use (e.g., financials)
             stock = yf.Ticker(formatted_ticker)
+            
+            # --- NEW: Session Handling to prevent auto-closing/Reuse ---
+            # (Optional: yfinance manages sessions, but we can be gentle)
             
             # DEBUG: Log first item to see what's happening on Cloud
             if i == 0 and debug_container:
@@ -491,8 +552,30 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                 if (pe is None) and price: # Check PE primarily, others follow
                     try:
                         # Fetch Financials (Income Stmt & Balance Sheet)
-                        inc = fetch_cached_financials(formatted_ticker) # Use cached financials
-                        bal = stock.quarterly_balance_sheet # Quarterly balance sheet is not cached yet
+                        inc = pd.DataFrame() # Default
+                        bal = pd.DataFrame() # Default
+                        
+                        try:
+                           inc = fetch_cached_financials(formatted_ticker) # Use cached financials
+                        except: pass
+                        
+                        # Financials might also rate limit, add retry for direct access if needed
+                        # But fetch_cached_financials is not defined in the snippet I saw?
+                        # Wait, line 494 calls `fetch_cached_financials`. I need to check where that is defined.
+                        # It was likely added in previous turns or is missing?
+                        # The snippet I read showed line 494: inc = fetch_cached_financials(formatted_ticker)
+                        # I should probably update that function too if it exists.
+                        
+                        # For direct property access like quarterly_balance_sheet:
+                        for _r in range(3):
+                            try:
+                                bal = stock.quarterly_balance_sheet
+                                break
+                            except Exception as e:
+                                if "rate limit" in str(e).lower():
+                                    time.sleep(1 + random.random())
+                                    continue
+                                break
                         
                         if i == 0 and debug_container:
                             debug_container.write(f"🔍 Analying {formatted_ticker} (Cloud Recovery Mode)")
@@ -649,7 +732,7 @@ def analyze_history_deep(df_candidates, progress_bar, status_text):
         div_streak_str = "None"
 
         try:
-            fin = stock.financials
+            fin = fetch_cached_financials(ticker)
             if not fin.empty:
                 fin = fin.T.sort_index()
                 
@@ -687,7 +770,7 @@ def analyze_history_deep(df_candidates, progress_bar, status_text):
             
             # 2. Dividend History (For High Yield Analysis)
             # Fetch max history to find streak
-            divs = stock.dividends
+            divs = fetch_cached_dividends(ticker)
             if not divs.empty:
                 # Resample to yearly to count years with dividends
                 # FIX: 'Y' is deprecated, use 'YE'
@@ -724,7 +807,7 @@ def analyze_history_deep(df_candidates, progress_bar, status_text):
                 div_streak_str = "0 Yrs"
 
             # 3. Price Performance (NEW)
-            hist = stock.history(period="5y")
+            hist = fetch_cached_history(ticker, period="5y")
             perf = {}
             if not hist.empty:
                 # FIX: TZ awareness issues. Convert to naive.
