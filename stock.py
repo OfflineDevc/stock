@@ -170,7 +170,7 @@ TRANS = {
         'feat_ai_title': "AI Deep Insight",
         'feat_ai_desc': "Let AI read financial statements and valuations to give you a clear buy/sell rationale. (Coming Soon)",
         'feat_health_title': "Portfolio Health Check",
-        'feat_health_desc': "Upload your portfolio to analyze risk exposure and optimization opportunities. (Coming Soon)"
+        'feat_health_desc': "Upload your portfolio to analyze risk exposure and optimization opportunities. (Coming Soon)",
         'glossary_title': "📚 Investment Glossary",
         'search_ticker': "Enter Stock Ticker (e.g. AAPL, PTT.BK)",
         'analyze_btn': "Analyze Stock",
