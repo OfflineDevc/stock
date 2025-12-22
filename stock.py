@@ -2669,7 +2669,10 @@ def page_home():
 
 if __name__ == "__main__":
     st.set_page_config(page_title="Stockub Pro", layout="wide", page_icon="📈")
-    inject_custom_css() # Apply Professional Styles
+    
+    # Initialize Theme
+    if 'theme' not in st.session_state: st.session_state['theme'] = 'Light'
+    inject_custom_css(st.session_state['theme']) # Apply Professional Styles
     
     # --- TOP TABS NAVIGATION (CFA Style) ---
     # Define Tabs (Rendered at the very top)
