@@ -79,6 +79,11 @@ def inject_custom_css():
         .block-container {
             padding-top: 1rem;
         }
+        
+        /* Hide Streamlit Header/Toolbar */
+        header {visibility: hidden;}
+        [data-testid="stToolbar"] {visibility: hidden;}
+        .stDeployButton {display:none;}
 
         /* CFA-Style Blue Header for Tabs */
         .stTabs [data-baseweb="tab-list"] {
