@@ -158,19 +158,6 @@ TRANS = {
         'stage2_msg': "✅ Stage 1 Complete. Analyzing Top Candidates...",
         'no_data': "❌ No stocks matched your STRICT criteria.",
         'deep_dive_title': "🔍 Single Stock Deep Dive",
-        
-        # --- HOME PAGE (EN) ---
-        'home_hero_title': "Elevate Your Investment with Professional Analytics",
-        'home_hero_sub': "A comprehensive platform combining classic screening, auto-portfolio generation, and AI insights.",
-        'home_cta': "Get Started for Free",
-        'feat_scanner_title': "Smart Market Scanner",
-        'feat_scanner_desc': "Filter stocks from S&P 500 or SET100 using over 20 financial metrics and criteria.",
-        'feat_port_title': "Auto Portfolio Builder",
-        'feat_port_desc': "Generate a diversified portfolio tailored to your risk profile instantly.",
-        'feat_ai_title': "AI Deep Insight",
-        'feat_ai_desc': "Let AI read financial statements and valuations to give you a clear buy/sell rationale. (Coming Soon)",
-        'feat_health_title': "Portfolio Health Check",
-        'feat_health_desc': "Upload your portfolio to analyze risk exposure and optimization opportunities. (Coming Soon)"
         'glossary_title': "📚 Investment Glossary",
         'search_ticker': "Enter Stock Ticker (e.g. AAPL, PTT.BK)",
         'analyze_btn': "Analyze Stock",
@@ -244,19 +231,6 @@ TRANS = {
         'stage2_msg': "✅ ขั้นแรกเสร็จสิ้น กำลังวิเคราะห์เจาะลึก...",
         'no_data': "❌ ไม่พบหุ้นที่ผ่านเกณฑ์ Strict ของคุณ",
         'deep_dive_title': "🔍 วิเคราะห์หุ้นรายตัว",
-        
-        # --- HOME PAGE (TH) ---
-        'home_hero_title': "ยกระดับการลงทุนของคุณ ด้วยพลังแห่งข้อมูล",
-        'home_hero_sub': "แพลตฟอร์มวิเคราะห์หุ้นระดับมืออาชีพ ที่รวมเครื่องมือสแกน สร้างพอร์ต และ AI ไว้ในที่เดียว",
-        'home_cta': "เริ่มต้นใช้งานฟรี",
-        'feat_scanner_title': "สแกนหุ้นอัจฉริยะ",
-        'feat_scanner_desc': "ค้นหาหุ้นที่ใช่จากตลาด S&P 500 หรือ SET100 ด้วยเงื่อนไขกว่า 20 รายการ",
-        'feat_port_title': "สร้างพอร์ตอัตโนมัติ",
-        'feat_port_desc': "จัดพอร์ตลงทุนตามระดับความเสี่ยงที่รับได้ ด้วยอัลกอริทึม Asset Allocation",
-        'feat_ai_title': "AI วิเคราะห์เชิงลึก",
-        'feat_ai_desc': "ให้ AI อ่านงบการเงินและประเมินมูลค่าหุ้น พร้อมคำแนะนำที่เข้าใจง่าย (เร็วๆ นี้)",
-        'feat_health_title': "ตรวจสุขภาพพอร์ต",
-        'feat_health_desc': "ส่งพอร์ตของคุณมาให้เราเช็คความเสี่ยง และปรับปรุงประสิทธิภาพ (เร็วๆ นี้)",
         'glossary_title': "📚 คลังความรู้การลงทุน",
         'search_ticker': "พิมพ์ชื่อหุ้น (เช่น AAPL, PTT.BK)",
         'analyze_btn': "วิเคราะห์หุ้นนี้",
@@ -2533,95 +2507,21 @@ def page_howto():
     st.header(HOWTO_DATA['Step3'][lang]['title'])
     st.write(HOWTO_DATA['Step3'][lang]['desc'])
 
-def page_home():
-    """Renders the Professional CFA-Style Landing Page"""
-    hero_title = get_text('home_hero_title')
-    hero_sub = get_text('home_hero_sub')
-    cta_text = get_text('home_cta')
-    
-    # --- HERO SECTION ---
-    # Dark Blue Gradient Background with White text
-    st.markdown(f"""
-    <div style="
-        background: linear-gradient(90deg, #001E62 0%, #003366 100%);
-        padding: 4rem 2rem;
-        border-radius: 0px;
-        color: white;
-        text-align: left;
-        margin-bottom: 2rem;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-    ">
-        <div style="max-width: 1200px; margin: 0 auto; display: flex; flex-wrap: wrap; align-items: center;">
-            <div style="flex: 1; min-width: 300px; padding-right: 2rem;">
-                <h1 style="color: white !important; font-size: 3.5rem; font-weight: 700; margin-bottom: 1rem;">
-                    {hero_title}
-                </h1>
-                <p style="color: #e0e0e0 !important; font-size: 1.25rem; margin-bottom: 2rem; line-height: 1.6;">
-                    {hero_sub}
-                </p>
-            </div>
-            <div style="flex: 1; min-width: 300px; display: flex; justify-content: center;">
-                <!-- Placeholder for Hero Image or Illustration -->
-                <div style="
-                    width: 100%;
-                    max-width: 400px;
-                    height: 300px;
-                    background-color: rgba(255,255,255,0.1);
-                    border-radius: 12px;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    border: 1px solid rgba(255,255,255,0.2);
-                ">
-                    <span style="font-size: 5rem; color: rgba(255,255,255,0.3);">📈</span>
-                </div>
-            </div>
-        </div>
-    </div>
-    """, unsafe_allow_html=True)
-    
-    # --- FEATURE GRID ---
-    st.markdown(f"""<h2 style="text-align: center; margin-bottom: 2rem;">Why Stockub?</h2>""", unsafe_allow_html=True)
-    
-    c1, c2, c3, c4 = st.columns(4)
-    
-    with c1:
-        st.info("🔍 " + get_text('feat_scanner_title'))
-        st.caption(get_text('feat_scanner_desc'))
-        
-    with c2:
-        st.success("🤖 " + get_text('feat_port_title'))
-        st.caption(get_text('feat_port_desc'))
-        
-    with c3:
-        st.warning("🩺 " + get_text('feat_health_title'))
-        st.caption(get_text('feat_health_desc'))
-        
-    with c4:
-        st.error("🧠 " + get_text('feat_ai_title'))
-        st.caption(get_text('feat_ai_desc'))
-        
-    st.markdown("---")
-
 # ---------------------------------------------------------
-# MAIN
-# ---------------------------------------------------------
-
 if __name__ == "__main__":
     st.set_page_config(page_title="Stockub Pro", layout="wide", page_icon="📈")
     inject_custom_css() # Apply Professional Styles
     
     # --- TOP TABS NAVIGATION (CFA Style) ---
     # Define Tabs (Rendered at the very top)
-    # Added "Home" as the first tab
-    tab_home, tab_scan, tab_port, tab_single, tab_health, tab_ai, tab_gloss = st.tabs([
-        "🏠 Home",
+    tab_scan, tab_port, tab_single, tab_health, tab_ai, tab_gloss, tab_help = st.tabs([
         "Market Scanner", 
         "Auto Portfolio", 
         "Single Stock Analysis", 
         "Portfolio Health", 
         "AI Insight", 
-        "Glossary"
+        "Glossary", 
+        "How to Use"
     ])
 
     # --- HEADER & NAVIGATION (Now Below Tabs) ---
@@ -2630,24 +2530,10 @@ if __name__ == "__main__":
         st.caption("Professional Stock Analytics Platform")
         
     with c_lang:
-        c_l1, c_l2 = st.columns([1, 1])
-        with c_l1:
-            lang_choice = st.radio("Language", ["EN", "TH"], horizontal=True, label_visibility="collapsed")
-            st.session_state['lang'] = 'EN' if "EN" in lang_choice else 'TH'
-        with c_l2:
-             # Theme Toggle - Re-implemented
-            if 'theme' not in st.session_state: st.session_state['theme'] = 'Light'
-            theme_switch = st.toggle("🌙 Dark Mode", value=(st.session_state['theme'] == 'Dark'))
-            new_theme = 'Dark' if theme_switch else 'Light'
-            if new_theme != st.session_state['theme']:
-                st.session_state['theme'] = new_theme
-                st.rerun()
+        # Move Language Switcher to Top Right
+        lang_choice = st.radio("Language / ภาษา", ["English (EN)", "Thai (TH)"], horizontal=True, label_visibility="collapsed")
+        st.session_state['lang'] = 'EN' if "English" in lang_choice else 'TH'
     
-    inject_custom_css(st.session_state['theme']) # Apply Dynamic CSS
-    
-    with tab_home:
-        page_home()
-        
     with tab_scan:
         page_scanner()
         
