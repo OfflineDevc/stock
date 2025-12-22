@@ -303,6 +303,69 @@ def get_text(key):
     lang = st.session_state.get('lang', 'EN')
     return TRANS[lang].get(key, key)
 
+# --- MARKET & GURU DATA ---
+
+@st.cache_data(ttl=3600, show_spinner=False)
+def fetch_market_indicators():
+    """
+    Fetches market proxies for Fear & Greed and Valuation.
+    Proprietary indices (CNN F&G, Buffett Indicator) are approximated here.
+    """
+    indicators = {}
+    try:
+        # 1. Fear (VIX)
+        vix = yf.Ticker("^VIX")
+        vix_info = vix.fast_info
+        indicators['VIX'] = vix_info.last_price
+        
+        # 2. Market Trend (S&P 500)
+        spx = yf.Ticker("^GSPC")
+        hist = spx.history(period="1y")
+        if not hist.empty:
+            current = hist['Close'].iloc[-1]
+            ma200 = hist['Close'].rolling(200).mean().iloc[-1]
+            indicators['SPX_Price'] = current
+            indicators['SPX_200MA'] = ma200
+            
+            # Momentum/Greed Proxy
+            indicators['Trend_Diff'] = ((current - ma200) / ma200) * 100
+            
+    except Exception as e:
+        print(f"Market Data Error: {e}")
+        
+    return indicators
+
+def render_market_dashboard():
+    data = fetch_market_indicators()
+    if not data: return 
+
+    st.markdown("### 🧭 Market Sentiment & Health")
+    c1, c2, c3 = st.columns(3)
+    
+    # Fear Gauge (VIX)
+    vix = data.get('VIX')
+    if vix:
+        state = "Neutral"
+        color = "off"
+        if vix < 15: state = "Greed (Low Fear)"; color = "green"
+        elif vix > 25: state = "Extreme Fear"; color = "red"
+        elif vix > 20: state = "Fear"; color = "orange"
+        
+        c1.metric("Fear Gauge (VIX)", f"{vix:.2f}", state, delta_color="inverse")
+    
+    # Trend (Greed Proxy)
+    trend = data.get('Trend_Diff')
+    if trend:
+        t_state = "Bullish" if trend > 0 else "Bearish"
+        c2.metric("Market Trend (S&P 500)", f"{t_state}", f"{trend:+.1f}% vs 200MA")
+        
+    # Buffett Indicator Proxy (Manual Text)
+    c3.markdown("**Buffett Indicator (Proxy)**")
+    c3.caption("Market Valuation is high. (Estimated)")
+    # Since we can't easily calculate Market Cap/GDP without paid data,
+    # we leave this as a qualitative note or placeholder.
+
+
 # ---------------------------------------------------------
 # 1. Page Configuration
 # ---------------------------------------------------------
@@ -1271,6 +1334,39 @@ def page_single_stock():
                     st.write(f"- Debt/Equity: **{row.get('Debt_Equity') if row.get('Debt_Equity') is not None else 0:.0f}%**")
                     st.write(f"- Dividend: **{row.get('Div_Yield') if row.get('Div_Yield') is not None else 0:.2f}%**")
                 
+                # --- GURU & ANALYST DATA ---
+                st.markdown("---")
+                st.subheader("🧠 Guru & Analyst Intel")
+                
+                tab_guru, tab_rec = st.tabs(["🏛️ Institutional Holders (Guru Proxy)", "🗣️ Analyst Recommendations"])
+                
+                with tab_guru:
+                    try:
+                        holders = stock_obj.institutional_holders
+                        if holders is not None and not holders.empty:
+                            st.dataframe(holders, hide_index=True, use_container_width=True)
+                            st.caption("Top funds and institutions holding this stock.")
+                        else:
+                            st.info("No institutional holding data available.")
+                    except: st.error("Could not fetch institutional data.")
+                    
+                with tab_rec:
+                    try:
+                        recs = stock_obj.recommendations
+                        if recs is not None and not recs.empty:
+                            # Show latest recommendations summary
+                            # yfinance often returns a long history, let's show summary or recent
+                            st.dataframe(recs.tail(10), use_container_width=True)
+                        
+                        # Analyst Targets
+                        tgt_ mean = row.get('Target_Price')
+                        if tgt_ mean:
+                            st.metric("Consensus Target Price", f"{tgt_ mean}", f"vs Current: {price}")
+                        else:
+                            st.info("No analyst target price available.")
+                            
+                    except: st.error("Could not fetch recommendations.")
+
                 # Show Chart
                 st.markdown("### 📉 5-Year Price Trend")
                 stock = row['YF_Obj']
@@ -1586,6 +1682,10 @@ def page_glossary():
 def page_scanner():
     st.title(get_text('main_title'))
     st.info(get_text('about_desc'))
+
+    # NEW: Market Dashboard
+    render_market_dashboard()
+
 
     # --- PROFESSIONAL UI: MAIN CONFIGURATION ---
     # Moved all controls from Sidebar to Main Page Expander
