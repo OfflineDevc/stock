@@ -85,30 +85,32 @@ def inject_custom_css():
         [data-testid="stToolbar"] {visibility: hidden;}
         .stDeployButton {display:none;}
 
-        /* CFA-Style Blue Header for Tabs */
+        /* CFA-Style Blue Header for Tabs (Full Width) */
         .stTabs [data-baseweb="tab-list"] {
-            gap: 10px;
-            background-color: #f0f2f6; 
-            padding: 10px 10px 0px 10px;
-            border-radius: 10px 10px 0px 0px;
+            gap: 0px; /* Remove gap between tabs */
+            background-color: transparent; 
+            padding: 0px;
             border-bottom: 2px solid #003366;
         }
 
         .stTabs [data-baseweb="tab"] {
+            flex-grow: 1; /* Stretch to fill width */
             height: 50px;
             white-space: pre-wrap;
-            background-color: #ffffff;
-            border-radius: 5px 5px 0px 0px;
-            color: #003366; /* CFA Blue Text */
+            background-color: #f8f9fa; /* Light gray for unselected */
+            border-radius: 0px; /* No corners */
+            color: #003366; 
             font-weight: 600;
-            border: 1px solid #e0e0e0;
-            border-bottom: none;
+            border: none; /* Clean Look */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .stTabs [aria-selected="true"] {
-            background-color: #003366 !important; /* CFA Blue Background */
+            background-color: #003366 !important; /* Active Blue */
             color: #ffffff !important;
-            border: none;
+            font-weight: 700;
         }
         
         /* Metrics & Buttons */
