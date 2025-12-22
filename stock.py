@@ -2205,6 +2205,10 @@ def page_portfolio():
                      color_col = "Bucket" 
                      legend_title = "Sector"
 
+                 # Drop YF_Obj for Altair (Fix Arrow Error)
+                 if 'YF_Obj' in chart_df.columns:
+                     chart_df = chart_df.drop(columns=['YF_Obj'])
+
                  # Create Label for Chart
                  chart_df['Label'] = chart_df['Ticker'] + " (" + chart_df['Weight %'].map('{:.1f}%'.format) + ")"
 
@@ -2248,6 +2252,9 @@ def page_portfolio():
     st.markdown("---")
     st.subheader("🕑 Historical Backtest & Simulation")
     st.caption("See how this portfolio would have performed in the past vs S&P 500.")
+    
+    # Define currency_fmt for this scope
+    currency_fmt = "฿" if "SET" in market_choice else "$"
     
     with st.expander("⚙️ Backtest Configuration", expanded=True):
         c_bt1, c_bt2, c_bt3 = st.columns(3)
