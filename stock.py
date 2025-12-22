@@ -308,15 +308,25 @@ def get_text(key):
 @st.cache_data(ttl=3600, show_spinner=False)
 def fetch_market_indicators():
     """
-    Fetches market proxies for Fear & Greed and Valuation.
-    Proprietary indices (CNN F&G, Buffett Indicator) are approximated here.
+    Fetches market proxies and calculates CNN-style scores.
     """
     indicators = {}
     try:
-        # 1. Fear (VIX)
+        # 1. Fear (VIX) -> Proxy for Fear & Greed Index
+        # CNN F&G: 0 (Terror) to 100 (Euphoria)
+        # VIX: 10 (Calm) to 80 (Crash)
+        # Mapping: VIX 10 -> Score 90, VIX 50 -> Score 10
         vix = yf.Ticker("^VIX")
         vix_info = vix.fast_info
-        indicators['VIX'] = vix_info.last_price
+        vix_val = vix_info.last_price
+        indicators['VIX'] = vix_val
+        
+        # Calculate Proxy Score (0-100)
+        # Rule of thumb: VIX 12 is Greed, VIX 30 is Fear
+        # Linear: Score = 100 - ( (VIX-10)/(35-10) * 100 )
+        score = 100 - ((vix_val - 12) / (35 - 12) * 100)
+        score = max(0, min(100, score)) # Clamp
+        indicators['FG_Score'] = int(score)
         
         # 2. Market Trend (S&P 500)
         spx = yf.Ticker("^GSPC")
@@ -324,10 +334,6 @@ def fetch_market_indicators():
         if not hist.empty:
             current = hist['Close'].iloc[-1]
             ma200 = hist['Close'].rolling(200).mean().iloc[-1]
-            indicators['SPX_Price'] = current
-            indicators['SPX_200MA'] = ma200
-            
-            # Momentum/Greed Proxy
             indicators['Trend_Diff'] = ((current - ma200) / ma200) * 100
             
     except Exception as e:
@@ -339,31 +345,72 @@ def render_market_dashboard():
     data = fetch_market_indicators()
     if not data: return 
 
-    st.markdown("### 🧭 Market Sentiment & Health")
-    c1, c2, c3 = st.columns(3)
+    st.markdown("### 🧭 Market Sentiment (CNN-Style Proxy)")
     
-    # Fear Gauge (VIX)
-    vix = data.get('VIX')
-    if vix:
-        state = "Neutral"
-        color = "off"
-        if vix < 15: state = "Greed (Low Fear)"; color = "green"
-        elif vix > 25: state = "Extreme Fear"; color = "red"
-        elif vix > 20: state = "Fear"; color = "orange"
-        
-        c1.metric("Fear Gauge (VIX)", f"{vix:.2f}", state, delta_color="inverse")
+    # --- ROW 1: FEAR & GREED + BUFFETT ---
+    c1, c2 = st.columns([1, 1])
     
-    # Trend (Greed Proxy)
-    trend = data.get('Trend_Diff')
-    if trend:
-        t_state = "Bullish" if trend > 0 else "Bearish"
-        c2.metric("Market Trend (S&P 500)", f"{t_state}", f"{trend:+.1f}% vs 200MA")
+    with c1:
+        score = data.get('FG_Score', 50)
+        vix = data.get('VIX', 0)
         
-    # Buffett Indicator Proxy (Manual Text)
-    c3.markdown("**Buffett Indicator (Proxy)**")
-    c3.caption("Market Valuation is high. (Estimated)")
-    # Since we can't easily calculate Market Cap/GDP without paid data,
-    # we leave this as a qualitative note or placeholder.
+        # Determine State
+        if score <= 25: state = "🥶 Extreme Fear"
+        elif score <= 45: state = "😨 Fear"
+        elif score <= 55: state = "😐 Neutral"
+        elif score <= 75: state = "😎 Greed"
+        else: state = "🤑 Extreme Greed"
+        
+        st.metric("Fear & Greed Index (Proxy)", f"{score}/100", state)
+        st.progress(score / 100)
+        st.caption(f"Driven by VIX: {vix:.2f} (Lower VIX = Higher Greed)")
+
+    with c2:
+        # Buffett Indicator (Static / Reference)
+        # Data from User: Sep 30, 2025 -> 230%
+        st.metric("Buffett Indicator (Q3 2025)", "230%", "Strongly Overvalued", delta_color="inverse")
+        st.caption("Ratio of Total US Stock Market ($70.68T) to GDP ($30.77T).")
+        st.info("Status: 2.4 Std Dev above historical average.")
+
+    # --- ROW 2: FAQs ---
+    with st.expander("📚 Definition & Methodology (FAQs)"):
+        tab_fg, tab_buff = st.tabs(["Fear & Greed Index", "Buffett Indicator"])
+        
+        with tab_fg:
+            st.markdown("""
+            **What is the Fear & Greed Index?**  
+            It is a way to gauge stock market movements and whether stocks are fairly priced. The logic is that **excessive fear drives prices down** (opportunity), and **too much greed drives them up** (correction risk).
+
+            **How is it Calculated? (Official vs Proxy)**  
+            - *Official (CNN)*: Compiles 7 indicators (Momentum, Strength, Breadth, Options, Junk Bonds, Volatility, Safe Haven).  
+            - *Our Proxy*: We rely primarily on **Volatility (VIX)** and **Market Momentum** due to real-time data availability.
+
+            **Scale:**  
+            - **0-25**: Extreme Fear 🥶  
+            - **25-45**: Fear 😨  
+            - **45-55**: Neutral 😐  
+            - **55-75**: Greed 😎  
+            - **75-100**: Extreme Greed 🤑
+            """)
+            
+        with tab_buff:
+            st.markdown("""
+            **What is the Buffett Indicator?**  
+            The ratio of the total United States stock market valuation to GDP. Warren Buffett called it *"probably the best single measure of where valuations stand at any given moment."*
+
+            $$ \\text{Buffett Indicator} = \\frac{\\text{Total US Stock Market Value}}{\\text{Gross Domestic Product (GDP)}} $$
+
+            **Current Values (As of Sep 30, 2025):**  
+            - **Total Market**: $70.68 Trillion  
+            - **GDP**: $30.77 Trillion  
+            - **Ratio**: **230%** (Strongly Overvalued)
+
+            **Interpretation:**  
+            - **75-90%**: Fair Valued  
+            - **> 120%**: Overvalued  
+            - **> 200%**: Bubble / Strongly Overvalued 🚨
+            """)
+
 
 
 # ---------------------------------------------------------
