@@ -2143,6 +2143,10 @@ def page_portfolio():
         # 7. Visualization
         st.success(f"✅ Generated Professional Portfolio: {len(portfolio)} Stocks")
         
+        # PERSIST FOR BACKTEST
+        st.session_state['gen_portfolio'] = portfolio
+        st.session_state['gen_market'] = market_choice
+        
         # Portfolio Stats (Equity Only)
         avg_pe = portfolio['PE'].mean()
         avg_div = portfolio['Div_Yield'].mean()
@@ -2263,6 +2267,12 @@ def page_portfolio():
         bt_amount = c_bt3.number_input(f"Investment Amount ({currency_fmt[0]})", min_value=1000, value=10000, step=1000)
     
     if st.button("🚀 Run Backtest", type="primary", use_container_width=True):
+        if 'gen_portfolio' not in st.session_state:
+            st.error("Please generate a portfolio first!")
+            return
+            
+        portfolio = st.session_state['gen_portfolio']
+
         with st.spinner("Processing Historical Data... (This may take 15-30s)"):
             try:
                 # 1. Prepare Data
