@@ -101,8 +101,33 @@ def inject_custom_css(theme):
             background-color: {bg_color};
         }}
         
-        .stApp {{
-            background-color: {bg_color};
+        /* FORCE TEXT COLORS */
+        h1, h2, h3, h4, h5, h6, span, div, p, label {{
+            color: {text_color} !important;
+        }}
+        
+        /* Expander Header Correctness */
+        .streamlit-expanderHeader {{
+            background-color: {card_bg} !important;
+            color: {text_color} !important;
+            border-radius: 8px;
+        }}
+        
+        /* Fix Layout Processing (Status) & Alerts */
+        [data-testid="stStatusWidget"], .stAlert {{
+            background-color: {card_bg} !important;
+            color: {text_color} !important;
+            border: 1px solid {border_color};
+        }}
+        
+        /* Input & Selectbox Text */
+        .stSelectbox div[data-baseweb="select"] div {{
+            color: {text_color} !important;
+        }}
+        
+        /* Fix "Stockub" Title specifically if it uses st.title */
+        .css-10trblm {{
+            color: {text_color} !important;
         }}
         
         /* Hides the default top padding */
@@ -129,7 +154,7 @@ def inject_custom_css(theme):
             white-space: pre-wrap;
             background-color: {tab_bg}; 
             border-radius: 0px; 
-            color: {tab_text}; 
+            color: {tab_text} !important; 
             font-weight: 600;
             border: none; 
             display: flex;
@@ -146,7 +171,7 @@ def inject_custom_css(theme):
         /* Metrics & Buttons */
         div[data-testid="stMetricValue"] {{
             font-size: 1.4rem !important;
-            color: {metric_val_color};
+            color: {metric_val_color} !important;
         }}
         
         [data-testid="stMetric"] {{
@@ -158,14 +183,14 @@ def inject_custom_css(theme):
         /* Primary Button Blue */
         div.stButton > button:first-child {{
             background-color: {tab_active_bg};
-            color: white;
+            color: white !important;
             border-radius: 5px;
             border: none;
             padding: 0.5rem 1rem;
         }}
         div.stButton > button:first-child:hover {{
             background-color: {metric_val_color}; /* Lighter on hover */
-            color: white;
+            color: white !important;
             box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }}
         </style>
