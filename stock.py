@@ -2512,18 +2512,8 @@ if __name__ == "__main__":
     st.set_page_config(page_title="Stockub Pro", layout="wide", page_icon="📈")
     inject_custom_css() # Apply Professional Styles
     
-    # --- HEADER & NAVIGATION (Top Bar) ---
-    c_logo, c_lang = st.columns([8, 2])
-    with c_logo:
-        st.caption("Professional Stock Analytics Platform")
-        
-    with c_lang:
-        # Move Language Switcher to Top Right
-        lang_choice = st.radio("Language / ภาษา", ["English (EN)", "Thai (TH)"], horizontal=True, label_visibility="collapsed")
-        st.session_state['lang'] = 'EN' if "English" in lang_choice else 'TH'
-
     # --- TOP TABS NAVIGATION (CFA Style) ---
-    # Define Tabs
+    # Define Tabs (Rendered at the very top)
     tab_scan, tab_port, tab_single, tab_health, tab_ai, tab_gloss, tab_help = st.tabs([
         "🔍 Market Scanner", 
         "🤖 Auto Portfolio", 
@@ -2533,6 +2523,16 @@ if __name__ == "__main__":
         "📖 Glossary", 
         "❓ How to Use"
     ])
+
+    # --- HEADER & NAVIGATION (Now Below Tabs) ---
+    c_logo, c_lang = st.columns([8, 2])
+    with c_logo:
+        st.caption("Professional Stock Analytics Platform")
+        
+    with c_lang:
+        # Move Language Switcher to Top Right
+        lang_choice = st.radio("Language / ภาษา", ["English (EN)", "Thai (TH)"], horizontal=True, label_visibility="collapsed")
+        st.session_state['lang'] = 'EN' if "English" in lang_choice else 'TH'
     
     with tab_scan:
         page_scanner()
