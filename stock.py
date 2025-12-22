@@ -26,7 +26,10 @@ def fetch_cached_info(ticker):
     """Cache the heavy API call for stock metadata."""
     try:
         return yf.Ticker(ticker).info
-    except: return {}
+    except Exception as e:
+        print(f"[{ticker}] Info Error: {e}")
+        return {'__error__': str(e)}
+
 
 @st.cache_data(ttl=3600*12, show_spinner=False)
 def fetch_cached_history(ticker, period='5y'):
@@ -387,6 +390,14 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
             
             # Create yf.Ticker object for later use (e.g., financials)
             stock = yf.Ticker(formatted_ticker)
+
+            # DEBUG: Inspect "Info" for problematic tickers
+            if (ticker in ['AAPL', 'NVDA', 'GOOGL', 'META', 'TSLA'] or '__error__' in info) and debug_container:
+                debug_container.write(f"--- DEBUG: {ticker} ---")
+                if '__error__' in info:
+                    debug_container.error(f"⚠️ Fetch Error: {info['__error__']}")
+                else:
+                    debug_container.json(info) # Use JSON for better readability
             
             # DEBUG: Log first item to see what's happening on Cloud
             if i == 0 and debug_container:
@@ -1095,6 +1106,12 @@ def page_scanner():
                         st.dataframe(fin_T.style.format("{:,.0f}")) # No currency symbol to be safe
                     else:
                         st.warning("No financial history available for this stock.")
+
+        # Cache Clearing for Debugging
+        if st.checkbox("Show Advanced Options"):
+            if st.button("🗑️ Clear Data Cache"):
+                st.cache_data.clear()
+                st.success("Cache Cleared! Rerun the scan.")
 
         else:
             st.error(get_text('no_data'))
