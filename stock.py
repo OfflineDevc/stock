@@ -334,6 +334,9 @@ TRANS = {
         'val_badge_fair': "✅ Fair Value",
         'val_badge_premium': "⚠️ Overvalued",
         'tech_summary': "Tech Sentiment",
+        'dcf_method_title': "📊 Valuation Methodology (DCF)",
+        'dcf_normal_desc': "**Normal Model**: 5-yr projection at growth, 10% discount rate, 3% terminal growth.",
+        'dcf_cons_desc': "**Conservative Model**: 5-yr projection at 50% growth haircut, 12% discount rate, TV = FCFn / r.",
         'tab_settings': "🎛️ Settings & Tools",
         'tab_metrics': "📊 Financial Metrics",
         'tab_lynch': "🧠 Peter Lynch Categories",
@@ -527,6 +530,9 @@ TRANS = {
         'val_badge_fair': "✅ ราคาเหมาะสม (Fair)",
         'val_badge_premium': "⚠️ ราคาสูง (Overvalued)",
         'tech_summary': "สัญญาณเทคนิค",
+        'dcf_method_title': "📊 วิธีการประเมินมูลค่า (DCF)",
+        'dcf_normal_desc': "**แบบปกติ (Normal)**: คาดการณ์ 5 ปีตามการเติบโต, อัตราคิดลด 10%, Terminal Value คิดการเติบโตต่อเนื่อง 3%",
+        'dcf_cons_desc': "**แบบอนุรักษ์นิยม (Conservative)**: คาดการณ์ 5 ปีโดยลดการเติบโตลง 50%, อัตราคิดลด 12%, Terminal Value คิดจาก FCFn / r",
         'tab_settings': "🎛️ เครื่องมือและการตั้งค่า",
         'tab_metrics': "📊 ตัวชี้วัดทางการเงิน",
         'tab_lynch': "🧠 ประเภทหุ้นตาม Peter Lynch",
@@ -1566,54 +1572,79 @@ def calculate_technical_levels(stock_obj):
     except:
         return None
 
-def calculate_dual_intrinsic_value(row):
+def calculate_dcf_value(row, is_conservative=False):
     """
-    Calculates Normal and Conservative Intrinsic Values.
-    Based on Graham's Revised Formula & Multiplier-weighted outcomes.
-    Robust fallbacks for missing EPS/Growth.
+    Calculates intrinsic value using Discounted Cash Flow (DCF).
     """
     try:
-        # Fallback Chain for EPS
-        eps = row.get('EPS_TTM') or row.get('EPS')
-        if eps is None or eps <= 0:
-            # Last ditch: Try to calculate from Net Income / Shares
-            try:
-                stock_obj = row['YF_Obj']
-                info = stock_obj.info
-                net_inc = info.get('netIncomeToCommon')
-                shares = info.get('sharesOutstanding')
-                if net_inc and shares:
-                    eps = net_inc / shares
-            except: pass
+        # 1. Get Free Cash Flow (FCF)
+        # Fallback: Proxy FCF as 80% of Net Income if missing
+        fcf = row.get('FCF_TTM') or row.get('Free_Cash_Flow')
+        if fcf is None or fcf <= 0:
+            net_inc = row.get('Net_Income_TTM') or row.get('Net_Income')
+            if net_inc and net_inc > 0:
+                fcf = net_inc * 0.8 # Conservative proxy
+            else: return None
 
-        # Fallback Chain for Growth
-        growth = row.get('NI_CAGR_5Y') or row.get('EPS_Growth')
-        if growth is None:
-            # Use safe baseline for stable companies or check revenue growth
-            rev_growth = row.get('Rev_Growth') or row.get('Rev_CAGR_5Y')
-            if rev_growth and rev_growth > 0:
-                growth = rev_growth * 0.5 # Conservative estimation from revenue
-            else:
-                growth = 0.03 # 3% safe baseline (inflation)
+        # 2. Parameters based on mode
+        r = 0.12 if is_conservative else 0.10 # Discount Rate
+        g_terminal = 0.01 if is_conservative else 0.03 # Terminal Growth
         
-        if growth is not None: growth *= 100 # Convert to %
+        # Growth for projection (5 years)
+        growth = row.get('EPS_Growth') or row.get('Rev_Growth') or 0.05
+        if is_conservative: growth *= 0.5 # 50% haircut
+        growth = max(-0.1, min(growth, 0.25)) # Clamp growth between -10% and 25%
+
+        # 3. Project FCF for 5 years
+        fcf_projections = []
+        current_fcf = fcf
+        for i in range(1, 6):
+            current_fcf *= (1 + growth)
+            fcf_projections.append(current_fcf / ((1 + r) ** i))
         
-        # Graham Formula: V = EPS * (8.5 + 2g) * (4.4 / Y)
-        # Y = current yield of 20-year AAA corporate bonds (Approx 4.5% - 5.0%)
-        y = 4.5 
+        # 4. Terminal Value (TV)
+        fcf_n = current_fcf
+        if is_conservative:
+            # TV = FCFn / r (No terminal growth assumed)
+            tv = fcf_n / r
+        else:
+            # TV = (FCFn * (1+g)) / (r - g)
+            tv = (fcf_n * (1 + g_terminal)) / (r - g_terminal)
         
-        if eps and eps > 0:
-            # Normal: Default Graham-style
-            g_norm = max(2, min(growth, 20)) # Cap/Floor for realism
-            fv_normal = eps * (8.5 + 1.5 * g_norm) * (4.4/y)
-            
-            # Conservative: 60% of growth + higher margin of safety
-            g_cons = g_norm * 0.5
-            fv_cons = eps * (7.0 + 1.0 * g_cons) * (4.4/y) * 0.85 # Haircut
-            
-            return round(fv_cons, 2), round(fv_normal, 2)
+        tv_discounted = tv / ((1 + r) ** 5)
+        
+        total_ev = sum(fcf_projections) + tv_discounted
+        
+        # 5. Equity Value per Share
+        shares = row.get('Shares_Outstanding')
+        if not shares:
+            try:
+                shares = row['YF_Obj'].info.get('sharesOutstanding')
+            except: shares = None
+        
+        if shares and shares > 0:
+            return total_ev / shares
     except: pass
-    return None, None
+    return None
+
+def calculate_dual_intrinsic_value(row):
+    """
+    Calculates Normal and Conservative Intrinsic Values using DCF.
+    """
+    fv_norm = calculate_dcf_value(row, is_conservative=False)
+    fv_cons = calculate_dcf_value(row, is_conservative=True)
+    
+    # Final check: If DCF fails, fall back to a simple earnings multiple
+    if fv_norm is None or fv_cons is None:
+        try:
+            eps = row.get('EPS_TTM') or row.get('EPS')
+            if eps and eps > 0:
+                fv_norm = eps * 15 # Standard P/E multiple
+                fv_cons = eps * 10 # Value P/E multiple
+        except: pass
+        
+    return (round(fv_cons, 2) if fv_cons else None, 
+            round(fv_norm, 2) if fv_norm else None)
 
 # ---------------------------------------------------------
 # PAGES: Single Stock & Glossary
@@ -1663,6 +1694,13 @@ def page_single_stock():
                         
                         st.markdown(f"#### :{bcol}[{badge}]")
                         st.markdown(f"**Consv:** {fv_cons:,.2f} | **Norm:** {fv_norm:,.2f}")
+                        
+                        # Methodology Help
+                        with st.popover("ℹ️ Methodology"):
+                            st.markdown(f"### {get_text('dcf_method_title')}")
+                            st.write(get_text('dcf_normal_desc'))
+                            st.write(get_text('dcf_cons_desc'))
+                            st.caption("Fallbacks: Using 80% of Net Income if FCF is missing.")
                     else:
                         st.caption("Valuation data incomplete.")
 
