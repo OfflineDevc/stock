@@ -987,6 +987,11 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                     'Target_Price': analyst_target,
                     'Fair_Value': fair_value,
                     'Margin_Safety': margin_safety,
+                    'EPS': eps,
+                    'Net_Income_TTM': net_income_ttm,
+                    'Revenue_TTM': revenue_ttm,
+                    'FCF_TTM': get_ttm(inc, 'Free Cash Flow') if not inc.empty else None,
+                    'Shares_Outstanding': info.get('sharesOutstanding'),
                     'YF_Obj': stock 
                 })
         except Exception:
@@ -1143,7 +1148,12 @@ def analyze_history_deep(df_candidates, progress_bar, status_text):
             'NI_CAGR_5Y': cagr_ni,
             'Consistency': consistency_str,
             'Div_Streak': div_streak_str,
-            'Insight': insight_str if insight_str else "Stable"
+            'Insight': insight_str if insight_str else "Stable",
+            # Valuation Data (Latest Annual as TTM Proxy)
+            'Net_Income_TTM': fin['Net Income'].iloc[-1] if not fin.empty and 'Net Income' in fin.columns else None,
+            'Revenue_TTM': fin['Total Revenue'].iloc[-1] if not fin.empty and 'Total Revenue' in fin.columns else None,
+            'FCF_TTM': stock.cashflow.loc['Free Cash Flow'].iloc[0] if not stock.cashflow.empty and 'Free Cash Flow' in stock.cashflow.index else None,
+            'Shares_Outstanding': info.get('sharesOutstanding'), # Re-inject for safety
         }
         # Merge perf metrics
         data_item.update(perf)
@@ -1590,10 +1600,13 @@ def calculate_dcf_value(row, is_conservative=False):
         r = 0.12 if is_conservative else 0.10
         g_terminal = 0.01 if is_conservative else 0.03
         
-        # Growth projection
-        growth = row.get('EPS_Growth') or row.get('Rev_Growth') or 0.05
+        # Growth projection: Prioritize 5Y Historical CAGR
+        growth = row.get('Rev_CAGR_5Y') or row.get('NI_CAGR_5Y') or row.get('EPS_Growth') or 0.05
+        if isinstance(growth, str): growth = 0.05 # Safety
+        if growth > 1.0: growth /= 100.0 # Convert 15% (15.0) to 0.15
+        
         if is_conservative: growth *= 0.5
-        growth = max(-0.1, min(growth, 0.25))
+        growth = max(0.02, min(growth, 0.20)) # Floor at 2% (inflation), Cap at 20%
 
         fcf_projections = []
         current_fcf = fcf
@@ -1639,7 +1652,13 @@ def calculate_dual_intrinsic_value(row):
 
     # --- FALLBACK 1: EARNINGS MULTIPLIER (P/E) ---
     try:
-        eps = row.get('EPS_TTM') or row.get('EPS')
+        eps = row.get('EPS') or row.get('EPS_TTM')
+        if not eps:
+            ni = row.get('Net_Income_TTM')
+            shares = row.get('Shares_Outstanding')
+            if ni and shares and shares > 0:
+                eps = ni / shares
+        
         if eps and eps > 0:
             return round(eps * 10, 2), round(eps * 15, 2)
     except: pass
