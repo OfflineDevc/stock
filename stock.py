@@ -429,9 +429,23 @@ def inject_custom_css():
         }
         
         /* === 17. SELECTBOX & MULTISELECT === */
-        .stSelectbox, .stMultiSelect {
-            border-radius: var(--radius-md);
+        .stSelectbox > div > div, .stMultiSelect > div > div {
+            border-radius: var(--radius-md) !important;
+            border: 2px solid var(--gray-300) !important;
+            transition: all var(--transition-base) !important;
         }
+        
+        .stSelectbox > div > div:focus-within, .stMultiSelect > div > div:focus-within {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1) !important;
+        }
+        
+        /* Fix dropdown menu styling */
+        [data-baseweb="select"] > div {
+            background: transparent !important;
+            border: none !important;
+        }
+        
         
         /* === 18. CAPTIONS === */
         .stCaptionContainer {
