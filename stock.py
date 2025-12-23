@@ -41,6 +41,19 @@ def fetch_cached_info(ticker):
             return {'__error__': str(e)}
     return {}
 
+# Retry Helper for Object access (when we have obj but need property)
+def safe_get_info(stock_obj):
+    try:
+        return stock_obj.info
+    except Exception:
+        # Retry logic for existing object property access?
+        # Often better to re-fetch if stale, but here we just try-catch sleep
+        try:
+             time.sleep(1)
+             return stock_obj.info
+        except:
+             return {} # Return empty dict on fail
+
 @st.cache_data(ttl=3600*12, show_spinner=False)
 def fetch_cached_financials(ticker):
     """Cache the financials fetch."""
@@ -1778,12 +1791,17 @@ def page_single_stock():
                 # Global Params
                 is_tech = "Technology" in row.get('Sector','') or "Communication" in row.get('Sector','')
                 stock_obj = row['YF_Obj']
-                shares = stock_obj.info.get('sharesOutstanding')
+                
+                # SAFE INFO FETCH
+                s_info = safe_get_info(stock_obj)
+                shares = s_info.get('sharesOutstanding')
+                if not shares: shares = row.get('Market_Cap', 0) / row.get('Price', 1) # Fallback
+                
                 cashflow = stock_obj.cashflow
                 
                 # WACC
                 # WACC
-                beta = stock_obj.info.get('beta', 1.0)
+                beta = s_info.get('beta', 1.0)
                 if not beta: beta = 1.0
                 
                 # Default Logic
