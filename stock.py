@@ -648,7 +648,7 @@ def render_market_dashboard():
 st.set_page_config(
     page_title=get_text('main_title'),
     page_icon="🏛️",
-    layout="wide",
+    layout="centered",
     initial_sidebar_state="expanded"
 )
 
@@ -3179,7 +3179,7 @@ if __name__ == "__main__":
 
     # --- BRANDING (Explicit Fallback) ---
     # We create a top header row to force the logo visibility
-    c_brand_a, c_brand_b = st.columns([1, 30]) 
+    c_brand_a, c_brand_b = st.columns([1, 10]) # Relaxed ratio for Centered Mode 
     with c_brand_a:
          st.image("logo.png", width=45) # Visible Logo
     
