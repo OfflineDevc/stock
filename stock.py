@@ -501,15 +501,6 @@ def inject_custom_css():
                 height: 3rem;
             }
         }
-        
-        /* === 24. DARK MODE SUPPORT === */
-        @media (prefers-color-scheme: dark) {
-            :root {
-                --gray-50: #0F172A;
-                --gray-100: #1E293B;
-                --gray-900: #F8FAFC;
-            }
-        }
         </style>
     """, unsafe_allow_html=True)
 
