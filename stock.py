@@ -281,6 +281,12 @@ TRANS = {
         'avg_pe_label': "Avg P/E (Equity)",
         'equity_yield_label': "Equity Yield",
         'quality_roe_label': "Quality (ROE)",
+        
+        # Tooltips
+        'lynch_tooltip': "ℹ️",
+        'lynch_desc': "Peter Lynch Categories:\n- Fast Grower: Earnings >20%\n- Asset Play: Asset Rich (P/B < 1)\n- Turnaround: Recovering\n- Cyclical: Economy tied\n- Slow Grower: Dividend payers",
+        'sector_tooltip': "ℹ️",
+        'sector_desc': "Industry Group (e.g. Tech, Energy). Important for relative valuation.",
         'backtest_title': "🕑 Historical Backtest & Simulation",
         'backtest_desc': "See how this portfolio would have performed in the past vs S&P 500.",
         'backtest_config': "⚙️ Backtest Configuration",
@@ -370,6 +376,13 @@ TRANS = {
         'risk_header': "🛡️ ความเสี่ยง (หนี้สิน)",
         'sector_label': "เลือกกลุ่มอุตสาหกรรม (Optional)",
         'lynch_label': "เลือกประเภทหุ้นตาม Lynch (Optional)",
+        
+        # Tooltips
+        'lynch_tooltip': "ℹ️",
+        'lynch_desc': "ประเภทหุ้นตาม Peter Lynch:\n- Fast Grower: โตเร็ว (กำไร >20%)\n- Asset Play: หุ้นสินทรัพย์เยอะ (P/B < 1)\n- Turnaround: หุ้นพลิกฟื้น\n- Cyclical: หุ้นวัฏจักร\n- Slow Grower: หุ้นปันผล",
+        'sector_tooltip': "ℹ️",
+        'sector_desc': "กลุ่มอุตสาหกรรม (เช่น เทคโนโลยี, พลังงาน) ช่วยให้เปรียบเทียบ P/E ได้ถูกต้อง",
+        
         'execute_btn': "🚀 เริ่มสแกนหุ้น (2 ขั้นตอน)",
         'main_title': "Stockub",
         'scan_limit': "จำกัดจำนวนสแกน", 
@@ -1598,6 +1611,28 @@ def page_single_stock():
             if not df.empty:
                 row = df.iloc[0].copy()
                 price = row['Price']
+                
+                # --- HEADER INFORMATION (Restored) ---
+                # User Request: Sector, Lynch Type with Explanation
+                
+                c_head_1, c_head_2, c_head_3 = st.columns(3)
+                
+                with c_head_1:
+                    st.metric("Price", f"{currency_fmt[0]}{price:.2f}")
+                
+                with c_head_2:
+                    sector_val = row.get('Sector', 'Unknown')
+                    st.caption(f"SECTOR {get_text('sector_tooltip')}") # Custom tooltip logic below? No, st.caption doesn't support help natively well in all versions.
+                    # Use st.help or just inline text? 
+                    # Request: "Explain what it is". 
+                    st.markdown(f"**{sector_val}**", help=get_text('sector_desc'))
+                    
+                with c_head_3:
+                    lynch_val = row.get('Lynch_Category', 'Unknown')
+                    st.caption(f"LYNCH TYPE {get_text('lynch_tooltip')}")
+                    st.markdown(f"**{lynch_val}**", help=get_text('lynch_desc'))
+                    
+                st.divider()
                 
                 # Setup Currency Fmt
                 currency_fmt = "฿" if ".BK" in row['Symbol'] else "$"
