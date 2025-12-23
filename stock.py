@@ -2137,13 +2137,13 @@ def page_portfolio():
         
         # Portfolio Stats (Equity Only)
         avg_pe = portfolio['PE'].mean()
-        avg_div = portfolio['Div_Yield'].mean()
+        avg_div = portfolio['Div_Yield'].mean()/100
         avg_roe = portfolio['ROE'].mean()
         
         # Top Level Metrics
         m1, m2, m3, m4 = st.columns(4)
         m1.metric("Avg P/E (Equity)", f"{avg_pe:.1f}")
-        m2.metric("Equity Yield", f"{avg_div/100:.2%}")
+        m2.metric("Equity Yield", f"{avg_div:.2%}")
         m3.metric("Quality (ROE)", f"{avg_roe:.1f}%")
         m4.metric("Strategy", risk_choice)
         
