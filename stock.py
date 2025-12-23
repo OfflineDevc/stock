@@ -2513,6 +2513,16 @@ def page_portfolio():
         # PERSIST FOR BACKTEST
         st.session_state['gen_portfolio'] = portfolio
         st.session_state['gen_market'] = market_choice
+        st.session_state['gen_risk'] = risk_choice
+        st.session_state['gen_assets'] = assets_df if not assets_df.empty else None
+        st.session_state['gen_full'] = full_portfolio
+
+    # --- PERSISTENT DISPLAY LOGIC ---
+    if 'gen_portfolio' in st.session_state:
+        portfolio = st.session_state['gen_portfolio']
+        risk_choice_saved = st.session_state.get('gen_risk', risk_choice)
+        full_portfolio = st.session_state.get('gen_full', portfolio)
+        assets_df = st.session_state.get('gen_assets', pd.DataFrame())
         
         # Portfolio Stats (Equity Only)
         avg_pe = portfolio['PE'].mean()
@@ -2524,10 +2534,10 @@ def page_portfolio():
         m1.metric(get_text('avg_pe_label'), f"{avg_pe:.1f}")
         m2.metric(get_text('equity_yield_label'), f"{avg_div:.2%}")
         m3.metric(get_text('quality_roe_label'), f"{avg_roe:.1f}%")
-        m4.metric(get_text('strategy_label'), risk_choice)
+        m4.metric(get_text('strategy_label'), risk_choice_saved)
         
         # --- TABBED ANALYSIS ---
-        tab1, tab2, tab3 = st.tabs([get_text('tab_holdings'), get_text('tab_alloc'), get_text('tab_logic')])
+        tab1, tab2, tab3 = st.tabs([get_text('tab_holders'), get_text('tab_alloc'), get_text('tab_logic')])
         
         with tab1:
             cols_to_show = ['Ticker', 'Company', 'Bucket', 'Type', 'Sector', 'Price', 'Fit Score', 'PE', 'PEG', 'Rev_CAGR_5Y', 'NI_CAGR_5Y', 'Div_Yield', 'Weight %']
@@ -2544,7 +2554,7 @@ def page_portfolio():
                 "Weight %": st.column_config.NumberColumn(get_text('weight_label'), format="%.2f%%")
             }
             
-            if risk_choice == "All Weather (Ray Dalio Proxy)":
+            if risk_choice_saved == "All Weather (Ray Dalio Proxy)":
                 st.subheader(get_text('equity_holdings'))
                 valid_cols = [c for c in cols_to_show if c in portfolio.columns]
                 st.dataframe(portfolio[valid_cols], column_config=col_cfg, width="stretch", hide_index=True)
@@ -2552,7 +2562,8 @@ def page_portfolio():
                 st.subheader(get_text('core_assets'))
                 st.info(get_text('core_assets_desc'))
                 asset_cols = ['Ticker', 'Company', 'Bucket', 'Weight %', 'Price']
-                st.dataframe(assets_df[asset_cols], column_config=col_cfg, width="stretch", hide_index=True)
+                if not assets_df.empty:
+                    st.dataframe(assets_df[asset_cols], column_config=col_cfg, width="stretch", hide_index=True)
                 
             else:
                 valid_cols = [c for c in cols_to_show if c in portfolio.columns]
@@ -2566,7 +2577,7 @@ def page_portfolio():
                  st.caption(get_text('port_alloc_caption'))
                  
                  # Prepare Chart Data
-                 if risk_choice == "All Weather (Ray Dalio Proxy)":
+                 if risk_choice_saved == "All Weather (Ray Dalio Proxy)":
                      chart_df = full_portfolio.copy()
                      color_col = "Bucket"
                      legend_title = get_text('asset_class_label')
@@ -2754,54 +2765,58 @@ def page_portfolio():
                     benchmark_value = pd.Series(b_vals, index=common_index)
                     bt_amount = cash_invested # Log actual total
 
-                # 3. Results
-                end_val = portfolio_value.iloc[-1]
-                bench_val = benchmark_value.iloc[-1]
-                
-                p_ret = ((end_val - bt_amount) / bt_amount) * 100
-                b_ret = ((bench_val - bt_amount) / bt_amount) * 100
-                
-                # CAGR Calculation
-                days = (common_index[-1] - common_index[0]).days
-                if days > 365:
-                    years = days / 365.25
-                    p_cagr = ((end_val / bt_amount) ** (1/years) - 1) * 100
-                    b_cagr = ((bench_val / bt_amount) ** (1/years) - 1) * 100
-                    cagr_lbl = get_text('cagr_label')
-                    p_cagr_str = f"{p_cagr:+.2f}%"
-                    b_cagr_str = f"{b_cagr:+.2f}%"
-                else:
-                    cagr_lbl = get_text('annualized_label')
-                    p_cagr_str = get_text('na_short')
-                    b_cagr_str = get_text('na')
-
-                # Metrics Row 1 (Total)
-                st.subheader(get_text('backtest_summary'))
-                bc1, bc2, bc3 = st.columns(3)
-                bc1.metric(get_text('final_val_label'), f"{currency_fmt[0]}{end_val:,.2f}", f"{p_ret:+.2f}% (Total)")
-                bc2.metric(get_text('bench_val_label'), f"{currency_fmt[0]}{bench_val:,.2f}", f"{b_ret:+.2f}% (Total)")
-                
-                diff = p_ret - b_ret
-                bc3.metric(get_text('alpha_label'), f"{diff:+.2f}%", get_text('winning') if diff > 0 else get_text('losing'), delta_color="normal")
-                
-                # Metrics Row 2 (Annualized)
-                ac1, ac2, ac3 = st.columns(3)
-                ac1.metric(f"{get_text('nav_portfolio')} {cagr_lbl}", p_cagr_str)
-                ac2.metric(f"{get_text('nav_bench')} {cagr_lbl}", b_cagr_str)
-                if days > 365:
-                    ac3.metric(get_text('gap_annual'), f"{p_cagr - b_cagr:+.2f}%")
-                else:
-                    ac3.metric(get_text('gap_annual'), get_text('na'))
-                
-                # Chart
-                chart_data = pd.DataFrame({
-                    get_text('my_port_legend'): portfolio_value,
-                    get_text('bench_legend'): benchmark_value
-                })
-                st.line_chart(chart_data)
+                # Store Results in Session State
+                st.session_state['bt_results'] = {
+                    'end_val': end_val,
+                    'bench_val': bench_val,
+                    'p_ret': p_ret,
+                    'b_ret': b_ret,
+                    'p_cagr': p_cagr if days > 365 else 0,
+                    'b_cagr': b_cagr if days > 365 else 0,
+                    'days': days,
+                    'chart_data': pd.DataFrame({
+                        get_text('my_port_legend'): portfolio_value,
+                        get_text('bench_legend'): benchmark_value
+                    })
+                }
                 
             except Exception as e:
                 st.error(f"{get_text('backtest_failed')}: {str(e)}")
+
+    # --- PERSISTENT BACKTEST DISPLAY ---
+    if 'bt_results' in st.session_state:
+        res = st.session_state['bt_results']
+        
+        # Helper for CAGR Strings
+        days = res['days']
+        if days > 365:
+            cagr_lbl = get_text('cagr_label')
+            p_cagr_str = f"{res['p_cagr']:+.2f}%"
+            b_cagr_str = f"{res['b_cagr']:+.2f}%"
+            gap_str = f"{res['p_cagr'] - res['b_cagr']:+.2f}%"
+        else:
+            cagr_lbl = get_text('annualized_label')
+            p_cagr_str = get_text('na_short')
+            b_cagr_str = get_text('na')
+            gap_str = get_text('na')
+
+        # Metrics Row 1 (Total)
+        st.subheader(get_text('backtest_summary'))
+        bc1, bc2, bc3 = st.columns(3)
+        bc1.metric(get_text('final_val_label'), f"{currency_fmt[0]}{res['end_val']:,.2f}", f"{res['p_ret']:+.2f}% (Total)")
+        bc2.metric(get_text('bench_val_label'), f"{currency_fmt[0]}{res['bench_val']:,.2f}", f"{res['b_ret']:+.2f}% (Total)")
+        
+        diff = res['p_ret'] - res['b_ret']
+        bc3.metric(get_text('alpha_label'), f"{diff:+.2f}%", get_text('winning') if diff > 0 else get_text('losing'), delta_color="normal")
+        
+        # Metrics Row 2 (Annualized)
+        ac1, ac2, ac3 = st.columns(3)
+        ac1.metric(f"{get_text('nav_portfolio')} {cagr_lbl}", p_cagr_str)
+        ac2.metric(f"{get_text('nav_bench')} {cagr_lbl}", b_cagr_str)
+        ac3.metric(get_text('gap_annual'), gap_str)
+        
+        # Chart
+        st.line_chart(res['chart_data'])
 
 
 
