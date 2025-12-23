@@ -1796,7 +1796,10 @@ def page_single_stock():
                     wacc = 0.07 # Fixed 7% for Tech/Growth per request
                 
                 # Growth Assumptions
-                raw_g = row.get('EPS_Growth', 0.10)
+                # Growth Assumptions
+                raw_g = row.get('EPS_Growth')
+                if raw_g is None: raw_g = 0.10 # Explicit default if None
+                
                 if raw_g > 0.25: raw_g = 0.25 # Cap initial
                 if raw_g < 0.05: raw_g = 0.05 
                 
