@@ -2409,11 +2409,13 @@ def page_portfolio():
                 bc3.metric("Alpha (vs Market)", f"{diff:+.2f}%", "Winning" if diff > 0 else "Losing", delta_color="normal")
                 
                 # Metrics Row 2 (Annualized)
+                ac1, ac2, ac3 = st.columns(3)
+                ac1.metric(f"Portfolio {cagr_lbl}", p_cagr_str)
+                ac2.metric(f"Benchmark {cagr_lbl}", b_cagr_str)
                 if days > 365:
-                    ac1, ac2, ac3 = st.columns(3)
-                    ac1.metric(f"Portfolio {cagr_lbl}", p_cagr_str)
-                    ac2.metric(f"Benchmark {cagr_lbl}", b_cagr_str)
                     ac3.metric("Performance Gap (Annual)", f"{p_cagr - b_cagr:+.2f}%")
+                else:
+                    ac3.metric("Performance Gap (Annual)", "N/A")
                 
                 # Chart
                 chart_data = pd.DataFrame({
