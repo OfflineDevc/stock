@@ -953,6 +953,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                     'Target_Price': analyst_target,
                     'Fair_Value': fair_value,
                     'Margin_Safety': margin_safety,
+                    'EPS_TTM': eps, # Added for Valuation Models
                     'YF_Obj': stock 
                 })
         except Exception:
