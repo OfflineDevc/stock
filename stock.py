@@ -1725,13 +1725,27 @@ def page_single_stock():
                     avg_fcf = 0
                     
                     # Method 1: Calculation (OCF - CapEx) -> Most Transparent
-                    if not cashflow.empty and 'Total Cash From Operating Activities' in cashflow.index and 'Capital Expenditures' in cashflow.index:
-                         ocf = cashflow.loc['Total Cash From Operating Activities']
-                         capex = cashflow.loc['Capital Expenditures']
-                         
+                    # Try multiple keys for OCF
+                    ocf = None
+                    for k in ['Operating Cash Flow', 'Total Cash From Operating Activities']:
+                        if k in cashflow.index:
+                            ocf = cashflow.loc[k]
+                            break
+                    
+                    # Try multiple keys for CapEx
+                    capex = None
+                    for k in ['Capital Expenditure', 'Capital Expenditures', 'Purchase Of PPE', 'Purchase Of Property Plant And Equipment']:
+                         if k in cashflow.index:
+                             capex = cashflow.loc[k]
+                             break
+                    
+                    if ocf is not None and capex is not None:
                          # Ensure numeric
                          ocf = pd.to_numeric(ocf, errors='coerce')
                          capex = pd.to_numeric(capex, errors='coerce')
+                         
+                         # Check scaling issues? 
+                         # Usually yfinance returns full numbers. If not, we might need heuristics.
                          
                          fcf_series = ocf + capex # CapEx is negative
                          fcf_series = fcf_series.dropna()

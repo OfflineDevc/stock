@@ -1,18 +1,12 @@
 import yfinance as yf
 import pandas as pd
 
-try:
-    s = yf.Ticker("AAPL")
-    info = s.info
-    print("KEYS Related to PEG/Growth:")
-    for k, v in info.items():
-        if "peg" in k.lower() or "growth" in k.lower() or "est" in k.lower():
-            print(f"{k}: {v}")
-            
-    print("\n---\nTrying to calc PEG:")
-    pe = info.get('trailingPE')
-    peg = info.get('pegRatio')
-    print(f"PE: {pe}, PEG: {peg}")
-    
-except Exception as e:
-    print(e)
+def check_keys(ticker):
+    print(f"--- Keys for {ticker} ---")
+    stock = yf.Ticker(ticker)
+    cf = stock.cashflow
+    print("Cashflow Keys:")
+    for k in cf.index:
+        print(f" - {k}")
+
+check_keys("AAPL")
