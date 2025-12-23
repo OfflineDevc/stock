@@ -69,429 +69,69 @@ def fetch_cached_history(ticker, period='5y'):
 def inject_custom_css():
     st.markdown("""
         <style>
-        /* ============================================
-           MODERN DESIGN SYSTEM - PROFESSIONAL STOCK PLATFORM
-           ============================================ */
-        
-        /* --- 1. TYPOGRAPHY --- */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        
+        /* Main Font */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
         html, body, [class*="css"] {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            font-family: 'Roboto', sans-serif;
         }
         
-        /* Tabular numbers for metrics */
-        .stMetric, [data-testid="stMetricValue"], [data-testid="stMetricDelta"] {
-            font-variant-numeric: tabular-nums;
-        }
-        
-        /* --- 2. COLOR SYSTEM --- */
-        :root {
-            /* Primary - Modern Blue Gradient */
-            --primary-gradient: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
-            --primary-500: #3B82F6;
-            --primary-600: #2563EB;
-            --primary-700: #1E40AF;
-            
-            /* Success */
-            --success-500: #10B981;
-            --success-600: #059669;
-            
-            /* Danger */
-            --danger-500: #EF4444;
-            --danger-600: #DC2626;
-            
-            /* Warning */
-            --warning-500: #F59E0B;
-            
-            /* Neutrals */
-            --gray-50: #F9FAFB;
-            --gray-100: #F3F4F6;
-            --gray-200: #E5E7EB;
-            --gray-300: #D1D5DB;
-            --gray-500: #6B7280;
-            --gray-700: #374151;
-            --gray-800: #1F2937;
-            --gray-900: #111827;
-            
-            /* Shadows */
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            
-            /* Spacing */
-            --space-1: 0.25rem;
-            --space-2: 0.5rem;
-            --space-3: 0.75rem;
-            --space-4: 1rem;
-            --space-6: 1.5rem;
-            --space-8: 2rem;
-        }
-        
-        /* --- 3. GLOBAL STYLES --- */
+        /* Hides the default top padding */
         .block-container {
-            padding-top: 1rem !important;
-            padding-bottom: 3rem !important;
-            max-width: 1400px !important;
+            padding-top: 1rem;
         }
         
-        /* Hide Streamlit Branding */
+        /* Hide Streamlit Header/Toolbar */
         header {visibility: hidden;}
         [data-testid="stToolbar"] {visibility: hidden;}
-        .stDeployButton {display: none;}
-        footer {visibility: hidden;}
-        
-        /* Smooth Scrolling */
-        html {
-            scroll-behavior: smooth;
-        }
-        
-        /* --- 4. MODERN TAB NAVIGATION --- */
+        .stDeployButton {display:none;}
+
+        /* CFA-Style Blue Header for Tabs (Full Width) */
         .stTabs [data-baseweb="tab-list"] {
-            gap: 8px;
-            background: linear-gradient(to bottom, var(--gray-50), white);
-            padding: 12px 16px 0 16px;
-            border-bottom: 2px solid var(--gray-200);
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            backdrop-filter: blur(10px);
-            background: rgba(255, 255, 255, 0.95);
+            gap: 0px; /* Remove gap between tabs */
+            background-color: transparent; 
+            padding: 0px;
+            border-bottom: 2px solid #003366;
         }
 
         .stTabs [data-baseweb="tab"] {
-            height: 48px;
-            padding: 0 24px;
-            background: transparent;
-            border-radius: 12px 12px 0 0;
-            color: var(--gray-600);
-            font-weight: 500;
-            font-size: 0.95rem;
-            border: none;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .stTabs [data-baseweb="tab"]::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--primary-gradient);
-            transform: scaleX(0);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .stTabs [data-baseweb="tab"]:hover {
-            background: var(--gray-100);
-            color: var(--primary-600);
+            flex-grow: 1; /* Stretch to fill width */
+            height: 50px;
+            white-space: pre-wrap;
+            background-color: #f8f9fa; /* Light gray for unselected */
+            border-radius: 0px; /* No corners */
+            color: #003366; 
+            font-weight: 600;
+            border: none; /* Clean Look */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .stTabs [aria-selected="true"] {
-            background: white !important;
-            color: var(--primary-600) !important;
-            font-weight: 600 !important;
-            box-shadow: var(--shadow-sm);
+            background-color: #003366 !important; /* Active Blue */
+            color: #ffffff !important;
+            font-weight: 700;
         }
         
-        .stTabs [aria-selected="true"]::before {
-            transform: scaleX(1);
+        /* Metrics & Buttons */
+        div[data-testid="stMetricValue"] {
+            font-size: 1.4rem !important;
+            color: #003366;
         }
         
-        /* --- 5. BUTTONS --- */
-        div.stButton > button {
-            background: var(--primary-gradient) !important;
-            color: white !important;
-            border: none !important;
-            border-radius: 8px !important;
-            padding: 0.625rem 1.5rem !important;
-            font-weight: 600 !important;
-            font-size: 0.95rem !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            box-shadow: var(--shadow-md) !important;
-            position: relative !important;
-            overflow: hidden !important;
+        /* Primary Button Blue */
+        div.stButton > button:first-child {
+            background-color: #003366;
+            color: white;
+            border-radius: 5px;
+            border: none;
+            padding: 0.5rem 1rem;
         }
-        
-        div.stButton > button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(255, 255, 255, 0.1);
-            transform: translateX(-100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        div.stButton > button:first-child:hover {
+            background-color: #002244;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
-        
-        div.stButton > button:hover {
-            transform: translateY(-2px) !important;
-            box-shadow: var(--shadow-lg) !important;
-        }
-        
-        div.stButton > button:hover::before {
-            transform: translateX(0);
-        }
-        
-        div.stButton > button:active {
-            transform: translateY(0) !important;
-        }
-        
-        /* --- 6. METRICS & CARDS --- */
-        [data-testid="stMetric"] {
-            background: white;
-            padding: var(--space-4);
-            border-radius: 12px;
-            box-shadow: var(--shadow-sm);
-            border: 1px solid var(--gray-200);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        [data-testid="stMetric"]:hover {
-            transform: translateY(-2px);
-            box-shadow: var(--shadow-md);
-            border-color: var(--primary-500);
-        }
-        
-        [data-testid="stMetricLabel"] {
-            font-size: 0.875rem !important;
-            font-weight: 500 !important;
-            color: var(--gray-600) !important;
-            letter-spacing: 0.025em;
-            text-transform: uppercase;
-        }
-        
-        [data-testid="stMetricValue"] {
-            font-size: 2rem !important;
-            font-weight: 700 !important;
-            color: var(--gray-900) !important;
-            line-height: 1.2 !important;
-            margin: 0.5rem 0 !important;
-        }
-        
-        [data-testid="stMetricDelta"] {
-            font-size: 0.95rem !important;
-            font-weight: 600 !important;
-        }
-        
-        /* Positive Delta */
-        [data-testid="stMetricDelta"] svg[fill*="green"],
-        [data-testid="stMetricDelta"]:has(svg[fill*="green"]) {
-            color: var(--success-600) !important;
-        }
-        
-        /* Negative Delta */
-        [data-testid="stMetricDelta"] svg[fill*="red"],
-        [data-testid="stMetricDelta"]:has(svg[fill*="red"]) {
-            color: var(--danger-600) !important;
-        }
-        
-        /* --- 7. DATA TABLES --- */
-        .dataframe {
-            font-size: 0.9rem !important;
-            border: none !important;
-            border-radius: 8px !important;
-            overflow: hidden !important;
-            box-shadow: var(--shadow-sm) !important;
-        }
-        
-        .dataframe thead tr {
-            background: linear-gradient(135deg, var(--primary-700), var(--primary-600)) !important;
-        }
-        
-        .dataframe thead th {
-            color: white !important;
-            font-weight: 600 !important;
-            padding: 12px 16px !important;
-            text-transform: uppercase;
-            font-size: 0.75rem !important;
-            letter-spacing: 0.05em;
-            border: none !important;
-        }
-        
-        .dataframe tbody tr {
-            transition: all 0.2s ease;
-            border-bottom: 1px solid var(--gray-200) !important;
-        }
-        
-        .dataframe tbody tr:hover {
-            background-color: var(--gray-50) !important;
-            transform: scale(1.01);
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .dataframe tbody tr:nth-child(even) {
-            background-color: rgba(249, 250, 251, 0.5);
-        }
-        
-        .dataframe tbody td {
-            padding: 12px 16px !important;
-            border: none !important;
-        }
-        
-        /* --- 8. INPUT FIELDS --- */
-        .stTextInput > div > div > input,
-        .stNumberInput > div > div > input,
-        .stSelectbox > div > div > select {
-            border-radius: 8px !important;
-            border: 2px solid var(--gray-300) !important;
-            padding: 0.625rem 1rem !important;
-            font-size: 0.95rem !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        }
-        
-        .stTextInput > div > div > input:focus,
-        .stNumberInput > div > div > input:focus,
-        .stSelectbox > div > div > select:focus {
-            border-color: var(--primary-500) !important;
-            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
-            outline: none !important;
-        }
-        
-        /* --- 9. EXPANDERS --- */
-        .streamlit-expanderHeader {
-            background: var(--gray-50) !important;
-            border-radius: 8px !important;
-            padding: 1rem !important;
-            font-weight: 600 !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-        }
-        
-        .streamlit-expanderHeader:hover {
-            background: var(--gray-100) !important;
-            box-shadow: var(--shadow-sm) !important;
-        }
-        
-        /* --- 10. PROGRESS BARS --- */
-        .stProgress > div > div > div > div {
-            background: var(--primary-gradient) !important;
-            border-radius: 4px !important;
-        }
-        
-        .stProgress > div > div {
-            background-color: var(--gray-200) !important;
-            border-radius: 4px !important;
-            overflow: hidden !important;
-        }
-        
-        /* --- 11. ALERTS & INFO BOXES --- */
-        .stAlert {
-            border-radius: 8px !important;
-            border-left: 4px solid !important;
-            padding: 1rem 1.25rem !important;
-            box-shadow: var(--shadow-sm) !important;
-        }
-        
-        /* --- 12. SIDEBAR --- */
-        [data-testid="stSidebar"] {
-            background: linear-gradient(180deg, #F9FAFB 0%, #FFFFFF 100%) !important;
-            border-right: 1px solid var(--gray-200) !important;
-        }
-        
-        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h1,
-        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h2,
-        [data-testid="stSidebar"] [data-testid="stMarkdownContainer"] h3 {
-            color: var(--gray-900) !important;
-        }
-        
-        /* --- 13. ANIMATIONS --- */
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-        
-        @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
-        
-        @keyframes shimmer {
-            0% {
-                background-position: -1000px 0;
-            }
-            100% {
-                background-position: 1000px 0;
-            }
-        }
-        
-        /* Apply fade-in to main content */
-        .main .block-container {
-            animation: fadeIn 0.5s ease-out;
-        }
-        
-        /* --- 14. CUSTOM COMPONENTS --- */
-        /* Card-like container */
-        .custom-card {
-            background: white;
-            border-radius: 12px;
-            padding: var(--space-6);
-            box-shadow: var(--shadow-md);
-            border: 1px solid var(--gray-200);
-            margin: var(--space-4) 0;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        
-        .custom-card:hover {
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-2px);
-        }
-        
-        /* Loading Skeleton */
-        .skeleton {
-            background: linear-gradient(
-                90deg,
-                var(--gray-200) 0%,
-                var(--gray-100) 50%,
-                var(--gray-200) 100%
-            );
-            background-size: 200% 100%;
-            animation: shimmer 1.5s infinite;
-            border-radius: 4px;
-        }
-        
-        /* --- 15. DARK MODE SUPPORT --- */
-        @media (prefers-color-scheme: dark) {
-            [data-testid="stAppViewContainer"] {
-                background-color: var(--gray-900);
-            }
-            
-            .block-container {
-                color: var(--gray-100);
-            }
-        }
-        
-        /* --- 16. RESPONSIVE DESIGN --- */
-        @media (max-width: 768px) {
-            .block-container {
-                padding-left: var(--space-4) !important;
-                padding-right: var(--space-4) !important;
-            }
-            
-            .stTabs [data-baseweb="tab"] {
-                padding: 0 12px;
-                font-size: 0.85rem;
-            }
-        }
-        
         </style>
     """, unsafe_allow_html=True)
 
@@ -774,30 +414,14 @@ st.set_page_config(
 # Custom CSS for Professional Look
 st.markdown("""
     <style>
-    /* Additional styles complementing the main design system */
+    /* .stMetric removed for Dark Mode compatibility */
     .stDataFrame {
-        font-family: 'Inter', 'IBM Plex Mono', 'Consolas', monospace;
+        font-family: 'IBM Plex Mono', 'Consolas', monospace;
         font-size: 0.95rem;
     }
-    
-    /* Expander styling */
     div[data-testid="stExpander"] div[role="button"] p {
-        font-size: 1.05rem;
+        font-size: 1.1rem;
         font-weight: 600;
-        color: var(--gray-900);
-    }
-    
-    /* Caption text styling */
-    .stCaption {
-        color: var(--gray-500) !important;
-        font-size: 0.875rem !important;
-    }
-    
-    /* Subheader styling */
-    h2, h3 {
-        color: var(--gray-900) !important;
-        font-weight: 700 !important;
-        letter-spacing: -0.02em;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -2925,57 +2549,14 @@ if __name__ == "__main__":
     ])
 
     # --- HEADER & NAVIGATION (Now Below Tabs) ---
-    c_logo, c_spacer, c_lang = st.columns([3, 5, 2])
+    c_logo, c_lang = st.columns([8, 2])
     with c_logo:
-        st.markdown("""
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <div style="
-                    font-size: 2rem; 
-                    font-weight: 800; 
-                    background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%);
-                    -webkit-background-clip: text;
-                    -webkit-text-fill-color: transparent;
-                    background-clip: text;
-                    letter-spacing: -0.02em;
-                ">Stockub</div>
-                <div style="
-                    font-size: 0.7rem; 
-                    font-weight: 600; 
-                    color: #6B7280; 
-                    text-transform: uppercase;
-                    letter-spacing: 0.05em;
-                    padding: 4px 8px;
-                    background: linear-gradient(135deg, #F3F4F6, #E5E7EB);
-                    border-radius: 4px;
-                ">Pro</div>
-            </div>
-        """, unsafe_allow_html=True)
         st.caption("Professional Stock Analytics Platform")
         
     with c_lang:
-        # Modern Language Switcher
-        st.markdown("""
-            <style>
-            div[data-testid="stRadio"] > div {
-                background: white;
-                padding: 4px;
-                border-radius: 8px;
-                border: 1px solid var(--gray-200);
-                box-shadow: var(--shadow-sm);
-            }
-            div[data-testid="stRadio"] > div > label {
-                font-size: 0.85rem !important;
-                font-weight: 500;
-            }
-            </style>
-        """, unsafe_allow_html=True)
-        lang_choice = st.radio(
-            "Language / ภาษา", 
-            ["🇺🇸 EN", "🇹🇭 TH"], 
-            horizontal=True, 
-            label_visibility="collapsed"
-        )
-        st.session_state['lang'] = 'EN' if "EN" in lang_choice else 'TH'
+        # Move Language Switcher to Top Right
+        lang_choice = st.radio("Language / ภาษา", ["English (EN)", "Thai (TH)"], horizontal=True, label_visibility="collapsed")
+        st.session_state['lang'] = 'EN' if "English" in lang_choice else 'TH'
     
     with tab_scan:
         page_scanner()
