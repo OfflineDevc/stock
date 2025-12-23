@@ -527,7 +527,6 @@ TRANS = {
         'bucket_commodity': "สินค้าโภคภัณฑ์",
     }
 }
-}
 
 def get_text(key):
     lang = st.session_state.get('lang', 'EN')
