@@ -75,9 +75,22 @@ def inject_custom_css():
             font-family: 'Roboto', sans-serif;
         }
         
-        /* Hides the default top padding */
+        /* Custom Keyframes for Page Transitions */
+        @keyframes fadeInSlideUp {
+            0% { opacity: 0; transform: translateY(20px); filter: blur(5px); }
+            100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        }
+
+        @keyframes pulseGlow {
+            0% { box-shadow: 0 0 5px rgba(0, 51, 102, 0.2); }
+            50% { box-shadow: 0 0 15px rgba(0, 51, 102, 0.5); }
+            100% { box-shadow: 0 0 5px rgba(0, 51, 102, 0.2); }
+        }
+
+        /* Apply Page Transition to the main content area */
         .block-container {
             padding-top: 1rem;
+            animation: fadeInSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
         
         /* Hide Streamlit Header/Toolbar */
@@ -98,6 +111,7 @@ def inject_custom_css():
             height: 50px;
             white-space: pre-wrap;
             background-color: #f8f9fa; /* Light gray for unselected */
+            transition: all 0.3s ease;
             border-radius: 0px; /* No corners */
             color: #003366; 
             font-weight: 600;
@@ -107,31 +121,47 @@ def inject_custom_css():
             justify-content: center;
         }
 
+        .stTabs [data-baseweb="tab"]:hover {
+            background-color: #e9ecef;
+            color: #002244;
+        }
+
         .stTabs [aria-selected="true"] {
             background-color: #003366 !important; /* Active Blue */
             color: #ffffff !important;
             font-weight: 700;
+            transform: scale(1.02);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         
         /* Metrics & Buttons */
         div[data-testid="stMetricValue"] {
             font-size: 1.4rem !important;
             color: #003366;
+            animation: fadeInSlideUp 1s ease-out;
         }
         
         /* Primary Button Blue */
         div.stButton > button:first-child {
             background-color: #003366;
             color: white;
-            border-radius: 5px;
+            border-radius: 8px;
             border: none;
-            padding: 0.5rem 1rem;
+            padding: 0.6rem 1.2rem;
+            font-weight: 600;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         div.stButton > button:first-child:hover {
             background-color: #002244;
             color: white;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 51, 102, 0.3);
+            animation: pulseGlow 2s infinite;
         }
+        div.stButton > button:first-child:active {
+            transform: translateY(0);
+        }
+
         </style>
     """, unsafe_allow_html=True)
 
