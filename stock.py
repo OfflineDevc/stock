@@ -69,462 +69,68 @@ def fetch_cached_history(ticker, period='5y'):
 def inject_custom_css():
     st.markdown("""
         <style>
-        /* ===== ENTERPRISE DESIGN SYSTEM ===== */
-        
-        /* === 1. TYPOGRAPHY === */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
-        
-        :root {
-            /* Colors - Enterprise Palette */
-            --primary: #0066FF;
-            --primary-dark: #0052CC;
-            --primary-light: #3385FF;
-            --success: #10B981;
-            --warning: #F59E0B;
-            --danger: #EF4444;
-            --info: #06B6D4;
-            
-            /* Neutrals */
-            --gray-50: #F8FAFC;
-            --gray-100: #F1F5F9;
-            --gray-200: #E2E8F0;
-            --gray-300: #CBD5E1;
-            --gray-400: #94A3B8;
-            --gray-500: #64748B;
-            --gray-600: #475569;
-            --gray-700: #334155;
-            --gray-800: #1E293B;
-            --gray-900: #0F172A;
-            
-            /* Spacing */
-            --spacing-xs: 0.25rem;
-            --spacing-sm: 0.5rem;
-            --spacing-md: 1rem;
-            --spacing-lg: 1.5rem;
-            --spacing-xl: 2rem;
-            
-            /* Border Radius */
-            --radius-sm: 0.375rem;
-            --radius-md: 0.5rem;
-            --radius-lg: 0.75rem;
-            --radius-xl: 1rem;
-            
-            /* Shadows */
-            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
-            
-            /* Transitions */
-            --transition-fast: 150ms ease;
-            --transition-base: 200ms ease;
-            --transition-slow: 300ms ease;
-        }
-        
-        /* Base Typography */
+        /* Main Font */
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
         html, body, [class*="css"] {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-            font-weight: 400;
-            line-height: 1.6;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
+            font-family: 'Roboto', sans-serif;
         }
         
-        /* Monospace for Data */
-        code, pre, .stDataFrame, [data-testid="stMetricValue"] {
-            font-family: 'JetBrains Mono', 'Consolas', 'Monaco', monospace !important;
-        }
-        
-        /* === 2. ANIMATIONS === */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        @keyframes slideInRight {
-            from { opacity: 0; transform: translateX(-20px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
-        }
-        
-        @keyframes shimmer {
-            0% { background-position: -1000px 0; }
-            100% { background-position: 1000px 0; }
-        }
-        
-        /* Smooth Scroll */
-        html {
-            scroll-behavior: smooth;
-        }
-        
-        /* === 3. LAYOUT === */
+        /* Hides the default top padding */
         .block-container {
-            padding-top: 0.5rem !important;
-            padding-bottom: 2rem;
-            animation: fadeIn 0.4s ease-out;
+            padding-top: 1rem;
         }
         
-        /* Hide Streamlit Branding */
+        /* Hide Streamlit Header/Toolbar */
         header {visibility: hidden;}
         [data-testid="stToolbar"] {visibility: hidden;}
-        .stDeployButton {display: none;}
-        footer {visibility: hidden;}
-        #MainMenu {visibility: hidden;}
-        
-        /* === 4. NAVIGATION TABS (Enterprise Style) === */
-        .stTabs {
-            background: transparent;
-            margin-bottom: var(--spacing-lg);
-        }
-        
+        .stDeployButton {display:none;}
+
+        /* CFA-Style Blue Header for Tabs (Full Width) */
         .stTabs [data-baseweb="tab-list"] {
-            gap: 0;
-            background: linear-gradient(to bottom, var(--gray-50), white);
-            border-bottom: 2px solid var(--primary);
-            padding: 0;
-            box-shadow: var(--shadow-sm);
+            gap: 0px; /* Remove gap between tabs */
+            background-color: transparent; 
+            padding: 0px;
+            border-bottom: 2px solid #003366;
         }
 
         .stTabs [data-baseweb="tab"] {
-            flex-grow: 1;
-            height: 3.5rem;
-            background-color: transparent;
-            border: none;
-            border-bottom: 3px solid transparent;
-            color: var(--gray-600);
+            flex-grow: 1; /* Stretch to fill width */
+            height: 50px;
+            white-space: pre-wrap;
+            background-color: #f8f9fa; /* Light gray for unselected */
+            border-radius: 0px; /* No corners */
+            color: #003366; 
             font-weight: 600;
-            font-size: 0.9rem;
-            letter-spacing: 0.02em;
-            transition: all var(--transition-base);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .stTabs [data-baseweb="tab"]::before {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: var(--primary);
-            transform: scaleX(0);
-            transition: transform var(--transition-base);
+            border: none; /* Clean Look */
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .stTabs [aria-selected="true"] {
-            background: linear-gradient(to bottom, rgba(0, 102, 255, 0.05), transparent) !important;
-            color: var(--primary) !important;
+            background-color: #003366 !important; /* Active Blue */
+            color: #ffffff !important;
             font-weight: 700;
-            border-bottom-color: var(--primary);
         }
         
-        .stTabs [aria-selected="true"]::before {
-            transform: scaleX(1);
-        }
-        
-        .stTabs [data-baseweb="tab"]:hover:not([aria-selected="true"]) {
-            background: var(--gray-50);
-            color: var(--primary-dark);
-        }
-        
-        /* === 5. METRICS & CARDS === */
-        div[data-testid="stMetric"] {
-            background: linear-gradient(135deg, var(--gray-50) 0%, white 100%);
-            padding: var(--spacing-lg);
-            border-radius: var(--radius-lg);
-            border: 1px solid var(--gray-200);
-            box-shadow: var(--shadow-sm);
-            transition: all var(--transition-base);
-            animation: fadeIn 0.3s ease-out;
-        }
-        
-        div[data-testid="stMetric"]:hover {
-            box-shadow: var(--shadow-md);
-            transform: translateY(-2px);
-            border-color: var(--primary-light);
-        }
-        
+        /* Metrics & Buttons */
         div[data-testid="stMetricValue"] {
-            font-size: 1.75rem !important;
-            font-weight: 700 !important;
-            color: var(--gray-900);
-            letter-spacing: -0.02em;
+            font-size: 1.4rem !important;
+            color: #003366;
         }
         
-        div[data-testid="stMetricLabel"] {
-            font-size: 0.875rem !important;
-            color: var(--gray-600) !important;
-            font-weight: 600 !important;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-        }
-        
-        div[data-testid="stMetricDelta"] {
-            font-weight: 600;
-        }
-        
-        /* === 6. BUTTONS === */
-        div.stButton > button {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+        /* Primary Button Blue */
+        div.stButton > button:first-child {
+            background-color: #003366;
             color: white;
-            border: none;
-            border-radius: var(--radius-md);
-            padding: 0.75rem 1.5rem;
-            font-weight: 600;
-            font-size: 0.95rem;
-            letter-spacing: 0.02em;
-            transition: all var(--transition-base);
-            box-shadow: var(--shadow-md);
-            cursor: pointer;
-        }
-        
-        div.stButton > button:hover {
-            background: linear-gradient(135deg, var(--primary-dark) 0%, #003d99 100%);
-            box-shadow: var(--shadow-lg);
-            transform: translateY(-2px);
-        }
-        
-        div.stButton > button:active {
-            transform: translateY(0);
-            box-shadow: var(--shadow-sm);
-        }
-        
-        /* === 7. INPUTS === */
-        input, textarea, .stTextInput > div > div > input, .stNumberInput > div > div > input {
-            border-radius: var(--radius-md) !important;
-            border: 2px solid var(--gray-300) !important;
-            padding: 0.625rem 1rem !important;
-            transition: all var(--transition-base) !important;
-            font-size: 0.95rem !important;
-        }
-        
-        input:focus, textarea:focus, .stTextInput > div > div > input:focus {
-            border-color: var(--primary) !important;
-            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1) !important;
-            outline: none !important;
-        }
-        
-        /* === 8. DATAFRAMES === */
-        .stDataFrame {
-            border-radius: var(--radius-lg) !important;
-            overflow: hidden;
-            box-shadow: var(--shadow-md) !important;
-            border: 1px solid var(--gray-200) !important;
-        }
-        
-        .stDataFrame table {
-            font-size: 0.9rem !important;
-        }
-        
-        .stDataFrame thead tr th {
-            background: linear-gradient(to bottom, var(--primary), var(--primary-dark)) !important;
-            color: white !important;
-            font-weight: 700 !important;
-            padding: 1rem 0.75rem !important;
-            text-transform: uppercase;
-            letter-spacing: 0.05em;
-            font-size: 0.8rem !important;
-        }
-        
-        .stDataFrame tbody tr {
-            transition: background-color var(--transition-fast);
-        }
-        
-        .stDataFrame tbody tr:nth-child(even) {
-            background-color: var(--gray-50) !important;
-        }
-        
-        .stDataFrame tbody tr:hover {
-            background-color: rgba(0, 102, 255, 0.05) !important;
-        }
-        
-        /* === 9. EXPANDERS === */
-        div[data-testid="stExpander"] {
-            border: 1px solid var(--gray-200) !important;
-            border-radius: var(--radius-lg) !important;
-            background: white;
-            box-shadow: var(--shadow-sm);
-            margin-bottom: var(--spacing-md);
-            overflow: hidden;
-            transition: all var(--transition-base);
-        }
-        
-        div[data-testid="stExpander"]:hover {
-            border-color: var(--primary-light) !important;
-            box-shadow: var(--shadow-md);
-        }
-        
-        div[data-testid="stExpander"] summary {
-            font-weight: 600 !important;
-            font-size: 1rem !important;
-            color: var(--gray-800);
-            padding: var(--spacing-md) !important;
-            background: var(--gray-50);
-            transition: background-color var(--transition-fast);
-        }
-        
-        div[data-testid="stExpander"] summary:hover {
-            background: var(--gray-100);
-        }
-        
-        /* === 10. PROGRESS BARS === */
-        .stProgress > div > div > div {
-            background: linear-gradient(90deg, var(--primary), var(--primary-light)) !important;
-            border-radius: 10px;
-            height: 0.5rem !important;
-        }
-        
-        /* === 11. SIDEBAR === */
-        section[data-testid="stSidebar"] {
-            background: linear-gradient(180deg, var(--gray-50) 0%, white 100%);
-            border-right: 1px solid var(--gray-200);
-            box-shadow: var(--shadow-md);
-        }
-        
-        section[data-testid="stSidebar"] .stMarkdown h1,
-        section[data-testid="stSidebar"] .stMarkdown h2,
-        section[data-testid="stSidebar"] .stMarkdown h3 {
-            color: var(--primary-dark);
-        }
-        
-        /* === 12. ALERTS & INFO BOXES === */
-        .stAlert, div[data-baseweb="notification"] {
-            border-radius: var(--radius-lg) !important;
-            border-left-width: 4px !important;
-            box-shadow: var(--shadow-sm);
-            animation: slideInRight 0.3s ease-out;
-        }
-        
-        /* === 13. LOADING STATES === */
-        .stSpinner > div {
-            border-color: var(--primary) !important;
-            border-right-color: transparent !important;
-        }
-        
-        /* === 14. GLASSMORPHISM EFFECTS === */
-        .glass-card {
-            background: rgba(255, 255, 255, 0.7);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.3);
-            box-shadow: var(--shadow-lg);
-        }
-        
-        /* === 15. CHARTS === */
-        .stPlotlyChart, .stVegaLiteChart {
-            border-radius: var(--radius-lg);
-            overflow: hidden;
-            box-shadow: var(--shadow-md);
-        }
-        
-        /* === 16. RADIO & CHECKBOX === */
-        .stRadio > label, .stCheckbox > label {
-            font-weight: 500;
-            color: var(--gray-700);
-        }
-        
-        /* === 17. SELECTBOX & MULTISELECT === */
-        /* Remove white box artifacts completely */
-        [data-baseweb="select"] {
-            background: transparent !important;
-        }
-        
-        [data-baseweb="select"] > div,
-        [data-baseweb="select"] > div > div {
-            background: transparent !important;
-            border: none !important;
-            box-shadow: none !important;
-        }
-        
-        /* Style the actual select container */
-        .stSelectbox > div:first-child,
-        .stMultiSelect > div:first-child {
-            background: white !important;
-            border-radius: var(--radius-md) !important;
-            border: 2px solid var(--gray-300) !important;
-            transition: all var(--transition-base) !important;
-        }
-        
-        .stSelectbox > div:first-child:focus-within,
-        .stMultiSelect > div:first-child:focus-within {
-            border-color: var(--primary) !important;
-            box-shadow: 0 0 0 3px rgba(0, 102, 255, 0.1) !important;
-        }
-        
-        
-        
-        /* === 18. CAPTIONS === */
-        .stCaptionContainer {
-            color: var(--gray-600);
-            font-size: 0.875rem;
-        }
-        
-        /* === 19. CUSTOM SCROLLBAR === */
-        ::-webkit-scrollbar {
-            width: 10px;
-            height: 10px;
-        }
-        
-        ::-webkit-scrollbar-track {
-            background: var(--gray-100);
-        }
-        
-        ::-webkit-scrollbar-thumb {
-            background: var(--gray-400);
             border-radius: 5px;
+            border: none;
+            padding: 0.5rem 1rem;
         }
-        
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--gray-500);
-        }
-        
-        /* === 20. HEADINGS === */
-        h1, h2, h3, h4, h5, h6 {
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            color: var(--gray-900);
-        }
-        
-        h1 { font-size: 2rem; }
-        h2 { font-size: 1.5rem; }
-        h3 { font-size: 1.25rem; }
-        
-        /* === 21. LINKS === */
-        a {
-            color: var(--primary);
-            text-decoration: none;
-            transition: color var(--transition-fast);
-        }
-        
-        a:hover {
-            color: var(--primary-dark);
-            text-decoration: underline;
-        }
-        
-        /* === 22. PREMIUM TOUCH === */
-        .premium-gradient {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-        }
-        
-        /* === 23. RESPONSIVE === */
-        @media (max-width: 768px) {
-            .block-container {
-                padding: var(--spacing-sm) !important;
-            }
-            
-            div[data-testid="stMetricValue"] {
-                font-size: 1.25rem !important;
-            }
-            
-            .stTabs [data-baseweb="tab"] {
-                font-size: 0.75rem;
-                height: 3rem;
-            }
+        div.stButton > button:first-child:hover {
+            background-color: #002244;
+            color: white;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
         }
         </style>
     """, unsafe_allow_html=True)
