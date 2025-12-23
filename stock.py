@@ -2548,15 +2548,32 @@ if __name__ == "__main__":
         "How to Use"
     ])
 
-    # --- HEADER & NAVIGATION (Now Below Tabs) ---
-    c_logo, c_lang = st.columns([8, 2])
-    with c_logo:
-        st.caption("Professional Stock Analytics Platform")
-        
-    with c_lang:
-        # Move Language Switcher to Top Right
-        lang_choice = st.radio("Language / ภาษา", ["English (EN)", "Thai (TH)"], horizontal=True, label_visibility="collapsed")
-        st.session_state['lang'] = 'EN' if "English" in lang_choice else 'TH'
+    # --- HEADER & NAVIGATION ---
+    # Centered Logo
+    st.markdown("""
+        <h1 style='text-align: center; font-size: 4rem; margin-bottom: 0px; margin-top: 10px;'>Stockub</h1>
+        <p style='text-align: center; color: gray; font-size: 1.1rem; margin-bottom: 2rem;'>Professional Stock Analytics Platform</p>
+    """, unsafe_allow_html=True)
+
+    # Options Bar (Language & Theme) - Centered or Right Aligned below logo?
+    # User focused on Logo being center. Let's put options in a clean row below.
+    c_opt1, c_opt2, c_opt3 = st.columns([1, 2, 1])
+    with c_opt2:
+        # Center the controls relatively
+        cc1, cc2 = st.columns(2)
+        with cc1:
+            lang_choice = st.radio("Language", ["EN", "TH"], horizontal=True, label_visibility="collapsed")
+            st.session_state['lang'] = 'EN' if "EN" in lang_choice else 'TH'
+        with cc2:
+             # Theme Toggle
+            if 'theme' not in st.session_state: st.session_state['theme'] = 'Light'
+            theme_switch = st.toggle("🌙 Dark Mode", value=(st.session_state['theme'] == 'Dark'))
+            new_theme = 'Dark' if theme_switch else 'Light'
+            if new_theme != st.session_state['theme']:
+                st.session_state['theme'] = new_theme
+                st.rerun()
+    
+    inject_custom_css(st.session_state['theme']) # Apply Dynamic CSS
     
     with tab_scan:
         page_scanner()
