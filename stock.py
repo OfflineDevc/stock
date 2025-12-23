@@ -646,7 +646,7 @@ def render_market_dashboard():
 # 1. Page Configuration
 # ---------------------------------------------------------
 st.set_page_config(
-    page_title=get_text('main_title') + " by kun p.",
+    page_title=get_text('main_title'),
     page_icon="🏛️",
     layout="wide",
     initial_sidebar_state="expanded"
