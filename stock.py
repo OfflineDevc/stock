@@ -3181,7 +3181,7 @@ if __name__ == "__main__":
     # We create a top header row to force the logo visibility
     c_brand_a, c_brand_b = st.columns([1, 10]) 
     with c_brand_a:
-         st.image("logo.png", width=80) # Visible Logo
+         st.image("logo.png", width=45) # Visible Logo
     
     with c_brand_b: 
          # --- TOP TABS NAVIGATION (CFA Style) ---
