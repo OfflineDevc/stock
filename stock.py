@@ -1600,6 +1600,8 @@ def page_single_stock():
     if st.button(get_text('analyze_btn')) and ticker:
         with st.spinner(f"Analyzing {ticker}..."):
             new_df = scan_market_basic([ticker], MockProgress(), st.empty())
+            if not new_df.empty:
+                new_df['Lynch_Category'] = new_df.apply(classify_lynch, axis=1) # Apply Lynch Logic locally
             st.session_state['single_stock_cache'] = new_df
             
     # Display Logic (Wrapper to maintain indentation of subsequent block)
@@ -1607,6 +1609,9 @@ def page_single_stock():
     if 'single_stock_cache' in st.session_state:
         with st.container():
             df = st.session_state['single_stock_cache']
+            # Safety: Ensure Lynch col exists for old cache
+            if not df.empty and 'Lynch_Category' not in df.columns:
+                 df['Lynch_Category'] = df.apply(classify_lynch, axis=1)
             
             if not df.empty:
                 row = df.iloc[0].copy()
