@@ -1611,7 +1611,10 @@ def page_single_stock():
                         c_r2_1, c_r2_2, c_r2_3 = st.columns(3)
                         
                         # Base Metric (Static for now, but could be editable)
-                        label_base = "FCF/SHARE 3Y AVG" if "FCF" in title else "EPS 3Y AVG"
+                        label_base = title # Pass Full Title as Label
+                        if "FCF" in title: label_base = f"FCF/SHARE {model_defaults.get('suffix', '')}"
+                        elif "EPS" in title: label_base = "EPS (TTM)"
+                        
                         with c_r2_1:
                             st.caption(label_base)
                             st.info(f"**{currency_fmt[0]}{base_val:.2f}**")
@@ -1760,27 +1763,65 @@ def page_single_stock():
                     # --- MODEL 1: FCF ---
                     fcf_base = 0
                     try:
-                        fcf_series = None
-                        if not cashflow.empty and shares:
-                             # Try OCF - CapEx first
-                             ocf, capex = None, None
-                             for k in ['Operating Cash Flow', 'Total Cash From Operating Activities']:
-                                 if k in cashflow.index: ocf = cashflow.loc[k]; break
-                             for k in ['Capital Expenditure', 'Capital Expenditures', 'Purchase Of PPE']:
-                                 if k in cashflow.index: capex = cashflow.loc[k]; break
-                                 
-                             if ocf is not None and capex is not None:
-                                  ocf = pd.to_numeric(ocf, errors='coerce')
-                                  capex = pd.to_numeric(capex, errors='coerce')
-                                  fcf_series = (ocf + capex).dropna()
-                                  
-                        if fcf_series is not None and not fcf_series.empty:
-                             if len(fcf_series) >= 3: avg_fcf = fcf_series.head(3).mean()
-                             else: avg_fcf = fcf_series.mean()
-                             fcf_base = avg_fcf / shares
-                        elif 'Free Cash Flow' in cashflow.index: # Direct
-                             fcf_series = cashflow.loc['Free Cash Flow'].dropna()
-                             if not fcf_series.empty: fcf_base = fcf_series.head(3).mean() / shares
+                        # --- TTM FCF LOGIC (GuruFocus Alignment) ---
+                        # Method: Sum(Last 4 Qtrs OCF) + Sum(Last 4 Qtrs CapEx) / Shares
+                        fcf_label_suffix = "(FY)"
+                        
+                        # Fetch Quarterly Cashflow
+                        q_cashflow = stock_obj.quarterly_cashflow
+                        
+                        ttm_ocf = 0
+                        ttm_capex = 0
+                        found_ttm = False
+                        
+                        if not q_cashflow.empty:
+                            try:
+                                # OCF
+                                q_ocf = None
+                                for k in ['Operating Cash Flow', 'Total Cash From Operating Activities']:
+                                    if k in q_cashflow.index: q_ocf = q_cashflow.loc[k].iloc[:4]; break # Take recent 4
+                                
+                                # CapEx
+                                q_capex = None
+                                for k in ['Capital Expenditure', 'Capital Expenditures', 'Purchase Of PPE']:
+                                    if k in q_cashflow.index: q_capex = q_cashflow.loc[k].iloc[:4]; break
+                                
+                                if q_ocf is not None and q_capex is not None and len(q_ocf) >= 4:
+                                    q_ocf = pd.to_numeric(q_ocf, errors='coerce').fillna(0)
+                                    q_capex = pd.to_numeric(q_capex, errors='coerce').fillna(0)
+                                    
+                                    ttm_ocf = q_ocf.sum()
+                                    ttm_capex = q_capex.sum()
+                                    ttm_fcf = ttm_ocf + ttm_capex
+                                    fcf_base = ttm_fcf / shares
+                                    found_ttm = True
+                                    fcf_label_suffix = "(TTM)"
+                            except: pass
+
+                        # Fallback to Annual if TTM failed
+                        if not found_ttm:
+                             fcf_series = None
+                             if not cashflow.empty and shares:
+                                  ocf, capex = None, None
+                                  for k in ['Operating Cash Flow', 'Total Cash From Operating Activities']:
+                                      if k in cashflow.index: ocf = cashflow.loc[k]; break
+                                  for k in ['Capital Expenditure', 'Capital Expenditures', 'Purchase Of PPE']:
+                                      if k in cashflow.index: capex = cashflow.loc[k]; break
+                                      
+                                  if ocf is not None and capex is not None:
+                                       ocf = pd.to_numeric(ocf, errors='coerce')
+                                       capex = pd.to_numeric(capex, errors='coerce')
+                                       fcf_series = (ocf + capex).dropna()
+                                       
+                             if fcf_series is not None and not fcf_series.empty:
+                                  # Use Latest Year for Annual Fallback (GuruFocus uses latest Full Year if no TTM)
+                                  # Or Average? GuruFocus uses "FCF per share for the trailing twelve months".
+                                  # If we can't get TTM, Latest FY is best proxy.
+                                  avg_fcf = fcf_series.iloc[0] # Latest
+                                  fcf_base = avg_fcf / shares
+                             elif 'Free Cash Flow' in cashflow.index:
+                                  fcf_series = cashflow.loc['Free Cash Flow'].dropna()
+                                  if not fcf_series.empty: fcf_base = fcf_series.iloc[0] / shares
 
                         if fcf_base > 0:
                             # CALL INTERACTIVE CARD
@@ -1792,7 +1833,8 @@ def page_single_stock():
                                 'g_high': g_high, 
                                 'exit_high': exit_high, 
                                 'wacc': wacc, 
-                                'years': years_proj
+                                'years': years_proj,
+                                'suffix': fcf_label_suffix
                             })
                             
                             val_models['FCF'] = high_val # Store the interactive result
