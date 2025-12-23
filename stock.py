@@ -849,6 +849,16 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                     except: pass
 
                 
+                # Init variables for valuation even if recovery is skipped
+                inc = pd.DataFrame()
+                net_income_ttm = None
+                revenue_ttm = None
+                def get_ttm(df_ttm, label_ttm):
+                    if label_ttm in df_ttm.index:
+                        s_ttm = pd.to_numeric(df_ttm.loc[label_ttm], errors='coerce')
+                        return s_ttm.iloc[:4].sum()
+                    return None
+
                 # Init variables potentially missing from empty 'info'
                 roe = None
                 op_margin = None
@@ -872,12 +882,6 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                         op_income_ttm = None
                         revenue_ttm = None
                         
-                        # Helper for TTM
-                        def get_ttm(df, label):
-                            if label in df.index:
-                                s = pd.to_numeric(df.loc[label], errors='coerce')
-                                return s.iloc[:4].sum()
-                            return None
 
                         # INCOME STATEMENT METRICS (TTM)
                         if not inc.empty:
