@@ -1583,43 +1583,42 @@ def calculate_dcf_value(row, is_conservative=False):
         if fcf is None or fcf <= 0:
             net_inc = row.get('Net_Income_TTM') or row.get('Net_Income')
             if net_inc and net_inc > 0:
-                fcf = net_inc * 0.8 # Conservative proxy
+                fcf = net_inc * 0.8
             else: return None
 
         # 2. Parameters based on mode
-        r = 0.12 if is_conservative else 0.10 # Discount Rate
-        g_terminal = 0.01 if is_conservative else 0.03 # Terminal Growth
+        r = 0.12 if is_conservative else 0.10
+        g_terminal = 0.01 if is_conservative else 0.03
         
-        # Growth for projection (5 years)
+        # Growth projection
         growth = row.get('EPS_Growth') or row.get('Rev_Growth') or 0.05
-        if is_conservative: growth *= 0.5 # 50% haircut
-        growth = max(-0.1, min(growth, 0.25)) # Clamp growth between -10% and 25%
+        if is_conservative: growth *= 0.5
+        growth = max(-0.1, min(growth, 0.25))
 
-        # 3. Project FCF for 5 years
         fcf_projections = []
         current_fcf = fcf
         for i in range(1, 6):
             current_fcf *= (1 + growth)
             fcf_projections.append(current_fcf / ((1 + r) ** i))
         
-        # 4. Terminal Value (TV)
         fcf_n = current_fcf
-        if is_conservative:
-            # TV = FCFn / r (No terminal growth assumed)
-            tv = fcf_n / r
-        else:
-            # TV = (FCFn * (1+g)) / (r - g)
-            tv = (fcf_n * (1 + g_terminal)) / (r - g_terminal)
+        if is_conservative: tv = fcf_n / r
+        else: tv = (fcf_n * (1 + g_terminal)) / (r - g_terminal)
         
         tv_discounted = tv / ((1 + r) ** 5)
-        
         total_ev = sum(fcf_projections) + tv_discounted
         
-        # 5. Equity Value per Share
+        # 3. Equity Value per Share (Ultra-Robust Fallback)
         shares = row.get('Shares_Outstanding')
         if not shares:
             try:
-                shares = row['YF_Obj'].info.get('sharesOutstanding')
+                # Fallback: MarketCap / Price
+                mcap = row.get('Market_Cap')
+                price = row.get('Price')
+                if mcap and price and price > 0:
+                    shares = mcap / price
+                else:
+                    shares = row['YF_Obj'].info.get('sharesOutstanding')
             except: shares = None
         
         if shares and shares > 0:
@@ -1629,22 +1628,41 @@ def calculate_dcf_value(row, is_conservative=False):
 
 def calculate_dual_intrinsic_value(row):
     """
-    Calculates Normal and Conservative Intrinsic Values using DCF.
+    Calculates Normal and Conservative Intrinsic Values with ultra-robust fallbacks.
+    (DCF -> Earnings Multiplier -> Book Value -> Revenue)
     """
-    fv_norm = calculate_dcf_value(row, is_conservative=False)
-    fv_cons = calculate_dcf_value(row, is_conservative=True)
+    fv_n = calculate_dcf_value(row, is_conservative=False)
+    fv_c = calculate_dcf_value(row, is_conservative=True)
     
-    # Final check: If DCF fails, fall back to a simple earnings multiple
-    if fv_norm is None or fv_cons is None:
-        try:
-            eps = row.get('EPS_TTM') or row.get('EPS')
-            if eps and eps > 0:
-                fv_norm = eps * 15 # Standard P/E multiple
-                fv_cons = eps * 10 # Value P/E multiple
-        except: pass
+    if fv_n is not None and fv_c is not None:
+        return round(fv_c, 2), round(fv_n, 2)
+
+    # --- FALLBACK 1: EARNINGS MULTIPLIER (P/E) ---
+    try:
+        eps = row.get('EPS_TTM') or row.get('EPS')
+        if eps and eps > 0:
+            return round(eps * 10, 2), round(eps * 15, 2)
+    except: pass
+
+    # --- FALLBACK 2: BOOK VALUE MULTIPLIER (P/B) ---
+    try:
+        pb = row.get('PB')
+        price = row.get('Price')
+        if pb and price and pb > 0:
+            bvps = price / pb
+            return round(bvps * 1.0, 2), round(bvps * 1.5, 2)
+    except: pass
+
+    # --- FALLBACK 3: REVENUE MULTIPLIER (P/S) ---
+    try:
+        rev = row.get('Revenue_TTM') or row.get('Revenue')
+        shares = row.get('Shares_Outstanding')
+        if rev and shares and shares > 0:
+            sps = rev / shares
+            return round(sps * 0.8, 2), round(sps * 1.2, 2)
+    except: pass
         
-    return (round(fv_cons, 2) if fv_cons else None, 
-            round(fv_norm, 2) if fv_norm else None)
+    return None, None
 
 # ---------------------------------------------------------
 # PAGES: Single Stock & Glossary
@@ -1700,7 +1718,7 @@ def page_single_stock():
                             st.markdown(f"### {get_text('dcf_method_title')}")
                             st.write(get_text('dcf_normal_desc'))
                             st.write(get_text('dcf_cons_desc'))
-                            st.caption("Fallbacks: Using 80% of Net Income if FCF is missing.")
+                            st.caption("🛡️ Ultra-Robust Fallback: If cash flow data is missing, we automatically switch to Multiplier models (Earnings, Book Value, or Revenue) to ensure you always have an estimate.")
                     else:
                         st.caption("Valuation data incomplete.")
 
