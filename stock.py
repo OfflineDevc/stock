@@ -1787,7 +1787,7 @@ def page_single_stock():
                             # Note: We pass the calculated defaults. The card will either use them (first run) or use widget state (reruns).
                             # We don't need to manually calc val_high/low here anymore, the card does it.
                             
-                            high_val = val_card_interactive("NVDA Intrinsic Value Range (FCF)", price, {
+                            high_val = val_card_interactive("Method 1: DCF (Free Cash Flow)", price, {
                                 'base': fcf_base, 
                                 'g_high': g_high, 
                                 'exit_high': exit_high, 
@@ -1805,7 +1805,7 @@ def page_single_stock():
                     # --- MODEL 2: EPS ---
                     eps_base = row.get('EPS_TTM', 0)
                     if eps_base > 0:
-                        high_val_eps = val_card_interactive("NVDA Intrinsic Value Range w/EPS", price, {
+                        high_val_eps = val_card_interactive("Method 2: Advanced DCF (EPS Growth)", price, {
                                 'base': eps_base, 
                                 'g_high': g_high, 
                                 'exit_high': exit_high, 
@@ -1822,10 +1822,10 @@ def page_single_stock():
                 best_method = "Fair Value"
                 
                 if "Technology" in row.get('Sector', '') or "Communication" in row.get('Sector', ''):
-                    if 'EPS' in val_models: best_val = val_models['EPS']; best_method = "Fair Value (EPS)"
+                    if 'EPS' in val_models: best_val = val_models['EPS']; best_method = "Fair Value (EPS Method)"
                 else:
-                    if 'FCF' in val_models: best_val = val_models['FCF']; best_method = "Fair Value (FCF)"
-                    elif 'EPS' in val_models: best_val = val_models['EPS']; best_method = "Fair Value" # Fallback
+                    if 'FCF' in val_models: best_val = val_models['FCF']; best_method = "Fair Value (FCF Method)"
+                    elif 'EPS' in val_models: best_val = val_models['EPS']; best_method = "Fair Value (EPS Method)" # Fallback
 
                 # Top Header Update Logic (Re-calc header metric)
                 # Note: We already rendered header way above. 
