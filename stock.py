@@ -43,16 +43,18 @@ def fetch_cached_info(ticker):
 
 # Retry Helper for Object access (when we have obj but need property)
 def safe_get_info(stock_obj):
+    val = None
     try:
-        return stock_obj.info
+        val = stock_obj.info
     except Exception:
-        # Retry logic for existing object property access?
-        # Often better to re-fetch if stale, but here we just try-catch sleep
+        # Retry logic 
         try:
              time.sleep(1)
-             return stock_obj.info
+             val = stock_obj.info
         except:
-             return {} # Return empty dict on fail
+             pass
+    
+    return val if val is not None else {}
 
 @st.cache_data(ttl=3600*12, show_spinner=False)
 def fetch_cached_financials(ticker):
