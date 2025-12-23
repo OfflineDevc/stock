@@ -3179,7 +3179,7 @@ if __name__ == "__main__":
 
     # --- BRANDING (Explicit Fallback) ---
     # We create a top header row to force the logo visibility
-    c_brand_a, c_brand_b = st.columns([1, 10]) 
+    c_brand_a, c_brand_b = st.columns([1, 30]) 
     with c_brand_a:
          st.image("logo.png", width=45) # Visible Logo
     
