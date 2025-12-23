@@ -1562,6 +1562,9 @@ def page_single_stock():
                 row = df.iloc[0].copy()
                 price = row['Price']
                 
+                # Setup Currency Fmt
+                currency_fmt = "฿" if ".BK" in row['Symbol'] else "$"
+                
                 # Top Header
                 st.subheader(f"{row['Symbol']} - {row['Company']}")
                 
