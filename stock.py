@@ -320,6 +320,16 @@ TRANS = {
         'lang_label': "Language / ภาษา",
         'health_coming_soon': "Coming soon in Q1 2026. This module will analyze your upload portfolio for risk factors.",
         'ai_coming_soon': "Deep Learning module integration in progress.",
+        'tech_analysis_title': "📈 Professional Technical Analysis",
+        'support_label': "Support (Floor)",
+        'resistance_label': "Resistance (Ceiling)",
+        'pivot_points_title': "📍 Pivot Points (Standard)",
+        'fib_levels_title': "🔢 Fibonacci Retracement (1Y)",
+        'conservative_fv': "Conservative Fair Value",
+        'normal_fv': "Normal Fair Value",
+        'valuation_models_title': "💎 Intrinsic Value Analysis",
+        'tech_indicator_desc': "Technical levels used by professional traders to identify entry and exit points.",
+        'val_model_desc': "Fair value estimates based on different risk-profiles and growth assumptions.",
         'tab_settings': "🎛️ Settings & Tools",
         'tab_metrics': "📊 Financial Metrics",
         'tab_lynch': "🧠 Peter Lynch Categories",
@@ -499,6 +509,16 @@ TRANS = {
         'lang_label': "ภาษาที่แสดง / Language",
         'health_coming_soon': "จะเปิดให้ใช้งานในไตรมาสที่ 1 ปี 2026 โดยโมดูลนี้จะช่วยวิเคราะห์พอร์ตที่คุณอัปโหลดเพื่อหาปัจจัยความเสี่ยง",
         'ai_coming_soon': "กำลังอยู่ระหว่างการพัฒนาโมดูลการวิเคราะห์เชิงลึก (Deep Learning)",
+        'tech_analysis_title': "📈 การวิเคราะห์ทางเทคนิคระดับโปร",
+        'support_label': "แนวรับ (Naeo Rap)",
+        'resistance_label': "แนวต้าน (Naeo Tan)",
+        'pivot_points_title': "📍 จุดกลับตัว (Pivot Points)",
+        'fib_levels_title': "🔢 ระดับฟีโบนักชี (1Y High/Low)",
+        'conservative_fv': "ราคาเหมาะสมแบบอนุรักษ์นิยม",
+        'normal_fv': "ราคาเหมาะสมแบบปกติ",
+        'valuation_models_title': "💎 การวิเคราะห์ราคาที่แท้จริง (Intrinsic Value)",
+        'tech_indicator_desc': "ระดับราคาที่นักลงทุนมืออาชีพใช้เพื่อหาจุดเข้า-ออก",
+        'val_model_desc': "ประมาณการราคาพื้นฐานตามระดับความเสี่ยงและการเติบโตที่คาดหวัง",
         'tab_settings': "🎛️ เครื่องมือและการตั้งค่า",
         'tab_metrics': "📊 ตัวชี้วัดทางการเงิน",
         'tab_lynch': "🧠 ประเภทหุ้นตาม Peter Lynch",
@@ -1488,6 +1508,86 @@ def page_scanner():
         st.info("Define parameters and start the Two-Stage Screening.")
 
 # ---------------------------------------------------------
+# 4. Professional Analysis Helpers
+# ---------------------------------------------------------
+
+def calculate_technical_levels(stock_obj):
+    """
+    Calculates Pivot Points and Fibonacci Retracement Levels.
+    """
+    try:
+        # We use 1 year of data for professional context
+        hist = stock_obj.history(period="1y")
+        if hist.empty: return None
+        
+        # 1. Fibonacci Levels (1Y High/Low)
+        high_1y = hist['High'].max()
+        low_1y = hist['Low'].min()
+        diff = high_1y - low_1y
+        
+        fibs = {
+            '100.0%': high_1y,
+            '78.6%': low_1y + 0.786 * diff,
+            '61.8%': low_1y + 0.618 * diff,
+            '50.0%': low_1y + 0.5 * diff,
+            '38.2%': low_1y + 0.382 * diff,
+            '23.6%': low_1y + 0.236 * diff,
+            '0.0%': low_1y
+        }
+        
+        # 2. Pivot Points (Standard) - Using last full month for context
+        # Professionals often use monthly pivots for long term or daily for daytrading.
+        # We'll use monthly points as a good 'swing' baseline.
+        last_month = hist.iloc[-22:] # approx last month
+        h = last_month['High'].max()
+        l = last_month['Low'].min()
+        c = hist['Close'].iloc[-1] # Current Close
+        
+        p = (h + l + c) / 3
+        pivots = {
+            'R3': h + 2 * (p - l),
+            'R2': p + (h - l),
+            'R1': (2 * p) - l,
+            'P': p,
+            'S1': (2 * p) - h,
+            'S2': p - (h - l),
+            'S3': l - 2 * (h - p)
+        }
+        
+        return {'fibs': fibs, 'pivots': pivots}
+    except:
+        return None
+
+def calculate_dual_intrinsic_value(row):
+    """
+    Calculates Normal and Conservative Intrinsic Values.
+    Based on Graham's Revised Formula & Multiplier-weighted outcomes.
+    """
+    try:
+        eps = row.get('EPS_TTM') or row.get('EPS')
+        growth = row.get('NI_CAGR_5Y') or row.get('EPS_Growth') # Use 5Y CAGR if possible
+        if growth is not None: growth *= 100 # Convert to %
+        else: growth = 0
+        
+        # Graham Formula: V = EPS * (8.5 + 2g) * (4.4 / Y)
+        # Y = current yield of 20-year AAA corporate bonds (Approx 4.5% - 5.0%)
+        y = 4.5 
+        
+        if eps and eps > 0:
+            # Normal: Default Graham-style
+            g_norm = max(0, min(growth, 25)) # Cap growth for realism
+            fv_normal = eps * (8.5 + 2 * g_norm) * (4.4/y)
+            
+            # Conservative: 60% of growth + higher margin of safety
+            g_cons = g_norm * 0.6
+            fv_cons = eps * (7.0 + 1.5 * g_cons) * (4.4/y) * 0.8 # Additional 20% haircut
+            
+            return round(fv_cons, 2), round(fv_normal, 2)
+    except:
+        pass
+    return None, None
+
+# ---------------------------------------------------------
 # PAGES: Single Stock & Glossary
 # ---------------------------------------------------------
 
@@ -1642,6 +1742,45 @@ def page_single_stock():
                             st.info(get_text('no_target'))
                             
                     except: st.error(get_text('err_recs'))
+
+                # --- NEW: PROFESSIONAL TECHNICALS & VALUATIONS ---
+                st.markdown("---")
+                c_tech, c_val_dual = st.columns(2)
+                
+                with c_tech:
+                    st.subheader(get_text('tech_analysis_title'))
+                    st.caption(get_text('tech_indicator_desc'))
+                    levels = calculate_technical_levels(stock_obj)
+                    if levels:
+                        t1, t2 = st.tabs([get_text('pivot_points_title'), get_text('fib_levels_title')])
+                        with t1:
+                            # Display Pivots in a clean list
+                            for k, v in levels['pivots'].items():
+                                color = "green" if 'S' in k else "red" if 'R' in k else "blue"
+                                st.markdown(f"**{k}**: :{color}[{v:,.2f}]")
+                        with t2:
+                            # Display Fibs
+                            for k, v in levels['fibs'].items():
+                                st.markdown(f"**{k}**: {v:,.2f}")
+                                
+                with c_val_dual:
+                    st.subheader(get_text('valuation_models_title'))
+                    st.caption(get_text('val_model_desc'))
+                    fv_cons, fv_norm = calculate_dual_intrinsic_value(row)
+                    
+                    if fv_cons and fv_norm:
+                        m1, m2 = st.columns(2)
+                        m1.metric(get_text('conservative_fv'), f"{fv_cons:,.2f}")
+                        m2.metric(get_text('normal_fv'), f"{fv_norm:,.2f}")
+                        
+                        # Comparison Alert
+                        price_val = float(price)
+                        if price_val < fv_cons:
+                            st.success(f"🔥 **Deep Value Detect!** Price is below Conservative FV.")
+                        elif price_val < fv_norm:
+                            st.info(f"✅ **Fair Price**. Trading below Normal Intrinsic Value.")
+                        else:
+                            st.warning(f"⚠️ **Premium Price**. Market is pricing in high growth.")
 
                 # Show Chart
                 st.markdown(get_text('price_trend_title'))
