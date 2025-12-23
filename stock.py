@@ -193,7 +193,7 @@ TRANS = {
         'analyze_btn': "Analyze Stock",
         'about_title': "ℹ️ About This Project",
         'about_desc': "This program was created by Mr. Kun Poonkasetvatana. It was developed to solve the pain point that finding data is difficult, analyzing every stock takes too long, and similar tools are unreasonably expensive. Fetches data from Yahoo Finance to screen quickly. Currently developing AI to analyze fundamentals further, obeying 'Invest on what you know' and regular portfolio health checks.",
-        # --- NEW UI KEYS ---
+        
         'scanner_config': "🛠️ Scanner Configuration & Settings",
         'univ_scale': "1. Universe & Scale",
         'strat_mandate': "2. Strategy Mandate",
@@ -240,6 +240,112 @@ TRANS = {
         'score_value': "Deep Value Score",
         'score_div': "Dividend Score",
         'score_multi': "🚀 Multibagger Score",
+
+        # --- NEW DASHBOARD & UI ---
+        'market_sentiment_title': "### 🧭 Market Sentiment (CNN-Style Proxy)",
+        'fear_greed_title': "Fear & Greed Index (Proxy)",
+        'vix_caption': "Driven by VIX: {vix:.2f} (Lower VIX = Higher Greed)",
+        'state_extreme_fear': "🥶 Extreme Fear",
+        'state_fear': "😨 Fear",
+        'state_neutral': "😐 Neutral",
+        'state_greed': "😎 Greed",
+        'state_extreme_greed': "🤑 Extreme Greed",
+        'buffett_title': "Buffett Indicator (Q3 2025)",
+        'buffett_caption': "Ratio of Total US Stock Market ($70.68T) to GDP ($30.77T).",
+        'buffett_status': "Status: 2.4 Std Dev above historical average.",
+        'buffett_val_desc': "Strongly Overvalued",
+        'faq_title': "📚 Definition & Methodology (FAQs)",
+        'max_pe': "Max P/E Ratio",
+        'max_peg': "Max PEG Ratio",
+        'max_evebitda': "Max EV/EBITDA",
+        'min_roe': "Min ROE %",
+        'min_margin': "Min Op Margin %",
+        'min_div': "Min Dividend Yield %",
+        'min_rev_growth': "Min Revenue Growth %",
+        'max_de': "Max Debt/Equity %",
+        'debug_logs': "🛠️ Debug Logs (Open if No Data)",
+        'port_title': "Intelligent Portfolio",
+        'ai_analysis_header': "🧠 AI Analysis Result ({risk})",
+        'gen_success': "✅ Generated Professional Portfolio: {n} Stocks",
+        'avg_pe_label': "Avg P/E (Equity)",
+        'equity_yield_label': "Equity Yield",
+        'quality_roe_label': "Quality (ROE)",
+        'backtest_title': "🕑 Historical Backtest & Simulation",
+        'backtest_desc': "See how this portfolio would have performed in the past vs S&P 500.",
+        'backtest_config': "⚙️ Backtest Configuration",
+        'invest_mode': "Investment Mode",
+        'time_period': "Time Period",
+        'invest_amount': "Investment Amount",
+        'run_backtest_btn': "🚀 Run Backtest",
+        'historical_chart_title': "### 🔬 Interactive Historical Charts",
+        'select_stock_view': "Select Stock to View:",
+        'nav_scanner': "Market Scanner",
+        'nav_portfolio': "Auto Portfolio",
+        'nav_single': "Single Stock Analysis",
+        'nav_health': "Portfolio Health",
+        'nav_ai': "AI Insight",
+        'nav_glossary': "Glossary",
+        'nav_help': "How to Use",
+        'footer_caption': "Professional Stock Analytics Platform",
+        'health_check_title': "🔍 Financial Health Check",
+        'val_label': "Valuation",
+        'qual_label': "Quality",
+        'guru_intel_title': "🧠 Guru & Analyst Intel",
+        'tab_holders': "🏛️ Institutional Holders (Guru Proxy)",
+        'tab_recs': "🗣️ Analyst Recommendations",
+        'holders_desc': "Top funds and institutions holding this stock.",
+        'no_holders': "No institutional holding data available.",
+        'err_holders': "Could not fetch institutional data.",
+        'consensus_target': "Consensus Target Price",
+        'vs_current': "vs Current",
+        'no_target': "No analyst target price available.",
+        'err_recs': "Could not fetch recommendations.",
+        'price_trend_title': "📉 5-Year Price Trend",
+        'err_fetch': "Could not fetch data.",
+        'perfect_match': "✅ Perfect Match",
+        'backtest_summary': "Performance Summary",
+        'final_val_label': "Final Portfolio Value",
+        'bench_val_label': "S&P 500 Benchmark",
+        'alpha_label': "Alpha (vs Market)",
+        'winning': "Winning",
+        'losing': "Losing",
+        'gap_annual': "Performance Gap (Annual)",
+        'my_port_legend': "My Portfolio",
+        'bench_legend': "S&P 500 (SPY)",
+        'cagr_label': "CAGR (Avg/Year)",
+        'annualized_label': "Annualized",
+        'na_short': "N/A (< 1 Year)",
+        'na': "N/A",
+        'backtest_failed': "Backtest Failed",
+        'lang_label': "Language / ภาษา",
+        'health_coming_soon': "Coming soon in Q1 2026. This module will analyze your upload portfolio for risk factors.",
+        'ai_coming_soon': "Deep Learning module integration in progress.",
+        'tab_settings': "🎛️ Settings & Tools",
+        'tab_metrics': "📊 Financial Metrics",
+        'tab_lynch': "🧠 Peter Lynch Categories",
+        
+        'port_alloc_title': "🌍 Portfolio Allocation",
+        'port_alloc_caption': "Breakdown by Individual Holding & Group",
+        'type_alloc_title': "Type Allocation",
+        'equity_only': "Equity Only",
+        'asset_class_label': "Asset Class",
+        'sector_label_short': "Sector",
+        'weight_label': "Weight",
+        'ticker_label': "Symbol",
+        'price_label': "Price",
+        'score_label': "Score",
+        'rev_cagr_label': "Rev CAGR",
+        'ni_cagr_label': "NI CAGR",
+        'yield_label': "Yield",
+        'why_mcap_title': "**Why Market Cap Weighting?**",
+        'why_mcap_desc': "- **Professional Standard**: S&P 500 and Nasdaq 100 use this.\n- **Stability**: Larger, more established companies get more money.\n- **Self-Correcting**: As companies grow, they become a larger part of your portfolio naturally.",
+        'how_works_title': "**How it works here:**",
+        'how_works_desc': "1. We select the Top 20 stocks that match your **Strategy Score**.\n2. We allocate money based on **Company Size (Market Cap)**.",
+        'bucket_equity': "Equities (Stock)",
+        'bucket_long_bonds': "Long Bonds",
+        'bucket_interm_bonds': "Interm Bonds",
+        'bucket_gold': "Gold",
+        'bucket_commodity': "Commodities",
     },
     'TH': {
         'sidebar_title': "🏛️ ตั้งค่าการสแกน",
@@ -267,7 +373,6 @@ TRANS = {
         'about_title': "ℹ️ เกี่ยวกับโปรเจกต์นี้",
         'about_desc': "โปรแกรมนี้ ถูกจัดทำโดย นาย กัญจน์ พูนเกษตรวัฒนา โปรเจคนี้ถูกพัฒนาเพื่อการใช้งานส่วนตัวจากการเจอ pain point ที่ว่าการหาข้อมูลมันยุ่งยากมากๆ และ การที่จะนั่งวิเคราะห์หุ้นทุกๆตัวใช้เวลานานเกินไป และ เว็ปที่ทำคล้ายๆแบบนี้ก็เสียเงินแพงเกินใช่เหตุ จึงดึงข้อมูลมาจาก yahoo finance เพื่อคัดหุ้นจากข้อมูลพื้นฐานอย่างรวดเร็ว สิ่งที่กำลังพัฒนาอยู่ตอนนี้คือเรื่องของ ปัญญาประดิษฐ์ที่นำมาวิเคราะห์เรื่องปัจจัยพื้นฐานอีกที และ ทำให้เราเข้าใจสิ่งที่เราจะลงทุนก่อน โดยอิงจาก Invest on what you know และจะมีการตรวจเช็คสภาพรถเสมอ ในหุ้นในพอร์ตฟอลิโอ",
         
-        # --- THAI TRANSLATIONS ---
         'scanner_config': "🛠️ ตั้งค่าตัวสแกนหุ้น (Scanner Configuration)",
         'univ_scale': "1. เลือกตลาดและขอบเขต (Universe)",
         'strat_mandate': "2. กลยุทธ์การลงทุน (Strategy)",
@@ -297,7 +402,7 @@ TRANS = {
         'equity_holdings': "1. ส่วนของหุ้น (Equity Holdings 30%)",
         'core_assets': "2. สินทรัพย์หลัก (Core Assets 70%)",
         'core_assets_desc': "นี่คือ ETF ตัวแทนของสินทรัพย์ประเภทต่างๆ (พันธบัตร, ทองคำ, etc.)",
-
+        
         'risk_low_desc': "🛡️ **Defensive (ปลอดภัยไว้ก่อน)**: เน้น **ปันผล** และ **ความมั่นคง**. หนี้ต่ำ, กระแสเงินสดนิ่ง. เหมาะสำหรับรักษาเงินต้น.",
         'risk_med_desc': "⚖️ **Balanced (สายกลาง GARP)**: เติบโตในราคาที่เหมาะสม. ผสมผสานระหว่าง **ความคุ้มค่า** และ **การเติบโต**. จุดที่ลงตัวสำหรับนักลงทุนส่วนใหญ่.",
         'risk_high_desc': "🚀 **Aggressive (เชิงรุก)**: เน้น **การเติบโตสูง**. ไม่สนปันผล. ยอมรับความเสี่ยงสูง (หนี้/ความผันผวน) เพื่อแลกผลตอบแทนสูงสุด.",
@@ -314,7 +419,114 @@ TRANS = {
         'score_value': "คะแนน Value (หุ้นคุณค่า)",
         'score_div': "คะแนน Dividend (ปันผล)",
         'score_multi': "🚀 คะแนน Multibagger (หุ้นเด้ง)",
+
+        # --- NEW DASHBOARD & UI ---
+        'market_sentiment_title': "### 🧭 สภาวะตลาด (Market Sentiment)",
+        'fear_greed_title': "ดัชนี Fear & Greed (Proxy)",
+        'vix_caption': "คำนวณจาก VIX: {vix:.2f} (ยิ่ง VIX ต่ำ = ตลาดพึงพอใจ/โลภ)",
+        'state_extreme_fear': "🥶 กลัวสุดขีด (Extreme Fear)",
+        'state_fear': "😨 กลัว (Fear)",
+        'state_neutral': "😐 ปกติ (Neutral)",
+        'state_greed': "😎 โลภ (Greed)",
+        'state_extreme_greed': "🤑 โลภสุดขีด (Extreme Greed)",
+        'buffett_title': "ดัชนีบัฟเฟตต์ (Buffett Indicator - Q3 2025)",
+        'buffett_caption': "สัดส่วนมูลค่าตลาดหุ้น US ($70.68T) ต่อ GDP ($30.77T)",
+        'buffett_status': "สถานะ: สูงกว่าค่าเฉลี่ย 2.4 Standard Deviation",
+        'buffett_val_desc': "แพงมาก (Strongly Overvalued)",
+        'faq_title': "📚 คำนิยามและระเบียบวิธี (FAQs)",
+        'max_pe': "ค่า P/E สูงสุดที่ยอมรับได้",
+        'max_peg': "ค่า PEG สูงสุดที่ยอมรับได้",
+        'max_evebitda': "ค่า EV/EBITDA สูงสุด",
+        'min_roe': "ค่า ROE ขั้นต่ำ %",
+        'min_margin': "กำไรจากการดำเนินงานขั้นต่ำ %",
+        'min_div': "อัตราปันผลขั้นต่ำ %",
+        'min_rev_growth': "การเติบโตรายได้ขั้นต่ำ %",
+        'max_de': "หนี้สินต่อทุนสูงสุด (D/E) %",
+        'debug_logs': "🛠️ บันทึกการตรวจสอบ (Debug Logs)",
+        'port_title': "พอร์ตการลงทุนอัจฉริยะ",
+        'ai_analysis_header': "🧠 ผลการวิเคราะห์ด้วย AI ({risk})",
+        'gen_success': "✅ สร้างพอร์ตการลงทุนสำเร็จ: {n} หุ้น",
+        'avg_pe_label': "P/E เฉลี่ย (เฉพาะหุ้น)",
+        'equity_yield_label': "ปันผลเฉลี่ย",
+        'quality_roe_label': "คุณภาพ (ROE เฉลี่ย)",
+        'backtest_title': "🕑 การทดสอบย้อนหลัง (Historical Backtest)",
+        'backtest_desc': "ดูผลตอบแทนในอดีตของพอร์ตนี้เปรียบเทียบกับดัชนี S&P 500",
+        'backtest_config': "⚙️ ตั้งค่าการทดสอบย้อนหลัง",
+        'invest_mode': "รูปแบบการลงทุน",
+        'time_period': "ช่วงเวลา",
+        'invest_amount': "จำนวนเงินลงทุน",
+        'run_backtest_btn': "🚀 เริ่มทดสอบย้อนหลัง",
+        'historical_chart_title': "### 🔬 กราฟราคาย้อนหลัง",
+        'select_stock_view': "เลือกหุ้นเพื่อดูรายละเอียด:",
+        'nav_scanner': "สแกนหุ้นดาวเด่น",
+        'nav_portfolio': "พอร์ตอัตโนมัติ",
+        'nav_single': "วิเคราะห์รายตัว",
+        'nav_health': "สุขภาพพอร์ต",
+        'nav_ai': "วิเคราะห์ AI",
+        'nav_glossary': "คลังคำศัพท์",
+        'nav_help': "วิธีใช้งาน",
+        'footer_caption': "แพลตฟอร์มวิเคราะห์หุ้นระดับมืออาชีพ",
+        'health_check_title': "🔍 ตรวจสุขภาพทางการเงิน",
+        'val_label': "ความถูกแพง (Valuation)",
+        'qual_label': "คุณภาพธุรกิจ (Quality)",
+        'guru_intel_title': "🧠 ข้อมูลจากเซียนและนักวิเคราะห์",
+        'tab_holders': "🏛️ ผู้ถือหุ้นสถาบัน (Guru Proxy)",
+        'tab_recs': "🗣️ คำแนะนำจากนักวิเคราะห์",
+        'holders_desc': "กองทุนและสถาบันชั้นนำที่ถือหุ้นตัวนี้",
+        'no_holders': "ไม่พบข้อมูลการถือหุ้นของสถาบัน",
+        'err_holders': "ไม่สามารถดึงข้อมูลผู้ถือหุ้นสถาบันได้",
+        'consensus_target': "ราคาเป้าหมายเฉลี่ย (Consensus)",
+        'vs_current': "เทียบกับราคาปัจจุบัน",
+        'no_target': "ไม่พบข้อมูลราคาเป้าหมาย",
+        'err_recs': "ไม่สามารถดึงข้อมูลคำแนะนำได้",
+        'price_trend_title': "📉 แนวโน้มราคาย้อนหลัง 5 ปี",
+        'err_fetch': "ไม่สามารถดึงข้อมูลได้",
+        'perfect_match': "✅ ผ่านเกณฑ์ทุกข้อ",
+        'backtest_summary': "สรุปผลตอบแทน (Performance Summary)",
+        'final_val_label': "มูลค่าพอร์ตสุทธิ",
+        'bench_val_label': "ดัชนีอ้างอิง S&P 500",
+        'alpha_label': "ผลตอบแทนส่วนเกิน (Alpha)",
+        'winning': "ชนะตลาด",
+        'losing': "แพ้ตลาด",
+        'gap_annual': "ส่วนต่างผลตอบแทนต่อปี",
+        'my_port_legend': "พอร์ตของฉัน",
+        'bench_legend': "ดัชนี S&P 500 (SPY)",
+        'cagr_label': "ผลตอบแทนเฉลี่ยต่อปี (CAGR)",
+        'annualized_label': "ปรับเป็นค่ารายปี (Annualized)",
+        'na_short': "N/A (ข้อมูลไม่ถึง 1 ปี)",
+        'na': "N/A",
+        'backtest_failed': "การทดสอบย้อนหลังล้มเหลว",
+        'lang_label': "ภาษาที่แสดง / Language",
+        'health_coming_soon': "จะเปิดให้ใช้งานในไตรมาสที่ 1 ปี 2026 โดยโมดูลนี้จะช่วยวิเคราะห์พอร์ตที่คุณอัปโหลดเพื่อหาปัจจัยความเสี่ยง",
+        'ai_coming_soon': "กำลังอยู่ระหว่างการพัฒนาโมดูลการวิเคราะห์เชิงลึก (Deep Learning)",
+        'tab_settings': "🎛️ เครื่องมือและการตั้งค่า",
+        'tab_metrics': "📊 ตัวชี้วัดทางการเงิน",
+        'tab_lynch': "🧠 ประเภทหุ้นตาม Peter Lynch",
+        
+        'port_alloc_title': "🌍 สัดส่วนการลงทุน (Allocation)",
+        'port_alloc_caption': "แสดงสัดส่วนตามรายตัวและกลุ่มสินทรัพย์",
+        'type_alloc_title': "สัดส่วนตามประเภทหุ้น",
+        'equity_only': "เฉพาะหุ้น",
+        'asset_class_label': "ประเภทสินทรัพย์",
+        'sector_label_short': "อุตสาหกรรม",
+        'weight_label': "น้ำหนัก %",
+        'ticker_label': "ชื่อหุ้น",
+        'price_label': "ราคา",
+        'score_label': "คะแนน",
+        'rev_cagr_label': "โตรายได้",
+        'ni_cagr_label': "โตกำไร",
+        'yield_label': "ปันผล",
+        'why_mcap_title': "**ทำไมต้องจัดน้ำหนักตามมูลค่าตลาด (Market Cap Weighting)?**",
+        'why_mcap_desc': "- **มาตรฐานสากล**: ดัชนีหลักอย่าง S&P 500 และ Nasdaq 100 ใช้ระบบนี้\n- **ความมั่นคง**: ให้เงินทำงานในบริษัทที่ใหญ่และมั่นคงกว่าในสัดส่วนที่สูงกว่า\n- **ปรับตัวอัตโนมัติ**: เมื่อบริษัทเติบโตขึ้น สัดส่วนในพอร์ตก็จะเพิ่มขึ้นเองตามธรรมชาติ",
+        'how_works_title': "**หลักการทำงานของระบบ:**",
+        'how_works_desc': "1. เราคัดเลือกหุ้น 20 อันดับแรกที่ได้คะแนน **Strategy Score** สูงสุด\n2. จัดสรรเงินลงทุนตาม **ขนาดของบริษัท (Market Cap)**",
+        'bucket_equity': "หุ้นสามัญ (Equities)",
+        'bucket_long_bonds': "พันธบัตรระยะยาว",
+        'bucket_interm_bonds': "พันธบัตรระยะกลาง",
+        'bucket_gold': "ทองคำ",
+        'bucket_commodity': "สินค้าโภคภัณฑ์",
     }
+}
 }
 
 def get_text(key):
@@ -363,7 +575,7 @@ def render_market_dashboard():
     data = fetch_market_indicators()
     if not data: return 
 
-    st.markdown("### 🧭 Market Sentiment (CNN-Style Proxy)")
+    st.markdown(get_text('market_sentiment_title'))
     
     # --- ROW 1: FEAR & GREED + BUFFETT ---
     c1, c2 = st.columns([1, 1])
@@ -373,26 +585,26 @@ def render_market_dashboard():
         vix = data.get('VIX', 0)
         
         # Determine State
-        if score <= 25: state = "🥶 Extreme Fear"
-        elif score <= 45: state = "😨 Fear"
-        elif score <= 55: state = "😐 Neutral"
-        elif score <= 75: state = "😎 Greed"
-        else: state = "🤑 Extreme Greed"
+        if score <= 25: state = get_text('state_extreme_fear')
+        elif score <= 45: state = get_text('state_fear')
+        elif score <= 55: state = get_text('state_neutral')
+        elif score <= 75: state = get_text('state_greed')
+        else: state = get_text('state_extreme_greed')
         
-        st.metric("Fear & Greed Index (Proxy)", f"{score}/100", state)
+        st.metric(get_text('fear_greed_title'), f"{score}/100", state)
         st.progress(score / 100)
-        st.caption(f"Driven by VIX: {vix:.2f} (Lower VIX = Higher Greed)")
+        st.caption(get_text('vix_caption').format(vix=vix))
 
     with c2:
         # Buffett Indicator (Static / Reference)
         # Data from User: Sep 30, 2025 -> 230%
-        st.metric("Buffett Indicator (Q3 2025)", "230%", "Strongly Overvalued", delta_color="inverse")
-        st.caption("Ratio of Total US Stock Market ($70.68T) to GDP ($30.77T).")
-        st.info("Status: 2.4 Std Dev above historical average.")
+        st.metric(get_text('buffett_title'), "230%", get_text('buffett_val_desc'), delta_color="inverse")
+        st.caption(get_text('buffett_caption'))
+        st.info(get_text('buffett_status'))
 
     # --- ROW 2: FAQs ---
-    with st.expander("📚 Definition & Methodology (FAQs)"):
-        tab_fg, tab_buff = st.tabs(["Fear & Greed Index", "Buffett Indicator"])
+    with st.expander(get_text('faq_title')):
+        tab_fg, tab_buff = st.tabs([get_text('fear_greed_title'), get_text('buffett_title')])
         
         with tab_fg:
             st.markdown("""
@@ -435,7 +647,7 @@ def render_market_dashboard():
 # 1. Page Configuration
 # ---------------------------------------------------------
 st.set_page_config(
-    page_title="Stock Scanner by kun p.",
+    page_title=get_text('main_title') + " by kun p.",
     page_icon="🏛️",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -1364,7 +1576,7 @@ def page_single_stock():
                 # 3. Dividend Score
                 score, details = calculate_fit_score(row, [('Div_Yield', 4.0, '>'), ('Op_Margin', 10.0, '>')])
                 c_s3.metric(get_text('score_div'), f"{score}/100")
-                if details != "✅ Perfect Match": c_s3.caption(details)
+                if details != get_text('perfect_match'): c_s3.caption(details)
 
                 # 4. Multibagger Score (New)
                 c_s4 = c_s1 # Reuse or create new row? Let's use correct layout.
@@ -1379,21 +1591,21 @@ def page_single_stock():
                 c_m1, c_m2 = st.columns(2)
                 score, details = calculate_fit_score(row, [('Rev_Growth', 30.0, '>'), ('EPS_Growth', 20.0, '>'), ('PEG', 2.0, '<')])
                 c_m1.metric(get_text('score_multi'), f"{score}/100")
-                if details != "✅ Perfect Match": c_m1.caption(details)
+                if details != get_text('perfect_match'): c_m1.caption(details)
                 
                 st.markdown("---")
-                st.subheader("🔍 Financial Health Check")
+                st.subheader(get_text('health_check_title'))
                 col1, col2 = st.columns(2)
                 
                 with col1:
-                    st.markdown("**Valuation**")
+                    st.markdown(f"**{get_text('val_label')}**")
                     st.write(f"- P/E: **{row.get('PE') if row.get('PE') is not None else 0:.1f}**")
                     st.write(f"- PEG: **{row.get('PEG') if row.get('PEG') is not None else 0:.2f}**")
                     st.write(f"- P/B: **{row.get('PB') if row.get('PB') is not None else 0:.2f}**")
                     st.write(f"- Fair Value: **{row.get('Fair_Value') if row.get('Fair_Value') is not None else 0:.2f}**")
                 
                 with col2:
-                    st.markdown("**Quality**")
+                    st.markdown(f"**{get_text('qual_label')}**")
                     st.write(f"- ROE: **{row.get('ROE') if row.get('ROE') is not None else 0:.1f}%**")
                     st.write(f"- Margin: **{row.get('Op_Margin') if row.get('Op_Margin') is not None else 0:.1f}%**")
                     st.write(f"- Debt/Equity: **{row.get('Debt_Equity') if row.get('Debt_Equity') is not None else 0:.0f}%**")
@@ -1401,19 +1613,19 @@ def page_single_stock():
                 
                 # --- GURU & ANALYST DATA ---
                 st.markdown("---")
-                st.subheader("🧠 Guru & Analyst Intel")
+                st.subheader(get_text('guru_intel_title'))
                 
-                tab_guru, tab_rec = st.tabs(["🏛️ Institutional Holders (Guru Proxy)", "🗣️ Analyst Recommendations"])
+                tab_guru, tab_rec = st.tabs([get_text('tab_holders'), get_text('tab_recs')])
                 
                 with tab_guru:
                     try:
                         holders = stock_obj.institutional_holders
                         if holders is not None and not holders.empty:
                             st.dataframe(holders, hide_index=True, use_container_width=True)
-                            st.caption("Top funds and institutions holding this stock.")
+                            st.caption(get_text('holders_desc'))
                         else:
-                            st.info("No institutional holding data available.")
-                    except: st.error("Could not fetch institutional data.")
+                            st.info(get_text('no_holders'))
+                    except: st.error(get_text('err_holders'))
                     
                 with tab_rec:
                     try:
@@ -1426,27 +1638,27 @@ def page_single_stock():
                         # Analyst Targets
                         tgt_mean = row.get('Target_Price')
                         if tgt_mean:
-                            st.metric("Consensus Target Price", f"{tgt_mean}", f"vs Current: {price}")
+                            st.metric(get_text('consensus_target'), f"{tgt_mean}", f"{get_text('vs_current')}: {price}")
                         else:
-                            st.info("No analyst target price available.")
+                            st.info(get_text('no_target'))
                             
-                    except: st.error("Could not fetch recommendations.")
+                    except: st.error(get_text('err_recs'))
 
                 # Show Chart
-                st.markdown("### 📉 5-Year Price Trend")
+                st.markdown(get_text('price_trend_title'))
                 stock = row['YF_Obj']
                 hist = stock.history(period="5y")
                 if not hist.empty:
                     st.line_chart(hist['Close'])
 
             else:
-                st.error("Could not fetch data.")
+                st.error(get_text('err_fetch'))
 
 def page_glossary():
     st.title(get_text('glossary_title'))
     lang = st.session_state.get('lang', 'EN')
 
-    tab1, tab2, tab3 = st.tabs(["🎛️ Settings & Tools", "📊 Financial Metrics", "🧠 Peter Lynch Categories"])
+    tab1, tab2, tab3 = st.tabs([get_text('tab_settings'), get_text('tab_metrics'), get_text('tab_lynch')])
 
     # ==========================================
     # 1. SETTINGS & TOOLS
@@ -1803,21 +2015,21 @@ def page_scanner():
         
         with c_val:
              st.markdown(f"**{get_text('val_header')}**")
-             val_pe = st.slider("Max P/E Ratio", 5.0, 500.0, float(t_pe))
-             val_peg = st.slider("Max PEG Ratio", 0.1, 10.0, float(t_peg))
-             val_evebitda = st.slider("Max EV/EBITDA", 1.0, 50.0, float(t_evebitda))
+             val_pe = st.slider(get_text('max_pe'), 5.0, 500.0, float(t_pe))
+             val_peg = st.slider(get_text('max_peg'), 0.1, 10.0, float(t_peg))
+             val_evebitda = st.slider(get_text('max_evebitda'), 1.0, 50.0, float(t_evebitda))
              
         with c_prof:
              st.markdown(f"**{get_text('prof_header')}**")
-             prof_roe = st.slider("Min ROE %", 0, 50, int(t_roe*100)) / 100
-             prof_margin = st.slider("Min Op Margin %", 0, 50, int(t_margin*100)) / 100
-             prof_div = st.slider("Min Dividend Yield %", 0, 15, int(t_div*100)) / 100
+             prof_roe = st.slider(get_text('min_roe'), 0, 50, int(t_roe*100)) / 100
+             prof_margin = st.slider(get_text('min_margin'), 0, 50, int(t_margin*100)) / 100
+             prof_div = st.slider(get_text('min_div'), 0, 15, int(t_div*100)) / 100
              if strategy == "Speculative Growth" or strategy == "Multibagger (High Risk)":
-                 growth_min = st.slider("Min Revenue Growth %", 0, 100, int(t_rev_growth))
+                 growth_min = st.slider(get_text('min_rev_growth'), 0, 100, int(t_rev_growth))
         
         with c_risk:
              st.markdown(f"**{get_text('risk_header')}**")
-             risk_de = st.slider("Max Debt/Equity %", 0, 500, int(t_de), step=10)
+             risk_de = st.slider(get_text('max_de'), 0, 500, int(t_de), step=10)
              
              # Filters
              st.caption(get_text('opt_filters'))
@@ -1840,7 +2052,7 @@ def page_scanner():
     
     # DEBUG EXPANDER
     if 'deep_results' not in st.session_state: st.session_state['deep_results'] = None
-    debug_container = st.expander("🛠️ Debug Logs (Open if No Data)", expanded=False)
+    debug_container = st.expander(get_text('debug_logs'), expanded=False)
 
     # 2-Stage Scan Execution
     if st.button(get_text('execute_btn'), type="primary", use_container_width=True):
@@ -1950,12 +2162,13 @@ def page_scanner():
         valid_final_cols = [c for c in final_cols if c in final_df.columns]
 
         col_config = {
-            "Fit_Score": st.column_config.ProgressColumn("Score", format="%d", min_value=0, max_value=100),
-            "Symbol": "Ticker", "Price": st.column_config.NumberColumn("Price", format=currency_fmt),
+            "Fit_Score": st.column_config.ProgressColumn(get_text('score_label'), format="%d", min_value=0, max_value=100),
+            "Symbol": get_text('ticker_label'), 
+            "Price": st.column_config.NumberColumn(get_text('price_label'), format=currency_fmt),
             "Fair_Value": st.column_config.NumberColumn("Fair Value", format=currency_fmt),
             "Margin_Safety": st.column_config.NumberColumn("Safety", format="%.1f%%"),
-            "Rev_Growth": st.column_config.NumberColumn("Rev Growth (Q)", format="%.1f%%"),
-            "Div_Yield": st.column_config.NumberColumn("Yield %", format="%.2f%%"),
+            "Rev_Growth": st.column_config.NumberColumn(get_text('rev_cagr_label'), format="%.1f%%"),
+            "Div_Yield": st.column_config.NumberColumn(get_text('yield_label'), format="%.2f%%"),
             "Analysis": st.column_config.TextColumn("Details", width="large")
         }
         for p in ["1M", "3M", "6M", "YTD", "1Y", "3Y", "5Y"]:
@@ -1969,9 +2182,9 @@ def page_scanner():
         st.dataframe(display_df, column_order=valid_final_cols, column_config=col_config, hide_index=True, width="stretch")
         
         # Chart
-        st.markdown("### 🔬 Interactive Historical Charts")
+        st.markdown(get_text('historical_chart_title'))
         if 'Symbol' in final_df.columns:
-             sel = st.selectbox("Select Stock to View:", final_df['Symbol'].unique())
+             sel = st.selectbox(get_text('select_stock_view'), final_df['Symbol'].unique())
              if sel:
                  try:
                      # Attempt to get object
@@ -1985,7 +2198,7 @@ def page_scanner():
 
 
 def page_portfolio():
-    st.title("Intelligent Portfolio")
+    st.title(get_text('port_title'))
     st.markdown("---")
     
     
@@ -2000,12 +2213,24 @@ def page_portfolio():
              
         with c2:
              st.subheader(get_text('strat_prof'))
-             risk_choice = st.select_slider(
+             
+             # Map internal values to translations for display
+             risk_options = {
+                "Low (Defensive)": "🛡️ Low (Defensive)", 
+                "Medium (Balanced)": "⚖️ Medium (Balanced)", 
+                "High (Aggressive)": "🚀 High (Aggressive)", 
+                "All Weather (Ray Dalio Proxy)": "🌤️ All Weather"
+             }
+             
+             risk_choice_display = st.select_slider(
                 get_text('risk_tol'), 
-                options=["Low (Defensive)", "Medium (Balanced)", "High (Aggressive)", "All Weather (Ray Dalio Proxy)"],
-                value="Medium (Balanced)",
+                options=list(risk_options.values()),
+                value=risk_options["Medium (Balanced)"],
                 key="p_risk"
              )
+             
+             # Reverse map display to internal key
+             risk_choice = [k for k, v in risk_options.items() if v == risk_choice_display][0]
              
              risk_descs = {
                 "Low (Defensive)": get_text('risk_low_desc'),
@@ -2041,7 +2266,7 @@ def page_portfolio():
             
             if df_scan.empty:
                 status_box.update(label=get_text('status_scan_fail'), state="error")
-                st.error("No stocks found. Try again.")
+                st.error(get_text('no_data'))
                 return
             status_box.update(label=get_text('status_scan_complete'), state="complete")
         
@@ -2109,7 +2334,7 @@ def page_portfolio():
         }
         
         targets = targets_map[risk_choice]
-        st.subheader(f"🧠 AI Analysis Result ({risk_choice})")
+        st.subheader(get_text('ai_analysis_header').format(risk=risk_choice))
         
         # ... (Fit Score & Sort Logic Same) ...
         if 'Ticker' not in df_scan.columns: df_scan['Ticker'] = df_scan['Symbol']
@@ -2135,16 +2360,16 @@ def page_portfolio():
             if total_mcap > 0:
                 portfolio['Weight_Raw'] = portfolio['Market_Cap'] / total_mcap
                 portfolio['Weight %'] = portfolio['Weight_Raw'] * equity_weight * 100
-                portfolio['Bucket'] = "Equities (Stock)"
+                portfolio['Bucket'] = get_text('bucket_equity')
             else:
                 portfolio['Weight %'] = (equity_weight * 100) / len(portfolio)
-                portfolio['Bucket'] = "Equities (Stock)"
+                portfolio['Bucket'] = get_text('bucket_equity')
 
             assets_data = [
-                {'Ticker': 'TLT', 'Bucket': 'Long Bonds', 'Weight %': 40.0, 'Price': 95.0, 'Company': 'iShares 20+ Year Treasury Bond ETF', 'Sector': 'ETF'},
-                {'Ticker': 'IEF', 'Bucket': 'Interm Bonds', 'Weight %': 15.0, 'Price': 92.0, 'Company': 'iShares 7-10 Year Treasury Bond ETF', 'Sector': 'ETF'},
-                {'Ticker': 'GLD', 'Bucket': 'Gold', 'Weight %': 7.5, 'Price': 185.0, 'Company': 'SPDR Gold Shares', 'Sector': 'ETF'},
-                {'Ticker': 'DBC', 'Bucket': 'Commodities', 'Weight %': 7.5, 'Price': 22.0, 'Company': 'Invesco DB Commodity Index', 'Sector': 'ETF'}
+                {'Ticker': 'TLT', 'Bucket': get_text('bucket_long_bonds'), 'Weight %': 40.0, 'Price': 95.0, 'Company': 'iShares 20+ Year Treasury Bond ETF', 'Sector': 'ETF'},
+                {'Ticker': 'IEF', 'Bucket': get_text('bucket_interm_bonds'), 'Weight %': 15.0, 'Price': 92.0, 'Company': 'iShares 7-10 Year Treasury Bond ETF', 'Sector': 'ETF'},
+                {'Ticker': 'GLD', 'Bucket': get_text('bucket_gold'), 'Weight %': 7.5, 'Price': 185.0, 'Company': 'SPDR Gold Shares', 'Sector': 'ETF'},
+                {'Ticker': 'DBC', 'Bucket': get_text('bucket_commodity'), 'Weight %': 7.5, 'Price': 22.0, 'Company': 'Invesco DB Commodity Index', 'Sector': 'ETF'}
             ]
             assets_df = pd.DataFrame(assets_data)
             full_portfolio = pd.concat([portfolio, assets_df], ignore_index=True)
@@ -2159,7 +2384,7 @@ def page_portfolio():
 
 
         # 7. Visualization
-        st.success(f"✅ Generated Professional Portfolio: {len(portfolio)} Stocks")
+        st.success(get_text('gen_success').format(n=len(portfolio)))
         
         # PERSIST FOR BACKTEST
         st.session_state['gen_portfolio'] = portfolio
@@ -2172,10 +2397,10 @@ def page_portfolio():
         
         # Top Level Metrics
         m1, m2, m3, m4 = st.columns(4)
-        m1.metric("Avg P/E (Equity)", f"{avg_pe:.1f}")
-        m2.metric("Equity Yield", f"{avg_div:.2%}")
-        m3.metric("Quality (ROE)", f"{avg_roe:.1f}%")
-        m4.metric("Strategy", risk_choice)
+        m1.metric(get_text('avg_pe_label'), f"{avg_pe:.1f}")
+        m2.metric(get_text('equity_yield_label'), f"{avg_div:.2%}")
+        m3.metric(get_text('quality_roe_label'), f"{avg_roe:.1f}%")
+        m4.metric(get_text('strategy_label'), risk_choice)
         
         # --- TABBED ANALYSIS ---
         tab1, tab2, tab3 = st.tabs([get_text('tab_holdings'), get_text('tab_alloc'), get_text('tab_logic')])
@@ -2183,16 +2408,16 @@ def page_portfolio():
         with tab1:
             cols_to_show = ['Ticker', 'Company', 'Bucket', 'Type', 'Sector', 'Price', 'Fit Score', 'PE', 'PEG', 'Rev_CAGR_5Y', 'NI_CAGR_5Y', 'Div_Yield', 'Weight %']
             col_cfg = {
-                "Ticker": st.column_config.TextColumn("Symbol"),
-                "Bucket": st.column_config.TextColumn("Asset Class"), 
+                "Ticker": st.column_config.TextColumn(get_text('ticker_label')),
+                "Bucket": st.column_config.TextColumn(get_text('asset_class_label')), 
                 "Price": st.column_config.NumberColumn(format="%.2f"),
-                "Fit Score": st.column_config.ProgressColumn("Score", format="%d", min_value=0, max_value=100),
+                "Fit Score": st.column_config.ProgressColumn(get_text('score_label'), format="%d", min_value=0, max_value=100),
                 "PE": st.column_config.NumberColumn(format="%.1f"),
                 "PEG": st.column_config.NumberColumn(format="%.2f"),
-                "Rev_CAGR_5Y": st.column_config.NumberColumn("Rev CAGR", format="%.1f%%"),
-                "NI_CAGR_5Y": st.column_config.NumberColumn("NI CAGR", format="%.1f%%"),
-                "Div_Yield": st.column_config.NumberColumn("Yield", format="%.2f%%"),
-                "Weight %": st.column_config.NumberColumn("Weight", format="%.2f%%")
+                "Rev_CAGR_5Y": st.column_config.NumberColumn(get_text('rev_cagr_label'), format="%.1f%%"),
+                "NI_CAGR_5Y": st.column_config.NumberColumn(get_text('ni_cagr_label'), format="%.1f%%"),
+                "Div_Yield": st.column_config.NumberColumn(get_text('yield_label'), format="%.2f%%"),
+                "Weight %": st.column_config.NumberColumn(get_text('weight_label'), format="%.2f%%")
             }
             
             if risk_choice == "All Weather (Ray Dalio Proxy)":
@@ -2213,19 +2438,19 @@ def page_portfolio():
         with tab2:
              c1, c2 = st.columns([2, 1])
              with c1:
-                 st.subheader("🌍 Portfolio Allocation")
-                 st.caption("Breakdown by Individual Holding & Group")
+                 st.subheader(get_text('port_alloc_title'))
+                 st.caption(get_text('port_alloc_caption'))
                  
                  # Prepare Chart Data
                  if risk_choice == "All Weather (Ray Dalio Proxy)":
                      chart_df = full_portfolio.copy()
                      color_col = "Bucket"
-                     legend_title = "Asset Class"
+                     legend_title = get_text('asset_class_label')
                  else:
                      chart_df = portfolio.copy()
                      chart_df['Bucket'] = chart_df['Sector'] 
                      color_col = "Bucket" 
-                     legend_title = "Sector"
+                     legend_title = get_text('sector_label_short')
 
                  # Drop YF_Obj for Altair (Fix Arrow Error)
                  if 'YF_Obj' in chart_df.columns:
@@ -2252,41 +2477,38 @@ def page_portfolio():
                  st.altair_chart(pie + text, use_container_width=True)
              
              with c2:
-                 st.subheader("Type Allocation")
+                 st.subheader(get_text('type_alloc_title'))
                  st.bar_chart(portfolio['Type'].value_counts())
 
                 
         with tab3:
-            st.info("""
-            **Why Market Cap Weighting?**
-            - **Professional Standard**: S&P 500 and Nasdaq 100 use this.
-            - **Stability**: Larger, more established companies get more money.
-            - **Self-Correcting**: As companies grow, they become a larger part of your portfolio naturally.
+            st.info(f"""
+            {get_text('why_mcap_title')}
+            {get_text('why_mcap_desc')}
             
-            **How it works here:**
-            1. We select the Top 20 stocks that match your **Strategy Score**.
-            2. We allocate money based on **Company Size (Market Cap)**.
+            {get_text('how_works_title')}
+            {get_text('how_works_desc')}
              """)
 
     # ------------------------------------------------------------------
     # 8. BACKTEST & SIMULATION (NEW)
     # ------------------------------------------------------------------
     st.markdown("---")
-    st.subheader("🕑 Historical Backtest & Simulation")
-    st.caption("See how this portfolio would have performed in the past vs S&P 500.")
+    st.subheader(get_text('backtest_title'))
+    st.caption(get_text('backtest_desc'))
     
     # Define currency_fmt for this scope
     currency_fmt = "฿" if "SET" in market_choice else "$"
     
-    with st.expander("⚙️ Backtest Configuration", expanded=True):
+    with st.expander(get_text('backtest_config'), expanded=True):
         c_bt1, c_bt2, c_bt3 = st.columns(3)
-        bt_mode = c_bt1.radio("Investment Mode", ["Lump Sum (One-Time)", "DCA (Monthly)"], index=0)
-        bt_period = c_bt2.selectbox("Time Period", ["YTD", "1Y", "3Y", "5Y"], index=1)
-        bt_amount = c_bt3.number_input(f"Investment Amount ({currency_fmt[0]})", min_value=1000, value=10000, step=1000)
+        bt_mode = c_bt1.radio(get_text('invest_mode'), ["Lump Sum (One-Time)", "DCA (Monthly)"], index=0)
+        bt_period = c_bt2.selectbox(get_text('time_period'), ["YTD", "1Y", "3Y", "5Y"], index=1)
+        bt_amount = c_bt3.number_input(f"{get_text('invest_amount')} ({currency_fmt[0]})", min_value=1000, value=10000, step=1000)
     
-    if st.button("🚀 Run Backtest", type="primary", use_container_width=True):
+    if st.button(get_text('run_backtest_btn'), type="primary", use_container_width=True):
         if 'gen_portfolio' not in st.session_state:
-            st.error("Please generate a portfolio first!")
+            st.error(get_text('no_data')) # Or a more specific key if available
             return
             
         portfolio = st.session_state['gen_portfolio']
@@ -2421,41 +2643,41 @@ def page_portfolio():
                     years = days / 365.25
                     p_cagr = ((end_val / bt_amount) ** (1/years) - 1) * 100
                     b_cagr = ((bench_val / bt_amount) ** (1/years) - 1) * 100
-                    cagr_lbl = "CAGR (Avg/Year)"
+                    cagr_lbl = get_text('cagr_label')
                     p_cagr_str = f"{p_cagr:+.2f}%"
                     b_cagr_str = f"{b_cagr:+.2f}%"
                 else:
-                    cagr_lbl = "Annualized"
-                    p_cagr_str = "N/A (< 1 Year)"
-                    b_cagr_str = "N/A"
+                    cagr_lbl = get_text('annualized_label')
+                    p_cagr_str = get_text('na_short')
+                    b_cagr_str = get_text('na')
 
                 # Metrics Row 1 (Total)
-                st.subheader("Performance Summary")
+                st.subheader(get_text('backtest_summary'))
                 bc1, bc2, bc3 = st.columns(3)
-                bc1.metric("Final Portfolio Value", f"{currency_fmt[0]}{end_val:,.2f}", f"{p_ret:+.2f}% (Total)")
-                bc2.metric("S&P 500 Benchmark", f"{currency_fmt[0]}{bench_val:,.2f}", f"{b_ret:+.2f}% (Total)")
+                bc1.metric(get_text('final_val_label'), f"{currency_fmt[0]}{end_val:,.2f}", f"{p_ret:+.2f}% (Total)")
+                bc2.metric(get_text('bench_val_label'), f"{currency_fmt[0]}{bench_val:,.2f}", f"{b_ret:+.2f}% (Total)")
                 
                 diff = p_ret - b_ret
-                bc3.metric("Alpha (vs Market)", f"{diff:+.2f}%", "Winning" if diff > 0 else "Losing", delta_color="normal")
+                bc3.metric(get_text('alpha_label'), f"{diff:+.2f}%", get_text('winning') if diff > 0 else get_text('losing'), delta_color="normal")
                 
                 # Metrics Row 2 (Annualized)
                 ac1, ac2, ac3 = st.columns(3)
-                ac1.metric(f"Portfolio {cagr_lbl}", p_cagr_str)
-                ac2.metric(f"Benchmark {cagr_lbl}", b_cagr_str)
+                ac1.metric(f"{get_text('nav_portfolio')} {cagr_lbl}", p_cagr_str)
+                ac2.metric(f"{get_text('nav_bench')} {cagr_lbl}", b_cagr_str)
                 if days > 365:
-                    ac3.metric("Performance Gap (Annual)", f"{p_cagr - b_cagr:+.2f}%")
+                    ac3.metric(get_text('gap_annual'), f"{p_cagr - b_cagr:+.2f}%")
                 else:
-                    ac3.metric("Performance Gap (Annual)", "N/A")
+                    ac3.metric(get_text('gap_annual'), get_text('na'))
                 
                 # Chart
                 chart_data = pd.DataFrame({
-                    "My Portfolio": portfolio_value,
-                    "S&P 500 (SPY)": benchmark_value
+                    get_text('my_port_legend'): portfolio_value,
+                    get_text('bench_legend'): benchmark_value
                 })
                 st.line_chart(chart_data)
                 
             except Exception as e:
-                st.error(f"Backtest Failed: {str(e)}")
+                st.error(f"{get_text('backtest_failed')}: {str(e)}")
 
 
 
@@ -2563,29 +2785,27 @@ def page_howto():
 
 # ---------------------------------------------------------
 if __name__ == "__main__":
-    st.set_page_config(page_title="Stockub Pro", layout="wide", page_icon="📈")
     inject_custom_css() # Apply Professional Styles
     
     # --- TOP TABS NAVIGATION (CFA Style) ---
     # Define Tabs (Rendered at the very top)
     tab_scan, tab_port, tab_single, tab_health, tab_ai, tab_gloss, tab_help = st.tabs([
-        "Market Scanner", 
-        "Auto Portfolio", 
-        "Single Stock Analysis", 
-        "Portfolio Health", 
-        "AI Insight", 
-        "Glossary", 
-        "How to Use"
+        get_text('nav_scanner'), 
+        get_text('nav_portfolio'), 
+        get_text('nav_single'), 
+        get_text('nav_health'), 
+        get_text('nav_ai'), 
+        get_text('nav_glossary'), 
+        get_text('nav_help')
     ])
 
-    # --- HEADER & NAVIGATION (Now Below Tabs) ---
     c_logo, c_lang = st.columns([8, 2])
     with c_logo:
-        st.caption("Professional Stock Analytics Platform")
+        st.caption(get_text('footer_caption'))
         
     with c_lang:
         # Move Language Switcher to Top Right
-        lang_choice = st.radio("Language / ภาษา", ["English (EN)", "Thai (TH)"], horizontal=True, label_visibility="collapsed")
+        lang_choice = st.radio(get_text('lang_label'), ["English (EN)", "Thai (TH)"], horizontal=True, label_visibility="collapsed")
         st.session_state['lang'] = 'EN' if "English" in lang_choice else 'TH'
     
     with tab_scan:
@@ -2600,12 +2820,12 @@ if __name__ == "__main__":
     with tab_health:
         st.title(get_text('menu_health'))
         st.markdown("---")
-        st.info("Coming soon in Q1 2026. This module will analyze your upload portfolio for risk factors.")
+        st.info(get_text('health_coming_soon'))
         
     with tab_ai:
         st.title(get_text('menu_ai'))
         st.markdown("---")
-        st.info("Deep Learning module integration in progress.")
+        st.info(get_text('ai_coming_soon'))
         
     with tab_gloss:
         page_glossary()
