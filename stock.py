@@ -3164,6 +3164,19 @@ def page_howto():
 if __name__ == "__main__":
     inject_custom_css() # Apply Professional Styles
     
+    # --- PRE-CALCULATE LANGUAGE STATE ---
+    # We must determine language BEFORE rendering tabs, otherwise they lag one step behind.
+    # Check if widget was interacted with (it's in session state as 'lang_choice_key')
+    if 'lang_choice_key' in st.session_state:
+        # Update immediately based on widget value
+        pass # Widget triggers rerun, so we read it below or use key
+        
+    # Hack: Render the radio button logic-first but UI-later? No, can't move UI easily.
+    # Better: Use key to read state at top.
+    
+    current_lang_sel = st.session_state.get('lang_choice_key', "English (EN)")
+    st.session_state['lang'] = 'EN' if "English" in current_lang_sel else 'TH'
+
     # --- TOP TABS NAVIGATION (CFA Style) ---
     # Define Tabs (Rendered at the very top)
     tab_scan, tab_port, tab_single, tab_health, tab_ai, tab_gloss, tab_help = st.tabs([
@@ -3182,8 +3195,9 @@ if __name__ == "__main__":
         
     with c_lang:
         # Move Language Switcher to Top Right
-        lang_choice = st.radio(get_text('lang_label'), ["English (EN)", "Thai (TH)"], horizontal=True, label_visibility="collapsed")
-        st.session_state['lang'] = 'EN' if "English" in lang_choice else 'TH'
+        # KEY is vital for pre-calculation
+        lang_choice = st.radio(get_text('lang_label'), ["English (EN)", "Thai (TH)"], horizontal=True, label_visibility="collapsed", key="lang_choice_key")
+        # No need to manually set session_state['lang'] here, we did it at top.
     
     with tab_scan:
         page_scanner()
