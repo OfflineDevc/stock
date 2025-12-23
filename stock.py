@@ -1584,20 +1584,99 @@ def page_single_stock():
                 # --- PROFESSIONAL VALUATION ENGINE (Range Based) ---
                 # We need TWO scenarios for each model: Base (High) and Conservative (Low)
                 
-                # Helper to display a standardized Valuation Card (Screenshot Match)
-                def val_card(title, current_price, base_val, low_val, input_data):
-                    with st.container():
-                        st.subheader(title)
-                        st.divider()
+                # Helper to display a standardized Valuation Card with INTERACTIVE INPUTS
+                # We use St.container() trick to render inputs "visually below" but execute them "logically first"
+                # so the calculation updates immediately in the same run.
+                def val_card_interactive(title, current_price, model_defaults):
+                    # 1. Create Layout Containers
+                    c_header = st.container() # Visually Top (Results)
+                    st.divider()
+                    c_inputs = st.container() # Visually Bottom (Inputs)
+                    
+                    # 2. Render Inputs FIRST (to capture state)
+                    base_val = model_defaults.get('base', 0)
+                    
+                    with c_inputs:
+                        # --- ROW 2: Base Metric | Growth Rate | Growth Years ---
+                        c_r2_1, c_r2_2, c_r2_3 = st.columns(3)
                         
+                        # Base Metric (Static for now, but could be editable)
+                        label_base = "FCF/SHARE 3Y AVG" if "FCF" in title else "EPS 3Y AVG"
+                        with c_r2_1:
+                            st.caption(label_base)
+                            st.info(f"**{currency_fmt[0]}{base_val:.2f}**")
+                            
+                        # Growth Rate (Interactive)
+                        unique_key = f"{row['Symbol']}_{title}_growth"
+                        default_g = float(model_defaults.get('g_high', 0.15)) * 100
+                        with c_r2_2:
+                            st.caption("GROWTH RATE (%)")
+                            new_g_percent = st.number_input("Growth", value=default_g, step=1.0, key=unique_key, label_visibility="collapsed")
+                            new_g = new_g_percent / 100.0
+                            
+                        # Years (Interactive)
+                        unique_key_y = f"{row['Symbol']}_{title}_years"
+                        default_y = int(model_defaults.get('years', 10))
+                        with c_r2_3:
+                            st.caption("GROWTH YEARS")
+                            new_years = st.number_input("Years", value=default_y, step=1, key=unique_key_y, label_visibility="collapsed")
+
+                        # --- ROW 3: Discount | Exit | Type ---
+                        c_r3_1, c_r3_2, c_r3_3 = st.columns(3)
+                        
+                        # Discount Rate (Interactive)
+                        unique_key_w = f"{row['Symbol']}_{title}_wacc"
+                        default_w = float(model_defaults.get('wacc', 0.08)) * 100
+                        with c_r3_1:
+                            st.caption("DISCOUNT RATE (%)")
+                            new_wacc_percent = st.number_input("WACC", value=default_w, step=0.5, key=unique_key_w, label_visibility="collapsed")
+                            new_wacc = new_wacc_percent / 100.0
+                            
+                        # Exit Multiple (Interactive)
+                        unique_key_e = f"{row['Symbol']}_{title}_exit"
+                        default_e = float(model_defaults.get('exit_high', 20.0))
+                        with c_r3_2:
+                            st.caption("EXIT MULTIPLE (x)")
+                            new_exit = st.number_input("Exit", value=default_e, step=0.5, key=unique_key_e, label_visibility="collapsed")
+                            
+                        # Exit Type
+                        with c_r3_3:
+                            st.caption("EXIT MULTIPLE TYPE")
+                            st.write("**EV/EBITDA Avg**")
+                    
+                    # 3. Calculate Results using NEW Inputs
+                    # We maintain the "Range" concept by auto-calculating a Low case relative to the User's Input
+                    # Low Case: Growth - 5%, Exit * 0.75
+                    
+                    # High Case (User Input)
+                    res_high = calculate_dcf(base_val, new_g, new_wacc, years=new_years, exit_multiple=new_exit)
+                    val_high = res_high['value']
+                    
+                    # Low Case (Derived Conservative)
+                    # new_g_low = max(new_g - 0.05, 0.03)
+                    # new_exit_low = new_exit * 0.75
+                    # Let's make "Low" slightly smarter or just relative
+                    # Actually, user wants to see the Range based on Inputs. 
+                    # If user edits the "Input", does it mean "High Case Input"? 
+                    # Yes, typically "Base" or "Optimistic" input.
+                    # We show range:
+                    g_low_calc = max(new_g - 0.05, 0.03)
+                    exit_low_calc = new_exit * 0.75
+                    
+                    res_low = calculate_dcf(base_val, g_low_calc, new_wacc, years=new_years, exit_multiple=exit_low_calc)
+                    val_low = res_low['value']
+
+                    # 4. Render Results in Header Container
+                    with c_header:
                         # --- ROW 1: Fair Value Range | Last Close | MoS ---
-                        c1, c2, c3 = st.columns([1.5, 1, 1.2]) # Adjust ratios for visual balance
+                        c1, c2, c3 = st.columns([1.5, 1, 1.2]) 
                         
                         # 1. Fair Value Range
+                        # Calculate Range String based on NEW values
                         with c1:
-                            val_str = f"{currency_fmt[0]}{base_val:.2f}"
-                            if low_val > 0 and low_val != base_val:
-                                val_str = f"{currency_fmt[0]}{low_val:.2f} - {currency_fmt[0]}{base_val:.2f}"
+                            val_str = f"{currency_fmt[0]}{val_high:.2f}"
+                            if val_low > 0 and val_low != val_high:
+                                val_str = f"{currency_fmt[0]}{val_low:.2f} - {currency_fmt[0]}{val_high:.2f}"
                             st.caption("FAIR VALUE PRICE")
                             st.markdown(f"#### {val_str}")
                         
@@ -1606,68 +1685,24 @@ def page_single_stock():
                             st.caption("LAST CLOSE PRICE")
                             st.markdown(f"#### {currency_fmt[0]}{current_price:.2f}")
                             
-                        # 3. Margin of Safety
+                        # 3. Margin of Safety (Recalculated)
                         with c3:
-                            mos_base = (base_val - current_price)/base_val * 100
-                            mos_low = (low_val - current_price)/low_val * 100
+                            mos_base = (val_high - current_price)/val_high * 100 if val_high > 0 else 0
+                            mos_low_val = (val_low - current_price)/val_low * 100 if val_low > 0 else 0
                             
                             mos_str = f"{mos_base:.1f}%"
                             color = "green" if mos_base > 0 else "red"
                             bg_color = "rgba(0,128,0,0.1)" if mos_base > 0 else "rgba(255,0,0,0.1)"
                              
-                            if low_val != base_val:
-                                mos_str = f"{mos_low:.1f}% - {mos_base:.1f}%"
-                                if mos_low < 0 and mos_base > 0: color = "orange"; bg_color = "rgba(255,165,0,0.1)"
+                            if val_low != val_high:
+                                mos_str = f"{mos_low_val:.1f}% - {mos_base:.1f}%"
+                                if mos_low_val < 0 and mos_base > 0: color = "orange"; bg_color = "rgba(255,165,0,0.1)"
                                 elif mos_base < 0: color = "red"; bg_color = "rgba(255,0,0,0.1)"
                             
                             st.caption("MGN OF SAFETY")
                             st.markdown(f"<span style='color:{color}; background-color:{bg_color}; padding: 2px 6px; border-radius: 4px; font-weight:bold'>{mos_str}</span>", unsafe_allow_html=True)
 
-                        st.markdown("") # Spacer
-
-                        # --- ROW 2: Base Metric | Growth Rate | Growth Years ---
-                        c_r2_1, c_r2_2, c_r2_3 = st.columns(3)
-                        
-                        # Base Metric
-                        label_base = "FCF/SHARE 3Y AVG" if "FCF" in title else "EPS 3Y AVG"
-                        with c_r2_1:
-                            st.caption(label_base)
-                            st.write(f"**{currency_fmt[0]}{input_data.get('base',0):.2f}**")
-                            
-                        # Growth Rate
-                        with c_r2_2:
-                            g_low = input_data.get('g_low',0)*100
-                            g_high = input_data.get('g_high',0)*100
-                            st.caption("GROWTH RATE EST.")
-                            st.write(f"**{g_low:.1f}% - {g_high:.1f}%**")
-                            
-                        # Years
-                        with c_r2_3:
-                            st.caption("GROWTH YEARS")
-                            st.write(f"**{input_data.get('years', 10)}**")
-
-                        # --- ROW 3: Discount | Exit | Type ---
-                        c_r3_1, c_r3_2, c_r3_3 = st.columns(3)
-                        
-                        # Discount Rate
-                        with c_r3_1:
-                            wacc = input_data.get('wacc', 0)*100
-                            st.caption("DISCOUNT RATE")
-                            st.write(f"**{wacc:.1f}%**")
-                            
-                        # Exit Multiple
-                        with c_r3_2:
-                            e_low = input_data.get('exit_low',0)
-                            e_high = input_data.get('exit_high',0)
-                            st.caption("EXIT MULTIPLE")
-                            st.write(f"**{e_low}x - {e_high}x**")
-                            
-                        # Exit Type
-                        with c_r3_3:
-                            st.caption("EXIT MULTIPLE TYPE")
-                            st.write("**EV/EBITDA Avg**")
-                        
-                        st.divider()
+                    return val_high # Return the calculated High Value for global context if needed
 
                 # --- 1. DATA PREP ---
                 val_models = {} # Store results for header selection
@@ -1738,20 +1773,19 @@ def page_single_stock():
                              if not fcf_series.empty: fcf_base = fcf_series.head(3).mean() / shares
 
                         if fcf_base > 0:
-                            # Calculate Ranges
-                            # High
-                            res_high = calculate_dcf(fcf_base, g_high, wacc, years=years_proj, exit_multiple=exit_high)
-                            val_high_fcf = res_high['value']
-                            # Low
-                            res_low = calculate_dcf(fcf_base, g_low, wacc, years=years_proj, exit_multiple=exit_low)
-                            val_low_fcf = res_low['value']
+                            # CALL INTERACTIVE CARD
+                            # Note: We pass the calculated defaults. The card will either use them (first run) or use widget state (reruns).
+                            # We don't need to manually calc val_high/low here anymore, the card does it.
                             
-                            val_models['FCF'] = val_high_fcf
-                            
-                            val_card("NVDA Intrinsic Value Range (FCF)", price, val_high_fcf, val_low_fcf, {
-                                'base': fcf_base, 'g_high': g_high, 'g_low': g_low, 
-                                'exit_high': exit_high, 'exit_low': exit_low, 'wacc': wacc, 'years': years_proj
+                            high_val = val_card_interactive("NVDA Intrinsic Value Range (FCF)", price, {
+                                'base': fcf_base, 
+                                'g_high': g_high, 
+                                'exit_high': exit_high, 
+                                'wacc': wacc, 
+                                'years': years_proj
                             })
+                            
+                            val_models['FCF'] = high_val # Store the interactive result
                         else:
                             st.warning("FCF Data Unavailable for FCF Valuation Model")
                     except Exception as e: st.error(f"FCF Model Error: {e}")
@@ -1761,19 +1795,14 @@ def page_single_stock():
                     # --- MODEL 2: EPS ---
                     eps_base = row.get('EPS_TTM', 0)
                     if eps_base > 0:
-                        # High
-                        res_high = calculate_dcf(eps_base, g_high, wacc, years=years_proj, exit_multiple=exit_high)
-                        val_high_eps = res_high['value']
-                        # Low
-                        res_low = calculate_dcf(eps_base, g_low, wacc, years=years_proj, exit_multiple=exit_low)
-                        val_low_eps = res_low['value']
-                        
-                        val_models['EPS'] = val_high_eps
-                        
-                        val_card("NVDA Intrinsic Value Range w/EPS", price, val_high_eps, val_low_eps, {
-                                'base': eps_base, 'g_high': g_high, 'g_low': g_low, 
-                                'exit_high': exit_high, 'exit_low': exit_low, 'wacc': wacc, 'years': years_proj
+                        high_val_eps = val_card_interactive("NVDA Intrinsic Value Range w/EPS", price, {
+                                'base': eps_base, 
+                                'g_high': g_high, 
+                                'exit_high': exit_high, 
+                                'wacc': wacc, 
+                                'years': years_proj
                         })
+                        val_models['EPS'] = high_val_eps
                     else:
                         st.warning("Positive EPS Required for EPS Valuation Model")
 
