@@ -2143,7 +2143,7 @@ def page_portfolio():
         # Top Level Metrics
         m1, m2, m3, m4 = st.columns(4)
         m1.metric("Avg P/E (Equity)", f"{avg_pe:.1f}")
-        m2.metric("Equity Yield", f"{avg_div:.2%}")
+        m2.metric("Equity Yield", f"{avg_div/100:.2%}")
         m3.metric("Quality (ROE)", f"{avg_roe:.1f}%")
         m4.metric("Strategy", risk_choice)
         
