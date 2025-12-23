@@ -1679,11 +1679,18 @@ def page_single_stock():
                 cashflow = stock_obj.cashflow
                 
                 # WACC
+                # WACC
                 beta = stock_obj.info.get('beta', 1.0)
                 if not beta: beta = 1.0
+                
+                # Default Logic
                 wacc = 0.04 + (beta * 0.055) if is_tech else 0.04 + (beta * 0.06)
                 if wacc < 0.06: wacc = 0.06
-                if is_tech and wacc < 0.07: wacc = 0.07 # Tech floor
+                
+                # Tech/Growth Specific Override (User Request: "7% Enough")
+                # This aligns with the NVDA reference 7%
+                if is_tech: 
+                    wacc = 0.07 # Fixed 7% for Tech/Growth per request
                 
                 # Growth Assumptions
                 raw_g = row.get('EPS_Growth', 0.10)
