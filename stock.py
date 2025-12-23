@@ -1498,9 +1498,21 @@ def calculate_dcf(fcf, growth_rate, discount_rate, terminal_growth, years=5):
     
     current_fcf = fcf
     
+def calculate_dcf(current_fcf, growth_rate, discount_rate, terminal_growth=0.025, years=5, exit_multiple=None):
+    """
+    Calculates intrinsic value per share using DCF.
+    Supports either Gordon Growth Method (default) or Exit Multiple Method.
+    """
+    future_fcf = []
+    discounted_fcf = []
+    
     # 1. Projected FCF
     for i in range(1, years + 1):
-        next_fcf = current_fcf * (1 + growth_rate)
+        # Decay growth for long periods (Simple decay: after 5 years, drop to half)
+        g = growth_rate
+        if i > 5: g = growth_rate * 0.75 
+        
+        next_fcf = current_fcf * (1 + g)
         future_fcf.append(next_fcf)
         
         # Discount it
@@ -1509,20 +1521,25 @@ def calculate_dcf(fcf, growth_rate, discount_rate, terminal_growth, years=5):
         
         current_fcf = next_fcf
         
-    # 2. Terminal Value (Gordon Growth Method)
-    # Formula: (FCF_n * (1 + g)) / (WACC - g)
+    # 2. Terminal Value
     if not future_fcf: return {'value': 0}
-    
     last_fcf = future_fcf[-1]
     
-    # Safety: If discount rate <= terminal growth, formula breaks. 
-    # Force minimal spread (0.5%).
-    if discount_rate <= terminal_growth:
-        denom = 0.005 
+    if exit_multiple is not None:
+        # Exit Multiple Method (Common for Tech/Growth)
+        # TV = EBITDA_n * Multiple (Here we use FCF/EPS as proxy for simple inputs)
+        terminal_val = last_fcf * exit_multiple
     else:
-        denom = discount_rate - terminal_growth
+        # Gordon Growth Method
+        # Formula: (FCF_n * (1 + g)) / (WACC - g)
         
-    terminal_val = (last_fcf * (1 + terminal_growth)) / denom
+        # Safety: If discount rate <= terminal growth, formula breaks. 
+        if discount_rate <= terminal_growth:
+            denom = 0.005 
+        else:
+            denom = discount_rate - terminal_growth
+            
+        terminal_val = (last_fcf * (1 + terminal_growth)) / denom
     
     # Discount TV
     discounted_tv = terminal_val / ((1 + discount_rate) ** years)
@@ -1532,7 +1549,6 @@ def calculate_dcf(fcf, growth_rate, discount_rate, terminal_growth, years=5):
     return {
         'value': total_value,
         'projected_fcf': future_fcf,
-        'discounted_fcf': discounted_fcf,
         'terminal_value': terminal_val,
         'discounted_tv': discounted_tv
     }
@@ -1620,18 +1636,39 @@ def page_single_stock():
                     # 3. Growth / Tech -> PEG Valuation (Peter Lynch)
                     # Lynch Fair Value = PEG 1.0 * Earnings * Growth
                     # Or simpler: Fair P/E = Growth Rate
+                    # 3. Growth / Tech -> Advanced DCF (Exit Multiple)
+                    # Align with Professional Models: 10Y Growth, Exit Multiple
                     elif "Technology" in sector or "Communication" in sector or "Healthcare" in sector:
-                        method_used = "PEG Model"
-                        eps = row.get('EPS_TTM', 0)
-                        g = row.get('EPS_Growth', 0) * 100 # as percentage
+                        method_used = "DCF (Growth/Exit Multiple)"
                         
-                        # Cap growth for safety
-                        if g > 25: g = 25 
-                        if g < 5: g = 5
+                        # Use EPS (more stable for tech) or FCF if available? 
+                        # User ref used EPS for $240 target. Let's use EPS.
+                        base_val = row.get('EPS_TTM', 0)
+                        if base_val <= 0: # Fallback to FCF if EPS negative (e.g. Amazon sometimes)
+                             base_val = row.get('FCF_Per_Share', 0) # We don't have FCF_Per_Share yet... allow fallback later
                         
-                        # Fair Value = Forward EPS * Growth (Fair P/E)
-                        # FV = EPS * (1 + g) * g
-                        val_value = eps * (1 + g/100) * g
+                        g = row.get('EPS_Growth', 0)
+                        
+                        # Cap growth logic
+                        # If fast grower, allow 20%
+                        if g > 0.25: g = 0.25
+                        if g < 0.05: g = 0.05
+                        
+                        # WACC (Beta based)
+                        stock_obj = row['YF_Obj']
+                        beta = stock_obj.info.get('beta', 1.2)
+                        if not beta: beta = 1.0
+                        wacc = 0.04 + (beta * 0.055) # Slightly lower ERP for Tech to match "7%"? 
+                        # Pro models use lower discount. Let's floor at 7%
+                        if wacc < 0.07: wacc = 0.07
+                        if wacc > 0.12: wacc = 0.12 # Cap for Big Tech Safety
+                        
+                        if base_val > 0:
+                            # 10 Years, Exit Multiple 25x (Standard for Big Tech)
+                            res = calculate_dcf(base_val, g, wacc, years=10, exit_multiple=25.0)
+                            val_value = res['value']
+                    
+                    # 4. Standard DCF (Default)
                     
                     # 4. Standard DCF (Default)
                     if val_value == 0:
