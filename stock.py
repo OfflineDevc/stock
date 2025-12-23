@@ -1561,6 +1561,9 @@ def page_single_stock():
     st.title(get_text('deep_dive_title'))
     ticker = st.text_input(get_text('search_ticker'))
     
+    # Initialize df to prevent UnboundLocalError
+    df = pd.DataFrame() # Empty default
+    
     # State Persistence Logic
     if st.button(get_text('analyze_btn')) and ticker:
         with st.spinner(f"Analyzing {ticker}..."):
