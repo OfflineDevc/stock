@@ -1719,111 +1719,132 @@ def page_single_stock():
                     cashflow = stock_obj.cashflow
                     fin = stock_obj.financials
                     
-                    # Estimate FCF if missing
+                    # Estimate FCF
                     est_fcf = None
                     fcf_source = "Unknown"
+                    avg_fcf = 0
                     
-                    if not cashflow.empty and 'Free Cash Flow' in cashflow.index:
-                        # Use latest available annual FCF
-                        # Handle potential bad data (NaNs)
+                    # Method 1: Calculation (OCF - CapEx) -> Most Transparent
+                    if not cashflow.empty and 'Total Cash From Operating Activities' in cashflow.index and 'Capital Expenditures' in cashflow.index:
+                         ocf = cashflow.loc['Total Cash From Operating Activities']
+                         capex = cashflow.loc['Capital Expenditures']
+                         
+                         # Ensure numeric
+                         ocf = pd.to_numeric(ocf, errors='coerce')
+                         capex = pd.to_numeric(capex, errors='coerce')
+                         
+                         fcf_series = ocf + capex # CapEx is negative
+                         fcf_series = fcf_series.dropna()
+                         
+                         if not fcf_series.empty:
+                             est_fcf = fcf_series.iloc[0]
+                             fcf_source = "Calculated (OCF - CapEx)"
+                             if len(fcf_series) >= 3:
+                                 avg_fcf = fcf_series.head(3).mean()
+                             else:
+                                 avg_fcf = fcf_series.mean()
+
+                    # Method 2: YFinance 'Free Cash Flow' Row
+                    if est_fcf is None and not cashflow.empty and 'Free Cash Flow' in cashflow.index:
                         cf_series = cashflow.loc['Free Cash Flow'].dropna()
                         if not cf_series.empty:
                             est_fcf = cf_series.iloc[0]
-                            fcf_source = f"Latest Report ({pd.to_datetime(cf_series.index[0]).year})"
-                            
-                            # Avg for safety
+                            fcf_source = "YFinance Pre-Calculated"
                             if len(cf_series) >= 3:
                                 avg_fcf = cf_series.head(3).mean()
                             else:
                                 avg_fcf = est_fcf
                     
-                    # Fallback to Operating Cash Flow - CapEx
-                    if est_fcf is None and not cashflow.empty:
-                         if 'Total Cash From Operating Activities' in cashflow.index and 'Capital Expenditures' in cashflow.index:
-                             ocf = cashflow.loc['Total Cash From Operating Activities'].iloc[0]
-                             capex = cashflow.loc['Capital Expenditures'].iloc[0] 
-                             est_fcf = ocf + capex # Capex is usually negative
-                             fcf_source = "Derived (OCF - CapEx)"
-                    
-                    # Fallback to Net Income (Very rough proxy)
-                    if est_fcf is None and not fin.empty:
-                        if 'Net Income' in fin.index:
-                             est_fcf = fin.loc['Net Income'].iloc[0]
-                             fcf_source = "Net Income Proxy (Low Accuracy)"
-                             avg_fcf = est_fcf
+                    # Method 3: Net Income Proxy
+                    if est_fcf is None and not fin.empty and 'Net Income' in fin.index:
+                         est_fcf = fin.loc['Net Income'].iloc[0]
+                         fcf_source = "Net Income (Proxy)"
+                         avg_fcf = est_fcf
 
-                    if est_fcf is None or np.isnan(est_fcf):
-                        st.error("⚠️ Could not retrieve Cash Flow data for DCF calculation.")
+                    if est_fcf is None:
+                        st.error("⚠️ Could not retrieve Cash Flow data. Please input manually below.")
+                        shares = stock_obj.info.get('sharesOutstanding')
+                        if not shares: shares = 1 # Avoid div/0
+                        fcf_per_share = 0.0
+                        avg_fcf_per_share = 0.0
                     else:
                         shares = stock_obj.info.get('sharesOutstanding')
                         if not shares:
-                             # Try to derive from Market Cap / Price
+                             # Try to derive
                              mcap = row.get('Market_Cap')
                              pr = row.get('Price')
                              if mcap and pr: shares = mcap / pr
+                             else: shares = 1
                         
-                        if shares:
-                            fcf_per_share = est_fcf / shares
-                            avg_fcf_per_share = avg_fcf / shares
-                            
-                            # Inputs
-                            c_dcf_1, c_dcf_2, c_dcf_3 = st.columns(3)
-                            
-                            with c_dcf_1:
-                                st.markdown("##### 1. Assumptions")
-                                # Growth Rate
-                                default_g = 5.0
-                                if row.get('EPS_Growth'): default_g = min(row['EPS_Growth'] * 100, 15.0) # Cap default at 15%
-                                if default_g < 0: default_g = 2.0
-                                
-                                g_rate = st.slider("Growth Rate (5Y) %", 0.0, 30.0, float(round(default_g, 1))) / 100.0
-                                term_g = st.slider("Terminal Growth %", 0.0, 5.0, 2.0, help="Long term growth (GDP)") / 100.0
-                                discount_r = st.slider("Discount Rate (WACC) %", 5.0, 20.0, 10.0) / 100.0
-                                
-                            with c_dcf_2:
-                                st.markdown("##### 2. FCF Basis")
-                                st.write(f"**Source**: {fcf_source}")
-                                st.metric("FCF / Share (Last)", f"{currency_fmt[0]}{fcf_per_share:.2f}")
-                                st.metric("FCF / Share (3Y Avg)", f"{currency_fmt[0]}{avg_fcf_per_share:.2f}")
-                                use_avg = st.checkbox("Use 3Y Avg FCF?", value=True)
-                                base_fcf = avg_fcf_per_share if use_avg else fcf_per_share
-                                
-                            with c_dcf_3:
-                                st.markdown("##### 3. Results")
-                                
-                                # A. Normal Case
-                                res_norm = calculate_dcf(base_fcf, g_rate, discount_r, term_g)
-                                val_norm = res_norm['value']
-                                
-                                # B. Conservative Case (The "Margin of Safety" View)
-                                # Logic: Growth halved, Discount +2%, Terminal Growth = 0 (or low)
-                                cons_g = g_rate / 2
-                                cons_r = discount_r + 0.02
-                                cons_term = 0.0
-                                res_cons = calculate_dcf(base_fcf, cons_g, cons_r, cons_term)
-                                val_cons = res_cons['value']
-                                
-                                st.metric("Intrinsic Value (Normal)", f"{currency_fmt[0]}{val_norm:.2f}", 
-                                          delta=f"{(val_norm - price)/price*100:.1f}% vs Price")
-                                
-                                st.metric("Value (Conservative)", f"{currency_fmt[0]}{val_cons:.2f}",
-                                          delta=f"{(val_cons - price)/price*100:.1f}%", delta_color="off")
-                                
-                            # Visualization / Logic Explanation
-                            st.caption(f"**Conservative Logic**: Cuts growth to {cons_g*100:.1f}%, increases discount rate to {cons_r*100:.1f}%, and assumes 0% terminal growth.")
-                            
-                            if val_cons > price:
-                                st.success(f"✅ **Strong Buy Opportunity**: Even with conservative assumptions, the stock is undervalued by {((val_cons-price)/price)*100:.0f}%.")
-                            elif val_norm > price:
-                                st.info(f"⚖️ **Fairly Valued**: Undervalued under normal conditions, but verify your growth assumptions.")
-                            else:
-                                st.error(f"❌ **Overvalued**: Current price {price} is higher than DCF value {val_norm:.2f}.")
-
-                        else:
-                            st.warning("⚠️ Could not determine Shares Outstanding to calculate per-share metrics.")
+                        fcf_per_share = est_fcf / shares
+                        avg_fcf_per_share = avg_fcf / shares
+                        
+                    # --- UI ---
+                    c_dcf_1, c_dcf_2, c_dcf_3 = st.columns(3)
+                    
+                    with c_dcf_1:
+                        st.markdown("##### 1. Assumptions")
+                        # Growth Rate
+                        default_g = 5.0
+                        if row.get('EPS_Growth'): default_g = min(row['EPS_Growth'] * 100, 15.0) 
+                        if default_g < 0: default_g = 2.0
+                        
+                        g_rate = st.slider("Growth Rate (5Y) %", 0.0, 30.0, float(round(default_g, 1))) / 100.0
+                        term_g = st.slider("Terminal Growth %", 0.0, 5.0, 2.0) / 100.0
+                        discount_r = st.slider("Discount Rate (WACC) %", 5.0, 20.0, 10.0) / 100.0
+                        
+                    with c_dcf_2:
+                        st.markdown("##### 2. FCF Inputs")
+                        st.caption(f"Detected: {fcf_source}")
+                        
+                        # Selection logic
+                        base_val_default = avg_fcf_per_share if fcf_per_share > 0 else 0.0
+                        
+                        # Add toggle for Avg vs Last
+                        use_avg = st.checkbox(f"Use 3Y Avg: ${avg_fcf_per_share:.2f}", value=True)
+                        if not use_avg: base_val_default = fcf_per_share
+                        
+                        # manual override
+                        final_fcf_share = st.number_input("FCF / Share (Override)", value=float(round(base_val_default, 2)), step=0.1)
+                        if final_fcf_share != base_val_default:
+                             st.caption("⚠️ Custom FCF used")
+                        
+                    with c_dcf_3:
+                        st.markdown("##### 3. Valuation")
+                        
+                        base_fcf = final_fcf_share
+                        
+                        # A. Normal Case
+                        res_norm = calculate_dcf(base_fcf, g_rate, discount_r, term_g)
+                        val_norm = res_norm['value']
+                        
+                        # B. Conservative Case
+                        cons_g = g_rate / 2
+                        cons_r = discount_r + 0.02
+                        cons_term = 0.0
+                        res_cons = calculate_dcf(base_fcf, cons_g, cons_r, cons_term)
+                        val_cons = res_cons['value']
+                        
+                        st.metric("Intrinsic Value (Normal)", f"{currency_fmt[0]}{val_norm:.2f}", 
+                                  delta=f"{(val_norm - price)/price*100:.1f}%")
+                        
+                        st.metric("Value (Conservative)", f"{currency_fmt[0]}{val_cons:.2f}",
+                                  delta=f"{(val_cons - price)/price*100:.1f}%", delta_color="off")
+                    
+                    # Logic text
+                    if val_cons > price:
+                         st.success(f"✅ **Strong Buy**: Conservative Value ({val_cons:.2f}) > Price ({price})")
+                    elif val_norm > price:
+                         st.info(f"⚖️ **Fair**: Normal Value ({val_norm:.2f}) > Price ({price})")
+                    else:
+                         st.error(f"❌ **Overvalued**: Price ({price}) > Normal Value ({val_norm:.2f})")
+                         
+                    st.caption("**Guru Note**: If FCF seems too low, check if the company had heavy CapEx recently or use 'Override' with data from a reliable site.")
 
                 except Exception as e:
                     st.error(f"DCF Error: {str(e)}")
+
+
 
 
 
