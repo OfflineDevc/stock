@@ -1610,7 +1610,10 @@ def page_single_stock():
             
             if not df.empty:
                 row = df.iloc[0].copy()
+                row = df.iloc[0].copy()
                 price = row['Price']
+                # Setup Currency Fmt (Moved Up)
+                currency_fmt = "฿" if ".BK" in row['Symbol'] else "$"
                 
                 # --- HEADER INFORMATION (Restored) ---
                 # User Request: Sector, Lynch Type with Explanation
@@ -1635,7 +1638,8 @@ def page_single_stock():
                 st.divider()
                 
                 # Setup Currency Fmt
-                currency_fmt = "฿" if ".BK" in row['Symbol'] else "$"
+                # Setup Currency Fmt (Duplicate Removed)
+                # currency_fmt = "฿" if ".BK" in row['Symbol'] else "$"
                 
                 # --- PROFESSIONAL VALUATION ENGINE (Range Based) ---
                 # We need TWO scenarios for each model: Base (High) and Conservative (Low)
