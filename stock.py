@@ -329,7 +329,11 @@ TRANS = {
         'normal_fv': "Normal Fair Value",
         'valuation_models_title': "💎 Intrinsic Value Analysis",
         'tech_indicator_desc': "Technical levels used by professional traders to identify entry and exit points.",
-        'val_model_desc': "Fair value estimates based on different risk-profiles and growth assumptions.",
+        'val_model_desc': "Intrinsic Value vs Market Price",
+        'val_badge_undervalued': "🔥 Undervalued",
+        'val_badge_fair': "✅ Fair Value",
+        'val_badge_premium': "⚠️ Overvalued",
+        'tech_summary': "Tech Sentiment",
         'tab_settings': "🎛️ Settings & Tools",
         'tab_metrics': "📊 Financial Metrics",
         'tab_lynch': "🧠 Peter Lynch Categories",
@@ -518,7 +522,11 @@ TRANS = {
         'normal_fv': "ราคาเหมาะสมแบบปกติ",
         'valuation_models_title': "💎 การวิเคราะห์ราคาที่แท้จริง (Intrinsic Value)",
         'tech_indicator_desc': "ระดับราคาที่นักลงทุนมืออาชีพใช้เพื่อหาจุดเข้า-ออก",
-        'val_model_desc': "ประมาณการราคาพื้นฐานตามระดับความเสี่ยงและการเติบโตที่คาดหวัง",
+        'val_model_desc': "ราคาที่แท้จริง vs ราคาตลาด",
+        'val_badge_undervalued': "🔥 ราคาถูก (Undervalued)",
+        'val_badge_fair': "✅ ราคาเหมาะสม (Fair)",
+        'val_badge_premium': "⚠️ ราคาสูง (Overvalued)",
+        'tech_summary': "สัญญาณเทคนิค",
         'tab_settings': "🎛️ เครื่องมือและการตั้งค่า",
         'tab_metrics': "📊 ตัวชี้วัดทางการเงิน",
         'tab_lynch': "🧠 ประเภทหุ้นตาม Peter Lynch",
@@ -1562,12 +1570,33 @@ def calculate_dual_intrinsic_value(row):
     """
     Calculates Normal and Conservative Intrinsic Values.
     Based on Graham's Revised Formula & Multiplier-weighted outcomes.
+    Robust fallbacks for missing EPS/Growth.
     """
     try:
+        # Fallback Chain for EPS
         eps = row.get('EPS_TTM') or row.get('EPS')
-        growth = row.get('NI_CAGR_5Y') or row.get('EPS_Growth') # Use 5Y CAGR if possible
+        if eps is None or eps <= 0:
+            # Last ditch: Try to calculate from Net Income / Shares
+            try:
+                stock_obj = row['YF_Obj']
+                info = stock_obj.info
+                net_inc = info.get('netIncomeToCommon')
+                shares = info.get('sharesOutstanding')
+                if net_inc and shares:
+                    eps = net_inc / shares
+            except: pass
+
+        # Fallback Chain for Growth
+        growth = row.get('NI_CAGR_5Y') or row.get('EPS_Growth')
+        if growth is None:
+            # Use safe baseline for stable companies or check revenue growth
+            rev_growth = row.get('Rev_Growth') or row.get('Rev_CAGR_5Y')
+            if rev_growth and rev_growth > 0:
+                growth = rev_growth * 0.5 # Conservative estimation from revenue
+            else:
+                growth = 0.03 # 3% safe baseline (inflation)
+        
         if growth is not None: growth *= 100 # Convert to %
-        else: growth = 0
         
         # Graham Formula: V = EPS * (8.5 + 2g) * (4.4 / Y)
         # Y = current yield of 20-year AAA corporate bonds (Approx 4.5% - 5.0%)
@@ -1575,16 +1604,15 @@ def calculate_dual_intrinsic_value(row):
         
         if eps and eps > 0:
             # Normal: Default Graham-style
-            g_norm = max(0, min(growth, 25)) # Cap growth for realism
-            fv_normal = eps * (8.5 + 2 * g_norm) * (4.4/y)
+            g_norm = max(2, min(growth, 20)) # Cap/Floor for realism
+            fv_normal = eps * (8.5 + 1.5 * g_norm) * (4.4/y)
             
             # Conservative: 60% of growth + higher margin of safety
-            g_cons = g_norm * 0.6
-            fv_cons = eps * (7.0 + 1.5 * g_cons) * (4.4/y) * 0.8 # Additional 20% haircut
+            g_cons = g_norm * 0.5
+            fv_cons = eps * (7.0 + 1.0 * g_cons) * (4.4/y) * 0.85 # Haircut
             
             return round(fv_cons, 2), round(fv_normal, 2)
-    except:
-        pass
+    except: pass
     return None, None
 
 # ---------------------------------------------------------
@@ -1612,37 +1640,31 @@ def page_single_stock():
                 row = df.iloc[0].copy()
                 price = row['Price']
                 
-                # Top Header
-                st.subheader(f"{row['Symbol']} - {row['Company']}")
-                
-                # Calculate Lynch Category if missing
-                lynch_cat = row.get('Lynch_Category')
-                if not lynch_cat:
-                    lynch_cat = classify_lynch(row)
-                
-                if not lynch_cat:
-                    lynch_cat = classify_lynch(row)
-                
-                c1, c2, c3 = st.columns(3)
-                c1.metric("Price", f"{price} {row.get('Currency', '')}")
-                c2.metric("Sector", row['Sector'])
-                c3.metric(get_text('lynch_type'), lynch_cat)
-                
-                # Fetch deeper data for context
+                # Fetch deeper data
                 deep_metrics = analyze_history_deep(df, MockProgress(), st.empty())
                 if not deep_metrics.empty:
                     deep_row = deep_metrics.iloc[0]
-                    # Merge manually for display
                     for k, v in deep_row.items(): row[k] = v
 
-                    # --- BACKFILL COALESCE (Restored) ---
-                    if (pd.isna(row.get('PEG')) or row.get('PEG') is None) and row.get('Derived_PEG'):
-                        row['PEG'] = row['Derived_PEG']
-                    
-                    if (pd.isna(row.get('Fair_Value')) or row.get('Fair_Value') is None) and row.get('Derived_FV'):
-                        row['Fair_Value'] = row['Derived_FV']
-                        if row.get('Price') and row['Fair_Value'] != 0:
-                             row['Margin_Safety'] = ((row['Fair_Value'] - row['Price']) / row['Fair_Value']) * 100
+                # --- HEADER & KEY METRICS (Minimalist Row 1) ---
+                c_head, c_val_min = st.columns([3, 2])
+                with c_head:
+                    st.markdown(f"### {row['Symbol']} :gray[{row['Company']}]")
+                    # Inline Core Stats
+                    st.markdown(f"**Price:** {price} {row.get('Currency', '')} | **Sector:** {row['Sector']} | **{get_text('lynch_type')}:** {classify_lynch(row)}")
+                
+                fv_cons, fv_norm = calculate_dual_intrinsic_value(row)
+                with c_val_min:
+                    if fv_cons and fv_norm:
+                        price_val = float(price)
+                        if price_val < fv_cons: badge = get_text('val_badge_undervalued'); bcol = "green"
+                        elif price_val < fv_norm: badge = get_text('val_badge_fair'); bcol = "blue"
+                        else: badge = get_text('val_badge_premium'); bcol = "orange"
+                        
+                        st.markdown(f"#### :{bcol}[{badge}]")
+                        st.markdown(f"**Consv:** {fv_cons:,.2f} | **Norm:** {fv_norm:,.2f}")
+                    else:
+                        st.caption("Valuation data incomplete.")
 
                 # NEW: Business Summary
                 try:
@@ -1657,137 +1679,57 @@ def page_single_stock():
                              st.write(summary)
                 except: pass
 
-                # strategy checks
-                st.markdown("### 🎯 Strategy Fit Scorecard")
-                
-                c_s1, c_s2, c_s3 = st.columns(3)
-                
-                # 1. GARP Score
-                score, details = calculate_fit_score(row, [('PEG', 1.2, '<'), ('EPS_Growth', 0.15, '>'), ('ROE', 15.0, '>')])
-                c_s1.metric(get_text('score_garp'), f"{score}/100")
-                if details != "✅ Perfect Match": c_s1.caption(details)
-
-                # 2. Value Score
-                score, details = calculate_fit_score(row, [('PE', 15.0, '<'), ('PB', 1.5, '<'), ('Debt_Equity', 50.0, '<')])
-                c_s2.metric(get_text('score_value'), f"{score}/100")
-                if details != "✅ Perfect Match": c_s2.caption(details)
-                
-                # 3. Dividend Score
-                score, details = calculate_fit_score(row, [('Div_Yield', 4.0, '>'), ('Op_Margin', 10.0, '>')])
-                c_s3.metric(get_text('score_div'), f"{score}/100")
-                if details != get_text('perfect_match'): c_s3.caption(details)
-
-                # 4. Multibagger Score (New)
-                c_s4 = c_s1 # Reuse or create new row? Let's use correct layout.
-                # Actually let's just make it 4 columns if space permits
-                
-                # RE-LAYOUT to 4 COLUMNS
-                # But st.columns(3) is above. I need to edit the column setup to make it work gracefully.
-                # Since I am in 'multi_replace', I can't easily change the `st.columns(3)` line which is far above line 1137.
-                # I'll just append it to the bottom or use expander.
-                
-                st.caption("---")
-                c_m1, c_m2 = st.columns(2)
-                score, details = calculate_fit_score(row, [('Rev_Growth', 30.0, '>'), ('EPS_Growth', 20.0, '>'), ('PEG', 2.0, '<')])
-                c_m1.metric(get_text('score_multi'), f"{score}/100")
-                if details != get_text('perfect_match'): c_m1.caption(details)
-                
+                # --- COMPACT SCORES & TECH ---
                 st.markdown("---")
-                st.subheader(get_text('health_check_title'))
-                col1, col2 = st.columns(2)
                 
-                with col1:
-                    st.markdown(f"**{get_text('val_label')}**")
-                    st.write(f"- P/E: **{row.get('PE') if row.get('PE') is not None else 0:.1f}**")
-                    st.write(f"- PEG: **{row.get('PEG') if row.get('PEG') is not None else 0:.2f}**")
-                    st.write(f"- P/B: **{row.get('PB') if row.get('PB') is not None else 0:.2f}**")
-                    st.write(f"- Fair Value: **{row.get('Fair_Value') if row.get('Fair_Value') is not None else 0:.2f}**")
+                c_sc_min, c_tc_min = st.columns([3, 2])
                 
-                with col2:
-                    st.markdown(f"**{get_text('qual_label')}**")
-                    st.write(f"- ROE: **{row.get('ROE') if row.get('ROE') is not None else 0:.1f}%**")
-                    st.write(f"- Margin: **{row.get('Op_Margin') if row.get('Op_Margin') is not None else 0:.1f}%**")
-                    st.write(f"- Debt/Equity: **{row.get('Debt_Equity') if row.get('Debt_Equity') is not None else 0:.0f}%**")
-                    st.write(f"- Dividend: **{row.get('Div_Yield') if row.get('Div_Yield') is not None else 0:.2f}%**")
-                
-                # --- GURU & ANALYST DATA ---
-                st.markdown("---")
-                st.subheader(get_text('guru_intel_title'))
-                
-                tab_guru, tab_rec = st.tabs([get_text('tab_holders'), get_text('tab_recs')])
-                
-                with tab_guru:
-                    try:
-                        holders = stock_obj.institutional_holders
-                        if holders is not None and not holders.empty:
-                            st.dataframe(holders, hide_index=True, use_container_width=True)
-                            st.caption(get_text('holders_desc'))
-                        else:
-                            st.info(get_text('no_holders'))
-                    except: st.error(get_text('err_holders'))
+                with c_sc_min:
+                    ss1, ss2, ss3, ss4 = st.columns(4)
+                    g_score, _ = calculate_fit_score(row, [('PEG', 1.2, '<'), ('EPS_Growth', 0.15, '>'), ('ROE', 15.0, '>')])
+                    v_score, _ = calculate_fit_score(row, [('PE', 15.0, '<'), ('PB', 1.5, '<')])
+                    d_score, _ = calculate_fit_score(row, [('Div_Yield', 4.0, '>'), ('Op_Margin', 10.0, '>')])
+                    m_score, _ = calculate_fit_score(row, [('Rev_Growth', 0.25, '>'), ('PEG', 1.5, '<')])
                     
-                with tab_rec:
-                    try:
-                        recs = stock_obj.recommendations
-                        if recs is not None and not recs.empty:
-                            # Show latest recommendations summary
-                            # yfinance often returns a long history, let's show summary or recent
-                            st.dataframe(recs.tail(10), use_container_width=True)
-                        
-                        # Analyst Targets
-                        tgt_mean = row.get('Target_Price')
-                        if tgt_mean:
-                            st.metric(get_text('consensus_target'), f"{tgt_mean}", f"{get_text('vs_current')}: {price}")
-                        else:
-                            st.info(get_text('no_target'))
-                            
-                    except: st.error(get_text('err_recs'))
+                    ss1.metric("GARP", f"{g_score}%")
+                    ss2.metric("Value", f"{v_score}%")
+                    ss3.metric("Div", f"{d_score}%")
+                    ss4.metric("Multi", f"{m_score}%")
 
-                # --- NEW: PROFESSIONAL TECHNICALS & VALUATIONS ---
-                st.markdown("---")
-                c_tech, c_val_dual = st.columns(2)
-                
-                with c_tech:
-                    st.subheader(get_text('tech_analysis_title'))
-                    st.caption(get_text('tech_indicator_desc'))
+                with c_tc_min:
                     levels = calculate_technical_levels(stock_obj)
                     if levels:
-                        t1, t2 = st.tabs([get_text('pivot_points_title'), get_text('fib_levels_title')])
-                        with t1:
-                            # Display Pivots in a clean list
-                            for k, v in levels['pivots'].items():
-                                color = "green" if 'S' in k else "red" if 'R' in k else "blue"
-                                st.markdown(f"**{k}**: :{color}[{v:,.2f}]")
-                        with t2:
-                            # Display Fibs
-                            for k, v in levels['fibs'].items():
-                                st.markdown(f"**{k}**: {v:,.2f}")
-                                
-                with c_val_dual:
-                    st.subheader(get_text('valuation_models_title'))
-                    st.caption(get_text('val_model_desc'))
-                    fv_cons, fv_norm = calculate_dual_intrinsic_value(row)
-                    
-                    if fv_cons and fv_norm:
-                        m1, m2 = st.columns(2)
-                        m1.metric(get_text('conservative_fv'), f"{fv_cons:,.2f}")
-                        m2.metric(get_text('normal_fv'), f"{fv_norm:,.2f}")
-                        
-                        # Comparison Alert
-                        price_val = float(price)
-                        if price_val < fv_cons:
-                            st.success(f"🔥 **Deep Value Detect!** Price is below Conservative FV.")
-                        elif price_val < fv_norm:
-                            st.info(f"✅ **Fair Price**. Trading below Normal Intrinsic Value.")
-                        else:
-                            st.warning(f"⚠️ **Premium Price**. Market is pricing in high growth.")
+                        pivotas_x = levels['pivots']
+                        st.markdown(f"**{get_text('tech_summary')}**")
+                        st.caption(f"S1:{pivotas_x['S1']:,.1f} | P:{pivotas_x['P']:,.1f} | R1:{pivotas_x['R1']:,.1f}")
+                    else:
+                        st.caption("Tech data missing.")
 
-                # Show Chart
-                st.markdown(get_text('price_trend_title'))
-                stock = row['YF_Obj']
-                hist = stock.history(period="5y")
+                
+                # --- DETAILS ACCORDION ---
+                with st.expander("🛠️ Details & Analysis", expanded=False):
+                    t_fin, t_hold, t_rec = st.tabs(["Metrics", get_text('tab_holders'), get_text('tab_recs')])
+                    with t_fin:
+                        st.write(f"- P/E: **{row.get('PE', 0):.1f}** | PEG: **{row.get('PEG', 0):.2f}** | P/B: **{row.get('PB', 0):.2f}**")
+                        st.write(f"- ROE: **{row.get('ROE', 0):.1f}%** | Margin: **{row.get('Op_Margin', 0):.1f}%** | Yield: **{row.get('Div_Yield', 0):.2f}%**")
+                    with t_hold:
+                        try:
+                            holders = stock_obj.institutional_holders
+                            if holders is not None and not holders.empty: st.dataframe(holders, hide_index=True, use_container_width=True)
+                        except: pass
+                    with t_rec:
+                        try:
+                            recs = stock_obj.recommendations
+                            if recs is not None and not recs.empty: st.dataframe(recs.tail(5), use_container_width=True)
+                            tgt_val = row.get('Target_Price')
+                            if tgt_val: st.metric(get_text('consensus_target'), f"{tgt_val}")
+                        except: pass
+
+                # --- TREND CHART ---
+                st.markdown("---")
+                hist = stock_obj.history(period="5y")
                 if not hist.empty:
-                    st.line_chart(hist['Close'])
+                    st.line_chart(hist['Close'], height=250)
 
             else:
                 st.error(get_text('err_fetch'))
