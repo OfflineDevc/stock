@@ -1561,18 +1561,24 @@ def page_single_stock():
     st.title(get_text('deep_dive_title'))
     ticker = st.text_input(get_text('search_ticker'))
     
+    # State Persistence Logic
     if st.button(get_text('analyze_btn')) and ticker:
         with st.spinner(f"Analyzing {ticker}..."):
-            # Reuse logic by creating a 1-item list
-            # We need to hack this a bit: pass empty progress bar
+            # Reuse logic
             class MockProgress:
                 def progress(self, x): pass
-            
             class MockStatus:
                 def caption(self, x): pass
                 def empty(self): pass
                 
-            df = scan_market_basic([ticker], MockProgress(), st.empty())
+            new_df = scan_market_basic([ticker], MockProgress(), st.empty())
+            st.session_state['single_stock_cache'] = new_df
+            
+    # Display Logic (Wrapper to maintain indentation of subsequent block)
+    # We use st.container() to provide the indentation level previously held by 'with st.spinner'
+    if 'single_stock_cache' in st.session_state:
+        with st.container():
+            df = st.session_state['single_stock_cache']
             
             if not df.empty:
                 row = df.iloc[0].copy()
