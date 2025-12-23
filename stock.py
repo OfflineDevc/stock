@@ -1576,18 +1576,22 @@ def page_single_stock():
                     # 1. Financials -> P/B or Dividend Model (DCF is bad for banks)
                     if "Financial" in sector or "Bank" in sector:
                         method_used = "P/B Mean Reversion"
-                        # Simple Logic: Avg P/B * Book Value
-                        pb = row.get('PB')
-                        bv = 0
-                        stk_p = row.get('Price', 0)
-                        if pb and pb > 0 and stk_p > 0:
-                             bv = stk_p / pb
+                        stock_obj = row['YF_Obj']
+                        # Try to get Book Value per Share directly
+                        bv = stock_obj.info.get('bookValue')
+                        if not bv:
+                             pb = row.get('PB')
+                             stk_p = row.get('Price', 0)
+                             if pb and pb > 0: bv = stk_p / pb
+                        
+                        if bv and bv > 0:
                              # Assume a "Fair" P/B of 1.5 for banks (Conservative) or historical?
                              # Let's use a simpler Dividend Discount Proxy if Yield exists
                              div = row.get('Div_Yield')
                              if div and div > 0:
                                  # Gordon DDM: V = D1 / (k - g)
                                  # k = 10%, g = 3%
+                                 stk_p = row.get('Price', 0)
                                  d1 = (div/100) * stk_p
                                  val_value = d1 / (0.10 - 0.03)
                                  method_used = "DDM (Div Model)"
@@ -1625,8 +1629,9 @@ def page_single_stock():
                         if g > 25: g = 25 
                         if g < 5: g = 5
                         
-                        # Fair Value = EPS * Growth
-                        val_value = eps * g
+                        # Fair Value = Forward EPS * Growth (Fair P/E)
+                        # FV = EPS * (1 + g) * g
+                        val_value = eps * (1 + g/100) * g
                     
                     # 4. Standard DCF (Default)
                     if val_value == 0:
@@ -1678,7 +1683,16 @@ def page_single_stock():
                                 g_rate = min(raw_g, cap) 
                                 if g_rate < 0.02: g_rate = 0.02 
                             
-                            res = calculate_dcf(fcf_per_share, g_rate, 0.10, 0.025)
+                            # WACC Risk Adjustment (Beta)
+                            beta = stock_obj.info.get('beta', 1.0)
+                            if not beta: beta = 1.0
+                            
+                            # Rf=4%, ERP=6%
+                            wacc = 0.04 + (beta * 0.06)
+                            if wacc < 0.06: wacc = 0.06 # Min 6%
+                            if wacc > 0.15: wacc = 0.15 # Max 15% 
+                            
+                            res = calculate_dcf(fcf_per_share, g_rate, wacc, 0.025)
                             val_value = res['value']
 
                     # Final Status Check
