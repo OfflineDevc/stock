@@ -2385,13 +2385,35 @@ def page_portfolio():
                 p_ret = ((end_val - bt_amount) / bt_amount) * 100
                 b_ret = ((bench_val - bt_amount) / bt_amount) * 100
                 
-                # Metrics
+                # CAGR Calculation
+                days = (common_index[-1] - common_index[0]).days
+                if days > 365:
+                    years = days / 365.25
+                    p_cagr = ((end_val / bt_amount) ** (1/years) - 1) * 100
+                    b_cagr = ((bench_val / bt_amount) ** (1/years) - 1) * 100
+                    cagr_lbl = "CAGR (Avg/Year)"
+                    p_cagr_str = f"{p_cagr:+.2f}%"
+                    b_cagr_str = f"{b_cagr:+.2f}%"
+                else:
+                    cagr_lbl = "Annualized"
+                    p_cagr_str = "N/A (< 1 Year)"
+                    b_cagr_str = "N/A"
+
+                # Metrics Row 1 (Total)
+                st.subheader("Performance Summary")
                 bc1, bc2, bc3 = st.columns(3)
-                bc1.metric("Final Portfolio Value", f"{currency_fmt[0]}{end_val:,.2f}", f"{p_ret:+.2f}%")
-                bc2.metric("S&P 500 Benchmark", f"{currency_fmt[0]}{bench_val:,.2f}", f"{b_ret:+.2f}%")
+                bc1.metric("Final Portfolio Value", f"{currency_fmt[0]}{end_val:,.2f}", f"{p_ret:+.2f}% (Total)")
+                bc2.metric("S&P 500 Benchmark", f"{currency_fmt[0]}{bench_val:,.2f}", f"{b_ret:+.2f}% (Total)")
                 
                 diff = p_ret - b_ret
                 bc3.metric("Alpha (vs Market)", f"{diff:+.2f}%", "Winning" if diff > 0 else "Losing", delta_color="normal")
+                
+                # Metrics Row 2 (Annualized)
+                if days > 365:
+                    ac1, ac2, ac3 = st.columns(3)
+                    ac1.metric(f"Portfolio {cagr_lbl}", p_cagr_str)
+                    ac2.metric(f"Benchmark {cagr_lbl}", b_cagr_str)
+                    ac3.metric("Performance Gap (Annual)", f"{p_cagr - b_cagr:+.2f}%")
                 
                 # Chart
                 chart_data = pd.DataFrame({
