@@ -1565,78 +1565,131 @@ def page_single_stock():
                 # Setup Currency Fmt
                 currency_fmt = "฿" if ".BK" in row['Symbol'] else "$"
                 
-                # --- AUTO-CALCULATE DCF (Silent Mode) ---
-                dcf_value = 0
-                dcf_status = "N/A"
-                dcf_color = "off"
+                # --- AUTO-CALCULATE VALUATION (Dynamic) ---
+                val_value = 0
+                val_status = "N/A"
+                val_color = "off"
+                method_used = "DCF"
+                
                 try:
-                    # 1. Get FCF
-                    stock_obj = row['YF_Obj']
-                    cashflow = stock_obj.cashflow
-                    shares = stock_obj.info.get('sharesOutstanding')
+                    sector = row.get('Sector', '')
+                    # 1. Financials -> P/B or Dividend Model (DCF is bad for banks)
+                    if "Financial" in sector or "Bank" in sector:
+                        method_used = "P/B Mean Reversion"
+                        # Simple Logic: Avg P/B * Book Value
+                        pb = row.get('PB')
+                        bv = 0
+                        stk_p = row.get('Price', 0)
+                        if pb and pb > 0 and stk_p > 0:
+                             bv = stk_p / pb
+                             # Assume a "Fair" P/B of 1.5 for banks (Conservative) or historical?
+                             # Let's use a simpler Dividend Discount Proxy if Yield exists
+                             div = row.get('Div_Yield')
+                             if div and div > 0:
+                                 # Gordon DDM: V = D1 / (k - g)
+                                 # k = 10%, g = 3%
+                                 d1 = (div/100) * stk_p
+                                 val_value = d1 / (0.10 - 0.03)
+                                 method_used = "DDM (Div Model)"
+                             else:
+                                 # Fallback to Book Value * 1.5
+                                 val_value = bv * 1.5
                     
-                    est_fcf = None
-                    if not cashflow.empty:
-                        # Priority: OCF - CapEx
-                        ocf = None
-                        for k in ['Operating Cash Flow', 'Total Cash From Operating Activities']:
-                            if k in cashflow.index:
-                                ocf = cashflow.loc[k]
-                                break
+                    # 2. Asset Heavy (Energy, Utilities) -> Graham Number
+                    elif "Energy" in sector or "Utilities" in sector or "Basic Materials" in sector:
+                        method_used = "Graham Number"
+                        eps = row.get('EPS_TTM', 0)
                         
-                        capex = None
-                        for k in ['Capital Expenditure', 'Capital Expenditures', 'Purchase Of PPE', 'Purchase Of Property Plant And Equipment']:
-                             if k in cashflow.index:
-                                 capex = cashflow.loc[k]
-                                 break
+                        # Calculate Book Value Per Share
+                        pb = row.get('PB')
+                        price_ = row.get('Price', 0)
+                        bvps = 0
+                        if pb and price_: bvps = price_ / pb
                         
-                        if ocf is not None and capex is not None:
-                             ocf = pd.to_numeric(ocf, errors='coerce')
-                             capex = pd.to_numeric(capex, errors='coerce')
-                             fcf_series = ocf + capex
-                             fcf_series = fcf_series.dropna()
-                             if not fcf_series.empty:
-                                 # Use 3Y Avg for stability
-                                 if len(fcf_series) >= 3:
-                                     est_fcf = fcf_series.head(3).mean()
-                                 else:
-                                     est_fcf = fcf_series.mean()
-                    
-                    # Fallback
-                    if est_fcf is None and not cashflow.empty and 'Free Cash Flow' in cashflow.index:
-                        est_fcf = cashflow.loc['Free Cash Flow'].dropna().head(3).mean()
-                        
-                    if est_fcf is not None and shares:
-                        fcf_per_share = est_fcf / shares
-                        
-                        # 2. Assumptions
-                        # Growth: Use EPS Growth but handle "Fast Growers"
-                        g_rate = 0.05
-                        if row.get('EPS_Growth'): 
-                            raw_g = row['EPS_Growth']
-                            # If Lynch says Fast Grower, allow up to 25%
-                            # Else cap at 15%
-                            lynch_cat_temp = row.get('Lynch_Category', classify_lynch(row))
-                            cap = 0.25 if "Fast Grower" in str(lynch_cat_temp) else 0.15
-                            g_rate = min(raw_g, cap) 
-                            if g_rate < 0.02: g_rate = 0.02 # Min 2%
-                        
-                        wacc = 0.10 # Standard 10%
-                        term_g = 0.025 # 2.5% standard
-                        
-                        # 3. Calculate
-                        res = calculate_dcf(fcf_per_share, g_rate, wacc, term_g)
-                        dcf_value = res['value']
-                        
-                        # Status
-                        if dcf_value > price:
-                            diff = (dcf_value - price) / price * 100
-                            dcf_status = f"Undervalued (+{diff:.0f}%)"
-                            dcf_color = "normal" # Greenish in standard metric
+                        if eps > 0 and bvps > 0:
+                            val_value = (22.5 * eps * bvps) ** 0.5
                         else:
-                            diff = (price - dcf_value) / price * 100
-                            dcf_status = f"Overvalued ({diff:.0f}%)"
-                            dcf_color = "inverse" # Reddish usually
+                            # Fallback to DCF if negative earnings
+                            method_used = "DCF (Fallback)"
+                            # ... (DCF Logic will run below if val_value is still 0)
+
+                    # 3. Growth / Tech -> PEG Valuation (Peter Lynch)
+                    # Lynch Fair Value = PEG 1.0 * Earnings * Growth
+                    # Or simpler: Fair P/E = Growth Rate
+                    elif "Technology" in sector or "Communication" in sector or "Healthcare" in sector:
+                        method_used = "PEG Model"
+                        eps = row.get('EPS_TTM', 0)
+                        g = row.get('EPS_Growth', 0) * 100 # as percentage
+                        
+                        # Cap growth for safety
+                        if g > 25: g = 25 
+                        if g < 5: g = 5
+                        
+                        # Fair Value = EPS * Growth
+                        val_value = eps * g
+                    
+                    # 4. Standard DCF (Default)
+                    if val_value == 0:
+                        method_used = "DCF (FCF)"
+                        # ... [Existing DCF Logic] ...
+                        # 1. Get FCF
+                        stock_obj = row['YF_Obj']
+                        cashflow = stock_obj.cashflow
+                        shares = stock_obj.info.get('sharesOutstanding')
+                        
+                        est_fcf = None
+                        if not cashflow.empty:
+                            # Priority: OCF - CapEx
+                            ocf = None
+                            for k in ['Operating Cash Flow', 'Total Cash From Operating Activities']:
+                                if k in cashflow.index:
+                                    ocf = cashflow.loc[k]
+                                    break
+                            
+                            capex = None
+                            for k in ['Capital Expenditure', 'Capital Expenditures', 'Purchase Of PPE', 'Purchase Of Property Plant And Equipment']:
+                                 if k in cashflow.index:
+                                     capex = cashflow.loc[k]
+                                     break
+                            
+                            if ocf is not None and capex is not None:
+                                 ocf = pd.to_numeric(ocf, errors='coerce')
+                                 capex = pd.to_numeric(capex, errors='coerce')
+                                 fcf_series = ocf + capex
+                                 fcf_series = fcf_series.dropna()
+                                 if not fcf_series.empty:
+                                     if len(fcf_series) >= 3:
+                                         est_fcf = fcf_series.head(3).mean()
+                                     else:
+                                         est_fcf = fcf_series.mean()
+                        
+                        # Fallback
+                        if est_fcf is None and not cashflow.empty and 'Free Cash Flow' in cashflow.index:
+                            est_fcf = cashflow.loc['Free Cash Flow'].dropna().head(3).mean()
+                            
+                        if est_fcf is not None and shares:
+                            fcf_per_share = est_fcf / shares
+                            
+                            g_rate = 0.05
+                            if row.get('EPS_Growth'): 
+                                raw_g = row['EPS_Growth']
+                                lynch_cat_temp = row.get('Lynch_Category', classify_lynch(row))
+                                cap = 0.25 if "Fast Grower" in str(lynch_cat_temp) else 0.15
+                                g_rate = min(raw_g, cap) 
+                                if g_rate < 0.02: g_rate = 0.02 
+                            
+                            res = calculate_dcf(fcf_per_share, g_rate, 0.10, 0.025)
+                            val_value = res['value']
+
+                    # Final Status Check
+                    if val_value > price:
+                        diff = (val_value - price) / price * 100
+                        val_status = f"Undervalued (+{diff:.0f}%)"
+                        val_color = "normal"
+                    else:
+                        diff = (price - val_value) / price * 100
+                        val_status = f"Overvalued ({diff:.0f}%)"
+                        val_color = "inverse"
                             
                 except: pass
 
@@ -1653,10 +1706,11 @@ def page_single_stock():
                 c2.metric("Sector", row['Sector'])
                 c3.metric(get_text('lynch_type'), lynch_cat)
                 
-                if dcf_value > 0:
-                    c4.metric("Fair Value (DCF)", f"{currency_fmt[0]}{dcf_value:.2f}", dcf_status, delta_color=dcf_color)
+                lbl = f"Fair Value ({method_used})"
+                if val_value > 0:
+                    c4.metric(lbl, f"{currency_fmt[0]}{val_value:.2f}", val_status, delta_color=val_color)
                 else:
-                    c4.metric("Fair Value (DCF)", "N/A", "Data Missing")
+                    c4.metric("Fair Value", "N/A", "Data Missing")
                 
                 # Fetch deeper data for context
                 deep_metrics = analyze_history_deep(df, MockProgress(), st.empty())
@@ -2764,6 +2818,22 @@ def page_portfolio():
                     portfolio_value = pd.Series(p_vals, index=common_index)
                     benchmark_value = pd.Series(b_vals, index=common_index)
                     bt_amount = cash_invested # Log actual total
+
+                # 3. Calculation Variables (Restored)
+                end_val = portfolio_value.iloc[-1]
+                bench_val = benchmark_value.iloc[-1]
+                
+                p_ret = ((end_val - bt_amount) / bt_amount) * 100
+                b_ret = ((bench_val - bt_amount) / bt_amount) * 100
+                
+                days = (common_index[-1] - common_index[0]).days
+                if days > 365:
+                    years = days / 365.25
+                    p_cagr = ((end_val / bt_amount) ** (1/years) - 1) * 100
+                    b_cagr = ((bench_val / bt_amount) ** (1/years) - 1) * 100
+                else:
+                    p_cagr = 0
+                    b_cagr = 0
 
                 # Store Results in Session State
                 st.session_state['bt_results'] = {
