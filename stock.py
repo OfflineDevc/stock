@@ -1637,7 +1637,7 @@ def page_single_stock():
                     
                 with c_head_3:
                     lynch_val = row.get('Lynch_Category', 'Unknown')
-                    st.caption(f"LYNCH TYPE {get_text('lynch_tooltip')}")
+                    st.caption(f"TYPE {get_text('lynch_tooltip')}")
                     st.markdown(f"**{lynch_val}**", help=get_text('lynch_desc'))
                     
                 st.divider()
