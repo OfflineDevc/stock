@@ -1691,10 +1691,10 @@ def page_single_stock():
                     d_score, _ = calculate_fit_score(row, [('Div_Yield', 4.0, '>'), ('Op_Margin', 10.0, '>')])
                     m_score, _ = calculate_fit_score(row, [('Rev_Growth', 0.25, '>'), ('PEG', 1.5, '<')])
                     
-                    ss1.metric("GARP", f"{g_score}%")
-                    ss2.metric("Value", f"{v_score}%")
-                    ss3.metric("Div", f"{d_score}%")
-                    ss4.metric("Multi", f"{m_score}%")
+                    ss1.metric("GARP SCORE", f"{g_score}%")
+                    ss2.metric("Value SCORE", f"{v_score}%")
+                    ss3.metric("Div SCORE", f"{d_score}%")
+                    ss4.metric("Multibagger SCORE", f"{m_score}%")
 
                 with c_tc_min:
                     levels = calculate_technical_levels(stock_obj)
