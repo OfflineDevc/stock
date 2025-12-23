@@ -1487,6 +1487,56 @@ def page_scanner():
     else:
         st.info("Define parameters and start the Two-Stage Screening.")
 
+
+def calculate_dcf(fcf, growth_rate, discount_rate, terminal_growth, years=5):
+    """
+    Calculates intrinsic value using DCF model.
+    Returns dictionary with details for visualization.
+    """
+    future_fcf = []
+    discounted_fcf = []
+    
+    current_fcf = fcf
+    
+    # 1. Projected FCF
+    for i in range(1, years + 1):
+        next_fcf = current_fcf * (1 + growth_rate)
+        future_fcf.append(next_fcf)
+        
+        # Discount it
+        df = next_fcf / ((1 + discount_rate) ** i)
+        discounted_fcf.append(df)
+        
+        current_fcf = next_fcf
+        
+    # 2. Terminal Value (Gordon Growth Method)
+    # Formula: (FCF_n * (1 + g)) / (WACC - g)
+    if not future_fcf: return {'value': 0}
+    
+    last_fcf = future_fcf[-1]
+    
+    # Safety: If discount rate <= terminal growth, formula breaks. 
+    # Force minimal spread (0.5%).
+    if discount_rate <= terminal_growth:
+        denom = 0.005 
+    else:
+        denom = discount_rate - terminal_growth
+        
+    terminal_val = (last_fcf * (1 + terminal_growth)) / denom
+    
+    # Discount TV
+    discounted_tv = terminal_val / ((1 + discount_rate) ** years)
+    
+    total_value = sum(discounted_fcf) + discounted_tv
+    
+    return {
+        'value': total_value,
+        'projected_fcf': future_fcf,
+        'discounted_fcf': discounted_fcf,
+        'terminal_value': terminal_val,
+        'discounted_tv': discounted_tv
+    }
+
 # ---------------------------------------------------------
 # PAGES: Single Stock & Glossary
 # ---------------------------------------------------------
@@ -1650,8 +1700,129 @@ def page_single_stock():
                 if not hist.empty:
                     st.line_chart(hist['Close'])
 
+
             else:
                 st.error(get_text('err_fetch'))
+
+            # --- NEW: DCF Analysis ---
+            st.markdown("---")
+            with st.expander("💎 **Intrinsic Value Analysis (DCF Model)**", expanded=True):
+                st.write("Calculate the 'True Value' of the business using Discounted Cash Flow.")
+                
+                # 1. Fetch Data
+                try:
+                    # Attempt to get Free Cash Flow
+                    stock_obj = row['YF_Obj']
+                    cashflow = stock_obj.cashflow
+                    fin = stock_obj.financials
+                    
+                    # Estimate FCF if missing
+                    est_fcf = None
+                    fcf_source = "Unknown"
+                    
+                    if not cashflow.empty and 'Free Cash Flow' in cashflow.index:
+                        # Use latest available annual FCF
+                        # Handle potential bad data (NaNs)
+                        cf_series = cashflow.loc['Free Cash Flow'].dropna()
+                        if not cf_series.empty:
+                            est_fcf = cf_series.iloc[0]
+                            fcf_source = f"Latest Report ({pd.to_datetime(cf_series.index[0]).year})"
+                            
+                            # Avg for safety
+                            if len(cf_series) >= 3:
+                                avg_fcf = cf_series.head(3).mean()
+                            else:
+                                avg_fcf = est_fcf
+                    
+                    # Fallback to Operating Cash Flow - CapEx
+                    if est_fcf is None and not cashflow.empty:
+                         if 'Total Cash From Operating Activities' in cashflow.index and 'Capital Expenditures' in cashflow.index:
+                             ocf = cashflow.loc['Total Cash From Operating Activities'].iloc[0]
+                             capex = cashflow.loc['Capital Expenditures'].iloc[0] 
+                             est_fcf = ocf + capex # Capex is usually negative
+                             fcf_source = "Derived (OCF - CapEx)"
+                    
+                    # Fallback to Net Income (Very rough proxy)
+                    if est_fcf is None and not fin.empty:
+                        if 'Net Income' in fin.index:
+                             est_fcf = fin.loc['Net Income'].iloc[0]
+                             fcf_source = "Net Income Proxy (Low Accuracy)"
+                             avg_fcf = est_fcf
+
+                    if est_fcf is None or np.isnan(est_fcf):
+                        st.error("⚠️ Could not retrieve Cash Flow data for DCF calculation.")
+                    else:
+                        shares = stock_obj.info.get('sharesOutstanding')
+                        if not shares:
+                             # Try to derive from Market Cap / Price
+                             mcap = row.get('Market_Cap')
+                             pr = row.get('Price')
+                             if mcap and pr: shares = mcap / pr
+                        
+                        if shares:
+                            fcf_per_share = est_fcf / shares
+                            avg_fcf_per_share = avg_fcf / shares
+                            
+                            # Inputs
+                            c_dcf_1, c_dcf_2, c_dcf_3 = st.columns(3)
+                            
+                            with c_dcf_1:
+                                st.markdown("##### 1. Assumptions")
+                                # Growth Rate
+                                default_g = 5.0
+                                if row.get('EPS_Growth'): default_g = min(row['EPS_Growth'] * 100, 15.0) # Cap default at 15%
+                                if default_g < 0: default_g = 2.0
+                                
+                                g_rate = st.slider("Growth Rate (5Y) %", 0.0, 30.0, float(round(default_g, 1))) / 100.0
+                                term_g = st.slider("Terminal Growth %", 0.0, 5.0, 2.0, help="Long term growth (GDP)") / 100.0
+                                discount_r = st.slider("Discount Rate (WACC) %", 5.0, 20.0, 10.0) / 100.0
+                                
+                            with c_dcf_2:
+                                st.markdown("##### 2. FCF Basis")
+                                st.write(f"**Source**: {fcf_source}")
+                                st.metric("FCF / Share (Last)", f"{currency_fmt[0]}{fcf_per_share:.2f}")
+                                st.metric("FCF / Share (3Y Avg)", f"{currency_fmt[0]}{avg_fcf_per_share:.2f}")
+                                use_avg = st.checkbox("Use 3Y Avg FCF?", value=True)
+                                base_fcf = avg_fcf_per_share if use_avg else fcf_per_share
+                                
+                            with c_dcf_3:
+                                st.markdown("##### 3. Results")
+                                
+                                # A. Normal Case
+                                res_norm = calculate_dcf(base_fcf, g_rate, discount_r, term_g)
+                                val_norm = res_norm['value']
+                                
+                                # B. Conservative Case (The "Margin of Safety" View)
+                                # Logic: Growth halved, Discount +2%, Terminal Growth = 0 (or low)
+                                cons_g = g_rate / 2
+                                cons_r = discount_r + 0.02
+                                cons_term = 0.0
+                                res_cons = calculate_dcf(base_fcf, cons_g, cons_r, cons_term)
+                                val_cons = res_cons['value']
+                                
+                                st.metric("Intrinsic Value (Normal)", f"{currency_fmt[0]}{val_norm:.2f}", 
+                                          delta=f"{(val_norm - price)/price*100:.1f}% vs Price")
+                                
+                                st.metric("Value (Conservative)", f"{currency_fmt[0]}{val_cons:.2f}",
+                                          delta=f"{(val_cons - price)/price*100:.1f}%", delta_color="off")
+                                
+                            # Visualization / Logic Explanation
+                            st.caption(f"**Conservative Logic**: Cuts growth to {cons_g*100:.1f}%, increases discount rate to {cons_r*100:.1f}%, and assumes 0% terminal growth.")
+                            
+                            if val_cons > price:
+                                st.success(f"✅ **Strong Buy Opportunity**: Even with conservative assumptions, the stock is undervalued by {((val_cons-price)/price)*100:.0f}%.")
+                            elif val_norm > price:
+                                st.info(f"⚖️ **Fairly Valued**: Undervalued under normal conditions, but verify your growth assumptions.")
+                            else:
+                                st.error(f"❌ **Overvalued**: Current price {price} is higher than DCF value {val_norm:.2f}.")
+
+                        else:
+                            st.warning("⚠️ Could not determine Shares Outstanding to calculate per-share metrics.")
+
+                except Exception as e:
+                    st.error(f"DCF Error: {str(e)}")
+
+
 
 def page_glossary():
     st.title(get_text('glossary_title'))
