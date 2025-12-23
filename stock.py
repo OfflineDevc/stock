@@ -1565,6 +1565,81 @@ def page_single_stock():
                 # Setup Currency Fmt
                 currency_fmt = "฿" if ".BK" in row['Symbol'] else "$"
                 
+                # --- AUTO-CALCULATE DCF (Silent Mode) ---
+                dcf_value = 0
+                dcf_status = "N/A"
+                dcf_color = "off"
+                try:
+                    # 1. Get FCF
+                    stock_obj = row['YF_Obj']
+                    cashflow = stock_obj.cashflow
+                    shares = stock_obj.info.get('sharesOutstanding')
+                    
+                    est_fcf = None
+                    if not cashflow.empty:
+                        # Priority: OCF - CapEx
+                        ocf = None
+                        for k in ['Operating Cash Flow', 'Total Cash From Operating Activities']:
+                            if k in cashflow.index:
+                                ocf = cashflow.loc[k]
+                                break
+                        
+                        capex = None
+                        for k in ['Capital Expenditure', 'Capital Expenditures', 'Purchase Of PPE', 'Purchase Of Property Plant And Equipment']:
+                             if k in cashflow.index:
+                                 capex = cashflow.loc[k]
+                                 break
+                        
+                        if ocf is not None and capex is not None:
+                             ocf = pd.to_numeric(ocf, errors='coerce')
+                             capex = pd.to_numeric(capex, errors='coerce')
+                             fcf_series = ocf + capex
+                             fcf_series = fcf_series.dropna()
+                             if not fcf_series.empty:
+                                 # Use 3Y Avg for stability
+                                 if len(fcf_series) >= 3:
+                                     est_fcf = fcf_series.head(3).mean()
+                                 else:
+                                     est_fcf = fcf_series.mean()
+                    
+                    # Fallback
+                    if est_fcf is None and not cashflow.empty and 'Free Cash Flow' in cashflow.index:
+                        est_fcf = cashflow.loc['Free Cash Flow'].dropna().head(3).mean()
+                        
+                    if est_fcf is not None and shares:
+                        fcf_per_share = est_fcf / shares
+                        
+                        # 2. Assumptions
+                        # Growth: Use EPS Growth but handle "Fast Growers"
+                        g_rate = 0.05
+                        if row.get('EPS_Growth'): 
+                            raw_g = row['EPS_Growth']
+                            # If Lynch says Fast Grower, allow up to 25%
+                            # Else cap at 15%
+                            lynch_cat_temp = row.get('Lynch_Category', classify_lynch(row))
+                            cap = 0.25 if "Fast Grower" in str(lynch_cat_temp) else 0.15
+                            g_rate = min(raw_g, cap) 
+                            if g_rate < 0.02: g_rate = 0.02 # Min 2%
+                        
+                        wacc = 0.10 # Standard 10%
+                        term_g = 0.025 # 2.5% standard
+                        
+                        # 3. Calculate
+                        res = calculate_dcf(fcf_per_share, g_rate, wacc, term_g)
+                        dcf_value = res['value']
+                        
+                        # Status
+                        if dcf_value > price:
+                            diff = (dcf_value - price) / price * 100
+                            dcf_status = f"Undervalued (+{diff:.0f}%)"
+                            dcf_color = "normal" # Greenish in standard metric
+                        else:
+                            diff = (price - dcf_value) / price * 100
+                            dcf_status = f"Overvalued ({diff:.0f}%)"
+                            dcf_color = "inverse" # Reddish usually
+                            
+                except: pass
+
                 # Top Header
                 st.subheader(f"{row['Symbol']} - {row['Company']}")
                 
@@ -1573,13 +1648,15 @@ def page_single_stock():
                 if not lynch_cat:
                     lynch_cat = classify_lynch(row)
                 
-                if not lynch_cat:
-                    lynch_cat = classify_lynch(row)
-                
-                c1, c2, c3 = st.columns(3)
+                c1, c2, c3, c4 = st.columns(4)
                 c1.metric("Price", f"{price} {row.get('Currency', '')}")
                 c2.metric("Sector", row['Sector'])
                 c3.metric(get_text('lynch_type'), lynch_cat)
+                
+                if dcf_value > 0:
+                    c4.metric("Fair Value (DCF)", f"{currency_fmt[0]}{dcf_value:.2f}", dcf_status, delta_color=dcf_color)
+                else:
+                    c4.metric("Fair Value (DCF)", "N/A", "Data Missing")
                 
                 # Fetch deeper data for context
                 deep_metrics = analyze_history_deep(df, MockProgress(), st.empty())
@@ -1596,6 +1673,30 @@ def page_single_stock():
                         row['Fair_Value'] = row['Derived_FV']
                         if row.get('Price') and row['Fair_Value'] != 0:
                              row['Margin_Safety'] = ((row['Fair_Value'] - row['Price']) / row['Fair_Value']) * 100
+                    
+                    # Strategy Scores
+                    st.markdown("### 🎯 Strategy Fit Scorecard")
+                    
+                    # 1. GARP Score
+                    c_s1, c_s2, c_s3, c_s4 = st.columns(4) # Convert to 4 cols now
+                    
+                    score, details = calculate_fit_score(row, [('PEG', 1.2, '<'), ('EPS_Growth', 0.15, '>'), ('ROE', 15.0, '>')])
+                    c_s1.metric(get_text('score_garp'), f"{score}/100")
+                    # if details != "✅ Perfect Match": c_s1.caption(details)
+
+                    # 2. Value Score
+                    score, details = calculate_fit_score(row, [('PE', 15.0, '<'), ('PB', 1.5, '<'), ('Debt_Equity', 50.0, '<')])
+                    c_s2.metric(get_text('score_value'), f"{score}/100")
+                    # if details != "✅ Perfect Match": c_s2.caption(details)
+                    
+                    # 3. Dividend Score
+                    score, details = calculate_fit_score(row, [('Div_Yield', 4.0, '>'), ('Op_Margin', 10.0, '>')])
+                    c_s3.metric(get_text('score_div'), f"{score}/100")
+                    # if details != get_text('perfect_match'): c_s3.caption(details)
+
+                    # 4. Multibagger Score
+                    score, details = calculate_fit_score(row, [('Rev_Growth', 30.0, '>'), ('EPS_Growth', 20.0, '>'), ('PEG', 2.0, '<')])
+                    c_s4.metric(get_text('score_multi'), f"{score}/100")
 
                 # NEW: Business Summary
                 try:
@@ -1609,41 +1710,6 @@ def page_single_stock():
                          with st.expander(f"{get_text('biz_summary')}: {row['Company']}", expanded=False):
                              st.write(summary)
                 except: pass
-
-                # strategy checks
-                st.markdown("### 🎯 Strategy Fit Scorecard")
-                
-                c_s1, c_s2, c_s3 = st.columns(3)
-                
-                # 1. GARP Score
-                score, details = calculate_fit_score(row, [('PEG', 1.2, '<'), ('EPS_Growth', 0.15, '>'), ('ROE', 15.0, '>')])
-                c_s1.metric(get_text('score_garp'), f"{score}/100")
-                if details != "✅ Perfect Match": c_s1.caption(details)
-
-                # 2. Value Score
-                score, details = calculate_fit_score(row, [('PE', 15.0, '<'), ('PB', 1.5, '<'), ('Debt_Equity', 50.0, '<')])
-                c_s2.metric(get_text('score_value'), f"{score}/100")
-                if details != "✅ Perfect Match": c_s2.caption(details)
-                
-                # 3. Dividend Score
-                score, details = calculate_fit_score(row, [('Div_Yield', 4.0, '>'), ('Op_Margin', 10.0, '>')])
-                c_s3.metric(get_text('score_div'), f"{score}/100")
-                if details != get_text('perfect_match'): c_s3.caption(details)
-
-                # 4. Multibagger Score (New)
-                c_s4 = c_s1 # Reuse or create new row? Let's use correct layout.
-                # Actually let's just make it 4 columns if space permits
-                
-                # RE-LAYOUT to 4 COLUMNS
-                # But st.columns(3) is above. I need to edit the column setup to make it work gracefully.
-                # Since I am in 'multi_replace', I can't easily change the `st.columns(3)` line which is far above line 1137.
-                # I'll just append it to the bottom or use expander.
-                
-                st.caption("---")
-                c_m1, c_m2 = st.columns(2)
-                score, details = calculate_fit_score(row, [('Rev_Growth', 30.0, '>'), ('EPS_Growth', 20.0, '>'), ('PEG', 2.0, '<')])
-                c_m1.metric(get_text('score_multi'), f"{score}/100")
-                if details != get_text('perfect_match'): c_m1.caption(details)
                 
                 st.markdown("---")
                 st.subheader(get_text('health_check_title'))
@@ -1707,156 +1773,6 @@ def page_single_stock():
             else:
                 st.error(get_text('err_fetch'))
 
-            # --- NEW: DCF Analysis ---
-            st.markdown("---")
-            with st.expander("💎 **Intrinsic Value Analysis (DCF Model)**", expanded=True):
-                st.write("Calculate the 'True Value' of the business using Discounted Cash Flow.")
-                
-                # 1. Fetch Data
-                try:
-                    # Attempt to get Free Cash Flow
-                    stock_obj = row['YF_Obj']
-                    cashflow = stock_obj.cashflow
-                    fin = stock_obj.financials
-                    
-                    # Estimate FCF
-                    est_fcf = None
-                    fcf_source = "Unknown"
-                    avg_fcf = 0
-                    
-                    # Method 1: Calculation (OCF - CapEx) -> Most Transparent
-                    # Try multiple keys for OCF
-                    ocf = None
-                    for k in ['Operating Cash Flow', 'Total Cash From Operating Activities']:
-                        if k in cashflow.index:
-                            ocf = cashflow.loc[k]
-                            break
-                    
-                    # Try multiple keys for CapEx
-                    capex = None
-                    for k in ['Capital Expenditure', 'Capital Expenditures', 'Purchase Of PPE', 'Purchase Of Property Plant And Equipment']:
-                         if k in cashflow.index:
-                             capex = cashflow.loc[k]
-                             break
-                    
-                    if ocf is not None and capex is not None:
-                         # Ensure numeric
-                         ocf = pd.to_numeric(ocf, errors='coerce')
-                         capex = pd.to_numeric(capex, errors='coerce')
-                         
-                         # Check scaling issues? 
-                         # Usually yfinance returns full numbers. If not, we might need heuristics.
-                         
-                         fcf_series = ocf + capex # CapEx is negative
-                         fcf_series = fcf_series.dropna()
-                         
-                         if not fcf_series.empty:
-                             est_fcf = fcf_series.iloc[0]
-                             fcf_source = "Calculated (OCF - CapEx)"
-                             if len(fcf_series) >= 3:
-                                 avg_fcf = fcf_series.head(3).mean()
-                             else:
-                                 avg_fcf = fcf_series.mean()
-
-                    # Method 2: YFinance 'Free Cash Flow' Row
-                    if est_fcf is None and not cashflow.empty and 'Free Cash Flow' in cashflow.index:
-                        cf_series = cashflow.loc['Free Cash Flow'].dropna()
-                        if not cf_series.empty:
-                            est_fcf = cf_series.iloc[0]
-                            fcf_source = "YFinance Pre-Calculated"
-                            if len(cf_series) >= 3:
-                                avg_fcf = cf_series.head(3).mean()
-                            else:
-                                avg_fcf = est_fcf
-                    
-                    # Method 3: Net Income Proxy
-                    if est_fcf is None and not fin.empty and 'Net Income' in fin.index:
-                         est_fcf = fin.loc['Net Income'].iloc[0]
-                         fcf_source = "Net Income (Proxy)"
-                         avg_fcf = est_fcf
-
-                    if est_fcf is None:
-                        st.error("⚠️ Could not retrieve Cash Flow data. Please input manually below.")
-                        shares = stock_obj.info.get('sharesOutstanding')
-                        if not shares: shares = 1 # Avoid div/0
-                        fcf_per_share = 0.0
-                        avg_fcf_per_share = 0.0
-                    else:
-                        shares = stock_obj.info.get('sharesOutstanding')
-                        if not shares:
-                             # Try to derive
-                             mcap = row.get('Market_Cap')
-                             pr = row.get('Price')
-                             if mcap and pr: shares = mcap / pr
-                             else: shares = 1
-                        
-                        fcf_per_share = est_fcf / shares
-                        avg_fcf_per_share = avg_fcf / shares
-                        
-                    # --- UI ---
-                    c_dcf_1, c_dcf_2, c_dcf_3 = st.columns(3)
-                    
-                    with c_dcf_1:
-                        st.markdown("##### 1. Assumptions")
-                        # Growth Rate
-                        default_g = 5.0
-                        if row.get('EPS_Growth'): default_g = min(row['EPS_Growth'] * 100, 15.0) 
-                        if default_g < 0: default_g = 2.0
-                        
-                        g_rate = st.slider("Growth Rate (5Y) %", 0.0, 30.0, float(round(default_g, 1))) / 100.0
-                        term_g = st.slider("Terminal Growth %", 0.0, 5.0, 2.0) / 100.0
-                        discount_r = st.slider("Discount Rate (WACC) %", 5.0, 20.0, 10.0) / 100.0
-                        
-                    with c_dcf_2:
-                        st.markdown("##### 2. FCF Inputs")
-                        st.caption(f"Detected: {fcf_source}")
-                        
-                        # Selection logic
-                        base_val_default = avg_fcf_per_share if fcf_per_share > 0 else 0.0
-                        
-                        # Add toggle for Avg vs Last
-                        use_avg = st.checkbox(f"Use 3Y Avg: ${avg_fcf_per_share:.2f}", value=True)
-                        if not use_avg: base_val_default = fcf_per_share
-                        
-                        # manual override
-                        final_fcf_share = st.number_input("FCF / Share (Override)", value=float(round(base_val_default, 2)), step=0.1)
-                        if final_fcf_share != base_val_default:
-                             st.caption("⚠️ Custom FCF used")
-                        
-                    with c_dcf_3:
-                        st.markdown("##### 3. Valuation")
-                        
-                        base_fcf = final_fcf_share
-                        
-                        # A. Normal Case
-                        res_norm = calculate_dcf(base_fcf, g_rate, discount_r, term_g)
-                        val_norm = res_norm['value']
-                        
-                        # B. Conservative Case
-                        cons_g = g_rate / 2
-                        cons_r = discount_r + 0.02
-                        cons_term = 0.0
-                        res_cons = calculate_dcf(base_fcf, cons_g, cons_r, cons_term)
-                        val_cons = res_cons['value']
-                        
-                        st.metric("Intrinsic Value (Normal)", f"{currency_fmt[0]}{val_norm:.2f}", 
-                                  delta=f"{(val_norm - price)/price*100:.1f}%")
-                        
-                        st.metric("Value (Conservative)", f"{currency_fmt[0]}{val_cons:.2f}",
-                                  delta=f"{(val_cons - price)/price*100:.1f}%", delta_color="off")
-                    
-                    # Logic text
-                    if val_cons > price:
-                         st.success(f"✅ **Strong Buy**: Conservative Value ({val_cons:.2f}) > Price ({price})")
-                    elif val_norm > price:
-                         st.info(f"⚖️ **Fair**: Normal Value ({val_norm:.2f}) > Price ({price})")
-                    else:
-                         st.error(f"❌ **Overvalued**: Price ({price}) > Normal Value ({val_norm:.2f})")
-                         
-                    st.caption("**Guru Note**: If FCF seems too low, check if the company had heavy CapEx recently or use 'Override' with data from a reliable site.")
-
-                except Exception as e:
-                    st.error(f"DCF Error: {str(e)}")
 
 
 
