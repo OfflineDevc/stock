@@ -1581,168 +1581,147 @@ def page_single_stock():
                 # Setup Currency Fmt
                 currency_fmt = "฿" if ".BK" in row['Symbol'] else "$"
                 
-                # --- AUTO-CALCULATE VALUATION (Dynamic) ---
-                val_value = 0
-                val_status = "N/A"
-                val_color = "off"
-                method_used = "DCF"
+                # --- PROFESSIONAL VALUATION ENGINE ---
+                # Run MULTIPLE models and show breakdown
+                val_models = []
                 
+                # Model 1: DCF (Free Cash Flow) - The "Cash is King" approach
+                # Logic: 3Y Avg FCF, WACC, Perpetual Growth
+                dcf_fcf_val = 0
+                fcf_used = 0
                 try:
-                    sector = row.get('Sector', '')
-                    # 1. Financials -> P/B or Dividend Model (DCF is bad for banks)
-                    if "Financial" in sector or "Bank" in sector:
-                        method_used = "P/B Mean Reversion"
-                        stock_obj = row['YF_Obj']
-                        # Try to get Book Value per Share directly
-                        bv = stock_obj.info.get('bookValue')
-                        if not bv:
-                             pb = row.get('PB')
-                             stk_p = row.get('Price', 0)
-                             if pb and pb > 0: bv = stk_p / pb
-                        
-                        if bv and bv > 0:
-                             # Assume a "Fair" P/B of 1.5 for banks (Conservative) or historical?
-                             # Let's use a simpler Dividend Discount Proxy if Yield exists
-                             div = row.get('Div_Yield')
-                             if div and div > 0:
-                                 # Gordon DDM: V = D1 / (k - g)
-                                 # k = 10%, g = 3%
-                                 stk_p = row.get('Price', 0)
-                                 d1 = (div/100) * stk_p
-                                 val_value = d1 / (0.10 - 0.03)
-                                 method_used = "DDM (Div Model)"
-                             else:
-                                 # Fallback to Book Value * 1.5
-                                 val_value = bv * 1.5
+                    stock_obj = row['YF_Obj']
+                    shares = stock_obj.info.get('sharesOutstanding')
+                    cashflow = stock_obj.cashflow
                     
-                    # 2. Asset Heavy (Energy, Utilities) -> Graham Number
-                    elif "Energy" in sector or "Utilities" in sector or "Basic Materials" in sector:
-                        method_used = "Graham Number"
-                        eps = row.get('EPS_TTM', 0)
-                        
-                        # Calculate Book Value Per Share
-                        pb = row.get('PB')
-                        price_ = row.get('Price', 0)
-                        bvps = 0
-                        if pb and price_: bvps = price_ / pb
-                        
-                        if eps > 0 and bvps > 0:
-                            val_value = (22.5 * eps * bvps) ** 0.5
-                        else:
-                            # Fallback to DCF if negative earnings
-                            method_used = "DCF (Fallback)"
-                            # ... (DCF Logic will run below if val_value is still 0)
-
-                    # 3. Growth / Tech -> PEG Valuation (Peter Lynch)
-                    # Lynch Fair Value = PEG 1.0 * Earnings * Growth
-                    # Or simpler: Fair P/E = Growth Rate
-                    # 3. Growth / Tech -> Advanced DCF (Exit Multiple)
-                    # Align with Professional Models: 10Y Growth, Exit Multiple
-                    elif "Technology" in sector or "Communication" in sector or "Healthcare" in sector:
-                        method_used = "DCF (Growth/Exit Multiple)"
-                        
-                        # Use EPS (more stable for tech) or FCF if available? 
-                        # User ref used EPS for $240 target. Let's use EPS.
-                        base_val = row.get('EPS_TTM', 0)
-                        if base_val <= 0: # Fallback to FCF if EPS negative (e.g. Amazon sometimes)
-                             base_val = row.get('FCF_Per_Share', 0) # We don't have FCF_Per_Share yet... allow fallback later
-                        
-                        g = row.get('EPS_Growth', 0)
-                        
-                        # Cap growth logic
-                        # If fast grower, allow 20%
-                        if g > 0.25: g = 0.25
-                        if g < 0.05: g = 0.05
-                        
-                        # WACC (Beta based)
-                        stock_obj = row['YF_Obj']
-                        beta = stock_obj.info.get('beta', 1.2)
-                        if not beta: beta = 1.0
-                        wacc = 0.04 + (beta * 0.055) # Slightly lower ERP for Tech to match "7%"? 
-                        # Pro models use lower discount. Let's floor at 7%
-                        if wacc < 0.07: wacc = 0.07
-                        if wacc > 0.12: wacc = 0.12 # Cap for Big Tech Safety
-                        
-                        if base_val > 0:
-                            # 10 Years, Exit Multiple 25x (Standard for Big Tech)
-                            res = calculate_dcf(base_val, g, wacc, years=10, exit_multiple=25.0)
-                            val_value = res['value']
-                    
-                    # 4. Standard DCF (Default)
-                    
-                    # 4. Standard DCF (Default)
-                    if val_value == 0:
-                        method_used = "DCF (FCF)"
-                        # ... [Existing DCF Logic] ...
-                        # 1. Get FCF
-                        stock_obj = row['YF_Obj']
-                        cashflow = stock_obj.cashflow
-                        shares = stock_obj.info.get('sharesOutstanding')
-                        
-                        est_fcf = None
-                        if not cashflow.empty:
-                            # Priority: OCF - CapEx
-                            ocf = None
-                            for k in ['Operating Cash Flow', 'Total Cash From Operating Activities']:
-                                if k in cashflow.index:
-                                    ocf = cashflow.loc[k]
-                                    break
+                    if not cashflow.empty and shares:
+                        # Priority: OCF - CapEx
+                        ocf, capex = None, None
+                        for k in ['Operating Cash Flow', 'Total Cash From Operating Activities']:
+                            if k in cashflow.index: ocf = cashflow.loc[k]; break
+                        for k in ['Capital Expenditure', 'Capital Expenditures', 'Purchase Of PPE']:
+                            if k in cashflow.index: capex = cashflow.loc[k]; break
                             
-                            capex = None
-                            for k in ['Capital Expenditure', 'Capital Expenditures', 'Purchase Of PPE', 'Purchase Of Property Plant And Equipment']:
-                                 if k in cashflow.index:
-                                     capex = cashflow.loc[k]
-                                     break
+                        # Get 3Y Average FCF
+                        fcf_series = None
+                        if ocf is not None and capex is not None:
+                             ocf = pd.to_numeric(ocf, errors='coerce')
+                             capex = pd.to_numeric(capex, errors='coerce')
+                             fcf_series = (ocf + capex).dropna()
+                        elif 'Free Cash Flow' in cashflow.index:
+                             fcf_series = cashflow.loc['Free Cash Flow'].dropna()
+                             
+                        if fcf_series is not None and not fcf_series.empty:
+                            # 3 Year Average
+                            if len(fcf_series) >= 3: avg_fcf = fcf_series.head(3).mean()
+                            else: avg_fcf = fcf_series.mean()
                             
-                            if ocf is not None and capex is not None:
-                                 ocf = pd.to_numeric(ocf, errors='coerce')
-                                 capex = pd.to_numeric(capex, errors='coerce')
-                                 fcf_series = ocf + capex
-                                 fcf_series = fcf_series.dropna()
-                                 if not fcf_series.empty:
-                                     if len(fcf_series) >= 3:
-                                         est_fcf = fcf_series.head(3).mean()
-                                     else:
-                                         est_fcf = fcf_series.mean()
-                        
-                        # Fallback
-                        if est_fcf is None and not cashflow.empty and 'Free Cash Flow' in cashflow.index:
-                            est_fcf = cashflow.loc['Free Cash Flow'].dropna().head(3).mean()
+                            fcf_per_share = avg_fcf / shares
+                            fcf_used = fcf_per_share
                             
-                        if est_fcf is not None and shares:
-                            fcf_per_share = est_fcf / shares
-                            
-                            g_rate = 0.05
-                            if row.get('EPS_Growth'): 
-                                raw_g = row['EPS_Growth']
-                                lynch_cat_temp = row.get('Lynch_Category', classify_lynch(row))
-                                cap = 0.25 if "Fast Grower" in str(lynch_cat_temp) else 0.15
-                                g_rate = min(raw_g, cap) 
-                                if g_rate < 0.02: g_rate = 0.02 
-                            
-                            # WACC Risk Adjustment (Beta)
+                            # Parameters
                             beta = stock_obj.info.get('beta', 1.0)
                             if not beta: beta = 1.0
+                            wacc = 0.04 + (beta * 0.06) # Base WACC
+                            if wacc < 0.06: wacc = 0.06
                             
-                            # Rf=4%, ERP=6%
-                            wacc = 0.04 + (beta * 0.06)
-                            if wacc < 0.06: wacc = 0.06 # Min 6%
-                            if wacc > 0.15: wacc = 0.15 # Max 15% 
+                            # Standard DCF
+                            res = calculate_dcf(fcf_per_share, 0.12, wacc, 0.025, years=5) # 12% Growth assumption for standard
+                            dcf_fcf_val = res['value']
                             
-                            res = calculate_dcf(fcf_per_share, g_rate, wacc, 0.025)
-                            val_value = res['value']
-
-                    # Final Status Check
-                    if val_value > price:
-                        diff = (val_value - price) / price * 100
-                        val_status = f"Undervalued (+{diff:.0f}%)"
-                        val_color = "normal"
-                    else:
-                        diff = (price - val_value) / price * 100
-                        val_status = f"Overvalued ({diff:.0f}%)"
-                        val_color = "inverse"
-                            
+                            val_models.append({
+                                "Model": "DCF (FCF Based)",
+                                "Value": dcf_fcf_val,
+                                "Details": f"FCF/Sh: {currency_fmt[0]}{fcf_per_share:.2f} | Growth: 12% | WACC: {wacc:.1%}",
+                                "Type": "Cash Flow"
+                            })
                 except: pass
+
+                # Model 2: DCF (EPS Based + Exit Multiple) - "Growth / Tech Style"
+                # Logic: 3Y Avg EPS, 20% Growth, 10 Years, 25x Exit (User Reference)
+                dcf_eps_val = 0
+                try:
+                    eps = row.get('EPS_TTM', 0)
+                    if eps > 0:
+                        # Assumptions from User's NVDA Ref
+                        # If Tech/Growth, use aggressive params
+                        is_tech = "Technology" in row.get('Sector','') or "Communication" in row.get('Sector','')
+                        
+                        growth_rate = 0.15 # Base 15%
+                        exit_mult = 15.0 # Base 15x
+                        years_proj = 10
+                        
+                        if is_tech:
+                            growth_rate = 0.20 # 20% for Tech
+                            exit_mult = 25.0 # 25x for Tech
+                            
+                        # WACC same as above
+                        stock_obj = row['YF_Obj']
+                        beta = stock_obj.info.get('beta', 1.0)
+                        if not beta: beta = 1.0
+                        wacc_eps = 0.04 + (beta * 0.055) # Slightly lower risk premium for big growth names
+                        if wacc_eps < 0.07: wacc_eps = 0.07
+                        
+                        res = calculate_dcf(eps, growth_rate, wacc_eps, years=years_proj, exit_multiple=exit_mult)
+                        dcf_eps_val = res['value']
+                        
+                        val_models.append({
+                            "Model": "Advanced DCF (EPS Growth)",
+                            "Value": dcf_eps_val,
+                            "Details": f"EPS: {currency_fmt[0]}{eps:.2f} | Growth: {growth_rate:.0%} | Exit: {exit_mult}x",
+                            "Type": "Earnings"
+                        })
+                except: pass
+                
+                # Model 3: Graham Number (Asset Based)
+                try:
+                    eps = row.get('EPS_TTM', 0)
+                    bv = stock_obj.info.get('bookValue')
+                    if not bv:
+                        pb = row.get('PB'); p = row.get('Price',0)
+                        if pb: bv = p/pb
+                    
+                    if eps > 0 and bv and bv > 0:
+                        graham = (22.5 * eps * bv) ** 0.5
+                        val_models.append({
+                            "Model": "Graham Number",
+                            "Value": graham,
+                            "Details": f"EPS: {eps:.2f} | Book: {bv:.2f} | Multiplier: 22.5",
+                            "Type": "Assets"
+                        })
+                except: pass
+                
+                # Model 4: Peter Lynch Fair Value (PEG=1)
+                try:
+                    eps = row.get('EPS_TTM', 0)
+                    g_rate = row.get('EPS_Growth', 0) * 100
+                    if g_rate > 25: g_rate = 25
+                    if g_rate < 5: g_rate = 5
+                    lynch_val = eps * g_rate
+                    val_models.append({
+                        "Model": "Peter Lynch Fair Value",
+                        "Value": lynch_val,
+                        "Details": f"EPS: {eps:.2f} | Growth: {g_rate:.1f}% (PEG=1)",
+                        "Type": "Rule of Thumb"
+                    })
+                except: pass
+
+                # Pick "Best Fit" for Header
+                sector = row.get('Sector', '')
+                best_val = 0
+                best_method = "Consensus"
+                
+                if "Technology" in sector: best_val = dcf_eps_val; best_method = "Adv. DCF (EPS)"
+                elif "Financial" in sector: 
+                     # Find Graham or just use Book * 1.5?
+                     # Let's grab Graham if exists
+                     for m in val_models: 
+                         if m['Model'] == "Graham Number": best_val = m['Value']; best_method = "Graham Number"
+                elif dcf_fcf_val > 0: best_val = dcf_fcf_val; best_method = "DCF (FCF)"
+                else:
+                    # Average of all non-zero
+                    vals = [m['Value'] for m in val_models if m['Value'] > 0]
+                    if vals: best_val = sum(vals)/len(vals)
 
                 # Top Header
                 st.subheader(f"{row['Symbol']} - {row['Company']}")
@@ -1757,11 +1736,45 @@ def page_single_stock():
                 c2.metric("Sector", row['Sector'])
                 c3.metric(get_text('lynch_type'), lynch_cat)
                 
-                lbl = f"Fair Value ({method_used})"
-                if val_value > 0:
-                    c4.metric(lbl, f"{currency_fmt[0]}{val_value:.2f}", val_status, delta_color=val_color)
+                # Header Metric
+                val_status = "N/A"
+                val_color = "off"
+                if best_val > 0:
+                    if best_val > price:
+                        diff = (best_val - price)/price * 100
+                        val_status = f"Undervalued (+{diff:.0f}%)"
+                        val_color = "normal"
+                    else:
+                        diff = (price - best_val)/price * 100
+                        val_status = f"Overvalued ({diff:.0f}%)"
+                        val_color = "inverse"
+                    c4.metric(f"Fair Value ({best_method})", f"{currency_fmt[0]}{best_val:.2f}", val_status, delta_color=val_color)
                 else:
                     c4.metric("Fair Value", "N/A", "Data Missing")
+                
+                # --- VALUATION BREAKDOWN EXPANDER ---
+                with st.expander("💎 Valuation Models Analysis (Breakdown)", expanded=True):
+                    st.caption("Comparing different valuation methods. Choose the one that fits the business logic best.")
+                    if val_models:
+                        v_df = pd.DataFrame(val_models)
+                        # Add Margin of Safety
+                        v_df['Margin of Safety'] = v_df['Value'].apply(lambda x: ((x - price)/x * 100) if x > 0 else 0)
+                        
+                        # Formatting
+                        cols = st.columns(len(val_models))
+                        for i, model in enumerate(val_models):
+                            with cols[i]:
+                                st.markdown(f"**{model['Model']}**")
+                                val = model['Value']
+                                color = "green" if val > price else "red"
+                                st.markdown(f"<h3 style='color:{color}'>{currency_fmt[0]}{val:.2f}</h3>", unsafe_allow_html=True)
+                                st.caption(model['Details'])
+                                mos = model.get('Margin of Safety', 0) # Use calculated if converting to DF, but here direct logic
+                                mos = ((val - price)/val * 100) if val > 0 else 0
+                                st.progress(max(min(int(mos + 50), 100), 0)) # Simple visual
+                                st.write(f"MoS: **{mos:.1f}%**")
+                    else:
+                        st.warning("Insufficient data to calculate valuation models.")
                 
                 # Fetch deeper data for context
                 deep_metrics = analyze_history_deep(df, MockProgress(), st.empty())
