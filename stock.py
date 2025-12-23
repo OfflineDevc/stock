@@ -1157,7 +1157,7 @@ def analyze_history_deep(df_candidates, progress_bar, status_text):
             'Net_Income_TTM': fin['Net Income'].iloc[-1] if not fin.empty and 'Net Income' in fin.columns else None,
             'Revenue_TTM': fin['Total Revenue'].iloc[-1] if not fin.empty and 'Total Revenue' in fin.columns else None,
             'FCF_TTM': stock.cashflow.loc['Free Cash Flow'].iloc[0] if not stock.cashflow.empty and 'Free Cash Flow' in stock.cashflow.index else None,
-            'Shares_Outstanding': info.get('sharesOutstanding'), # Re-inject for safety
+            'Shares_Outstanding': fetch_cached_info(ticker).get('sharesOutstanding'), # Re-inject for safety
         }
         # Merge perf metrics
         data_item.update(perf)
