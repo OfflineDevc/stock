@@ -283,9 +283,9 @@ TRANS = {
         'quality_roe_label': "Quality (ROE)",
         
         # Tooltips
-        'lynch_tooltip': "ℹ️",
+        'lynch_tooltip': "",
         'lynch_desc': "Peter Lynch Categories:\n- Fast Grower: Earnings >20%\n- Asset Play: Asset Rich (P/B < 1)\n- Turnaround: Recovering\n- Cyclical: Economy tied\n- Slow Grower: Dividend payers",
-        'sector_tooltip': "ℹ️",
+        'sector_tooltip': "",
         'sector_desc': "Industry Group (e.g. Tech, Energy). Important for relative valuation.",
         'backtest_title': "🕑 Historical Backtest & Simulation",
         'backtest_desc': "See how this portfolio would have performed in the past vs S&P 500.",
