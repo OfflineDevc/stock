@@ -91,6 +91,17 @@ def inject_custom_css():
         .block-container {
             padding-top: 1rem;
             animation: fadeInSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            max_width: 1200px;
+            padding-left: 2rem;
+            padding-right: 2rem;
+            margin: auto;
+        }
+
+        /* Responsive Breakpoint for Large Screens to prevent stretching */
+        @media (min-width: 1200px) {
+            .block-container {
+                max-width: 1200px !important;
+            }
         }
         
         /* Hide Streamlit Header/Toolbar */
@@ -648,7 +659,7 @@ def render_market_dashboard():
 st.set_page_config(
     page_title=get_text('main_title'),
     page_icon="🏛️",
-    layout="centered",
+    layout="wide",
     initial_sidebar_state="expanded"
 )
 
@@ -3179,7 +3190,7 @@ if __name__ == "__main__":
 
     # --- BRANDING (Explicit Fallback) ---
     # We create a top header row to force the logo visibility
-    c_brand_a, c_brand_b = st.columns([1, 10]) # Relaxed ratio for Centered Mode 
+    c_brand_a, c_brand_b = st.columns([1, 20]) # Adjusted for Semi-Wide 
     with c_brand_a:
          st.image("logo.png", width=45) # Visible Logo
     
