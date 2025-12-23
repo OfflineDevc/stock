@@ -320,23 +320,6 @@ TRANS = {
         'lang_label': "Language / ภาษา",
         'health_coming_soon': "Coming soon in Q1 2026. This module will analyze your upload portfolio for risk factors.",
         'ai_coming_soon': "Deep Learning module integration in progress.",
-        'tech_analysis_title': "📈 Professional Technical Analysis",
-        'support_label': "Support (Floor)",
-        'resistance_label': "Resistance (Ceiling)",
-        'pivot_points_title': "📍 Pivot Points (Standard)",
-        'fib_levels_title': "🔢 Fibonacci Retracement (1Y)",
-        'conservative_fv': "Conservative Fair Value",
-        'normal_fv': "Normal Fair Value",
-        'valuation_models_title': "💎 Intrinsic Value Analysis",
-        'tech_indicator_desc': "Technical levels used by professional traders to identify entry and exit points.",
-        'val_model_desc': "Intrinsic Value vs Market Price",
-        'val_badge_undervalued': "🔥 Undervalued",
-        'val_badge_fair': "✅ Fair Value",
-        'val_badge_premium': "⚠️ Overvalued",
-        'tech_summary': "Tech Sentiment",
-        'dcf_method_title': "📊 Valuation Methodology (DCF)",
-        'dcf_normal_desc': "**Normal Model**: 5-yr projection at growth, 10% discount rate, 3% terminal growth.",
-        'dcf_cons_desc': "**Conservative Model**: 5-yr projection at 50% growth haircut, 12% discount rate, TV = FCFn / r.",
         'tab_settings': "🎛️ Settings & Tools",
         'tab_metrics': "📊 Financial Metrics",
         'tab_lynch': "🧠 Peter Lynch Categories",
@@ -516,23 +499,6 @@ TRANS = {
         'lang_label': "ภาษาที่แสดง / Language",
         'health_coming_soon': "จะเปิดให้ใช้งานในไตรมาสที่ 1 ปี 2026 โดยโมดูลนี้จะช่วยวิเคราะห์พอร์ตที่คุณอัปโหลดเพื่อหาปัจจัยความเสี่ยง",
         'ai_coming_soon': "กำลังอยู่ระหว่างการพัฒนาโมดูลการวิเคราะห์เชิงลึก (Deep Learning)",
-        'tech_analysis_title': "📈 การวิเคราะห์ทางเทคนิคระดับโปร",
-        'support_label': "แนวรับ (Naeo Rap)",
-        'resistance_label': "แนวต้าน (Naeo Tan)",
-        'pivot_points_title': "📍 จุดกลับตัว (Pivot Points)",
-        'fib_levels_title': "🔢 ระดับฟีโบนักชี (1Y High/Low)",
-        'conservative_fv': "ราคาเหมาะสมแบบอนุรักษ์นิยม",
-        'normal_fv': "ราคาเหมาะสมแบบปกติ",
-        'valuation_models_title': "💎 การวิเคราะห์ราคาที่แท้จริง (Intrinsic Value)",
-        'tech_indicator_desc': "ระดับราคาที่นักลงทุนมืออาชีพใช้เพื่อหาจุดเข้า-ออก",
-        'val_model_desc': "ราคาที่แท้จริง vs ราคาตลาด",
-        'val_badge_undervalued': "🔥 ราคาถูก (Undervalued)",
-        'val_badge_fair': "✅ ราคาเหมาะสม (Fair)",
-        'val_badge_premium': "⚠️ ราคาสูง (Overvalued)",
-        'tech_summary': "สัญญาณเทคนิค",
-        'dcf_method_title': "📊 วิธีการประเมินมูลค่า (DCF)",
-        'dcf_normal_desc': "**แบบปกติ (Normal)**: คาดการณ์ 5 ปีตามการเติบโต, อัตราคิดลด 10%, Terminal Value คิดการเติบโตต่อเนื่อง 3%",
-        'dcf_cons_desc': "**แบบอนุรักษ์นิยม (Conservative)**: คาดการณ์ 5 ปีโดยลดการเติบโตลง 50%, อัตราคิดลด 12%, Terminal Value คิดจาก FCFn / r",
         'tab_settings': "🎛️ เครื่องมือและการตั้งค่า",
         'tab_metrics': "📊 ตัวชี้วัดทางการเงิน",
         'tab_lynch': "🧠 ประเภทหุ้นตาม Peter Lynch",
@@ -849,16 +815,6 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                     except: pass
 
                 
-                # Init variables for valuation even if recovery is skipped
-                inc = pd.DataFrame()
-                net_income_ttm = None
-                revenue_ttm = None
-                def get_ttm(df_ttm, label_ttm):
-                    if label_ttm in df_ttm.index:
-                        s_ttm = pd.to_numeric(df_ttm.loc[label_ttm], errors='coerce')
-                        return s_ttm.iloc[:4].sum()
-                    return None
-
                 # Init variables potentially missing from empty 'info'
                 roe = None
                 op_margin = None
@@ -882,6 +838,12 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                         op_income_ttm = None
                         revenue_ttm = None
                         
+                        # Helper for TTM
+                        def get_ttm(df, label):
+                            if label in df.index:
+                                s = pd.to_numeric(df.loc[label], errors='coerce')
+                                return s.iloc[:4].sum()
+                            return None
 
                         # INCOME STATEMENT METRICS (TTM)
                         if not inc.empty:
@@ -991,11 +953,6 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                     'Target_Price': analyst_target,
                     'Fair_Value': fair_value,
                     'Margin_Safety': margin_safety,
-                    'EPS': eps,
-                    'Net_Income_TTM': net_income_ttm,
-                    'Revenue_TTM': revenue_ttm,
-                    'FCF_TTM': get_ttm(inc, 'Free Cash Flow') if not inc.empty else None,
-                    'Shares_Outstanding': info.get('sharesOutstanding'),
                     'YF_Obj': stock 
                 })
         except Exception:
@@ -1152,12 +1109,7 @@ def analyze_history_deep(df_candidates, progress_bar, status_text):
             'NI_CAGR_5Y': cagr_ni,
             'Consistency': consistency_str,
             'Div_Streak': div_streak_str,
-            'Insight': insight_str if insight_str else "Stable",
-            # Valuation Data (Latest Annual as TTM Proxy)
-            'Net_Income_TTM': fin['Net Income'].iloc[-1] if not fin.empty and 'Net Income' in fin.columns else None,
-            'Revenue_TTM': fin['Total Revenue'].iloc[-1] if not fin.empty and 'Total Revenue' in fin.columns else None,
-            'FCF_TTM': stock.cashflow.loc['Free Cash Flow'].iloc[0] if not stock.cashflow.empty and 'Free Cash Flow' in stock.cashflow.index else None,
-            'Shares_Outstanding': fetch_cached_info(ticker).get('sharesOutstanding'), # Re-inject for safety
+            'Insight': insight_str if insight_str else "Stable"
         }
         # Merge perf metrics
         data_item.update(perf)
@@ -1536,158 +1488,6 @@ def page_scanner():
         st.info("Define parameters and start the Two-Stage Screening.")
 
 # ---------------------------------------------------------
-# 4. Professional Analysis Helpers
-# ---------------------------------------------------------
-
-def calculate_technical_levels(stock_obj):
-    """
-    Calculates Pivot Points and Fibonacci Retracement Levels.
-    """
-    try:
-        # We use 1 year of data for professional context
-        hist = stock_obj.history(period="1y")
-        if hist.empty: return None
-        
-        # 1. Fibonacci Levels (1Y High/Low)
-        high_1y = hist['High'].max()
-        low_1y = hist['Low'].min()
-        diff = high_1y - low_1y
-        
-        fibs = {
-            '100.0%': high_1y,
-            '78.6%': low_1y + 0.786 * diff,
-            '61.8%': low_1y + 0.618 * diff,
-            '50.0%': low_1y + 0.5 * diff,
-            '38.2%': low_1y + 0.382 * diff,
-            '23.6%': low_1y + 0.236 * diff,
-            '0.0%': low_1y
-        }
-        
-        # 2. Pivot Points (Standard) - Using last full month for context
-        # Professionals often use monthly pivots for long term or daily for daytrading.
-        # We'll use monthly points as a good 'swing' baseline.
-        last_month = hist.iloc[-22:] # approx last month
-        h = last_month['High'].max()
-        l = last_month['Low'].min()
-        c = hist['Close'].iloc[-1] # Current Close
-        
-        p = (h + l + c) / 3
-        pivots = {
-            'R3': h + 2 * (p - l),
-            'R2': p + (h - l),
-            'R1': (2 * p) - l,
-            'P': p,
-            'S1': (2 * p) - h,
-            'S2': p - (h - l),
-            'S3': l - 2 * (h - p)
-        }
-        
-        return {'fibs': fibs, 'pivots': pivots}
-    except:
-        return None
-
-def calculate_dcf_value(row, is_conservative=False):
-    """
-    Calculates intrinsic value using Discounted Cash Flow (DCF).
-    """
-    try:
-        # 1. Get Free Cash Flow (FCF)
-        # Fallback: Proxy FCF as 80% of Net Income if missing
-        fcf = row.get('FCF_TTM') or row.get('Free_Cash_Flow')
-        if fcf is None or fcf <= 0:
-            net_inc = row.get('Net_Income_TTM') or row.get('Net_Income')
-            if net_inc and net_inc > 0:
-                fcf = net_inc * 0.8
-            else: return None
-
-        # 2. Parameters based on mode
-        r = 0.12 if is_conservative else 0.10
-        g_terminal = 0.01 if is_conservative else 0.03
-        
-        # Growth projection: Prioritize 5Y Historical CAGR
-        growth = row.get('Rev_CAGR_5Y') or row.get('NI_CAGR_5Y') or row.get('EPS_Growth') or 0.05
-        if isinstance(growth, str): growth = 0.05 # Safety
-        if growth > 1.0: growth /= 100.0 # Convert 15% (15.0) to 0.15
-        
-        if is_conservative: growth *= 0.5
-        growth = max(0.02, min(growth, 0.20)) # Floor at 2% (inflation), Cap at 20%
-
-        fcf_projections = []
-        current_fcf = fcf
-        for i in range(1, 6):
-            current_fcf *= (1 + growth)
-            fcf_projections.append(current_fcf / ((1 + r) ** i))
-        
-        fcf_n = current_fcf
-        if is_conservative: tv = fcf_n / r
-        else: tv = (fcf_n * (1 + g_terminal)) / (r - g_terminal)
-        
-        tv_discounted = tv / ((1 + r) ** 5)
-        total_ev = sum(fcf_projections) + tv_discounted
-        
-        # 3. Equity Value per Share (Ultra-Robust Fallback)
-        shares = row.get('Shares_Outstanding')
-        if not shares:
-            try:
-                # Fallback: MarketCap / Price
-                mcap = row.get('Market_Cap')
-                price = row.get('Price')
-                if mcap and price and price > 0:
-                    shares = mcap / price
-                else:
-                    shares = row['YF_Obj'].info.get('sharesOutstanding')
-            except: shares = None
-        
-        if shares and shares > 0:
-            return total_ev / shares
-    except: pass
-    return None
-
-def calculate_dual_intrinsic_value(row):
-    """
-    Calculates Normal and Conservative Intrinsic Values with ultra-robust fallbacks.
-    (DCF -> Earnings Multiplier -> Book Value -> Revenue)
-    """
-    fv_n = calculate_dcf_value(row, is_conservative=False)
-    fv_c = calculate_dcf_value(row, is_conservative=True)
-    
-    if fv_n is not None and fv_c is not None:
-        return round(fv_c, 2), round(fv_n, 2)
-
-    # --- FALLBACK 1: EARNINGS MULTIPLIER (P/E) ---
-    try:
-        eps = row.get('EPS') or row.get('EPS_TTM')
-        if not eps:
-            ni = row.get('Net_Income_TTM')
-            shares = row.get('Shares_Outstanding')
-            if ni and shares and shares > 0:
-                eps = ni / shares
-        
-        if eps and eps > 0:
-            return round(eps * 10, 2), round(eps * 15, 2)
-    except: pass
-
-    # --- FALLBACK 2: BOOK VALUE MULTIPLIER (P/B) ---
-    try:
-        pb = row.get('PB')
-        price = row.get('Price')
-        if pb and price and pb > 0:
-            bvps = price / pb
-            return round(bvps * 1.0, 2), round(bvps * 1.5, 2)
-    except: pass
-
-    # --- FALLBACK 3: REVENUE MULTIPLIER (P/S) ---
-    try:
-        rev = row.get('Revenue_TTM') or row.get('Revenue')
-        shares = row.get('Shares_Outstanding')
-        if rev and shares and shares > 0:
-            sps = rev / shares
-            return round(sps * 0.8, 2), round(sps * 1.2, 2)
-    except: pass
-        
-    return None, None
-
-# ---------------------------------------------------------
 # PAGES: Single Stock & Glossary
 # ---------------------------------------------------------
 
@@ -1712,38 +1512,37 @@ def page_single_stock():
                 row = df.iloc[0].copy()
                 price = row['Price']
                 
-                # Fetch deeper data
+                # Top Header
+                st.subheader(f"{row['Symbol']} - {row['Company']}")
+                
+                # Calculate Lynch Category if missing
+                lynch_cat = row.get('Lynch_Category')
+                if not lynch_cat:
+                    lynch_cat = classify_lynch(row)
+                
+                if not lynch_cat:
+                    lynch_cat = classify_lynch(row)
+                
+                c1, c2, c3 = st.columns(3)
+                c1.metric("Price", f"{price} {row.get('Currency', '')}")
+                c2.metric("Sector", row['Sector'])
+                c3.metric(get_text('lynch_type'), lynch_cat)
+                
+                # Fetch deeper data for context
                 deep_metrics = analyze_history_deep(df, MockProgress(), st.empty())
                 if not deep_metrics.empty:
                     deep_row = deep_metrics.iloc[0]
+                    # Merge manually for display
                     for k, v in deep_row.items(): row[k] = v
 
-                # --- HEADER & KEY METRICS (Minimalist Row 1) ---
-                c_head, c_val_min = st.columns([3, 2])
-                with c_head:
-                    st.markdown(f"### {row['Symbol']} :gray[{row['Company']}]")
-                    # Inline Core Stats
-                    st.markdown(f"**Price:** {price} {row.get('Currency', '')} | **Sector:** {row['Sector']} | **{get_text('lynch_type')}:** {classify_lynch(row)}")
-                
-                fv_cons, fv_norm = calculate_dual_intrinsic_value(row)
-                with c_val_min:
-                    if fv_cons and fv_norm:
-                        price_val = float(price)
-                        if price_val < fv_cons: badge = get_text('val_badge_undervalued'); bcol = "green"
-                        elif price_val < fv_norm: badge = get_text('val_badge_fair'); bcol = "blue"
-                        else: badge = get_text('val_badge_premium'); bcol = "orange"
-                        
-                        st.markdown(f"#### :{bcol}[{badge}]")
-                        st.markdown(f"**Consv:** {fv_cons:,.2f} | **Norm:** {fv_norm:,.2f}")
-                        
-                        # Methodology Help
-                        with st.popover("ℹ️ Methodology"):
-                            st.markdown(f"### {get_text('dcf_method_title')}")
-                            st.write(get_text('dcf_normal_desc'))
-                            st.write(get_text('dcf_cons_desc'))
-                            st.caption("🛡️ Ultra-Robust Fallback: If cash flow data is missing, we automatically switch to Multiplier models (Earnings, Book Value, or Revenue) to ensure you always have an estimate.")
-                    else:
-                        st.caption("Valuation data incomplete.")
+                    # --- BACKFILL COALESCE (Restored) ---
+                    if (pd.isna(row.get('PEG')) or row.get('PEG') is None) and row.get('Derived_PEG'):
+                        row['PEG'] = row['Derived_PEG']
+                    
+                    if (pd.isna(row.get('Fair_Value')) or row.get('Fair_Value') is None) and row.get('Derived_FV'):
+                        row['Fair_Value'] = row['Derived_FV']
+                        if row.get('Price') and row['Fair_Value'] != 0:
+                             row['Margin_Safety'] = ((row['Fair_Value'] - row['Price']) / row['Fair_Value']) * 100
 
                 # NEW: Business Summary
                 try:
@@ -1758,57 +1557,98 @@ def page_single_stock():
                              st.write(summary)
                 except: pass
 
-                # --- COMPACT SCORES & TECH ---
+                # strategy checks
+                st.markdown("### 🎯 Strategy Fit Scorecard")
+                
+                c_s1, c_s2, c_s3 = st.columns(3)
+                
+                # 1. GARP Score
+                score, details = calculate_fit_score(row, [('PEG', 1.2, '<'), ('EPS_Growth', 0.15, '>'), ('ROE', 15.0, '>')])
+                c_s1.metric(get_text('score_garp'), f"{score}/100")
+                if details != "✅ Perfect Match": c_s1.caption(details)
+
+                # 2. Value Score
+                score, details = calculate_fit_score(row, [('PE', 15.0, '<'), ('PB', 1.5, '<'), ('Debt_Equity', 50.0, '<')])
+                c_s2.metric(get_text('score_value'), f"{score}/100")
+                if details != "✅ Perfect Match": c_s2.caption(details)
+                
+                # 3. Dividend Score
+                score, details = calculate_fit_score(row, [('Div_Yield', 4.0, '>'), ('Op_Margin', 10.0, '>')])
+                c_s3.metric(get_text('score_div'), f"{score}/100")
+                if details != get_text('perfect_match'): c_s3.caption(details)
+
+                # 4. Multibagger Score (New)
+                c_s4 = c_s1 # Reuse or create new row? Let's use correct layout.
+                # Actually let's just make it 4 columns if space permits
+                
+                # RE-LAYOUT to 4 COLUMNS
+                # But st.columns(3) is above. I need to edit the column setup to make it work gracefully.
+                # Since I am in 'multi_replace', I can't easily change the `st.columns(3)` line which is far above line 1137.
+                # I'll just append it to the bottom or use expander.
+                
+                st.caption("---")
+                c_m1, c_m2 = st.columns(2)
+                score, details = calculate_fit_score(row, [('Rev_Growth', 30.0, '>'), ('EPS_Growth', 20.0, '>'), ('PEG', 2.0, '<')])
+                c_m1.metric(get_text('score_multi'), f"{score}/100")
+                if details != get_text('perfect_match'): c_m1.caption(details)
+                
                 st.markdown("---")
+                st.subheader(get_text('health_check_title'))
+                col1, col2 = st.columns(2)
                 
-                c_sc_min, c_tc_min = st.columns([3, 2])
+                with col1:
+                    st.markdown(f"**{get_text('val_label')}**")
+                    st.write(f"- P/E: **{row.get('PE') if row.get('PE') is not None else 0:.1f}**")
+                    st.write(f"- PEG: **{row.get('PEG') if row.get('PEG') is not None else 0:.2f}**")
+                    st.write(f"- P/B: **{row.get('PB') if row.get('PB') is not None else 0:.2f}**")
+                    st.write(f"- Fair Value: **{row.get('Fair_Value') if row.get('Fair_Value') is not None else 0:.2f}**")
                 
-                with c_sc_min:
-                    ss1, ss2, ss3, ss4 = st.columns(4)
-                    g_score, _ = calculate_fit_score(row, [('PEG', 1.2, '<'), ('EPS_Growth', 0.15, '>'), ('ROE', 15.0, '>')])
-                    v_score, _ = calculate_fit_score(row, [('PE', 15.0, '<'), ('PB', 1.5, '<')])
-                    d_score, _ = calculate_fit_score(row, [('Div_Yield', 4.0, '>'), ('Op_Margin', 10.0, '>')])
-                    m_score, _ = calculate_fit_score(row, [('Rev_Growth', 0.25, '>'), ('PEG', 1.5, '<')])
+                with col2:
+                    st.markdown(f"**{get_text('qual_label')}**")
+                    st.write(f"- ROE: **{row.get('ROE') if row.get('ROE') is not None else 0:.1f}%**")
+                    st.write(f"- Margin: **{row.get('Op_Margin') if row.get('Op_Margin') is not None else 0:.1f}%**")
+                    st.write(f"- Debt/Equity: **{row.get('Debt_Equity') if row.get('Debt_Equity') is not None else 0:.0f}%**")
+                    st.write(f"- Dividend: **{row.get('Div_Yield') if row.get('Div_Yield') is not None else 0:.2f}%**")
+                
+                # --- GURU & ANALYST DATA ---
+                st.markdown("---")
+                st.subheader(get_text('guru_intel_title'))
+                
+                tab_guru, tab_rec = st.tabs([get_text('tab_holders'), get_text('tab_recs')])
+                
+                with tab_guru:
+                    try:
+                        holders = stock_obj.institutional_holders
+                        if holders is not None and not holders.empty:
+                            st.dataframe(holders, hide_index=True, use_container_width=True)
+                            st.caption(get_text('holders_desc'))
+                        else:
+                            st.info(get_text('no_holders'))
+                    except: st.error(get_text('err_holders'))
                     
-                    ss1.metric("GARP SCORE", f"{g_score}%")
-                    ss2.metric("Value SCORE", f"{v_score}%")
-                    ss3.metric("Div SCORE", f"{d_score}%")
-                    ss4.metric("Multibagger SCORE", f"{m_score}%")
+                with tab_rec:
+                    try:
+                        recs = stock_obj.recommendations
+                        if recs is not None and not recs.empty:
+                            # Show latest recommendations summary
+                            # yfinance often returns a long history, let's show summary or recent
+                            st.dataframe(recs.tail(10), use_container_width=True)
+                        
+                        # Analyst Targets
+                        tgt_mean = row.get('Target_Price')
+                        if tgt_mean:
+                            st.metric(get_text('consensus_target'), f"{tgt_mean}", f"{get_text('vs_current')}: {price}")
+                        else:
+                            st.info(get_text('no_target'))
+                            
+                    except: st.error(get_text('err_recs'))
 
-                with c_tc_min:
-                    levels = calculate_technical_levels(stock_obj)
-                    if levels:
-                        pivotas_x = levels['pivots']
-                        st.markdown(f"**{get_text('tech_summary')}**")
-                        st.caption(f"S1:{pivotas_x['S1']:,.1f} | P:{pivotas_x['P']:,.1f} | R1:{pivotas_x['R1']:,.1f}")
-                    else:
-                        st.caption("Tech data missing.")
-
-                
-                # --- DETAILS ACCORDION ---
-                with st.expander("🛠️ Details & Analysis", expanded=False):
-                    t_fin, t_hold, t_rec = st.tabs(["Metrics", get_text('tab_holders'), get_text('tab_recs')])
-                    with t_fin:
-                        st.write(f"- P/E: **{row.get('PE', 0):.1f}** | PEG: **{row.get('PEG', 0):.2f}** | P/B: **{row.get('PB', 0):.2f}**")
-                        st.write(f"- ROE: **{row.get('ROE', 0):.1f}%** | Margin: **{row.get('Op_Margin', 0):.1f}%** | Yield: **{row.get('Div_Yield', 0):.2f}%**")
-                    with t_hold:
-                        try:
-                            holders = stock_obj.institutional_holders
-                            if holders is not None and not holders.empty: st.dataframe(holders, hide_index=True, use_container_width=True)
-                        except: pass
-                    with t_rec:
-                        try:
-                            recs = stock_obj.recommendations
-                            if recs is not None and not recs.empty: st.dataframe(recs.tail(5), use_container_width=True)
-                            tgt_val = row.get('Target_Price')
-                            if tgt_val: st.metric(get_text('consensus_target'), f"{tgt_val}")
-                        except: pass
-
-                # --- TREND CHART ---
-                st.markdown("---")
-                hist = stock_obj.history(period="5y")
+                # Show Chart
+                st.markdown(get_text('price_trend_title'))
+                stock = row['YF_Obj']
+                hist = stock.history(period="5y")
                 if not hist.empty:
-                    st.line_chart(hist['Close'], height=250)
+                    st.line_chart(hist['Close'])
 
             else:
                 st.error(get_text('err_fetch'))
