@@ -1564,16 +1564,16 @@ def page_single_stock():
     # Initialize df to prevent UnboundLocalError
     df = pd.DataFrame() # Empty default
     
+    # Define Mocks at top scope for re-use in persisted blocks
+    class MockProgress:
+        def progress(self, x): pass
+    class MockStatus:
+        def caption(self, x): pass
+        def empty(self): pass
+
     # State Persistence Logic
     if st.button(get_text('analyze_btn')) and ticker:
         with st.spinner(f"Analyzing {ticker}..."):
-            # Reuse logic
-            class MockProgress:
-                def progress(self, x): pass
-            class MockStatus:
-                def caption(self, x): pass
-                def empty(self): pass
-                
             new_df = scan_market_basic([ticker], MockProgress(), st.empty())
             st.session_state['single_stock_cache'] = new_df
             
