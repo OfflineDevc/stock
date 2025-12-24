@@ -1305,7 +1305,10 @@ def page_scanner():
                     try: # optimization
                         stock_obj = df.loc[df['Symbol'] == selected_ticker, 'YF_Obj'].values[0]
                     except:
-                        stock_obj = yf.Ticker(selected_ticker.replace('-', '.'))
+                        stock_obj = None
+                    
+                    if stock_obj is None:
+                        stock_obj = yf.Ticker(selected_ticker)
                     
                     fin_stmt = stock_obj.financials
                     if not fin_stmt.empty:
