@@ -1394,6 +1394,85 @@ def calculate_cycle_risk(current_price, ath):
     return max(0.1, min(0.95, risk))
 
 # ---------------------------------------------------------
+# PRO INTELLIGENCE SCORING (Startup Grade)
+# ---------------------------------------------------------
+def calculate_crypash_score(ticker, hist, info=None):
+    """
+    Startup-grade scoring engine (0-100).
+    Aggregates Cycle, Risk, and Technicals.
+    """
+    score_cards = {
+        'total': 0, 'value': 0, 'momentum': 0, 'health': 0, 
+        'analysis': []
+    }
+    
+    current_price = hist['Close'].iloc[-1]
+    ath = hist['Close'].max()
+    vol_30d = hist['Close'].pct_change().std() * (365**0.5) * 100 # Annualized
+    
+    # 1. VALUE & CYCLE (40%)
+    # Logic: Lower MVRV is better. Higher Drawdown is opportunity.
+    mvrv = calculate_mvrv_z_proxy(hist['Close']).iloc[-1] if len(hist) > 200 else 1.0
+    drawdown = (current_price - ath) / ath
+    
+    val_score = 50 # Base
+    if mvrv < 0: val_score += 40 # Deep Value
+    elif mvrv < 1: val_score += 20
+    elif mvrv > 3: val_score -= 30 # Bubble
+    elif mvrv > 2: val_score -= 10
+    
+    if drawdown < -0.8: val_score += 10 # Massive upside potential
+    if drawdown > -0.2: val_score -= 10 # Near ATH risk
+    
+    score_cards['value'] = max(0, min(100, val_score))
+    
+    # 2. MOMENTUM & TREND (30%)
+    # Logic: Uptrend is good. RSI not too hot.
+    if len(hist) > 200:
+        sma200 = hist['Close'].rolling(200).mean().iloc[-1]
+        trend_bull = current_price > sma200
+    else:
+        trend_bull = True # New coin benefit of doubt
+        
+    rsi = calculate_rsi(hist['Close']).iloc[-1]
+    
+    mom_score = 50
+    if trend_bull: mom_score += 20
+    if 40 <= rsi <= 70: mom_score += 10 # Healthy zone
+    if rsi > 80: mom_score -= 20 # Overheated
+    if rsi < 30: mom_score += 20 # Oversold bounce play
+    
+    score_cards['momentum'] = max(0, min(100, mom_score))
+    
+    # 3. RISK & HEALTH (30%)
+    # Logic: Lower Volatility is better (usually). Higher volume/liquidity is better.
+    health_score = 50
+    
+    if vol_30d > 150: health_score -= 20 # Too crazy
+    elif vol_30d < 60: health_score += 20 # Stable
+    
+    # Sharpe Proxy (Return / Vol)
+    ret_30d = (hist['Close'].iloc[-1] / hist['Close'].iloc[-30] - 1) if len(hist)>30 else 0
+    if vol_30d > 0:
+        sharpe_proxy = ret_30d / (vol_30d/100) 
+        if sharpe_proxy > 1: health_score += 20
+        elif sharpe_proxy < 0: health_score -= 10
+        
+    score_cards['health'] = max(0, min(100, health_score))
+    
+    # TOTAl WEIGHTED
+    total = (score_cards['value'] * 0.4) + (score_cards['momentum'] * 0.3) + (score_cards['health'] * 0.3)
+    score_cards['total'] = int(total)
+    
+    # Analysis Strings
+    if score_cards['total'] >= 80: score_cards['analysis'].append("💎 **Elite Tier**: Strong Buy.")
+    elif score_cards['total'] >= 60: score_cards['analysis'].append("✅ **Healthy**: Good accumulation zone.")
+    elif score_cards['total'] <= 40: score_cards['analysis'].append("⚠️ **Weak**: High risk or overvalued.")
+    
+    return score_cards
+
+
+# ---------------------------------------------------------
 # PAGES: Single Stock & Glossary
 # ---------------------------------------------------------
 
@@ -1464,6 +1543,37 @@ def page_single_coin():
                 c3.metric("MVRV Z-Score", f"{mvrv_z:.2f}", "Overvalued" if mvrv_z > 3 else "Undervalued")
                 c4.metric("Cycle Risk Gauge", f"{risk_score*100:.0f}/100", "Extreme Risk" if risk_score > 0.8 else "Safe Zone")
 
+                # --- PRO SCORECARD (Startup Grade) ---
+                st.markdown("---")
+                st.subheader("🏆 Crypash Pro Score (Startup Intelligence)")
+                
+                scores = calculate_crypash_score(ticker, hist)
+                
+                sc_main, sc_val, sc_mom, sc_risk = st.columns([2, 1, 1, 1])
+                
+                with sc_main:
+                    st.metric("Total Intelligence Score", f"{scores['total']}/100", delta=None)
+                    st.progress(scores['total'])
+                    # Analysis Text
+                    for analysis in scores['analysis']:
+                        st.caption(analysis)
+
+                with sc_val:
+                    st.caption("🦄 Value & Cycle")
+                    st.metric("Val", f"{scores['value']}", label_visibility="collapsed")
+                    st.progress(scores['value'])
+
+                with sc_mom:
+                    st.caption("🚀 Momentum")
+                    st.metric("Mom", f"{scores['momentum']}", label_visibility="collapsed")
+                    st.progress(scores['momentum'])
+
+                with sc_risk:
+                    st.caption("🛡️ Health & Risk")
+                    st.metric("Health", f"{scores['health']}", label_visibility="collapsed")
+                    st.progress(scores['health'])
+                
+                st.markdown("---")
                 st.divider()
 
                 # 4. Power Law / Fair Value Card (Only for BTC for now)
