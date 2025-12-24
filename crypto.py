@@ -1253,7 +1253,7 @@ def page_scanner():
             tickers = get_crypto_universe(market_choice)
             tickers = tickers[:num_stocks]
         
-        st.info(f"Stage 1: Scanning {len(tickers)} stocks...")
+        st.info(f"Stage 1: Scanning {len(tickers)} coins")
         df = scan_market_basic(tickers, st.progress(0), st.empty(), debug_container)
 
         if not df.empty:
