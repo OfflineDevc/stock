@@ -727,35 +727,40 @@ def get_crypto_universe(category='Top 50'):
         'APT-USD', 'CRO-USD', 'LDO-USD', 'ARB-USD', 'NEAR-USD', 'VET-USD', 'MKR-USD', 
         'QNT-USD', 'AAVE-USD', 'GRT-USD', 'ALGO-USD', 'STX-USD', 'SAND-USD', 'EGLD-USD', 
         'THETA-USD', 'FTM-USD', 'EOS-USD', 'MANA-USD', 'FLOW-USD', 'AXS-USD', 'NEO-USD',
-        'XTZ-USD', 'KCS-USD', 'CHZ-USD', 'GALA-USD', 'KLAY-USD', 'RUNE-USD', 'CRV-USD'
+        'XTZ-USD', 'KCS-USD', 'CHZ-USD', 'GALA-USD', 'KLAY-USD', 'RUNE-USD', 'CRV-USD',
+        # Top 100-200 Extension
+        'HBAR-USD', 'VET-USD', 'ICP-USD', 'FIL-USD', 'EGLD-USD', 'MANA-USD', 'SAND-USD',
+        'AXS-USD', 'THETA-USD', 'EOS-USD', 'AAVE-USD', 'FLOW-USD', 'QNT-USD', 'GRT-USD',
+        'SNX-USD', 'NEO-USD', 'XEC-USD', 'MKR-USD', 'KLAY-USD', 'GNO-USD', 'CAKE-USD',
+        'CFX-USD', 'ROSE-USD', 'WOO-USD', 'LUNC-USD', 'ZEC-USD', 'IOTA-USD', 'DASH-USD',
+        'COMP-USD', 'FXS-USD', 'LRC-USD', 'ZIL-USD', 'DYDX-USD', 'CVX-USD', 'ENJ-USD',
+        'BAT-USD', 'TWT-USD', 'MINA-USD', 'RVN-USD', 'XEM-USD', '1INCH-USD', 'HOT-USD',
+        'GLM-USD', 'CELO-USD', 'KSM-USD', 'NEXO-USD', 'BAL-USD', 'JASMY-USD', 'AR-USD',
+        'QTUM-USD', 'ANKR-USD', 'TFUEL-USD', 'ONT-USD', 'KAVA-USD', 'ILV-USD', 'GMT-USD',
+        'YFI-USD', 'MASK-USD', 'JST-USD', 'GLMR-USD', 'WBTC-USD', 'BTT-USD', 'SXP-USD'
     ]
 
-    # 2. Layer 1s
+    # ... existing categories ...
     l1 = [
         'BTC-USD', 'ETH-USD', 'SOL-USD', 'ADA-USD', 'AVAX-USD', 'TRX-USD', 'DOT-USD', 
-        'ATOM-USD', 'NEAR-USD', 'ALGO-USD', 'FTM-USD', 'SUI-USD', 'SEI-USD'
+        'ATOM-USD', 'NEAR-USD', 'ALGO-USD', 'FTM-USD', 'SUI-USD', 'SEI-USD', 'TIA-USD',
+        'APT-USD', 'INJ-USD', 'KAS-USD', 'TON-USD', 'MINA-USD', 'HBAR-USD'
     ]
-
-    # 3. DeFi
-    defi = [
-        'UNI-USD', 'LINK-USD', 'LDO-USD', 'MKR-USD', 'AAVE-USD', 'CRV-USD', 'SNX-USD', 
-        'COMP-USD', '1INCH-USD', 'SUSHI-USD', 'RPL-USD', 'DYDX-USD', 'GMX-USD'
-    ]
-
-    # 4. Meme
-    meme = [
-        'DOGE-USD', 'SHIB-USD', 'PEPE-USD', 'FLOKI-USD', 'BONK-USD', 'WIF-USD', 'MEME-USD'
-    ]
-
-    # 5. AI & Big Data
-    ai_coins = [
-        'RNDR-USD', 'FET-USD', 'AGIX-USD', 'OCEAN-USD', 'AKT-USD', 'TAO-USD'
-    ]
+    
+    # Combined Large List
+    all_market = list(set(top_50 + l1 + [
+        'UNI-USD', 'LINK-USD', 'LDO-USD', 'MKR-USD', 'AAVE-USD', 'CRV-USD', 'SNX-USD',
+        'COMP-USD', '1INCH-USD', 'SUSHI-USD', 'RPL-USD', 'DYDX-USD', 'GMX-USD',
+        'DOGE-USD', 'SHIB-USD', 'PEPE-USD', 'FLOKI-USD', 'BONK-USD', 'WIF-USD', 'MEME-USD',
+        'RNDR-USD', 'FET-USD', 'AGIX-USD', 'OCEAN-USD', 'AKT-USD', 'TAO-USD',
+        'IMX-USD', 'OP-USD', 'ARB-USD', 'STX-USD', 'ORDI-USD', 'STRK-USD', 'BLUR-USD'
+    ]))
 
     if category == 'Layer 1': return l1
     if category == 'DeFi': return defi
     if category == 'Meme': return meme
     if category == 'AI & Big Data': return ai_coins
+    if category == 'All (Top 200)': return all_market
     
     # Default to Top 50
     return top_50
@@ -1171,8 +1176,8 @@ def page_scanner():
         c_uni, c_strat = st.columns(2)
         with c_uni:
              st.subheader("1. Crypto Universe")
-             market_choice = st.selectbox("Select Category", ["Top 50", "Layer 1", "DeFi", "Meme", "AI & Big Data"])
-             num_stocks = st.slider(get_text('scan_limit'), 10, 100, 50)
+             market_choice = st.selectbox("Select Category", ["Top 50", "Layer 1", "DeFi", "Meme", "AI & Big Data", "All (Top 200)"])
+             num_stocks = st.slider(get_text('scan_limit'), 10, 200, 50)
              top_n_deep = st.slider("Analyze Top N Deeply (Stage 2)", 5, 20, 10)
         
         with c_strat:
@@ -1325,18 +1330,17 @@ def page_scanner():
                         st.warning("No price history available for this coin.")
 
         # Cache Clearing for Debugging
-        if st.checkbox("Show Advanced Options"):
+        # Cache Clearing for Debugging
+        if st.checkbox("Show Advanced Options", key='adv_opt'):
             if st.button("🗑️ Clear Data Cache"):
                 st.cache_data.clear()
                 st.success("Cache Cleared! Rerun the scan.")
-
-        else:
-            st.error(get_text('no_data'))
-            st.session_state['scan_results'] = None
-            st.session_state['deep_results'] = None
-
-    else:
-        st.info("Define parameters and start the Two-Stage Screening.")
+    
+    elif st.session_state.get('scan_results') is None:
+         # Only show this if no results AND no scan happening
+         # But wait, if we are just idling, we don't want error.
+         pass
+         # st.info("Define parameters and start the Two-Stage Screening.")
 
 
 def calculate_power_law_btc(days_since_genesis):
