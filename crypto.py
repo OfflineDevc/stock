@@ -1390,7 +1390,8 @@ def page_single_coin():
         all_tickers.remove("BTC-USD")
         all_tickers.insert(0, "BTC-USD")
         
-    ticker = st.selectbox(get_text('search_ticker'), all_tickers, index=0)
+    search_label = f"{get_text('search_ticker')} ({len(all_tickers)} Available)"
+    ticker = st.selectbox(search_label, all_tickers, index=0)
     
     if st.button(get_text('analyze_btn')) or ticker:
         with st.spinner(f"Analyzing On-Chain Data for {ticker}..."):
