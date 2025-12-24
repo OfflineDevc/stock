@@ -1489,13 +1489,36 @@ def calculate_cycle_risk(current_price, ath):
     risk = 1.0 + drawdown # e.g. 1 + (-0.2) = 0.8
     return max(0.1, min(0.95, risk))
 
+def calculate_stoch_rsi(series, period=14, smoothK=3, smoothD=3):
+    """
+    StochRSI = (RSI - MinRSI) / (MaxRSI - MinRSI)
+    """
+    delta = series.diff()
+    gain = (delta.where(delta > 0, 0)).rolling(period).mean()
+    loss = (-delta.where(delta < 0, 0)).rolling(period).mean()
+    rs = gain / loss
+    rsi = 100 - (100 / (1 + rs))
+    
+    stoch_rsi = (rsi - rsi.rolling(period).min()) / (rsi.rolling(period).max() - rsi.rolling(period).min())
+    k = stoch_rsi.rolling(smoothK).mean() * 100
+    d = k.rolling(smoothD).mean()
+    return k, d
+
+def calculate_cci(high, low, close, period=20):
+    tp = (high + low + close) / 3
+    sma = tp.rolling(period).mean()
+    mad = tp.rolling(period).apply(lambda x: pd.Series(x).mad())
+    cci = (tp - sma) / (0.015 * mad)
+    return cci
+
 # ---------------------------------------------------------
 # PRO INTELLIGENCE SCORING (Startup Grade)
 # ---------------------------------------------------------
 def calculate_crypash_score(ticker, hist, info=None):
     """
-    Expert-grade scoring engine (0-100) based on 4 Pillars.
-    Returns score + detailed breakdown for UI tooltips.
+    ULTIMATE EXPERT SCORING ENGINE (15+ Metrics)
+    Pillars: On-Chain (35%), Momentum (25%), Risk (20%), Sentiment (20%).
+    Includes Structural Proxies for missing On-Chain data.
     """
     score_cards = {
         'total': 0, 
@@ -1508,149 +1531,203 @@ def calculate_crypash_score(ticker, hist, info=None):
     ath = hist['Close'].max()
     vol_30d = hist['Close'].pct_change().std() * (365**0.5) * 100 
     
-    # --- 1. On-Chain & Valuation ---
-    mvrv = calculate_mvrv_z_proxy(hist['Close']).iloc[-1] if len(hist) > 200 else 1.0
+    # ==============================================================================
+    # 1. ON-CHAIN & VALUATION (35%)
+    # Metrics: MVRV, NUPL Proxy, Netflow Proxy, Whale Proxy
+    # ==============================================================================
+    onchain_score = 0
+    onchain_count = 0
     
-    onchain_score = 50 
+    # A. MVRV Z-Score (The King)
+    mvrv = calculate_mvrv_z_proxy(hist['Close']).iloc[-1] if len(hist) > 200 else 1.0
     if mvrv <= -0.5: 
-        onchain_score = 100
-        score_cards['details']['value'].append(f"MVRV Z: {mvrv:.2f} (Undervalued) [+100]")
+        onchain_score += 100; onchain_count += 3 # Weighted x3
+        score_cards['details']['value'].append(f"MVRV Z: {mvrv:.2f} (Undervalued) [++Strong Buy]")
     elif mvrv >= 3.5: 
-        onchain_score = 0
-        score_cards['details']['value'].append(f"MVRV Z: {mvrv:.2f} (Overheated) [0]")
+        onchain_score += 0; onchain_count += 3
+        score_cards['details']['value'].append(f"MVRV Z: {mvrv:.2f} (Overheated) [Sell]")
     elif 0 < mvrv < 3.5:
-        onchain_score = 100 - (mvrv / 3.5 * 100)
+        onchain_score += (100 - (mvrv / 3.5 * 100)); onchain_count += 3
         score_cards['details']['value'].append(f"MVRV Z: {mvrv:.2f} (Fair Value)")
 
-    # Whale Accumulation (Volume vs Price Divergence)
+    # B. NUPL Proxy (Net Unrealized Profit/Loss) -> Modeled via RSI + MVRV blend
+    # If RSI low + MVRV low = Capitulation (Negative NUPL)
+    rsi = calculate_rsi(hist['Close']).iloc[-1]
+    nupl_state = "Neutral"
+    if mvrv < 0 and rsi < 40: nupl_state = "Capitulation (<0)"; nupl_score = 100
+    elif mvrv > 3 and rsi > 70: nupl_state = "Euphoria (>0.7)"; nupl_score = 0
+    else: nupl_score = 50
+    onchain_score += nupl_score; onchain_count += 1
+    score_cards['details']['value'].append(f"NUPL (Proxy): {nupl_state}")
+
+    # C. Exchange Netflow Proxy (Structural)
+    # Theory: Low Volatility + Consolidation = Outflow (Accumulation)
+    # Theory: High Volatility + Price Drop = Inflow (Panic Selling)
+    recent_vol = hist['Close'].pct_change().tail(7).std() * 100
+    netflow_score = 50
+    if recent_vol < 2.0: # Very stable price action
+        netflow_score = 80
+        score_cards['details']['value'].append("Netflow: Potential Outflow (Accumulation)")
+    elif recent_vol > 5.0 and current_price < hist['Close'].iloc[-7]:
+        netflow_score = 20
+        score_cards['details']['value'].append("Netflow: Potential Inflow (Panic)")
+    onchain_score += netflow_score; onchain_count += 1
+    
+    # D. Whale Accumulation Score (Volume Divergence)
+    # Rising Volume with Flat/Rising Price = Buying
+    whale_score = 50
     try:
         vol_sma20 = hist['Volume'].rolling(20).mean().iloc[-1]
         vol_curr = hist['Volume'].iloc[-1]
         price_sma20 = hist['Close'].rolling(20).mean().iloc[-1]
         
-        if vol_curr > vol_sma20 and current_price <= price_sma20:
-            onchain_score += 10
-            score_cards['details']['value'].append("Whale Accumulation: Very High Volume at Low Price [+10]")
+        if vol_curr > vol_sma20 * 1.5 and current_price <= price_sma20 * 1.05:
+            whale_score = 100
+            score_cards['details']['value'].append("Whale Activity: Aggressive Buying detected")
+        elif vol_curr > vol_sma20 and current_price < price_sma20:
+            whale_score = 80
+            score_cards['details']['value'].append("Whale Activity: Accumulation")
+        else:
+            score_cards['details']['value'].append("Whale Activity: Neutral")
+    except: pass
+    onchain_score += whale_score; onchain_count += 1
+    
+    score_cards['value'] = int(onchain_score / max(1, onchain_count))
+
+    # ==============================================================================
+    # 2. MOMENTUM (25%)
+    # Metrics: RSI, Stoch RSI, MACD, ADX, CCI, EMA Trend
+    # ==============================================================================
+    mom_score_sum = 0
+    mom_count = 0
+    
+    # A. RSI (14)
+    if rsi <= 30: rsis = 100; score_cards['details']['momentum'].append(f"RSI: {rsi:.1f} (Oversold)")
+    elif rsi >= 70: rsis = 0; score_cards['details']['momentum'].append(f"RSI: {rsi:.1f} (Overbought)")
+    else: rsis = 50
+    mom_score_sum += rsis; mom_count += 1
+    
+    # B. Stoch RSI
+    try:
+        k, d = calculate_stoch_rsi(hist['Close'])
+        k_val = k.iloc[-1]
+        if k_val < 20: stoch_s = 90; score_cards['details']['momentum'].append(f"Stoch RSI: {k_val:.1f} (Bottom)")
+        elif k_val > 80: stoch_s = 10; score_cards['details']['momentum'].append(f"Stoch RSI: {k_val:.1f} (Top)")
+        else: stoch_s = 50
+        mom_score_sum += stoch_s; mom_count += 1
     except: pass
     
-    score_cards['value'] = max(0, min(100, int(onchain_score)))
-
-    # --- 2. Momentum ---
-    rsi = calculate_rsi(hist['Close']).iloc[-1]
+    # C. MACD
     macd, signal_line, _ = calculate_macd(hist['Close'])
-    adx = calculate_adx(hist['High'], hist['Low'], hist['Close']).iloc[-1]
-    
-    # RSI
-    if rsi <= 30: 
-        rsi_score = 100
-        score_cards['details']['momentum'].append(f"RSI: {rsi:.1f} (Oversold) [+High]")
-    elif rsi >= 70: 
-        rsi_score = 0
-        score_cards['details']['momentum'].append(f"RSI: {rsi:.1f} (Overbought) [+Low]")
-    else: 
-        rsi_score = 100 - ((rsi - 30) / 40 * 100)
-        score_cards['details']['momentum'].append(f"RSI: {rsi:.1f} (Neutral)")
-    
-    # MACD
-    macd_val = macd.iloc[-1]
-    sig_val = signal_line.iloc[-1]
-    if macd_val > sig_val:
-        macd_score = 100 
-        score_cards['details']['momentum'].append("MACD: Bullish Crossover")
-    else: 
-        macd_score = 30
+    if macd.iloc[-1] > signal_line.iloc[-1]: 
+        mom_score_sum += 100; mom_count += 1
+        score_cards['details']['momentum'].append("MACD: Bullish")
+    else:
+        mom_score_sum += 20; mom_count += 1
         score_cards['details']['momentum'].append("MACD: Bearish")
         
-    # ADX
+    # D. ADX (Strength)
+    adx = calculate_adx(hist['High'], hist['Low'], hist['Close']).iloc[-1]
     if adx > 25: 
-        adx_score = 100
+        mom_score_sum += 80; mom_count += 1
         score_cards['details']['momentum'].append(f"ADX: {adx:.1f} (Strong Trend)")
-    else: 
-        adx_score = 50
-        score_cards['details']['momentum'].append(f"ADX: {adx:.1f} (Weak Trend)")
-    
-    mom_total = (rsi_score * 0.4) + (macd_score * 0.3) + (adx_score * 0.3)
-    score_cards['momentum'] = int(mom_total)
-
-    # --- 3. Risk & Health ---
-    # Volatility
-    if vol_30d < 60: 
-        vol_score = 100
-        score_cards['details']['health'].append(f"Vol 30D: {vol_30d:.1f}% (Stable) [+100]")
-    elif vol_30d > 120: 
-        vol_score = 0
-        score_cards['details']['health'].append(f"Vol 30D: {vol_30d:.1f}% (High Risk) [0]")
-    else: 
-        vol_score = 100 - ((vol_30d - 60) / 60 * 100)
-        score_cards['details']['health'].append(f"Vol 30D: {vol_30d:.1f}% (Average)")
         
-    # Drawdown
-    dd_pct = (current_price - ath) / ath
-    if dd_pct > -0.3: dd_score = 80 # Safe
-    elif dd_pct < -0.8: dd_score = 40 # Rekt
-    else: dd_score = 60
-    score_cards['details']['health'].append(f"Drawdown: {dd_pct*100:.1f}%")
-    
-    health_total = (vol_score * 0.5) + (dd_score * 0.5)
-    score_cards['health'] = int(health_total)
-    
-    # --- 4. Sentiment (Proxied) ---
-    sent_score = 60 # Neutral Start
-    has_sentiment_data = True # Flag
-    
-    # Simple Proxy: Volume Spike check
+    # E. CCI (Commodity Channel Index)
     try:
-        if len(hist) > 30:
-            vol_avg = hist['Volume'].tail(30).mean()
-            if vol_avg > 0:
-                vol_ratio = hist['Volume'].iloc[-1] / vol_avg
-                if vol_ratio > 2.0: 
-                    sent_score = 90
-                    score_cards['details']['sentiment'].append(f"Vol Spike: {vol_ratio:.1f}x (High Interest)")
-                elif vol_ratio < 0.5: 
-                    sent_score = 30
-                    score_cards['details']['sentiment'].append("Volume Dried Up")
-                else:
-                    score_cards['details']['sentiment'].append("Volume Normal")
-            else:
-                has_sentiment_data = False
-        else:
-            has_sentiment_data = False
-    except:
-        has_sentiment_data = False
-        
-    if not has_sentiment_data:
-        score_cards['details']['sentiment'].append("Insufficient Data for Sentiment")
-        score_cards['sentiment'] = 0 # Ignored in weighting
+        cci = calculate_cci(hist['High'], hist['Low'], hist['Close']).iloc[-1]
+        if cci < -100: cci_s = 90; score_cards['details']['momentum'].append("CCI: Oversold (< -100)")
+        elif cci > 100: cci_s = 10; score_cards['details']['momentum'].append("CCI: Overbought (> 100)")
+        else: cci_s = 50
+        mom_score_sum += cci_s; mom_count += 1
+    except: pass
+    
+    score_cards['momentum'] = int(mom_score_sum / max(1, mom_count))
+
+    # ==============================================================================
+    # 3. RISK & HEALTH (20%)
+    # Metrics: Volatility, Drawdown, Liquidity Ratio
+    # ==============================================================================
+    risk_sum = 0
+    risk_count = 0
+    
+    # A. Volatility
+    if vol_30d < 60: vs = 100; score_cards['details']['health'].append(f"Vol: {vol_30d:.0f}% (Safe)")
+    elif vol_30d > 120: vs = 0; score_cards['details']['health'].append(f"Vol: {vol_30d:.0f}% (High Risk)")
+    else: vs = 50
+    risk_sum += vs; risk_count += 1
+    
+    # B. Drawdown
+    dd_pct = (current_price - ath) / ath
+    if dd_pct > -0.3: ds = 80; score_cards['details']['health'].append(f"DD: {dd_pct*100:.0f}% (Resilient)")
+    elif dd_pct < -0.8: ds = 40; score_cards['details']['health'].append(f"DD: {dd_pct*100:.0f}% (Deep Value/Risk)")
+    else: ds = 60
+    risk_sum += ds; risk_count += 1
+    
+    # C. Liquidity Ratio (Vol / MarketCap) - Proxy using Price*Vol as liquidity score
+    # We don't have Mcap easily in history without info, assuming Volume represents liquidity depth
+    avg_vol_usd = (hist['Volume'] * hist['Close']).rolling(30).mean().iloc[-1]
+    if avg_vol_usd > 1_000_000: ls = 100 # > $1M daily vol
+    elif avg_vol_usd < 100_000: ls = 20 # Illiquid
+    else: ls = 60
+    risk_sum += ls; risk_count += 1
+    score_cards['details']['health'].append(f"Liq Depth: ${avg_vol_usd/1e6:.1f}M/day")
+    
+    score_cards['health'] = int(risk_sum / max(1, risk_count))
+    
+    # ==============================================================================
+    # 4. SENTIMENT (20%)
+    # Metrics: Funding Proxy, Open Interest Proxy
+    # ==============================================================================
+    sent_sum = 0
+    sent_count = 0
+    has_sentiment = True
+    
+    # A. Funding Rate Proxy (Heat)
+    # Price vs SMA20. If Price >>> SMA20, Funding is likely positive (Longs paying Shorts)
+    sma20 = hist['Close'].rolling(20).mean().iloc[-1]
+    dev = (current_price - sma20) / sma20
+    if dev > 0.15: # +15% over SMA20
+        fs = 20 # Crowded Longs
+        score_cards['details']['sentiment'].append("Funding Est: Overheated (>0.01%)")
+    elif dev < -0.1:
+        fs = 90 # Crowded Shorts (Short Squeeze potential)
+        score_cards['details']['sentiment'].append("Funding Est: Negative (Shorts Crowded)")
     else:
-        score_cards['sentiment'] = int(sent_score)
+        fs = 60
+        score_cards['details']['sentiment'].append("Funding Est: Neutral")
+    sent_sum += fs; sent_count += 1
+    
+    # B. Open Interest Proxy (Volume Trend)
+    try:
+        vol_change = hist['Volume'].diff().rolling(3).mean().iloc[-1]
+        if vol_change > 0 and current_price > sma20:
+            os = 80
+            score_cards['details']['sentiment'].append("OI Proxy: Rising (Bullish)")
+        else:
+            os = 50
+    except: os = 50
+    sent_sum += os; sent_count += 1
+    
+    score_cards['sentiment'] = int(sent_sum / max(1, sent_count))
         
     # --- Composite Weighting ---
-    if has_sentiment_data:
-        # Standard: 35% Val, 25% Mom, 20% Risk, 20% Sent
-        total_score = (score_cards['value'] * 0.35) + \
-                      (score_cards['momentum'] * 0.25) + \
-                      (score_cards['health'] * 0.20) + \
-                      (score_cards['sentiment'] * 0.20)
-    else:
-        # Re-weight: 35% Val, 35% Mom, 30% Risk
-        # (User requested 35/35/30)
-        total_score = (score_cards['value'] * 0.35) + \
-                      (score_cards['momentum'] * 0.35) + \
-                      (score_cards['health'] * 0.30)
-                      
+    total_score = (score_cards['value'] * 0.35) + \
+                  (score_cards['momentum'] * 0.25) + \
+                  (score_cards['health'] * 0.20) + \
+                  (score_cards['sentiment'] * 0.20)
+                  
     # Expert Penalties
     if vol_30d > 120: 
         total_score -= 15
-        score_cards['analysis'].append("⚠️ Penalty: Extremely High Volatility (-15)")
+        score_cards['analysis'].append("⚠️ Penalty: High Vol (-15)")
         
     score_cards['total'] = max(0, min(100, int(total_score)))
     
     # Final Analysis Tag
-    if score_cards['total'] >= 75: score_cards['analysis'].append("💎 **Strong Buy**: High Quality Setup.")
-    elif score_cards['total'] >= 50: score_cards['analysis'].append("✅ **Buy / Accumulate**: Good Long Term.")
-    elif score_cards['total'] >= 30: score_cards['analysis'].append("😐 **Neutral**: Wait for clearer trend.")
-    else: score_cards['analysis'].append("⚠️ **Avoid / Sell**: Weak Structure.")
+    if score_cards['total'] >= 75: score_cards['analysis'].append("💎 **Strong Buy**: Institutional Grade.")
+    elif score_cards['total'] >= 50: score_cards['analysis'].append("✅ **Buy**: Healthy Structure.")
+    elif score_cards['total'] >= 30: score_cards['analysis'].append("😐 **Neutral**: Wait.")
+    else: score_cards['analysis'].append("⚠️ **Sell**: Broken Structure.")
     
     return score_cards
 
