@@ -1384,7 +1384,13 @@ def calculate_cycle_risk(current_price, ath):
 
 def page_single_coin():
     st.title(get_text('deep_dive_title'))
-    ticker = st.text_input(get_text('search_ticker'), value="BTC-USD")
+    all_tickers = get_crypto_universe('All (Top 200)')
+    # Ensure BTC-USD is first or default
+    if "BTC-USD" in all_tickers:
+        all_tickers.remove("BTC-USD")
+        all_tickers.insert(0, "BTC-USD")
+        
+    ticker = st.selectbox(get_text('search_ticker'), all_tickers, index=0)
     
     if st.button(get_text('analyze_btn')) or ticker:
         with st.spinner(f"Analyzing On-Chain Data for {ticker}..."):
