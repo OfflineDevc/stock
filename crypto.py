@@ -1316,6 +1316,12 @@ def page_scanner():
     if st.session_state['scan_results'] is not None:
         df = st.session_state['scan_results']
         
+        # FIX: Check if cached DF has new columns. If not, clear and rerun.
+        if 'Pro_Score' not in df.columns:
+            st.session_state['scan_results'] = None
+            st.rerun()
+            return
+        
         st.markdown(f"### {get_text('results_header')}")
         
         # Color Styling for Cycle State
