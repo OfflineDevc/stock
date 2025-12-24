@@ -56,12 +56,7 @@ def safe_get_info(stock_obj):
     
     return val if val is not None else {}
 
-@st.cache_data(ttl=3600*12, show_spinner=False)
-def fetch_cached_financials(ticker):
-    """Cache the financials fetch."""
-    try:
-        return yf.Ticker(ticker).financials
-    except: return pd.DataFrame()
+
 
 
 @st.cache_data(ttl=3600*12, show_spinner=False)
@@ -246,14 +241,7 @@ TRANS = {
         'tab_holdings': "📋 Holdings",
         'tab_alloc': "🍕 Allocation",
         'tab_logic': "⚖️ Weighting Logic",
-        'equity_holdings': "1. Core Holdings",
-        'core_assets': "2. Stablecoins & Gold",
-        'core_assets_desc': "Defensive Assets.",
-        
-        'risk_low_desc': "🛡️ **Accumulation**: Buying in the depression zone. High risk of boredom, low risk of loss.",
-        'risk_med_desc': "⚖️ **Markup**: Riding the trend. Balanced risk/reward.",
         'risk_high_desc': "🚀 **Euphoria**: Chasing parabolic moves. High risk of bag-holding.",
-        'risk_all_desc': "🌤️ **All Weather**: Balanced crypto basket.",
         
         'menu_health': "Portfolio Health",
         'menu_ai': "AI Insight",
@@ -276,10 +264,7 @@ TRANS = {
         'state_neutral': "😐 Neutral",
         'state_greed': "😎 Greed",
         'state_extreme_greed': "🤑 Extreme Greed",
-        'buffett_title': "Buffett Indicator (Q3 2025)",
-        'buffett_caption': "Ratio of Total US Stock Market ($70.68T) to GDP ($30.77T).",
-        'buffett_status': "Status: 2.4 Std Dev above historical average.",
-        'buffett_val_desc': "Strongly Overvalued",
+        'state_extreme_greed': "🤑 Extreme Greed",
         'faq_title': "📚 Definition & Methodology (FAQs)",
         'max_pe': "Max P/E Ratio",
         'max_peg': "Max PEG Ratio",
@@ -364,11 +349,7 @@ TRANS = {
         'why_mcap_desc': "- **Professional Standard**: S&P 500 and Nasdaq 100 use this.\n- **Stability**: Larger, more established companies get more money.\n- **Self-Correcting**: As companies grow, they become a larger part of your portfolio naturally.",
         'how_works_title': "**How it works here:**",
         'how_works_desc': "1. We select the Top 20 stocks that match your **Strategy Score**.\n2. We allocate money based on **Company Size (Market Cap)**.",
-        'bucket_equity': "Equities (Stock)",
-        'bucket_long_bonds': "Long Bonds",
-        'bucket_interm_bonds': "Interm Bonds",
-        'bucket_gold': "Gold",
-        'bucket_commodity': "Commodities",
+        'how_works_desc': "1. We select the Top 20 stocks that match your **Strategy Score**.\n2. We allocate money based on **Company Size (Market Cap)**.",
     },
     'TH': {
         'sidebar_title': "🏛️ ตั้งค่าการสแกน",
@@ -429,14 +410,7 @@ TRANS = {
         'tab_holdings': "📋 รายชื่อเหรียญ",
         'tab_alloc': "🍕 สัดส่วน (Allocation)",
         'tab_logic': "⚖️ ที่มาการคำนวณ",
-        'equity_holdings': "1. เหรียญหลัก",
-        'core_assets': "2. สินทรัพย์ปลอดภัย",
-        'core_assets_desc': "Stablecoins หรือ Gold Paxg",
-
-        'risk_low_desc': "🛡️ **Accumulation**: ซื้อตอนคนเบื่อ (ความเสี่ยงต่ำ)",
-        'risk_med_desc': "⚖️ **Markup**: ซื้อตอนมีเทรนด์ (ความเสี่ยงกลาง)",
         'risk_high_desc': "🚀 **Euphoria**: ซื้อตอนคนฮิต (ความเสี่ยงสูง ระวังดอย)",
-        'risk_all_desc': "🌤️ **All Weather**: กระจายความเสี่ยงทั่วถึง",
 
         'menu_health': "ตรวจสุขภาพพอร์ต",
         'menu_ai': "AI วิเคราะห์",
@@ -459,10 +433,7 @@ TRANS = {
         'state_neutral': "😐 ปกติ (Neutral)",
         'state_greed': "😎 โลภ (Greed)",
         'state_extreme_greed': "🤑 โลภสุดขีด (Extreme Greed)",
-        'buffett_title': "ดัชนีบัฟเฟตต์ (Buffett Indicator - Q3 2025)",
-        'buffett_caption': "สัดส่วนมูลค่าตลาดหุ้น US ($70.68T) ต่อ GDP ($30.77T)",
-        'buffett_status': "สถานะ: สูงกว่าค่าเฉลี่ย 2.4 Standard Deviation",
-        'buffett_val_desc': "แพงมาก (Strongly Overvalued)",
+
         'faq_title': "📚 คำนิยามและระเบียบวิธี (FAQs)",
         'debug_logs': "🛠️ บันทึกการตรวจสอบ (Debug Logs)",
         'port_title': "พอร์ตฟอลิโอคับ",
@@ -540,11 +511,7 @@ TRANS = {
         'why_mcap_desc': "- **มาตรฐานสากล**: ดัชนีหลักอย่าง S&P 500 และ Nasdaq 100 ใช้ระบบนี้\n- **ความมั่นคง**: ให้เงินทำงานในบริษัทที่ใหญ่และมั่นคงกว่าในสัดส่วนที่สูงกว่า\n- **ปรับตัวอัตโนมัติ**: เมื่อบริษัทเติบโตขึ้น สัดส่วนในพอร์ตก็จะเพิ่มขึ้นเองตามธรรมชาติ",
         'how_works_title': "**หลักการทำงานของระบบ:**",
         'how_works_desc': "1. เราคัดเลือกหุ้น 20 อันดับแรกที่ได้คะแนน **Strategy Score** สูงสุด\n2. จัดสรรเงินลงทุนตาม **ขนาดของบริษัท (Market Cap)**",
-        'bucket_equity': "หุ้นสามัญ (Equities)",
-        'bucket_long_bonds': "พันธบัตรระยะยาว",
-        'bucket_interm_bonds': "พันธบัตรระยะกลาง",
-        'bucket_gold': "ทองคำ",
-        'bucket_commodity': "สินค้าโภคภัณฑ์",
+
         'nav_help': "คู่มือการใช้งาน (How to Use)",
     }
 }
@@ -623,42 +590,21 @@ def render_market_dashboard():
 
     # --- ROW 2: FAQs ---
     with st.expander(get_text('faq_title')):
-        tab_fg, tab_buff = st.tabs([get_text('fear_greed_title'), get_text('buffett_title')])
-        
-        with tab_fg:
-            st.markdown("""
-            **What is the Fear & Greed Index?**  
-            It is a way to gauge stock market movements and whether stocks are fairly priced. The logic is that **excessive fear drives prices down** (opportunity), and **too much greed drives them up** (correction risk).
+        st.markdown("""
+        **What is the Fear & Greed Index?**  
+        It is a way to gauge stock market movements and whether stocks are fairly priced. The logic is that **excessive fear drives prices down** (opportunity), and **too much greed drives them up** (correction risk).
 
-            **How is it Calculated? (Official vs Proxy)**  
-            - *Official (CNN)*: Compiles 7 indicators (Momentum, Strength, Breadth, Options, Junk Bonds, Volatility, Safe Haven).  
-            - *Our Proxy*: We rely primarily on **Volatility (VIX)** and **Market Momentum** due to real-time data availability.
+        **How is it Calculated? (Official vs Proxy)**  
+        - *Official (CNN)*: Compiles 7 indicators (Momentum, Strength, Breadth, Options, Junk Bonds, Volatility, Safe Haven).  
+        - *Our Proxy*: We rely primarily on **Volatility (VIX)** and **Market Momentum** due to real-time data availability.
 
-            **Scale:**  
-            - **0-25**: Extreme Fear 🥶  
-            - **25-45**: Fear 😨  
-            - **45-55**: Neutral 😐  
-            - **55-75**: Greed 😎  
-            - **75-100**: Extreme Greed 🤑
-            """)
-            
-        with tab_buff:
-            st.markdown("""
-            **What is the Buffett Indicator?**  
-            The ratio of the total United States stock market valuation to GDP. Warren Buffett called it *"probably the best single measure of where valuations stand at any given moment."*
-
-            $$ \\text{Buffett Indicator} = \\frac{\\text{Total US Stock Market Value}}{\\text{Gross Domestic Product (GDP)}} $$
-
-            **Current Values (As of Sep 30, 2025):**  
-            - **Total Market**: $70.68 Trillion  
-            - **GDP**: $30.77 Trillion  
-            - **Ratio**: **230%** (Strongly Overvalued)
-
-            **Interpretation:**  
-            - **75-90%**: Fair Valued  
-            - **> 120%**: Overvalued  
-            - **> 200%**: Bubble / Strongly Overvalued 🚨
-            """)
+        **Scale:**  
+        - **0-25**: Extreme Fear 🥶  
+        - **25-45**: Fear 😨  
+        - **45-55**: Neutral 😐  
+        - **55-75**: Greed 😎  
+        - **75-100**: Extreme Greed 🤑
+        """)
 
 
 
@@ -691,26 +637,7 @@ st.markdown("""
 # 2. Data Caching & Fetching
 # ---------------------------------------------------------
 
-def filter_dual_class(tickers):
-    """
-    Removes duplicate dual-class shares. 
-    Preferences: GOOGL > GOOG, FOXA > FOX, NWSA > NWS, BRK.B > BRK.A
-    """
-    # Key = Keep, Value = Drop
-    duals = {
-        'GOOGL': 'GOOG',
-        'FOXA': 'FOX',
-        'NWSA': 'NWS',
-        'BRK.B': 'BRK.A',
-        'BRK-B': 'BRK-A' 
-    }
-    
-    final_list = list(tickers)
-    for keep, drop in duals.items():
-        if keep in final_list and drop in final_list:
-            final_list.remove(drop)
-            
-    return final_list
+
 
 # --- CRYPTO UNIVERSE DATA ---
 @st.cache_data(ttl=86400)
@@ -978,81 +905,7 @@ def analyze_history_deep(df_candidates, progress_bar, status_text):
         div_streak_str = "None"
 
         try:
-            fin = stock.financials
-            if not fin.empty:
-                fin = fin.T.sort_index()
-                
-                years = len(fin)
-
-                # Consistency (Net Income)
-                ni_series = fin['Net Income'].dropna()
-                if len(ni_series) > 1:
-                    diffs = ni_series.diff().dropna()
-                    pos_years = (diffs > 0).sum()
-                    total_intervals = len(diffs)
-                    consistency_str = f"{pos_years}/{total_intervals} Yrs"
-                    
-                    if pos_years == total_intervals:
-                        insight_str += "✅ Consistent Growth "
-                    elif pos_years <= total_intervals / 2:
-                        insight_str += "⚠️ Earnings Volatile "
-                        
-                # CAGR Calculation
-                try:
-                    start_rev = fin['Total Revenue'].iloc[0]
-                    end_rev = fin['Total Revenue'].iloc[-1]
-                    if start_rev > 0 and end_rev > 0:
-                        val = (end_rev / start_rev) ** (1/(years-1)) - 1
-                        cagr_rev = val * 100
-                except: pass
-                
-                try:
-                    start_ni = fin['Net Income'].iloc[0]
-                    end_ni = fin['Net Income'].iloc[-1]
-                    if start_ni > 0 and end_ni > 0:
-                        val = (end_ni / start_ni) ** (1/(years-1)) - 1
-                        cagr_ni = val * 100
-                except: pass
-            
-            # 2. Dividend History (For High Yield Analysis)
-            # Fetch max history to find streak
-            divs = stock.dividends
-            if not divs.empty:
-                # Resample to yearly to count years with dividends
-                # FIX: 'Y' is deprecated, use 'YE'
-                divs_yearly = divs.resample('YE').sum()
-                divs_yearly = divs_yearly[divs_yearly > 0]
-                
-                if not divs_yearly.empty:
-                    # Count consecutive years from the end
-                    streak = 0
-                    last_year = divs_yearly.index[-1].year
-                    current_year = pd.Timestamp.now().year
-                    
-                    # If last dividend was this year or last year, it's active
-                    if last_year >= current_year - 1:
-                        years_list = sorted(divs_yearly.index.year.tolist(), reverse=True)
-                        for k in range(len(years_list)):
-                            if k == 0: 
-                                streak = 1
-                                continue
-                            if years_list[k] == years_list[k-1] - 1:
-                                streak += 1
-                            else:
-                                break
-                    
-                    if streak > 0:
-                        div_streak_str = f"{streak} Yrs"
-                        if streak >= 10: div_streak_str = f"💎 {streak} Yrs"
-                        elif streak >= 5: div_streak_str = f"⭐ {streak} Yrs"
-                    else:
-                        div_streak_str = "0 Yrs"
-                else:
-                    div_streak_str = "0 Yrs"
-            else:
-                div_streak_str = "0 Yrs"
-
-            # 3. Price Performance (NEW)
+            # Price Performance (NEW)
             hist = stock.history(period="5y")
             perf = {}
             if not hist.empty:
@@ -1067,7 +920,6 @@ def analyze_history_deep(df_candidates, progress_bar, status_text):
                 def get_ret(days_ago):
                     try: 
                         # Use searchsorted to find closest date index
-                        # Now strict Timestamp is naive, compatible with Index
                         target_idx = hist.index.searchsorted(pd.Timestamp.now() - pd.Timedelta(days=days_ago))
                         if target_idx < len(hist):
                             old_price = hist['Close'].iloc[target_idx]
@@ -1100,10 +952,6 @@ def analyze_history_deep(df_candidates, progress_bar, status_text):
         # Build Data Dict
         data_item = {
             'Symbol': ticker,
-            'Rev_CAGR_5Y': cagr_rev,
-            'NI_CAGR_5Y': cagr_ni,
-            'Consistency': consistency_str,
-            'Div_Streak': div_streak_str,
             'Insight': insight_str if insight_str else "Stable"
         }
         # Merge perf metrics
@@ -1149,96 +997,7 @@ def classify_narrative(ticker):
     
     return "🪙 Altcoin"
 
-def calculate_crypto_score(row):
-    """
-    Scoring based on Cycle Position & Momentum (0-100).
-    Higher Score = Better 'Buy' Zone (contrarian) or Strong Momentum depending on strat.
-    Let's build a 'Cycle Score': High Score = Undervalued (Safety).
-    """
-    score = 50
-    
-    # MVRV Logic: Lower is better for Buying
-    z = row.get('MVRV_Z', 0)
-    if z < 0: score += 30 # Buy Zone
-    elif z < 1: score += 10
-    elif z > 3: score -= 30 # Sell Zone
-    elif z > 2: score -= 10
-    
-    # RSI Logic: Lower is better for Buying Dip
-    rsi = row.get('RSI', 50)
-    if rsi < 30: score += 20
-    elif rsi > 70: score -= 20
-    
-    # Volatility Check (Penalty if too high for conservative inv)
-    # But in crypto, Vol is normal. 
-    
-    return max(0, min(100, score))
 
-def calculate_fit_score(row, targets):
-    score = 0
-    valid_targets_count = 0 
-    details = []
-
-    # Safe Defaults (Penalty Logic)
-    # If a value is missing, we assign the WORST POSSIBLE value to ensure it fails the check.
-    
-    for metric, target_val, operator in targets:
-        actual_val = row.get(metric)
-        passed_val = actual_val
-        is_missing = pd.isna(actual_val) or actual_val is None
-        
-        # Assign Penalty Value if Missing
-        if is_missing:
-            # Low is Better -> Penalty: High (9999)
-            if metric in ['PE', 'PEG', 'Debt_Equity', 'PB']:
-                passed_val = 9999.0 
-            # High is Better -> Penalty: Low (-9999)
-            elif metric in ['ROE', 'Op_Margin', 'Rev_Growth', 'EPS_Growth', 'Div_Yield']:
-                passed_val = -9999.0 
-            else:
-                passed_val = 0.0 # Neutral fallback
-
-        # We count it as a valid check (it will just fail)
-        valid_targets_count += 1
-
-        hit = False
-        diff = 0
-        
-        # Check against Target
-        if operator == '<':
-            if passed_val <= target_val:
-                score += 10; hit = True
-            else:
-                # Calculate diff using passed_val (could be penalty)
-                diff = passed_val - target_val
-                # Only give partial points if NOT missing
-                if not is_missing:
-                    if diff <= target_val * 0.2: score += 5
-                    elif diff <= target_val * 0.5: score += 2
-        elif operator == '>':
-            if passed_val >= target_val:
-                score += 10; hit = True
-            else:
-                if not is_missing:
-                    # Calculate diff for logic, though penalties are huge
-                    diff = passed_val - target_val 
-                    if abs(diff) <= target_val * 0.2: score += 5
-                    elif abs(diff) <= target_val * 0.5: score += 2
-
-        if not hit:
-            if is_missing:
-                 # Explicit N/A Failure
-                 details.append(f"❌ {metric} (N/A -> Fail)")
-            else:
-                 pct_off = (diff / target_val) * 100 if target_val != 0 else 0
-                 details.append(f"❌ {metric} ({pct_off:+.0f}%)")
-        else:
-             details.append(f"✅ {metric}")
-
-    max_score = valid_targets_count * 10
-    final_score = int((score / max_score) * 100) if max_score > 0 else 0
-    analysis_str = ", ".join(details) if details else "✅ Perfect Match"
-    return final_score, analysis_str
 
 # ---------------------------------------------------------
 # PAGES
