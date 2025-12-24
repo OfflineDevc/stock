@@ -1602,7 +1602,9 @@ def calculate_dcf(current_fcf, growth_rate, discount_rate, terminal_growth=0.025
 # ---------------------------------------------------------
 
 def page_single_stock():
-    st.title(get_text('deep_dive_title'))
+    c_t, c_l = st.columns([3, 1])
+    with c_t: st.title(get_text('deep_dive_title'))
+    with c_l: st.markdown("<br>👉 [**Check out Crypash 🪙**](https://crypash.streamlit.app/)", unsafe_allow_html=True)
     ticker = st.text_input(get_text('search_ticker'))
     
     # Initialize df to prevent UnboundLocalError
@@ -2083,7 +2085,9 @@ def page_single_stock():
 
 
 def page_glossary():
-    st.title(get_text('glossary_title'))
+    c_t, c_l = st.columns([3, 1])
+    with c_t: st.title(get_text('glossary_title'))
+    with c_l: st.markdown("<br>👉 [**Check out Crypash 🪙**](https://crypash.streamlit.app/)", unsafe_allow_html=True)
     lang = st.session_state.get('lang', 'EN')
 
     tab1, tab2, tab3 = st.tabs([get_text('tab_settings'), get_text('tab_metrics'), get_text('tab_lynch')])
@@ -2626,7 +2630,9 @@ def page_scanner():
 
 
 def page_portfolio():
-    st.title(get_text('port_title'))
+    c_t, c_l = st.columns([3, 1])
+    with c_t: st.title(get_text('port_title'))
+    with c_l: st.markdown("<br>👉 [**Check out Crypash 🪙**](https://crypash.streamlit.app/)", unsafe_allow_html=True)
     st.markdown("---")
     
     
@@ -3145,7 +3151,9 @@ def page_portfolio():
 
 
 def page_howto():
-    st.title("📖 How to Use / คู่มือการใช้งาน")
+    c_t, c_l = st.columns([3, 1])
+    with c_t: st.title("📖 How to Use / คู่มือการใช้งาน")
+    with c_l: st.markdown("<br>👉 [**Check out Crypash 🪙**](https://crypash.streamlit.app/)", unsafe_allow_html=True)
     lang = st.session_state.get('lang', 'EN')
     
     HOWTO_DATA = {
