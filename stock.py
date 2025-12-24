@@ -1246,7 +1246,11 @@ def calculate_fit_score(row, targets):
 # ---------------------------------------------------------
 
 def page_scanner():
-    st.title(get_text('main_title'))
+    c_title, c_link = st.columns([3, 1])
+    with c_title:
+        st.title(get_text('main_title'))
+    with c_link:
+        st.markdown("<br>👉 [**Check out Crypash 🪙**](https://crypash.streamlit.app/)", unsafe_allow_html=True)
     st.info(get_text('about_desc'))
 
     # --- PROFESSIONAL UI: MAIN CONFIGURATION ---
