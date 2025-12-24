@@ -1683,12 +1683,12 @@ def page_howto():
     HOWTO_DATA = {
         'Intro': {
             'EN': """
-            **Welcome to Crypash!**  
+            **Hello Crypash!(Beta)**  
             This tool uses **Cycle Theory** and **On-Chain Data** to find high-probability setups.  
             Unlike stock scanners that look at P/E, we look at **Market Psychology** and **Blockchain Activity**.
             """,
             'TH': """
-            **ยินดีต้อนรับสู่ Crypash (คริปโต AI สแกนเนอร์)!**  
+            **Hello Crypash!(Beta)**  
             เครื่องมือนี้ไม่ได้ดูแค่กราฟ แต่ใช้ **ทฤษฎีวัฏจักร (Cycle Theory)** และ **ข้อมูล On-Chain** เพื่อหาจุดเข้าซื้อที่เจ้ามือซ่อนไม่ได้
             """
         },
