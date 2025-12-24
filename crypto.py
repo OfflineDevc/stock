@@ -1285,7 +1285,7 @@ def page_scanner():
                 "Cycle_State": "Cycle Evaluation"
             },
             hide_index=True,
-            width=None # Full width
+            use_container_width=True
         ) 
 
         # --- Manual Deep Dive Section ---
