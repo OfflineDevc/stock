@@ -574,6 +574,7 @@ def get_text(key):
 # --- MARKET & GURU DATA ---
 
 @st.cache_data(ttl=3600, show_spinner=False)
+def fetch_market_indicators():
     indicators = {}
     try:
         # 1. Crypto Fear & Greed (Alternative.me API)
