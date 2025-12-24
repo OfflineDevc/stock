@@ -1495,113 +1495,162 @@ def calculate_cycle_risk(current_price, ath):
 def calculate_crypash_score(ticker, hist, info=None):
     """
     Expert-grade scoring engine (0-100) based on 4 Pillars.
-    Pillars: On-Chain (35%), Momentum (25%), Risk (20%), Sentiment (20%).
+    Returns score + detailed breakdown for UI tooltips.
     """
     score_cards = {
-        'total': 0, 'value': 0, 'momentum': 0, 'health': 0, 
+        'total': 0, 
+        'value': 0, 'momentum': 0, 'health': 0, 'sentiment': 0,
+        'details': {'value': [], 'momentum': [], 'health': [], 'sentiment': []},
         'analysis': []
     }
     
     current_price = hist['Close'].iloc[-1]
     ath = hist['Close'].max()
-    vol_30d = hist['Close'].pct_change().std() * (365**0.5) * 100 # Annualized
+    vol_30d = hist['Close'].pct_change().std() * (365**0.5) * 100 
     
-    # ----------------------------------------------------------------------------------
-    # 1. On-Chain & Valuation (35%)
-    # Proxies: MVRV Z-Score (Price-based), Drawdown (Accumulation Potential)
-    # ----------------------------------------------------------------------------------
+    # --- 1. On-Chain & Valuation ---
     mvrv = calculate_mvrv_z_proxy(hist['Close']).iloc[-1] if len(hist) > 200 else 1.0
     
     onchain_score = 50 
-    # MVRV Thresholds: < 0 (Buy/Accum) -> 100, > 3.5 (Sell) -> 0
-    if mvrv <= 0: onchain_score = 100
-    elif mvrv >= 3.5: onchain_score = 0
+    if mvrv <= -0.5: 
+        onchain_score = 100
+        score_cards['details']['value'].append(f"MVRV Z: {mvrv:.2f} (Undervalued) [+100]")
+    elif mvrv >= 3.5: 
+        onchain_score = 0
+        score_cards['details']['value'].append(f"MVRV Z: {mvrv:.2f} (Overheated) [0]")
     elif 0 < mvrv < 3.5:
         onchain_score = 100 - (mvrv / 3.5 * 100)
-    
-    # Whale Proxy: Volume Trend relative to Price (Accumulation)
-    # If Vol rising but Price flat/down -> Accumulation
+        score_cards['details']['value'].append(f"MVRV Z: {mvrv:.2f} (Fair Value)")
+
+    # Whale Accumulation (Volume vs Price Divergence)
     try:
         vol_sma20 = hist['Volume'].rolling(20).mean().iloc[-1]
         vol_curr = hist['Volume'].iloc[-1]
         price_sma20 = hist['Close'].rolling(20).mean().iloc[-1]
         
         if vol_curr > vol_sma20 and current_price <= price_sma20:
-            onchain_score += 10 # Accumulation Bonus
+            onchain_score += 10
+            score_cards['details']['value'].append("Whale Accumulation: Very High Volume at Low Price [+10]")
     except: pass
-
+    
     score_cards['value'] = max(0, min(100, int(onchain_score)))
 
-    # ----------------------------------------------------------------------------------
-    # 2. Momentum (25%)
-    # Metrics: RSI (40%), MACD (30%), ADX (30%)
-    # ----------------------------------------------------------------------------------
+    # --- 2. Momentum ---
     rsi = calculate_rsi(hist['Close']).iloc[-1]
-    macd, signal, _ = calculate_macd(hist['Close'])
+    macd, signal_line, _ = calculate_macd(hist['Close'])
     adx = calculate_adx(hist['High'], hist['Low'], hist['Close']).iloc[-1]
     
-    # RSI Score: < 30 -> 100, > 70 -> 0
-    if rsi <= 30: rsi_score = 100
-    elif rsi >= 70: rsi_score = 0
-    else: rsi_score = 100 - ((rsi - 30) / 40 * 100)
+    # RSI
+    if rsi <= 30: 
+        rsi_score = 100
+        score_cards['details']['momentum'].append(f"RSI: {rsi:.1f} (Oversold) [+High]")
+    elif rsi >= 70: 
+        rsi_score = 0
+        score_cards['details']['momentum'].append(f"RSI: {rsi:.1f} (Overbought) [+Low]")
+    else: 
+        rsi_score = 100 - ((rsi - 30) / 40 * 100)
+        score_cards['details']['momentum'].append(f"RSI: {rsi:.1f} (Neutral)")
     
-    # MACD Score: MACD > Signal -> Bullish (100)
+    # MACD
     macd_val = macd.iloc[-1]
-    sig_val = signal.iloc[-1]
-    macd_score = 100 if macd_val > sig_val else 30
-    
-    # ADX Score: > 25 -> Strong Trend (Boost)
-    adx_score = 100 if adx > 25 else 50
+    sig_val = signal_line.iloc[-1]
+    if macd_val > sig_val:
+        macd_score = 100 
+        score_cards['details']['momentum'].append("MACD: Bullish Crossover")
+    else: 
+        macd_score = 30
+        score_cards['details']['momentum'].append("MACD: Bearish")
+        
+    # ADX
+    if adx > 25: 
+        adx_score = 100
+        score_cards['details']['momentum'].append(f"ADX: {adx:.1f} (Strong Trend)")
+    else: 
+        adx_score = 50
+        score_cards['details']['momentum'].append(f"ADX: {adx:.1f} (Weak Trend)")
     
     mom_total = (rsi_score * 0.4) + (macd_score * 0.3) + (adx_score * 0.3)
     score_cards['momentum'] = int(mom_total)
 
-    # ----------------------------------------------------------------------------------
-    # 3. Risk & Health (20%)
-    # Metrics: Volatility (40%), ATR (30%), Drawdown (30%)
-    # ----------------------------------------------------------------------------------
-    # Volatility: < 60% Good (100), > 120% Bad (0)
-    if vol_30d < 60: vol_score = 100
-    elif vol_30d > 120: vol_score = 0
-    else: vol_score = 100 - ((vol_30d - 60) / 60 * 100)
-    
-    # Drawdown Score: -80% is high risk but high reward? 
-    # User said: "Very Volatile -> Deduct Score". So High Drawdown logic:
-    # Actually deep drawdown is high risk long term, but good entry?.
-    # Let's align with user: "Safe" metric.
+    # --- 3. Risk & Health ---
+    # Volatility
+    if vol_30d < 60: 
+        vol_score = 100
+        score_cards['details']['health'].append(f"Vol 30D: {vol_30d:.1f}% (Stable) [+100]")
+    elif vol_30d > 120: 
+        vol_score = 0
+        score_cards['details']['health'].append(f"Vol 30D: {vol_30d:.1f}% (High Risk) [0]")
+    else: 
+        vol_score = 100 - ((vol_30d - 60) / 60 * 100)
+        score_cards['details']['health'].append(f"Vol 30D: {vol_30d:.1f}% (Average)")
+        
+    # Drawdown
     dd_pct = (current_price - ath) / ath
-    if dd_pct > -0.3: dd_score = 80 # Safe (holding value)
-    elif dd_pct < -0.8: dd_score = 40 # High risk (collapsed)
+    if dd_pct > -0.3: dd_score = 80 # Safe
+    elif dd_pct < -0.8: dd_score = 40 # Rekt
     else: dd_score = 60
+    score_cards['details']['health'].append(f"Drawdown: {dd_pct*100:.1f}%")
     
-    health_total = (vol_score * 0.4) + (dd_score * 0.3) + (50 * 0.3) # ATR placeholder
+    health_total = (vol_score * 0.5) + (dd_score * 0.5)
     score_cards['health'] = int(health_total)
     
-    # ----------------------------------------------------------------------------------
-    # 4. Sentiment (20%) - Proxied
-    # Metric: Price vs SMA200 (Trend), Volume
-    # ----------------------------------------------------------------------------------
-    sent_score = 50
-    if len(hist) > 200:
-        sma200 = hist['Close'].rolling(200).mean().iloc[-1]
-        if current_price > sma200: sent_score = 80 # Bull Market Sentiment
-        else: sent_score = 30 # Bear Market
-        
-    # WEIGHTED SUM
-    total_score = (score_cards['value'] * 0.35) + \
-                  (score_cards['momentum'] * 0.25) + \
-                  (score_cards['health'] * 0.20) + \
-                  (sent_score * 0.20)
-                  
-    # Expert Penalties
-    if vol_30d > 120: total_score -= 15 # Volatility Penalty
+    # --- 4. Sentiment (Proxied) ---
+    sent_score = 60 # Neutral Start
+    has_sentiment_data = True # Flag
     
+    # Simple Proxy: Volume Spike check
+    try:
+        if len(hist) > 30:
+            vol_avg = hist['Volume'].tail(30).mean()
+            if vol_avg > 0:
+                vol_ratio = hist['Volume'].iloc[-1] / vol_avg
+                if vol_ratio > 2.0: 
+                    sent_score = 90
+                    score_cards['details']['sentiment'].append(f"Vol Spike: {vol_ratio:.1f}x (High Interest)")
+                elif vol_ratio < 0.5: 
+                    sent_score = 30
+                    score_cards['details']['sentiment'].append("Volume Dried Up")
+                else:
+                    score_cards['details']['sentiment'].append("Volume Normal")
+            else:
+                has_sentiment_data = False
+        else:
+            has_sentiment_data = False
+    except:
+        has_sentiment_data = False
+        
+    if not has_sentiment_data:
+        score_cards['details']['sentiment'].append("Insufficient Data for Sentiment")
+        score_cards['sentiment'] = 0 # Ignored in weighting
+    else:
+        score_cards['sentiment'] = int(sent_score)
+        
+    # --- Composite Weighting ---
+    if has_sentiment_data:
+        # Standard: 35% Val, 25% Mom, 20% Risk, 20% Sent
+        total_score = (score_cards['value'] * 0.35) + \
+                      (score_cards['momentum'] * 0.25) + \
+                      (score_cards['health'] * 0.20) + \
+                      (score_cards['sentiment'] * 0.20)
+    else:
+        # Re-weight: 35% Val, 35% Mom, 30% Risk
+        # (User requested 35/35/30)
+        total_score = (score_cards['value'] * 0.35) + \
+                      (score_cards['momentum'] * 0.35) + \
+                      (score_cards['health'] * 0.30)
+                      
+    # Expert Penalties
+    if vol_30d > 120: 
+        total_score -= 15
+        score_cards['analysis'].append("⚠️ Penalty: Extremely High Volatility (-15)")
+        
     score_cards['total'] = max(0, min(100, int(total_score)))
     
-    # Analysis Strings based on Score
-    if score_cards['total'] >= 80: score_cards['analysis'].append("💎 **Elite Tier**: Strong Buy.")
-    elif score_cards['total'] >= 60: score_cards['analysis'].append("✅ **Healthy**: Good accumulation zone.")
-    elif score_cards['total'] <= 40: score_cards['analysis'].append("⚠️ **Weak**: High risk or overvalued.")
+    # Final Analysis Tag
+    if score_cards['total'] >= 75: score_cards['analysis'].append("💎 **Strong Buy**: High Quality Setup.")
+    elif score_cards['total'] >= 50: score_cards['analysis'].append("✅ **Buy / Accumulate**: Good Long Term.")
+    elif score_cards['total'] >= 30: score_cards['analysis'].append("😐 **Neutral**: Wait for clearer trend.")
+    else: score_cards['analysis'].append("⚠️ **Avoid / Sell**: Weak Structure.")
     
     return score_cards
 
@@ -1648,28 +1697,28 @@ def page_single_coin():
                 rsi = calculate_rsi(hist['Close']).iloc[-1] if len(hist) > 14 else 50
                 risk_score = calculate_cycle_risk(current_price, ath)
                 
-                # --- SIGNAL LOGIC ---
-                signal = "NEUTRAL 🟡"
-                sig_color = "off"
-                if mvrv_z < 0: 
-                    signal = "STRONG BUY 🟢"
-                    sig_color = "inverse" # Green in st.metric? No, use success/error in markdown
-                elif mvrv_z < 0.8:
-                    signal = "BUY 🟢"
-                elif mvrv_z > 3.5:
-                    signal = "STRONG SELL 🔴"
-                elif mvrv_z > 2.2:
-                    signal = "SELL 🔴"
-                else:
-                    signal = "HOLD / NEUTRAL 🟡"
-
+                # --- PRO INTELLIGENCE (Signal Source) ---
+                scores = calculate_crypash_score(ticker, hist)
+                
+                # --- SIGNAL LOGIC (Unified with Expert Score) ---
+                signal = "NEUTRAL �"
+                if scores['total'] >= 75: 
+                    signal = "STRONG BUY �"
+                elif scores['total'] >= 55:
+                    signal = "ACCUMULATE �"
+                elif scores['total'] <= 35:
+                    signal = "WEAK / AVOID 🔴"
+                    
                 # 3. Header
                 st.markdown(f"## {ticker} {narrative}")
                 
-                # Signal Banner
-                if "BUY" in signal: st.success(f"### RECOMMENDATION: {signal}")
-                elif "SELL" in signal: st.error(f"### RECOMMENDATION: {signal}")
-                else: st.warning(f"### RECOMMENDATION: {signal}")
+                # Signal Banner (Unified)
+                if "BUY" in signal or "ACCUMULATE" in signal: 
+                    st.success(f"### RECOMMENDATION: {signal} (Score: {scores['total']})")
+                elif "WEAK" in signal: 
+                    st.error(f"### RECOMMENDATION: {signal} (Score: {scores['total']})")
+                else: 
+                    st.warning(f"### RECOMMENDATION: {signal} (Score: {scores['total']})")
 
                 c1, c2, c3, c4 = st.columns(4)
                 c1.metric("Price", f"${current_price:,.2f}", f"{(current_price/hist['Close'].iloc[-2]-1)*100:.2f}%")
@@ -1691,7 +1740,7 @@ def page_single_coin():
                 
                 with sc_main:
                     st.metric("Total Score", f"{scores['total']}/100", 
-                             "Strong Buy" if scores['total']>=80 else "Weak" if scores['total']<=40 else "Neutral")
+                             "Strong Buy" if scores['total']>=75 else "Neutral" if scores['total']>=40 else "Sell")
                     st.progress(scores['total'])
                     for ana in scores['analysis']:
                         st.caption(ana)
@@ -1700,29 +1749,33 @@ def page_single_coin():
                     st.caption("🦄 On-Chain")
                     st.metric("Valuation", f"{scores['value']}", label_visibility="collapsed")
                     st.progress(scores['value'])
+                    with st.expander("Details"):
+                        for d in scores['details'].get('value', []): st.caption(d)
 
                 with sc_mom:
                     st.caption("🚀 Momentum")
                     st.metric("Momentum", f"{scores['momentum']}", label_visibility="collapsed")
                     st.progress(scores['momentum'])
+                    with st.expander("Details"):
+                        for d in scores['details'].get('momentum', []): st.caption(d)
 
                 with sc_risk:
                     st.caption("🛡️ Risk/Health")
                     st.metric("Health", f"{scores['health']}", label_visibility="collapsed")
                     st.progress(scores['health'])
+                    with st.expander("Details"):
+                        for d in scores['details'].get('health', []): st.caption(d)
                     
                 with sc_sent:
                     st.caption("🧠 Sentiment")
-                    st.metric("Sentiment", f"N/A" if 'sentiment' not in scores and 'health' in scores else f"{scores.get('health', 0)}", label_visibility="collapsed") 
-                    # FIX: I forgot to add 'sentiment' key in calculate_crypash_score return dict? 
-                    # Wait, let me check the function impl. I assigned sent_score to local var but maybe didn't put it in score_cards?
-                    # Re-checking logic..
-                    # Actually I should rely on the updated function. I'll blindly render score_cards.get('sentiment', 0)
-                    st.progress(0) # Placeholder/Fix later if key missing
-                
-                # Fix: The previous implementation of calculate_crypash_score didn't add 'sentiment' to the dict.
-                # I need to hotfix the function or handle it here. 
-                # Better: Update the function to include 'sentiment' key.
+                    sent_val = scores.get('sentiment', 'N/A')
+                    if sent_val == 0: sent_str = "N/A"
+                    else: sent_str = str(sent_val)
+                    
+                    st.metric("Sentiment", sent_str, label_visibility="collapsed")
+                    st.progress(sent_val if sent_val != "N/A" else 0)
+                    with st.expander("Details"):
+                        for d in scores['details'].get('sentiment', []): st.caption(d)
                 
                 st.markdown("---")
                 st.divider()
@@ -1739,9 +1792,19 @@ def page_single_coin():
                          st.line_chart(hist['Close'].tail(1000))
                     
                     with c_pl2:
-                         st.metric("Power Law Support (Floor)", f"${fair_val:,.0f}", f"Deviation: {(current_price/fair_val-1)*100:.1f}%")
+                         dev_pct = (current_price/fair_val-1)*100
+                         # Percentile Logic (Approx)
+                         rank_pct = 50 + (dev_pct / 2) # e.g. +100% dev -> 100th, -50% -> 25th
+                         rank_pct = max(1, min(99, rank_pct))
+                         
+                         st.metric("Power Law Support (Floor)", f"${fair_val:,.0f}", f"Deviation: {dev_pct:.1f}%")
+                         st.progress(int(rank_pct))
+                         st.caption(f"Percentile Rank: {rank_pct:.0f}% (Historical High)")
+                         
                          if current_price < fair_val:
                              st.success("PRICE BELOW POWER LAW! HISTORIC BUY ZONE.")
+                         elif dev_pct < 20:
+                             st.success("ACCUMULATION ZONE (Near Support)")
                          else:
                              st.warning("Price above Power Law Support. Normal Bull Market behavior.")
                 
@@ -1883,6 +1946,34 @@ def page_howto():
                    - **โซนอันตราย**: 80-100% (ควรขายทำกำไร)
                 """
             }
+        },
+        'Step4': {
+            'EN': {
+                'title': "4. Expert Criteria Thresholds",
+                'desc': """
+                | **Category** | **Metric** | **Buy Zone (Safe)** | **Sell Zone (Risk)** | **Interpretation** |
+                | :--- | :--- | :--- | :--- | :--- |
+                | **🦄 On-Chain** | **MVRV Z-Score** | < 0.0 | > 3.5 | < -1.5 is historic bottom. > 7 is cycle top. |
+                | | **Exchange Netflow** | Outflow (Negative) | Inflow (Positive) | Coins leaving exchanges = Accumulation. |
+                | **🚀 Momentum** | **RSI (14D)** | < 30 (Oversold) | > 70 (Overbought) | RSI < 30 + Price Support = Strong Entry. |
+                | | **MACD** | Bullish Cross | Bearish Cross | MACD > Signal is trend confirmation. |
+                | **🛡️ Risk** | **Volatility (30D)** | < 60% | > 120% | High Volatility is normal for small caps, dangerous for large caps. |
+                | | **Drawdown** | -80% to -90% | < -20% (Near ATH) | Deep drawdown offers high R:R but requires patience. |
+                | **🧠 Sentiment** | **Volume Trend** | Rising + Flat Price | Spiking + High Price | Volume implies interest. Smart money buys quietly. |
+                """
+            },
+            'TH': {
+                'title': "4. เจาะลึกเกณฑ์การให้คะแนน (Criteria Thresholds)",
+                'desc': """
+                | **หมวดหมู่** | **ตัวชี้วัด (Metric)** | **โซนซื้อ (ปลอดภัย)** | **โซนขาย (เสี่ยง)** | **คำอธิบาย** |
+                | :--- | :--- | :--- | :--- | :--- |
+                | **🦄 On-Chain** | **MVRV Z-Score** | < 0.0 | > 3.5 | < -1.5 คือก้นเหวประวัติศาสตร์ / > 7 คือดอย |
+                | | **Netflow** | ไหลออก (Outflow) | ไหลเข้า (Inflow) | ไหลออก = วาฬเก็บของเข้า Wallet |
+                | **🚀 Momentum** | **RSI** | < 30 (ขายมากเกิน) | > 70 (ซื้อมากเกิน) | RSI ต่ำกว่า 30 มักจะมีแรงเด้งสั้นๆ |
+                | **🛡️ Risk** | **Volatility** | < 60% | > 120% | ผันผวนต่ำ = ปลอดภัย / ผันผวนสูง = เสี่ยง |
+                | **🧠 Sentiment** | **Volume** | วอลุ่มเข้า + ราคานิ่ง | วอลุ่มพีค + ราคาพุ่ง | วอลุ่มเข้าตอนราคานิ่ง คือเจ้าเก็บของ |
+                """
+            }
         }
     }
     
@@ -1899,6 +1990,9 @@ def page_howto():
     
     st.header(HOWTO_DATA['Step3'][lang]['title'])
     st.write(HOWTO_DATA['Step3'][lang]['desc'])
+    
+    st.header(HOWTO_DATA['Step4'][lang]['title'])
+    st.write(HOWTO_DATA['Step4'][lang]['desc'])
 
 # ---------------------------------------------------------
 if __name__ == "__main__":
