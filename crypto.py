@@ -1310,17 +1310,19 @@ def page_scanner():
                     if stock_obj is None:
                         stock_obj = yf.Ticker(selected_ticker)
                     
-                    fin_stmt = stock_obj.financials
-                    if not fin_stmt.empty:
-                        fin_T = fin_stmt.T.sort_index(ascending=True)
-                        fin_T.index = pd.to_datetime(fin_T.index).year
+                    
+                    # CRYPTO: Show Price History instead of Financials
+                    hist_data = stock_obj.history(period="1y")
+                    if not hist_data.empty:
+                        st.subheader(f"📈 {selected_ticker} Price Action (1Y)")
+                        st.line_chart(hist_data['Close'])
                         
-                        st.subheader(f"📊 {selected_ticker} Financials")
-                        chart_cols = [c for c in ['Total Revenue', 'Net Income', 'EBITDA'] if c in fin_T.columns]
-                        if chart_cols: st.line_chart(fin_T[chart_cols])
-                        st.dataframe(fin_T.style.format("{:,.0f}")) # No currency symbol to be safe
+                        # Show Volume if available
+                        if 'Volume' in hist_data.columns:
+                            st.caption("Volume Trend")
+                            st.bar_chart(hist_data['Volume'])
                     else:
-                        st.warning("No financial history available for this stock.")
+                        st.warning("No price history available for this coin.")
 
         # Cache Clearing for Debugging
         if st.checkbox("Show Advanced Options"):
