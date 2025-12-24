@@ -780,7 +780,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
     data_list = []
     status_text.text("Stage 1: Fetching Market Data (Batch Mode)...")
     
-    if not tickers: return []
+    if not tickers: return pd.DataFrame()
     
     import pandas as pd
     
@@ -789,7 +789,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
         data = yf.download(tickers, period="2y", group_by='ticker', threads=True)
     except Exception as e:
         status_text.error(f"Download Failed: {e}")
-        return []
+        return pd.DataFrame()
 
     status_text.text("Stage 1: Calculating On-Chain Metrics...")
     
@@ -864,7 +864,10 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
             if debug_container: debug_container.write(f"Error {ticker}: {e}")
             continue
             
-    return data_list
+    if not data_list:
+        return pd.DataFrame()
+        
+    return pd.DataFrame(data_list)
 
 
 
