@@ -1420,8 +1420,29 @@ def page_single_coin():
                 rsi = calculate_rsi(hist['Close']).iloc[-1] if len(hist) > 14 else 50
                 risk_score = calculate_cycle_risk(current_price, ath)
                 
+                # --- SIGNAL LOGIC ---
+                signal = "NEUTRAL 🟡"
+                sig_color = "off"
+                if mvrv_z < 0: 
+                    signal = "STRONG BUY 🟢"
+                    sig_color = "inverse" # Green in st.metric? No, use success/error in markdown
+                elif mvrv_z < 0.8:
+                    signal = "BUY 🟢"
+                elif mvrv_z > 3.5:
+                    signal = "STRONG SELL 🔴"
+                elif mvrv_z > 2.2:
+                    signal = "SELL 🔴"
+                else:
+                    signal = "HOLD / NEUTRAL 🟡"
+
                 # 3. Header
                 st.markdown(f"## {ticker} {narrative}")
+                
+                # Signal Banner
+                if "BUY" in signal: st.success(f"### RECOMMENDATION: {signal}")
+                elif "SELL" in signal: st.error(f"### RECOMMENDATION: {signal}")
+                else: st.warning(f"### RECOMMENDATION: {signal}")
+
                 c1, c2, c3, c4 = st.columns(4)
                 c1.metric("Price", f"${current_price:,.2f}", f"{(current_price/hist['Close'].iloc[-2]-1)*100:.2f}%")
                 c2.metric("ATH (Cycle High)", f"${ath:,.2f}", f"{drawdown*100:.1f}% From Top")
