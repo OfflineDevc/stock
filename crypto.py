@@ -748,13 +748,28 @@ def get_crypto_universe(category='Top 50'):
         'APT-USD', 'INJ-USD', 'KAS-USD', 'TON-USD', 'MINA-USD', 'HBAR-USD'
     ]
     
-    # Combined Large List
+    # Combined Large List (~250+ Tickers covering Bitkub Major, L1, DeFi, GameFi, Meme, AI)
     all_market = list(set(top_50 + l1 + [
-        'UNI-USD', 'LINK-USD', 'LDO-USD', 'MKR-USD', 'AAVE-USD', 'CRV-USD', 'SNX-USD',
-        'COMP-USD', '1INCH-USD', 'SUSHI-USD', 'RPL-USD', 'DYDX-USD', 'GMX-USD',
-        'DOGE-USD', 'SHIB-USD', 'PEPE-USD', 'FLOKI-USD', 'BONK-USD', 'WIF-USD', 'MEME-USD',
-        'RNDR-USD', 'FET-USD', 'AGIX-USD', 'OCEAN-USD', 'AKT-USD', 'TAO-USD',
-        'IMX-USD', 'OP-USD', 'ARB-USD', 'STX-USD', 'ORDI-USD', 'STRK-USD', 'BLUR-USD'
+        # Major & Stable (Bitkub Group 1-2)
+        'BTC-USD', 'ETH-USD', 'BCH-USD', 'XRP-USD', 'LTC-USD', 'BNB-USD', 'USDT-USD', 'USDC-USD', 'DAI-USD',
+        # L1/Platform (Group 3)
+        'ADA-USD', 'SOL-USD', 'DOT-USD', 'AVAX-USD', 'NEAR-USD', 'MATIC-USD', 'OP-USD', 'ARB-USD', 'TRX-USD', 
+        'FTM-USD', 'ATOM-USD', 'SUI-USD', 'SEI-USD', 'IOST-USD', 'ZIL-USD', 'HBAR-USD', 'CELO-USD',
+        # Meme (Group 4)
+        'DOGE-USD', 'SHIB-USD', 'BONK-USD', 'PEPE-USD', 'FLOKI-USD', 'MEME-USD', 
+        # GameFi (Group 5)
+        'SAND-USD', 'MANA-USD', 'GALA-USD', 'AXS-USD', 'ENJ-USD', 'ILV-USD', 'APE-USD', 'BLUR-USD', 'CHZ-USD',
+        # DeFi (Group 6)
+        'LINK-USD', 'UNI-USD', 'AAVE-USD', 'CRV-USD', 'MKR-USD', 'COMP-USD', 'SUSHI-USD', 'BAND-USD',
+        # AI & New (Group 7)
+        'TAO-USD', 'RNDR-USD', 'WLD-USD', 'IMX-USD', 'LDO-USD', 'INJ-USD', 'DYDX-USD', 'GRT-USD', 'LUNC-USD',
+        # Extended Market (Top 100-300 Fillers)
+        'STX-USD', 'FIL-USD', 'VET-USD', 'QNT-USD', 'THETA-USD', 'EOS-USD', 'FLOW-USD', 'EGLD-USD', 'XTZ-USD', 'KCS-USD',
+        'RUNE-USD', 'FXS-USD', 'KAVA-USD', 'MINA-USD', 'GNO-USD', '1INCH-USD', 'WOO-USD', 'ROSE-USD', 'AGIX-USD', 'FET-USD',
+        'OCEAN-USD', 'AKT-USD', 'STRK-USD', 'ORDI-USD', 'TIA-USD', 'KAS-USD', 'TON-USD', 'XLM-USD', 'XMR-USD', 'ETC-USD',
+        'BGB-USD', 'LEO-USD', 'OKB-USD', 'CRO-USD', 'MNT-USD', 'BSV-USD', 'ALGO-USD', 'BEAM-USD', 'ASTR-USD', 'GLM-USD',
+        'LRC-USD', 'BAT-USD', 'TWT-USD', 'CVX-USD', 'BAL-USD', 'YFI-USD', 'ZEC-USD', 'IOTA-USD', 'NEO-USD', 'DASH-USD',
+        'QTUM-USD', 'XEM-USD', 'RVN-USD', 'HOT-USD', 'ZRX-USD', 'ANKR-USD', 'ICX-USD', 'WAVES-USD', 'OMG-USD', 'SC-USD'
     ]))
 
     if category == 'Layer 1': return l1
