@@ -666,7 +666,7 @@ def render_market_dashboard():
 # 1. Page Configuration
 # ---------------------------------------------------------
 st.set_page_config(
-    page_title="Crypash - Crypto AI Analysis",
+    page_title="Crypash",
     page_icon="🪙",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -1920,7 +1920,7 @@ def page_howto():
     HOWTO_DATA = {
         'Intro': {
             'EN': """
-            **Welcome to Crypash! (Crypto AI Scanner)**  
+            **Welcome to Crypash!**  
             This tool uses **Cycle Theory** and **On-Chain Data** to find high-probability setups.  
             Unlike stock scanners that look at P/E, we look at **Market Psychology** and **Blockchain Activity**.
             """,
