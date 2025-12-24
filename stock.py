@@ -2388,7 +2388,9 @@ def page_glossary():
 
 
 def page_scanner():
-    st.title(get_text('main_title'))
+    c_t, c_l = st.columns([3, 1])
+    with c_t: st.title(get_text('main_title'))
+    with c_l: st.markdown("<br>👉 [**Check out Crypash 🪙**](https://crypash.streamlit.app/)", unsafe_allow_html=True)
     st.info(get_text('about_desc'))
 
     # NEW: Market Dashboard
