@@ -2087,7 +2087,6 @@ def page_single_stock():
 def page_glossary():
     c_t, c_l = st.columns([3, 1])
     with c_t: st.title(get_text('glossary_title'))
-    with c_l: st.markdown("<br>👉 [**Check out Crypash 🪙**](https://crypash.streamlit.app/)", unsafe_allow_html=True)
     lang = st.session_state.get('lang', 'EN')
 
     tab1, tab2, tab3 = st.tabs([get_text('tab_settings'), get_text('tab_metrics'), get_text('tab_lynch')])
@@ -2390,6 +2389,7 @@ def page_glossary():
 
 def page_scanner():
     st.title(get_text('main_title'))
+    with c_l: st.markdown("<br>👉 [**Check out Crypash 🪙**](https://crypash.streamlit.app/)", unsafe_allow_html=True)
     st.info(get_text('about_desc'))
 
     # NEW: Market Dashboard
