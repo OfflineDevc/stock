@@ -868,10 +868,48 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
             chg_7d = (price - closes.iloc[-8]) / closes.iloc[-8] * 100 if len(closes) > 7 else 0
             chg_30d = (price - closes.iloc[-31]) / closes.iloc[-31] * 100 if len(closes) > 31 else 0
             
+            # --- PRO SCORE CALCULATION (Inline for Batch Speed) ---
+            # 1. Val Score (35%)
+            val_s = 50
+            if current_z <= 0: val_s = 100
+            elif current_z >= 3.5: val_s = 0
+            else: val_s = 100 - (current_z / 3.5 * 100)
+            
+            # 2. Mom Score (25%)
+            mom_s = 50
+            if current_rsi <= 30: mom_s = 100
+            elif current_rsi >= 70: mom_s = 0
+            else: mom_s = 100 - ((current_rsi - 30) / 40 * 100)
+            # Trend Bonus check
+            try:
+                sma200_val = closes.rolling(200).mean().iloc[-1]
+                if price > sma200_val: mom_s = min(100, mom_s + 10)
+            except: pass
+            
+            # 3. Risk Score (20%)
+            risk_s = 50
+            if vol_30d < 60: risk_s = 100
+            elif vol_30d > 120: risk_s = 0
+            else: risk_s = 100 - ((vol_30d - 60) / 60 * 100)
+            
+            # 4. Sent Score (20%) - Volume Proxy
+            sent_s = 50
+            try:
+                vol_curr = hist['Volume'].iloc[-1]
+                vol_avg = hist['Volume'].tail(30).mean()
+                if vol_avg > 0:
+                    vol_r = vol_curr / vol_avg
+                    if vol_r > 1.5: sent_s = 80
+                    elif vol_r < 0.5: sent_s = 30
+            except: pass
+            
+            total_pro_score = int(val_s*0.35 + mom_s*0.25 + risk_s*0.20 + sent_s*0.20)
+            
             data_list.append({
                 'Symbol': ticker,
                 'Narrative': narrative,
                 'Price': price,
+                'Pro_Score': total_pro_score,
                 'MVRV_Z': current_z,
                 'RSI': current_rsi,
                 'Vol_30D': vol_30d,
@@ -1288,7 +1326,7 @@ def page_scanner():
             return ""
 
         # Columns to display
-        display_cols = ['Symbol', 'Narrative', 'Price', 'Cycle_State', 'MVRV_Z', 'RSI', 'Vol_30D', '7D', '30D']
+        display_cols = ['Symbol', 'Narrative', 'Pro_Score', 'Price', 'Cycle_State', 'MVRV_Z', 'RSI', 'Vol_30D', '7D', '30D']
         
         st.dataframe(
             df[display_cols].style.applymap(color_cycle, subset=['Cycle_State'])
@@ -1301,6 +1339,7 @@ def page_scanner():
                 '30D': '{:+.1f}%'
             }),
             column_config={
+                "Pro_Score": st.column_config.ProgressColumn("Pro Score (0-100)", min_value=0, max_value=100, format="%d"),
                 "MVRV_Z": st.column_config.NumberColumn("On-Chain Z-Score", help="< 0 is Buy, > 3 is Sell"),
                 "RSI": st.column_config.ProgressColumn("Momentum (RSI)", min_value=0, max_value=100, format="%.0f"),
                 "Cycle_State": "Cycle Evaluation"
@@ -1410,64 +1449,83 @@ def calculate_crypash_score(ticker, hist, info=None):
     ath = hist['Close'].max()
     vol_30d = hist['Close'].pct_change().std() * (365**0.5) * 100 # Annualized
     
-    # 1. VALUE & CYCLE (40%)
-    # Logic: Lower MVRV is better. Higher Drawdown is opportunity.
-    mvrv = calculate_mvrv_z_proxy(hist['Close']).iloc[-1] if len(hist) > 200 else 1.0
-    drawdown = (current_price - ath) / ath
+    # ----------------------------------------------------------------------------------
+    # 4-PILLAR COMPOSITE SCORE (0-100)
+    # 1. On-Chain (35%): MVRV Z-Score (Proxy), Valuation
+    # 2. Momentum (25%): RSI, SMA Trend
+    # 3. Risk (20%): Volatility, Drawdown
+    # 4. Sentiment (20%): Volume/Liquidity (Proxy for Interest)
+    # ----------------------------------------------------------------------------------
     
-    val_score = 50 # Base
-    if mvrv < 0: val_score += 40 # Deep Value
-    elif mvrv < 1: val_score += 20
-    elif mvrv > 3: val_score -= 30 # Bubble
-    elif mvrv > 2: val_score -= 10
-    
-    if drawdown < -0.8: val_score += 10 # Massive upside potential
-    if drawdown > -0.2: val_score -= 10 # Near ATH risk
-    
-    score_cards['value'] = max(0, min(100, val_score))
-    
-    # 2. MOMENTUM & TREND (30%)
-    # Logic: Uptrend is good. RSI not too hot.
+    # --- 1. On-Chain & Valuation (35%) ---
+    onchain_score = 50 
+    # MVRV Logic: < 0 (Buy) -> 100 pts, > 3.5 (Sell) -> 0 pts
+    # Linear interpolation approx
+    if mvrv <= 0: onchain_score = 100
+    elif mvrv >= 3.5: onchain_score = 0
+    else:
+        # Scale 0 to 3.5 maps to 100 to 0
+        onchain_score = 100 - (mvrv / 3.5 * 100)
+        
+    score_cards['value'] = int(onchain_score)
+
+    # --- 2. Momentum (25%) ---
+    # RSI Logic: < 30 (Oversold/Buy) -> 100, > 70 (Overbought/Sell) -> 0
+    mom_score = 50
     if len(hist) > 200:
         sma200 = hist['Close'].rolling(200).mean().iloc[-1]
         trend_bull = current_price > sma200
     else:
-        trend_bull = True # New coin benefit of doubt
+        trend_bull = True # Benefit of doubt for new coins
         
-    rsi = calculate_rsi(hist['Close']).iloc[-1]
-    
-    mom_score = 50
-    if trend_bull: mom_score += 20
-    if 40 <= rsi <= 70: mom_score += 10 # Healthy zone
-    if rsi > 80: mom_score -= 20 # Overheated
-    if rsi < 30: mom_score += 20 # Oversold bounce play
-    
-    score_cards['momentum'] = max(0, min(100, mom_score))
-    
-    # 3. RISK & HEALTH (30%)
-    # Logic: Lower Volatility is better (usually). Higher volume/liquidity is better.
-    health_score = 50
-    
-    if vol_30d > 150: health_score -= 20 # Too crazy
-    elif vol_30d < 60: health_score += 20 # Stable
-    
-    # Sharpe Proxy (Return / Vol)
-    ret_30d = (hist['Close'].iloc[-1] / hist['Close'].iloc[-30] - 1) if len(hist)>30 else 0
-    if vol_30d > 0:
-        sharpe_proxy = ret_30d / (vol_30d/100) 
-        if sharpe_proxy > 1: health_score += 20
-        elif sharpe_proxy < 0: health_score -= 10
+    if rsi <= 30: mom_score = 100
+    elif rsi >= 70: mom_score = 0
+    else:
+        # 30 to 70 maps to 100 to 0
+        mom_score = 100 - ((rsi - 30) / 40 * 100)
         
-    score_cards['health'] = max(0, min(100, health_score))
+    # Bonus for Bull Trend
+    if trend_bull: mom_score = min(100, mom_score + 10)
+    else: mom_score = max(0, mom_score - 10)
     
-    # TOTAl WEIGHTED
-    total = (score_cards['value'] * 0.4) + (score_cards['momentum'] * 0.3) + (score_cards['health'] * 0.3)
-    score_cards['total'] = int(total)
+    score_cards['momentum'] = int(mom_score)
+
+    # --- 3. Risk & Volatility (20%) ---
+    # Volatility > 120% is bad (0 pts), < 60% is good (100 pts)
+    risk_metric = 50
+    if vol_30d < 60: risk_metric = 100
+    elif vol_30d > 120: risk_metric = 0
+    else:
+        # 60 to 120 maps 100 to 0
+        risk_metric = 100 - ((vol_30d - 60) / 60 * 100)
+        
+    score_cards['health'] = int(risk_metric)
     
-    # Analysis Strings
-    if score_cards['total'] >= 80: score_cards['analysis'].append("💎 **Elite Tier**: Strong Buy.")
-    elif score_cards['total'] >= 60: score_cards['analysis'].append("✅ **Healthy**: Good accumulation zone.")
-    elif score_cards['total'] <= 40: score_cards['analysis'].append("⚠️ **Weak**: High risk or overvalued.")
+    # --- 4. Sentiment/Liquidity (20%) ---
+    # Proxy: Volume Growth? Volume/MarketCap?
+    # Simple Proxy: Recent Volume vs 30D Avg
+    sent_score = 50
+    if len(hist) > 30:
+        vol_curr = hist['Volume'].iloc[-1]
+        vol_avg = hist['Volume'].tail(30).mean()
+        if vol_avg > 0:
+            vol_ratio = vol_curr / vol_avg
+            if vol_ratio > 1.5: sent_score = 80 # High interest
+            elif vol_ratio < 0.5: sent_score = 30 # Low interest
+            else: sent_score = 50
+    
+    # WEIGHTED SUM
+    total_score = (score_cards['value'] * 0.35) + \
+                  (score_cards['momentum'] * 0.25) + \
+                  (score_cards['health'] * 0.20) + \
+                  (sent_score * 0.20)
+                  
+    score_cards['total'] = int(total_score)
+    
+    # Analysis Strings based on Score
+    if score_cards['total'] >= 80: score_cards['analysis'].append("💎 **Elite Tier (Accumulate)**: High quality setup.")
+    elif score_cards['total'] >= 60: score_cards['analysis'].append("✅ **Good**: Suitable for trading.")
+    elif score_cards['total'] <= 40: score_cards['analysis'].append("⚠️ **High Risk**: Wait for better entry.")
     
     return score_cards
 
