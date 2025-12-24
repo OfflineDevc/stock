@@ -899,35 +899,6 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
             chg_7d = (price - closes.iloc[-8]) / closes.iloc[-8] * 100 if len(closes) > 7 else 0
             chg_30d = (price - closes.iloc[-31]) / closes.iloc[-31] * 100 if len(closes) > 31 else 0
             
-            # --- PRO SCORE CALCULATION (Inline for Batch Speed) ---
-            # 1. Val Score (35%)
-            val_s = 50
-            if current_z <= 0: val_s = 100
-            elif current_z >= 3.5: val_s = 0
-            else: val_s = 100 - (current_z / 3.5 * 100)
-            
-            # Whale Proxy Bonus (Inline)
-            try:
-                vol_sma20 = hist['Volume'].rolling(20).mean().iloc[-1]
-                vol_curr = hist['Volume'].iloc[-1]
-                price_sma20 = closes.rolling(20).mean().iloc[-1]
-                if vol_curr > vol_sma20 and price <= price_sma20: val_s += 10
-            except: pass
-            
-            val_s = max(0, min(100, int(val_s)))
-
-            # 2. Mom Score (25%)
-            mom_s = 50
-            if current_rsi <= 30: mom_s = 100
-            elif current_rsi >= 70: mom_s = 0
-            else: mom_s = 100 - ((current_rsi - 30) / 40 * 100)
-            # Trend Bonus check
-            try:
-                sma200_val = closes.rolling(200).mean().iloc[-1]
-                if price > sma200_val: mom_s += 10
-                else: mom_s -= 10
-            except: pass
-            mom_s = max(0, min(100, int(mom_s)))
             
             # 3. Risk Score (20%)
             risk_s = 50
@@ -950,17 +921,21 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                 if price > sma200_val: sent_s = 80
             except: pass
             
-            total_pro_score = int(val_s*0.35 + mom_s*0.25 + risk_s*0.20 + sent_s*0.20)
+            # --- PRO SCORE CALCULATION (Centralized Expert Engine) ---
+            scores = calculate_crypash_score(ticker, hist)
+            total_pro_score = scores['total']
             
-            # Penalties
-            if vol_30d > 120: total_pro_score -= 15
-            total_pro_score = max(0, min(100, total_pro_score))
+            analysis_str = "Neutral"
+            if total_pro_score >= 75: analysis_str = "💎 Elite"
+            elif total_pro_score >= 55: analysis_str = "✅ Buy"
+            elif total_pro_score <= 35: analysis_str = "⚠️ Avoid"
             
             data_list.append({
                 'Symbol': ticker,
                 'Narrative': narrative,
                 'Price': price,
                 'Pro_Score': total_pro_score,
+                'Pro_Rating': analysis_str,
                 'MVRV_Z': current_z,
                 'RSI': current_rsi,
                 'Vol_30D': vol_30d,
@@ -1376,17 +1351,24 @@ def page_scanner():
         st.markdown(f"### {get_text('results_header')}")
         
         # Color Styling for Cycle State
+        # Color Styling for Cycle State & Rating
         def color_cycle(val):
-            if "Accumulation" in val: return "background-color: #d4edda; color: #155724; font-weight: bold"
-            if "Euphoria" in val: return "background-color: #f8d7da; color: #721c24; font-weight: bold"
-            if "Greed" in val: return "background-color: #fff3cd; color: #856404"
+            # Pro Rating Colors
+            if isinstance(val, str):
+                if "Elite" in val: return "background-color: #d1e7dd; color: #0f5132; font-weight: bold" # Success Green
+                if "Buy" in val: return "color: #198754; font-weight: bold"
+                if "Avoid" in val: return "color: #dc3545"
+                # Cycle Colors
+                if "Accumulation" in val: return "background-color: #d4edda; color: #155724; font-weight: bold"
+                if "Euphoria" in val: return "background-color: #f8d7da; color: #721c24; font-weight: bold"
+                if "Greed" in val: return "background-color: #fff3cd; color: #856404"
             return ""
 
         # Columns to display
-        display_cols = ['Symbol', 'Narrative', 'Pro_Score', 'Price', 'Cycle_State', 'MVRV_Z', 'RSI', 'Vol_30D', '7D', '30D']
+        display_cols = ['Symbol', 'Narrative', 'Pro_Score', 'Pro_Rating', 'Price', 'Cycle_State', 'MVRV_Z', 'RSI', 'Vol_30D', '7D', '30D']
         
         st.dataframe(
-            df[display_cols].style.applymap(color_cycle, subset=['Cycle_State'])
+            df[display_cols].style.applymap(color_cycle, subset=['Cycle_State', 'Pro_Rating'])
             .format({
                 'Price': '${:,.2f}',
                 'MVRV_Z': '{:.2f}',
