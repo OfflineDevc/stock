@@ -196,29 +196,29 @@ def inject_custom_css():
 TRANS = {
     'EN': {
         'sidebar_title': "🏛️ Scanner Controls",
-        'market_label': "Market Index",
+        'market_label': "Crypto Category",
         'strategy_label': "Strategy Preset",
         'mode_header': "3. Mode",
         'strict_label': "Select Strictly Enforced Metrics",
-        'perf_label': "Select Performance Metrics",
-        'val_header': "📊 Valuation Metrics",
-        'prof_header': "📈 Profitability & Growth",
-        'risk_header': "🛡️ Risk",
-        'sector_label': "Select Sectors (Optional)",
-        'lynch_label': "Select Lynch Categories (Optional)",
+        'perf_label': "Performance Metrics",
+        'val_header': "� On-Chain (Valuation)",
+        'prof_header': "⚡ Momentum (Technical)",
+        'risk_header': "🛡️ Risk & Volatility",
+        'sector_label': "Select Narrative (Optional)",
+        'lynch_label': "Select Cycle Phase (Optional)",
         'execute_btn': "🚀 Execute Crypash Scan",
         'main_title': "Crypash",
         'scan_limit': "Scan Limit",
         'results_header': "🏆 Top Coins (Cycle & On-Chain Analysis)",
         'stage1_msg': "📡 Stage 1: Fetching Universe...",
         'stage2_msg': "✅ Stage 1 Complete. Analyzing Top Candidates...",
-        'no_data': "❌ No stocks matched your STRICT criteria.",
-        'deep_dive_title': "🔍Deep Dive Kub",
-        'glossary_title': "📚 Investment Glossary",
-        'search_ticker': "Enter Stock Ticker (e.g. AAPL, PTT.BK)",
-        'analyze_btn': "Analyze Stock",
-        'about_title': "ℹ️ About This Project",
-        'about_desc': "This program was created by Mr. Kun Poonkasetvatana. It was developed to solve the pain point that finding data is difficult, analyzing every stock takes too long, and similar tools are unreasonably expensive. Fetches data from Yahoo Finance to screen quickly. Currently developing AI to analyze fundamentals further, obeying 'Invest on what you know' and regular portfolio health checks.",
+        'no_data': "❌ No coins matched your STRICT criteria.",
+        'deep_dive_title': "🔍 Deep Dive Analysis",
+        'glossary_title': "📚 Crypto Glossary",
+        'search_ticker': "Enter Coin Symbol (e.g. BTC-USD, ETH-USD)",
+        'analyze_btn': "Analyze Coin",
+        'about_title': "ℹ️ About Crypash",
+        'about_desc': "Professional Crypto Analysis Platform using Cycle Theory, On-Chain Metrics (MVRV), and Power Law support bands. Designed for serious investors to find high-probability setups.",
         
         'scanner_config': "🛠️ Scanner Configuration & Settings",
         'univ_scale': "1. Universe & Scale",
@@ -227,45 +227,45 @@ TRANS = {
         'opt_filters': "Optional Filters",
         'analyze_top_n': "Analyze Top N Deeply (Stage 2)",
         
-        'port_config': "⚙️ Portfolio Configuration & Settings",
+        'port_config': "⚙️ Portfolio Configuration", # Legacy key but keeping safe
         'asset_univ': "1. Asset Universe",
         'strat_prof': "2. Strategic Profile",
-        'risk_tol': "Risk Tolerance / Strategy",
+        'risk_tol': "Risk Tolerance",
         'max_holdings': "Max Holdings Count",
         'gen_port_btn': "🚀 Generate Portfolio",
-        'port_target_caption': "Allocating to top stocks using Market Cap Weighting.",
+        'port_target_caption': "Allocating based on Market Cap Weighting.",
         
-        'status_processing': "🔄 Processing Market Data...",
-        'status_fetch': "📡 Fetching Ticker List...",
-        'status_scan': "🔬 Scanning stocks for fundamentals...",
-        'status_scan_fail': "❌ Scan Failed: No data found.",
-        'status_scan_complete': "✅ Market Scan Complete!",
-        'status_deep': "🔍 Deep Analysis (Financials & CAGR)...",
+        'status_processing': "🔄 Processing Chain Data...",
+        'status_fetch': "📡 Fetching Coin List...",
+        'status_scan': "🔬 Scanning On-Chain Metrics...",
+        'status_scan_fail': "❌ Scan Failed: No data.",
+        'status_scan_complete': "✅ Scan Complete!",
+        'status_deep': "🔍 Deep Analysis (Volatility & Cycle)...",
         'status_deep_complete': "✅ Deep Analysis Complete!",
         
         'tab_holdings': "📋 Holdings",
-        'tab_alloc': "🍕 Allocation (Sector)",
+        'tab_alloc': "🍕 Allocation",
         'tab_logic': "⚖️ Weighting Logic",
-        'equity_holdings': "1. Equity Holdings (30%)",
-        'core_assets': "2. Core Asset Allocation (70%)",
-        'core_assets_desc': "These are standard ETF Proxies for the Asset Classes.",
+        'equity_holdings': "1. Core Holdings",
+        'core_assets': "2. Stablecoins & Gold",
+        'core_assets_desc': "Defensive Assets.",
         
-        'risk_low_desc': "🛡️ **Defensive**: Focus on **Dividends** and **Stability**. Low Debt, steady Cash Flow. Good for preserving capital.",
-        'risk_med_desc': "⚖️ **Balanced (GARP)**: Growth at Reasonable Price. Mix of **Value** and **Growth**. The sweet spot for most investors.",
-        'risk_high_desc': "🚀 **Aggressive**: Focus on **High Growth**. Ignores Dividends. Higher Risk (Debt/Volatility) accepted for max returns.",
-        'risk_all_desc': "🌤️ **All Weather**: Balanced across seasons. **40% Bonds** (Utilities), **30% Stocks** (Tech), **15% Cmdty** (Energy), **15% Cash** (Finance).",
+        'risk_low_desc': "🛡️ **Accumulation**: Buying in the depression zone. High risk of boredom, low risk of loss.",
+        'risk_med_desc': "⚖️ **Markup**: Riding the trend. Balanced risk/reward.",
+        'risk_high_desc': "🚀 **Euphoria**: Chasing parabolic moves. High risk of bag-holding.",
+        'risk_all_desc': "🌤️ **All Weather**: Balanced crypto basket.",
         
-        'menu_health': "Portfolio HealthCheck",
-        'menu_ai': "Crypto AI Analysis",
+        'menu_health': "Portfolio Health",
+        'menu_ai': "AI Insight",
         'under_dev': "🚧 Feature Under Development 🚧",
-        'dev_soon': "Check back soon for AI-powered diagnostics!",
-        'dev_dl': "Coming soon: Deep Learning On-Chain Analysis.",
+        'dev_soon': "Check back soon!",
+        'dev_dl': "Coming soon: Machine Learning Models.",
         'biz_summary': "📝 **Project Summary**",
-        'lynch_type': "Lynch Type",
-        'score_garp': "GARP Score",
-        'score_value': "Deep Value Score",
-        'score_div': "Dividend Score",
-        'score_multi': "🚀 Multibagger Score",
+        'lynch_type': "Narrative Type",
+        'score_garp': "Cycle Score",
+        'score_value': "Value Score",
+        'score_div': "Yield Score",
+        'score_multi': "Alpha Score",
 
         # --- NEW DASHBOARD & UI ---
         'market_sentiment_title': "### 🧭 Market Sentiment (CNN-Style Proxy)",
@@ -288,20 +288,18 @@ TRANS = {
         'min_margin': "Min Op Margin %",
         'min_div': "Min Dividend Yield %",
         'min_rev_growth': "Min Revenue Growth %",
-        'max_de': "Max Debt/Equity %",
+        'max_de': "Max Debt/Equity %", # Reserved
         'debug_logs': "🛠️ Debug Logs (Open if No Data)",
         'port_title': "Portfoliokub",
         'ai_analysis_header': "🧠 AI Analysis Result ({risk})",
-        'gen_success': "✅ Generated Professional Portfolio: {n} Stocks",
-        'avg_pe_label': "Avg P/E (Equity)",
-        'equity_yield_label': "Equity Yield",
-        'quality_roe_label': "Quality (ROE)",
+        'gen_success': "✅ Generated Professional Portfolio: {n} Coins",
         
         # Tooltips
+        # Tooltips (Updated for Crypto)
         'lynch_tooltip': "",
-        'lynch_desc': "Peter Lynch Categories:\n- Fast Grower: Earnings >20%\n- Asset Play: Asset Rich (P/B < 1)\n- Turnaround: Recovering\n- Cyclical: Economy tied\n- Slow Grower: Dividend payers",
+        'lynch_desc': "Cycle Phases (Wyckoff/Market Cycle):\n- Accumulation: Smart Money buying quietly.\n- Markup: Public participation phase.\n- Distribution: Smart Money selling.\n- Markdown: Price decline.",
         'sector_tooltip': "",
-        'sector_desc': "Industry Group (e.g. Tech, Energy). Important for relative valuation.",
+        'sector_desc': "Narrative Categories (e.g. L1, DeFi, GameFi). Capital rotates between narratives.",
         'backtest_title': "🕑 Historical Backtest & Simulation",
         'backtest_desc': "See how this portfolio would have performed in the past vs S&P 500.",
         'backtest_config': "⚙️ Backtest Configuration",
@@ -310,26 +308,19 @@ TRANS = {
         'invest_amount': "Investment Amount",
         'run_backtest_btn': "🚀 Run Backtest",
         'historical_chart_title': "### 🔬 Interactive Historical Charts",
-        'select_stock_view': "Select Stock to View:",
-        'nav_scanner': "Market Scanner",
+        'select_stock_view': "Select Coin to View:",
+        'nav_scanner': "Crypto Scanner",
         'nav_portfolio': "Auto Portfolio",
-        'nav_single': "Single Stock Analysis",
+        'nav_single': "Single Coin Analysis",
         'nav_health': "Portfolio Health",
         'nav_ai': "AI Insight",
-        'nav_glossary': "Glossary",
+        'nav_glossary': "Crypto Glossary",
         'nav_help': "How to Use",
-        'footer_caption': "Professional Stock Analytics Platform",
-        'health_check_title': "🔍 Financial Health Check",
+        'footer_caption': "Professional Crypto Analytics Platform",
+        'health_check_title': "🔍 On-Chain Health Check",
         'val_label': "Valuation",
         'qual_label': "Quality",
-        'guru_intel_title': "🧠 Guru & Analyst Intel",
-        'tab_holders': "🏛️ Institutional Holders (Guru Proxy)",
-        'tab_recs': "🗣️ Analyst Recommendations",
-        'holders_desc': "Top funds and institutions holding this stock.",
-        'no_holders': "No institutional holding data available.",
-        'err_holders': "Could not fetch institutional data.",
-        'consensus_target': "Consensus Target Price",
-        'vs_current': "vs Current",
+        # Dead keys removed (Guru/Analyst/Holders)
         'no_target': "No analyst target price available.",
         'err_recs': "Could not fetch recommendations.",
         'price_trend_title': "📉 5-Year Price Trend",
@@ -381,83 +372,83 @@ TRANS = {
     },
     'TH': {
         'sidebar_title': "🏛️ ตั้งค่าการสแกน",
-        'market_label': "เลือกตลาดหุ้น",
-        'strategy_label': "เลือกกลยุทธ์การลงทุน",
+        'market_label': "หมวดหมู่เหรียญ (Universe)",
+        'strategy_label': "กลยุทธ์ (Strategy)",
         'mode_header': "3. โหมดคัดกรอง",
-        'strict_label': "เลือกค่าที่ต้องผ่านเกณฑ์ (Strict)",
-        'perf_label': "เลือกช่วงเวลาวัดผลตอบแทน",
-        'val_header': "📊 ค่าความถูกแพง (Valuation)",
-        'prof_header': "📈 การทำกำไรและการเติบโต",
-        'risk_header': "🛡️ ความเสี่ยง (หนี้สิน)",
-        'sector_label': "เลือกกลุ่มอุตสาหกรรม (Optional)",
-        'lynch_label': "เลือกประเภทหุ้นตาม Lynch (Optional)",
+        'strict_label': "เลือกเกณฑ์คัดออก (Strict)",
+        'perf_label': "เลือกช่วงเวลาวัดผล",
+        'val_header': "� On-Chain (พื้นฐาน)",
+        'prof_header': "⚡ Momentum (กราฟ)",
+        'risk_header': "🛡️ ความผันผวน (Risk)",
+        'sector_label': "เลือก Narrative (ธีมเหรียญ)",
+        'lynch_label': "เลือกวัฏจักร (Cycle Phase)",
         
         # Tooltips
         'lynch_tooltip': "ℹ️",
-        'lynch_desc': "ประเภทหุ้นตาม Peter Lynch:\n- Fast Grower: โตเร็ว (กำไร >20%)\n- Asset Play: หุ้นสินทรัพย์เยอะ (P/B < 1)\n- Turnaround: หุ้นพลิกฟื้น\n- Cyclical: หุ้นวัฏจักร\n- Slow Grower: หุ้นปันผล",
+        'lynch_desc': "วัฏจักรตลาด:\n- Accumulation: ช่วงสะสมของ (วาฬเก็บ)\n- Markup: ช่วงราคาขึ้น\n- Distribution: ช่วงกระจายของ (วาฬขาย)\n- Markdown: ช่วงราคาลง",
         'sector_tooltip': "ℹ️",
-        'sector_desc': "กลุ่มอุตสาหกรรม (เช่น เทคโนโลยี, พลังงาน) ช่วยให้เปรียบเทียบ P/E ได้ถูกต้อง",
+        'sector_desc': "Narrative คือธีมการลงทุน เช่น L1 (โครงสร้างพื้นฐาน), DeFi (การเงิน), Meme (เก็งกำไร)",
         
-        'execute_btn': "🚀 เริ่มสแกนเหรียญ (On-Chain Analysis)",
-        'main_title': "Crypash",
-        'scan_limit': "จำกัดจำนวนสแกน", 
-        'results_header': "🏆 หุ้นเด่น (วิเคราะห์เจาะลึก)",
-        'stage1_msg': "📡 ขั้นแรก: ดึงข้อมูลหุ้น...",
-        'stage2_msg': "✅ ขั้นแรกเสร็จสิ้น กำลังวิเคราะห์เจาะลึก...",
-        'no_data': "❌ ไม่พบหุ้นที่ผ่านเกณฑ์ Strict ของคุณ",
-        'deep_dive_title': "ดีบไดป์คับ",
-        'glossary_title': "📚 คลังความรู้การลงทุน",
-        'search_ticker': "พิมพ์ชื่อหุ้น (เช่น AAPL, PTT.BK)",
-        'analyze_btn': "วิเคราะห์หุ้นนี้",
-        'about_title': "ℹ️ เกี่ยวกับโปรเจกต์นี้",
-        'about_desc': "โปรแกรม Crypash แฝดพี่ของ Stockub พัฒนาเพื่อชาวดอยคริปโตโดยเฉพาะ เน้นวิเคราะห์วัฏจักร (Cycle), เงินไหลเข้าออก (Fund Flow), และความโลภของตลาด (Sentiment) เพื่อหาจุดซื้อที่ปลอดภัยที่สุด ไม่ใช่แค่ดูเส้นกราฟ แต่ดู 'ข้อมูลบนเชน' (On-Chain) ที่เจ้ามือซ่อนไม่ได้",
+        'execute_btn': "🚀 เริ่มสแกน Crypash",
+        'main_title': "Crypash - วิเคราะห์คริปโต AI",
+        'scan_limit': "จำนวนจำกัดการสแกน",
+        'results_header': "🏆 ผลลัพธ์เหรียญน่าสนใจ",
+        'stage1_msg': "📡 กำลังดึงข้อมูลเหรียญ...",
+        'stage2_msg': "✅ โหลดเสร็จสิ้น กำลังวิเคราะห์...",
+        'no_data': "❌ ไม่พบเหรียญที่ตรงตามเงื่อนไข",
+        'deep_dive_title': "🔍 เจาะลึกรายตัว (Deep Dive)",
+        'glossary_title': "📚 คลังความรู้คริปโต",
+        'search_ticker': "พิมพ์ชื่อเหรียญ (เช่น BTC-USD)",
+        'analyze_btn': "วิเคราะห์เหรียญ",
+        'about_title': "ℹ️ เกี่ยวกับโปรเจกต์",
+        'about_desc': "แพลตฟอร์มวิเคราะห์คริปโตระดับมืออาชีพ เน้นข้อมูล On-Chain และวัฏจักรตลาด (Cycle Theory) เพื่อหาจุดเข้าซื้อที่มีโอกาสชนะสูง",
+
+        'scanner_config': "🛠️ ตั้งค่าสแกนเนอร์",
+        'univ_scale': "1. ขอบเขตการค้นหา",
+        'strat_mandate': "2. กลยุทธ์",
+        'crit_thresh': "3. เกณฑ์การคัดกรอง",
+        'opt_filters': "ตัวกรองเสริม",
+        'analyze_top_n': "วิเคราะห์เชิงลึก N ตัวบน",
         
-        'scanner_config': "🛠️ ตั้งค่าตัวสแกนหุ้น (Scanner Configuration)",
-        'univ_scale': "1. เลือกตลาดและขอบเขต (Universe)",
-        'strat_mandate': "2. กลยุทธ์การลงทุน (Strategy)",
-        'crit_thresh': "3. เกณฑ์ชี้วัด (Criteria Thresholds)",
-        'opt_filters': "ตัวกรองเพิ่มเติม (Optional)",
-        'analyze_top_n': "จำนวนหุ้นที่จะวิเคราะห์เจาะลึก (Stage 2)",
+        'port_config': "⚙️ จัดพอร์ตโฟลิโอ",
+        'asset_univ': "1. สินทรัพย์",
+        'strat_prof': "2. รูปแบบความเสี่ยง",
+        'risk_tol': "ระดับความเสี่ยง",
+        'max_holdings': "จำนวนเหรียญสูงสุด",
+        'gen_port_btn': "🚀 สร้างพอร์ต",
+        'port_target_caption': "จัดสรรตามมูลค่าตลาด (Market Cap Weighting)",
         
-        'port_config': "⚙️ ตั้งค่าพอร์ตการลงทุน (Portfolio Settings)",
-        'asset_univ': "1. เลือกสินทรัพย์ (Asset Universe)",
-        'strat_prof': "2. รูปแบบกลยุทธ์ (Strategy Profile)",
-        'risk_tol': "ระดับความเสี่ยง / กลยุทธ์",
-        'max_holdings': "จำนวนหุ้นสูงสุดในพอร์ต",
-        'gen_port_btn': "🚀 สร้างพอร์ตการลงทุน (Generate)",
-        'port_target_caption': "จัดสรรเงินลงทุนในหุ้นชั้นนำ โดยใช้น้ำหนักตามมูลค่าตลาด (Market Cap Weighting)",
-        
-        'status_processing': "🔄 กำลังประมวลผลข้อมูลตลาด...",
-        'status_fetch': "📡 กำลังดึงรายชื่อหุ้น...",
-        'status_scan': "🔬 กำลังสแกนงบการเงินและพื้นฐาน...",
-        'status_scan_fail': "❌ สแกนล้มเหลว: ไม่พบข้อมูล",
-        'status_scan_complete': "✅ สแกนตลาดเรียบร้อย!",
-        'status_deep': "🔍 วิเคราะห์เจาะลึก (งบการเงิน & CAGR)...",
-        'status_deep_complete': "✅ วิเคราะห์เจาะลึกเสร็จสิ้น!",
-        
-        'tab_holdings': "📋 รายชื่อหุ้นในพอร์ต",
-        'tab_alloc': "🍕 สัดส่วนการลงทุน (Allocation)",
-        'tab_logic': "⚖️ ตรรกะการจัดพอร์ต",
-        'equity_holdings': "1. ส่วนของหุ้น (Equity Holdings 30%)",
-        'core_assets': "2. สินทรัพย์หลัก (Core Assets 70%)",
-        'core_assets_desc': "นี่คือ ETF ตัวแทนของสินทรัพย์ประเภทต่างๆ (พันธบัตร, ทองคำ, etc.)",
-        
-        'risk_low_desc': "🛡️ **Defensive (ปลอดภัยไว้ก่อน)**: เน้น **ปันผล** และ **ความมั่นคง**. หนี้ต่ำ, กระแสเงินสดนิ่ง. เหมาะสำหรับรักษาเงินต้น.",
-        'risk_med_desc': "⚖️ **Balanced (สายกลาง GARP)**: เติบโตในราคาที่เหมาะสม. ผสมผสานระหว่าง **ความคุ้มค่า** และ **การเติบโต**. จุดที่ลงตัวสำหรับนักลงทุนส่วนใหญ่.",
-        'risk_high_desc': "🚀 **Aggressive (เชิงรุก)**: เน้น **การเติบโตสูง**. ไม่สนปันผล. ยอมรับความเสี่ยงสูง (หนี้/ความผันผวน) เพื่อแลกผลตอบแทนสูงสุด.",
-        'risk_all_desc': "🌤️ **All Weather (ทุกสภาวะ)**: สมดุลทุกฤดูกาล. **40% พันธบัตร** (หรือ Utility), **30% หุ้น** (Tech), **15% สินค้าโภคภัณฑ์** (Energy), **15% เงินสด** (Finance).",
-        
-        'menu_health': "ตรวจสุขภาพพอร์ต (HealthCheck)",
-        'menu_ai': "วิเคราะห์หุ้นด้วย AI",
-        'under_dev': "🚧 ระบบกำลังพัฒนา 🚧",
-        'dev_soon': "พบกับระบบตรวจสุขภาพพอร์ตด้วย AI เร็วๆ นี้!",
-        'dev_dl': "พบกับการวิเคราะห์ปัจจัยพื้นฐานด้วย Deep Learning เร็วๆ นี้",
-        'biz_summary': "📝 **สรุปข้อมูลธุรกิจ** (จาก Yahoo Finance)",
-        'lynch_type': "ประเภท Lynch",
-        'score_garp': "คะแนน GARP (เติบโตรอบคอบ)",
-        'score_value': "คะแนน Value (หุ้นคุณค่า)",
-        'score_div': "คะแนน Dividend (ปันผล)",
-        'score_multi': "🚀 คะแนน Multibagger (หุ้นเด้ง)",
+        'status_processing': "🔄 กำลังประมวลผล...",
+        'status_fetch': "📡 ดึงข้อมูล...",
+        'status_scan': "🔬 สแกน On-Chain...",
+        'status_scan_fail': "❌ ผิดพลาด: ไม่พบข้อมูล",
+        'status_scan_complete': "✅ สแกนเสร็จสิ้น!",
+        'status_deep': "🔍 วิเคราะห์เชิงลึก...",
+        'status_deep_complete': "✅ วิเคราะห์เสร็จสิ้น!",
+
+        'tab_holdings': "📋 รายชื่อเหรียญ",
+        'tab_alloc': "🍕 สัดส่วน (Allocation)",
+        'tab_logic': "⚖️ ที่มาการคำนวณ",
+        'equity_holdings': "1. เหรียญหลัก",
+        'core_assets': "2. สินทรัพย์ปลอดภัย",
+        'core_assets_desc': "Stablecoins หรือ Gold Paxg",
+
+        'risk_low_desc': "🛡️ **Accumulation**: ซื้อตอนคนเบื่อ (ความเสี่ยงต่ำ)",
+        'risk_med_desc': "⚖️ **Markup**: ซื้อตอนมีเทรนด์ (ความเสี่ยงกลาง)",
+        'risk_high_desc': "🚀 **Euphoria**: ซื้อตอนคนฮิต (ความเสี่ยงสูง ระวังดอย)",
+        'risk_all_desc': "🌤️ **All Weather**: กระจายความเสี่ยงทั่วถึง",
+
+        'menu_health': "ตรวจสุขภาพพอร์ต",
+        'menu_ai': "AI วิเคราะห์",
+        'under_dev': "🚧 กำลังพัฒนา 🚧",
+        'dev_soon': "พบกันเร็วๆนี้",
+        'dev_dl': "ระบบ Deep Learning กำลังมา",
+        'biz_summary': "📝 **สรุปภาพรวม**",
+        'lynch_type': "ประเภทวัฏจักร",
+        'score_garp': "คะแนนวัฏจักร",
+        'score_value': "คะแนนความคุ้มค่า",
+        'score_div': "คะแนน Staking (Yield)",
+        'score_multi': "🚀 คะแนน Alpha (To The Moon)",
 
         # --- NEW DASHBOARD & UI ---
         'market_sentiment_title': "### 🧭 สภาวะตลาด (Market Sentiment)",
@@ -473,20 +464,10 @@ TRANS = {
         'buffett_status': "สถานะ: สูงกว่าค่าเฉลี่ย 2.4 Standard Deviation",
         'buffett_val_desc': "แพงมาก (Strongly Overvalued)",
         'faq_title': "📚 คำนิยามและระเบียบวิธี (FAQs)",
-        'max_pe': "ค่า P/E สูงสุดที่ยอมรับได้",
-        'max_peg': "ค่า PEG สูงสุดที่ยอมรับได้",
-        'max_evebitda': "ค่า EV/EBITDA สูงสุด",
-        'min_roe': "ค่า ROE ขั้นต่ำ %",
-        'min_margin': "กำไรจากการดำเนินงานขั้นต่ำ %",
-        'min_div': "อัตราปันผลขั้นต่ำ %",
-        'min_rev_growth': "การเติบโตรายได้ขั้นต่ำ %",
-        'max_de': "หนี้สินต่อทุนสูงสุด (D/E) %",
         'debug_logs': "🛠️ บันทึกการตรวจสอบ (Debug Logs)",
         'port_title': "พอร์ตฟอลิโอคับ",
         'ai_analysis_header': "🧠 ผลการวิเคราะห์ด้วย AI ({risk})",
-        'gen_success': "✅ สร้างพอร์ตการลงทุนสำเร็จ: {n} หุ้น",
-        'avg_pe_label': "P/E เฉลี่ย (เฉพาะหุ้น)",
-        'equity_yield_label': "ปันผลเฉลี่ย",
+        'gen_success': "✅ สร้างพอร์ตการลงทุนสำเร็จ: {n} เหรียญ",
         'quality_roe_label': "คุณภาพ (ROE เฉลี่ย)",
         'backtest_title': "🕑 การทดสอบย้อนหลัง (Historical Backtest)",
         'backtest_desc': "ดูผลตอบแทนในอดีตของพอร์ตนี้เปรียบเทียบกับดัชนี S&P 500",
@@ -1210,54 +1191,27 @@ def page_scanner():
         # Row 2: Detailed Thresholds
         st.subheader("3. Criteria Thresholds")
         
-        # Defaults
-        t_peg, t_pe, t_roe, t_de, t_evebitda = 1.5, 25.0, 0.15, 100.0, 12.0
-        t_div, t_margin = 0.0, 0.10
-        t_rev_growth = 0.0
-    
-        if strategy == "Growth at Reasonable Price (GARP)":
-            t_peg = 1.2; t_pe = 30.0; t_roe = 0.15
-        elif strategy == "Deep Value":
-            t_peg = 1.0; t_pe = 15.0; t_evebitda = 8.0; t_roe = 0.08
-        elif strategy == "High Yield":
-            t_div = 0.03; t_pe = 20.0; t_roe = 0.10
-        elif strategy == "Speculative Growth":
-            t_pe = 500.0; t_peg = 5.0; t_roe = 0.05; t_rev_growth = 20.0
+        # Default Crypto Settings (Professional "Whale" Setup)
+        c_mvrv, c_rsi, c_risk = st.columns(3)
+
+        with c_mvrv:
+            st.markdown("##### 🐋 On-Chain (Valuation)")
+            st.caption("Identify accumulations or overheated zones.")
+            val_mvrv = st.slider("Max MVRV Z-Score", min_value=-3.0, max_value=10.0, value=3.5, step=0.1, help="< 0: Undervalued (Bottom), > 3.5: Overvalued (Top)")
             
-        c_val, c_prof, c_risk = st.columns(3)
-        
-        with c_val:
-             st.markdown(f"**{get_text('val_header')}**")
-             val_pe = st.slider("Max P/E Ratio", 5.0, 500.0, float(t_pe))
-             val_peg = st.slider("Max PEG Ratio", 0.1, 10.0, float(t_peg))
-             val_evebitda = st.slider("Max EV/EBITDA", 1.0, 50.0, float(t_evebitda))
-             
-        with c_prof:
-             st.markdown(f"**{get_text('prof_header')}**")
-             prof_roe = st.slider("Min ROE %", 0, 50, int(t_roe*100)) / 100
-             prof_margin = st.slider("Min Op Margin %", 0, 50, int(t_margin*100)) / 100
-             prof_div = st.slider("Min Dividend Yield %", 0, 15, int(t_div*100)) / 100
-             if strategy == "Speculative Growth":
-                 growth_min = st.slider("Min Revenue Growth %", 0, 100, int(t_rev_growth))
-        
+        with c_rsi:
+            st.markdown("##### ⚡ Momentum (Technical)")
+            st.caption("Catch reversals or trend strength.")
+            val_rsi = st.slider("Max RSI (14D)", min_value=10, max_value=90, value=75, step=5, help="> 70: Overbought, < 30: Oversold")
+            
         with c_risk:
-             st.markdown(f"**{get_text('risk_header')}**")
-             risk_de = st.slider("Max Debt/Equity %", 0, 500, int(t_de), step=10)
-             
-             # Filters
-             st.caption("Optional Filters")
-             SECTORS = [
-                "Technology", "Healthcare", "Financial Services", "Consumer Cyclical", 
-                "Industrials", "Consumer Defensive", "Energy", "Utilities", 
-                "Basic Materials", "Real Estate", "Communication Services"
-            ]
-             selected_sectors = st.multiselect(get_text('sector_label'), SECTORS, default=[])
-            
-             LYNCH_TYPES = [
-                "🚀 Fast Grower", "🏰 Asset Play", "🐢 Slow Grower", 
-                "🐘 Stalwart", "🔄 Cyclical", "😐 Average", "⚪ Unknown"
-            ]
-             selected_lynch = st.multiselect(get_text('lynch_label'), LYNCH_TYPES, default=[])
+            st.markdown("##### 🛡️ Risk & Volatility")
+            st.caption("Filter out extreme volatility.")
+            risk_vol = st.slider("Max 30D Volatility %", min_value=10, max_value=200, value=150, step=10)
+
+        # Removed Stock Sectors & Lynch Categories as they don't apply
+        selected_sectors = [] 
+        selected_lynch = []
 
     st.caption(f"Universe: {market_choice} | Strategy: {strategy} | Scan Limit: {num_stocks}")
 
@@ -1334,7 +1288,7 @@ def page_scanner():
         # --- Manual Deep Dive Section ---
         st.markdown("---")
         st.header("🔬 Interactive Historical Charts")
-        st.info("Select a stock to visualize 10-year trends.")
+        st.info("Select a coin to visualize historical trends.")
         
         if 'Symbol' in df.columns:
             selected_ticker = st.selectbox("Select Ticker:", df['Symbol'].tolist(), index=0)
