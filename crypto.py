@@ -259,6 +259,12 @@ TRANS = {
         'nav_glossary': "Crypto Glossary",
         'nav_howto': "How to Use",
         
+        'nav_howto': "How to Use",
+        
+        # --- Page Headers ---
+        'scanner_header': "Crypash Scan",
+        'deep_dive_title': "Crypash Dept",
+        
         # --- Restored Keys ---
         'tab_holdings': "📋 Holdings",
         'tab_alloc': "🍕 Allocation",
@@ -421,7 +427,8 @@ TRANS = {
         'nav_ai': "AI วิเคราะห์",
         'nav_glossary': "คลังคำศัพท์",
         'nav_howto': "คู่มือการใช้งาน",
-        'nav_help': "คู่มือการใช้งาน",
+        'nav_help': "คู่มือการใช้งาน", 
+        'scanner_header': "Crypash Scan",
         'footer_caption': "Professional Crypto Analytics Platform",
         'health_check_title': "🔍 On-Chain Health Check",
         'val_label': "Valuation",
