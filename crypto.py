@@ -2185,6 +2185,12 @@ if __name__ == "__main__":
 
     # ... logic ...
     
+    with tab_scan:
+        page_scanner()
+        
+    with tab_single:
+        page_single_coin()
+        
     with tab_auto:
         page_auto_wealth()
         
