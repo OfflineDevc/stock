@@ -1499,14 +1499,15 @@ def calculate_crypash_score(ticker, hist, info=None):
         
         # Initialize Analysis List if not present or clear it at start
         if 'analysis' not in score_cards: score_cards['analysis'] = []
-        score_cards['analysis'] = [] # Clean start for this run
-
-        # ==============================================================================
-        # 1. FINANCIAL HEALTH (30%) - Already done above, ensuring text is added (checking previous block)
-        # Note: I am editing from line 1500, previous block (Financial) is above. 
-        # I will assume I need to fix Financial separately if needed, but let's fix Network/Tech/Tokenomics here.
-        # Wait, I can only edit contiguous blocks. I will fix the visible block first.
+        # score_cards['analysis'] = [] # Keep overall analysis as list, but details separate
         
+        # Ensure 'details' dict exists if not initialized
+        if 'details' not in score_cards: score_cards['details'] = {'financial': [], 'network': [], 'tech': [], 'tokenomics': []}
+        
+        # Ensure sub-lists exist (in case partially init)
+        for k in ['financial', 'network', 'tech', 'tokenomics']:
+            if k not in score_cards['details']: score_cards['details'][k] = []
+
         # ==============================================================================
         # 2. NETWORK ACTIVITY (30%)
         # Metrics: Volume Trend (Proxy for DAU)
@@ -1522,26 +1523,26 @@ def calculate_crypash_score(ticker, hist, info=None):
             vol_growth = (vol_7d_avg - vol_30d_avg) / vol_30d_avg
             if vol_growth > 0.5: 
                 ns = 100
-                score_cards['analysis'].append(f"📈 Network Growth: Surge (+{vol_growth*100:.1f}%)")
+                score_cards['details']['network'].append(f"📈 Growth: Surge (+{vol_growth*100:.1f}%)")
             elif vol_growth > 0: 
                 ns = 70
-                score_cards['analysis'].append(f"✅ Network Growth: Steady (+{vol_growth*100:.1f}%)")
+                score_cards['details']['network'].append(f"✅ Growth: Steady (+{vol_growth*100:.1f}%)")
             else: 
                 ns = 40
-                score_cards['analysis'].append(f"⚠️ Network Growth: Declining ({vol_growth*100:.1f}%)")
+                score_cards['details']['network'].append(f"⚠️ Growth: Declining ({vol_growth*100:.1f}%)")
         else:
             ns = 50
-            score_cards['analysis'].append("ℹ️ Network Data: Insufficient volume history.")
+            score_cards['details']['network'].append("ℹ️ Data: Insufficient volume history.")
         net_score += ns; net_count += 1
         
         # B. Retention / Stability
         vol_std = hist['Volume'].tail(30).pct_change().std()
         if vol_std < 1.0: 
             ns2 = 80
-            score_cards['analysis'].append("✅ Stability: Consistent trading activity.")
+            score_cards['details']['network'].append("✅ Stability: Consistent activity.")
         else:
             ns2 = 40
-            score_cards['analysis'].append("⚠️ Stability: High volume volatility.")
+            score_cards['details']['network'].append("⚠️ Stability: Volatile activity.")
         net_score += ns2; net_count += 1
         
         score_cards['network'] = int(net_score / max(1, net_count))
@@ -1553,13 +1554,13 @@ def calculate_crypash_score(ticker, hist, info=None):
         major_tokens = ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'AVAX', 'LINK', 'UNI']
         if any(x in clean_symbol for x in major_tokens):
             tech_base = 90
-            score_cards['analysis'].append("🏆 Tech: Blue-chip blockchain architecture.")
+            score_cards['details']['tech'].append("🏆 Class: Blue-chip L1/L2.")
         else:
             # Hash-based proxy for demo
             import hashlib
             hash_val = int(hashlib.sha256(clean_symbol.encode('utf-8')).hexdigest(), 16) % 30
             tech_base = 50 + hash_val 
-            score_cards['analysis'].append("🛠️ Tech: Standard implementation (Proxy Score).")
+            score_cards['details']['tech'].append("🛠️ Class: Standard Implementation.")
             
         score_cards['tech'] = tech_base
         
@@ -1574,34 +1575,34 @@ def calculate_crypash_score(ticker, hist, info=None):
             supply_ratio = circ_supply / max_supply
             if supply_ratio > 0.9: 
                 ts = 100 
-                score_cards['analysis'].append("💎 Tokenomics: Fully Diluted (No inflation pressure).")
+                score_cards['details']['tokenomics'].append("💎 Dilution: None (Maxed).")
             elif supply_ratio > 0.7: 
                 ts = 80
-                score_cards['analysis'].append("✅ Tokenomics: High Circulating Supply.")
+                score_cards['details']['tokenomics'].append("✅ Supply: Mostly Circulating.")
             elif supply_ratio > 0.5: 
                 ts = 60
-                score_cards['analysis'].append("ℹ️ Tokenomics: Moderate inflation remaining.")
+                score_cards['details']['tokenomics'].append("ℹ️ Inflation: Moderate.")
             elif supply_ratio > 0.3: 
                 ts = 40
-                score_cards['analysis'].append("⚠️ Tokenomics: High inflation ahead.")
+                score_cards['details']['tokenomics'].append("⚠️ Inflation: High.")
             else: 
                 ts = 20 
-                score_cards['analysis'].append("🚩 Tokenomics: VC/Insider Unlock Risk.")
+                score_cards['details']['tokenomics'].append("🚩 Vesting: High Unlock Risk.")
         elif clean_symbol in ['ETH', 'DOGE', 'SOL']: 
             ts = 70
-            score_cards['analysis'].append("✅ Tokenomics: Inflationary but established (Utility).")
+            score_cards['details']['tokenomics'].append("✅ Type: Utility/Inflationary.")
         else:
             # Fallback if no info: 
             days_history = len(hist)
             if days_history > 1500: 
                 ts = 80
-                score_cards['analysis'].append("✅ Tokenomics: Mature Distribution (>4 Years).")
+                score_cards['details']['tokenomics'].append("✅ Maturity: Distribution >4Y.")
             elif days_history > 700: 
                 ts = 60
-                score_cards['analysis'].append("ℹ️ Tokenomics: Established Asset.")
+                score_cards['details']['tokenomics'].append("ℹ️ Maturity: Established.")
             else: 
                 ts = 40
-                score_cards['analysis'].append("⚠️ Tokenomics: Early Stage / Unknown Supply.")
+                score_cards['details']['tokenomics'].append("⚠️ Maturity: Early Stage.")
             
         token_score += ts; token_count += 1
         score_cards['tokenomics'] = int(token_score / max(1, token_count))
