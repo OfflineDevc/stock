@@ -1246,7 +1246,7 @@ def page_scanner():
         )
         
         # Apply Crypash Ranking (Calculates Rank_Score but we will override Sort)
-        df = calculate_crypash_ranking(df)
+        df = calculate_crypash_ranking(df_results)
         
         # Sort by Scan Score DESC, then Crypash Score DESC (Enforce Scan Priority)
         if not df.empty:
