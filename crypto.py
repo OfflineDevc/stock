@@ -898,24 +898,32 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
             except: pass
             
             # --- PRO SCORE CALCULATION (Centralized Expert Engine) ---
-            # Try to get cached info if possible, else None
-            # info = fetch_cached_info(ticker) # Too slow for batch?
-            # We'll rely on fallback inside the function
-            scores = calculate_crypash_score(ticker, hist, info=None)
-            total_pro_score = scores['total']
-            
-            analysis_str = get_grade(total_pro_score)
-            
+            try:
+                # scores = calculate_crypash_score(ticker, hist, info=None)
+                # Fallback to empty score if calculation fails
+                scores = calculate_crypash_score(ticker, hist, info=None)
+                total_pro_score = scores.get('total', 0)
+                analysis_str = get_grade(total_pro_score)
+            except Exception as e:
+                # print(f"Score Error {ticker}: {e}")
+                total_pro_score = 0
+                analysis_str = "Error"
+                scores = {} # Empty dict
+                
             # --- CRYPASH LINE & MARGIN OF SAFETY ---
-            c_line_series = calculate_crypash_line(hist)
-            if not c_line_series.empty:
-                fair_value = c_line_series.iloc[-1]
-                mos = (fair_value - price) / price * 100 # Margin of Safety %
-            else:
+            try:
+                c_line_series = calculate_crypash_line(hist)
+                if not c_line_series.empty:
+                    fair_value = c_line_series.iloc[-1]
+                    mos = (fair_value - price) / price * 100 
+                else:
+                    fair_value = price
+                    mos = 0
+            except:
                 fair_value = price
                 mos = 0
             
-            data_list.append({
+
                 'Symbol': ticker,
                 'Narrative': narrative,
                 'Price': price,
