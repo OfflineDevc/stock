@@ -1967,15 +1967,17 @@ def page_auto_wealth():
             risk_profile = st.selectbox("Risk Tolerance", risk_options, index=idx)
             st.session_state.risk_profile = risk_profile
 
+    # Initialize Optimizer (Early Init for UI)
+    opt = CrypashOptimizer(risk_profile, capital)
+    
+    # Custom Asset Count Override (Now Visible)
+    rec_n = opt.determine_asset_count()
+    target_n = st.slider("Target Asset Count", min_value=5, max_value=20, value=rec_n, help="Number of coins in portfolio")
+
     # 2. Execution
     if st.button("Generate Optimal Portfolio", type="primary"):
-        # Initialize Optimizer
-        opt = CrypashOptimizer(risk_profile, capital)
-        
         # A. Determine Constraints
-        # Custom Asset Count Override
-        rec_n = opt.determine_asset_count()
-        target_n = st.slider("Target Asset Count", min_value=5, max_value=20, value=rec_n, help="Number of coins in portfolio")
+        # target_n is already set above
         
         # B. Get Market Data (Simulated Scan for Logic Demo)
         progress = st.progress(0)
