@@ -1841,12 +1841,15 @@ def calculate_crypash_ranking(df):
     """
     if df.empty: return df
     
-    # 1. Filter
-    df = df[df['Crypash_Score'] >= 40] # Filter out Low Quality (< 4.0)
+    # 1. Removed Hard Filter to show ALL matches in Scanner
+    # df = df[df['Crypash_Score'] >= 40] 
     
     # 2. Composite Rank Score
     # Normalize Margin of Safety (Cap at +/- 100 for scoring)
-    mos_clamped = df['Margin_Safety'].clip(-100, 100)
+    if 'Margin_Safety' in df.columns:
+        mos_clamped = df['Margin_Safety'].clip(-100, 100)
+    else:
+        mos_clamped = 0
     
     # Scale MOS (-100 to 100) to (0 to 100) roughly for combination
     # 0% MOS = 50 pts. +50% MOS = 75 pts.
@@ -1855,13 +1858,7 @@ def calculate_crypash_ranking(df):
     # Final Rank Score = 60% Quality + 40% Valuation
     df['Rank_Score'] = (df['Crypash_Score'] * 0.6) + (mos_score * 0.4)
     
-    # Sort
-    df = df.sort_values(by='Rank_Score', ascending=False)
-    
-    return df
-
-
-    # Sort
+    # Default Sort (Usually overridden by downstream tools)
     df = df.sort_values(by='Rank_Score', ascending=False)
     
     return df
@@ -1976,13 +1973,11 @@ def page_auto_wealth():
         opt = CrypashOptimizer(risk_profile, capital)
         
         # A. Determine Constraints
-        target_n = opt.determine_asset_count()
         # Custom Asset Count Override
         rec_n = opt.determine_asset_count()
         target_n = st.slider("Target Asset Count", min_value=5, max_value=20, value=rec_n, help="Number of coins in portfolio")
         
         # B. Get Market Data (Simulated Scan for Logic Demo)
-        # In prod, this calls scan_market_basic logic.
         progress = st.progress(0)
         status = st.empty()
         
@@ -1991,8 +1986,6 @@ def page_auto_wealth():
         tickers = get_crypto_universe("All (Top 200)")[:60] # top 60 candidates
         
         # Use existing scanner logic to get metrics
-        # We need a headless version or just use the DF if we can.
-        # For speed in this demo, we'll try to fetch cached data or run a fast scan.
         df_scan = scan_market_basic(tickers, progress, status)
         
         if df_scan.empty:
@@ -2005,21 +1998,6 @@ def page_auto_wealth():
         df_scan = calculate_crypash_ranking(df_scan) 
         
         # C. Select Universe
-        # Pass target_n manually to select_universe (Need to update optimizer method signature if it doesn't take it)
-        # Assuming we need to patch select_universe or it uses self.determine_asset_count which we just overrode...
-        # Let's adjust CryptoOptimizer to accept override or just slice here.
-        
-        # Actually, let's update CrypashOptimizer in next step to accept `n` override. 
-        # For now, we will assume select_universe uses internal logic, but we can slice the result if needed or modify it.
-        # Wait, select_universe calls determine_asset_count internally.
-        
-        # FIX: We need to pass N to select_universe. check crypto_optimizer.py
-        # If I can't change optimizer signature here easily without viewing it, I'll update it separately.
-        # However, I can just monkey-patch or update the file.
-        # Let's check crypto_optimizer first. For now, I will modify the UI to pass `target_n` if I update the optimizer.
-        # Ah, viewing `crypto_optimizer.py` implies `select_universe` doesn't take `n`.
-        # I will handle that.
-        
         df_selected = opt.select_universe(df_scan, override_n=target_n) 
         
         if df_selected.empty:
