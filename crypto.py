@@ -38,8 +38,8 @@ def fetch_cached_info(ticker):
                     continue
             
             print(f"[{ticker}] Info Error: {e}")
-            return {'__error__': str(e)}
-    return {}
+            return None # Return None on error for easier fallback trigger
+    return None
 
 # Retry Helper for Object access (when we have obj but need property)
 def safe_get_info(stock_obj):
@@ -1825,12 +1825,15 @@ def page_single_coin():
                 # --- PRO INTELLIGENCE (Signal Source) ---
                 # Use cached info for reliability and performance
                 info_data = fetch_cached_info(ticker)
-                if not info_data:
+                if info_data is None:
                      # One more try if cache failed
                      try:
                          info_data = stock.info
                      except:
                          info_data = {}
+                
+                # Ensure info_data is a dict
+                if not isinstance(info_data, dict): info_data = {}
                     
                 scores = calculate_Bitnow_score(ticker, hist, info_data)
                 
@@ -1861,10 +1864,22 @@ def page_single_coin():
                 # --- PRO SCORECARD (Expert Intelligence) ---
                 st.markdown("---")
                 
-                # NEW: Coin Summary / Description
-                desc = None
-                if info_data:
-                    desc = info_data.get('description') or info_data.get('longBusinessSummary')
+                # NEW: Coin Summary / Description (Robust Approach)
+                desc = info_data.get('description') or info_data.get('longBusinessSummary')
+                
+                # Check for hardcoded fallbacks if desc is still empty or too short
+                if not desc or len(str(desc).strip()) < 20:
+                    fallbacks = {
+                        "BTC-USD": "Bitcoin is a decentralized digital currency, without a central bank or single administrator, that can be sent from user to user on the peer-to-peer bitcoin network without the need for intermediaries.",
+                        "ETH-USD": "Ethereum is a decentralized, open-source blockchain with smart contract functionality. Ether is the native cryptocurrency of the platform.",
+                        "SOL-USD": "Solana is a high-performance blockchain supporting builders around the world creating crypto apps that scale today.",
+                        "XRP-USD": "XRP is a digital asset built for payments. It is the native digital asset on the XRP Ledger—an open-source, permissionless and decentralized blockchain technology.",
+                        "ADA-USD": "Cardano is a proof-of-stake blockchain platform: the first to be founded on peer-reviewed research and developed through evidence-based methods.",
+                        "DOGE-USD": "Dogecoin is an open source peer-to-peer digital currency, favored by Shiba Inus worldwide.",
+                        "BNB-USD": "BNB is the cryptocurrency coin that powers the Binance ecosystem. As one of the world's most popular utility tokens, not only can you trade BNB like any other cryptocurrency, you can also use BNB in a wide range of applications and benefits.",
+                        "DOT-USD": "Polkadot is an open-source sharding multichain protocol that facilitates the cross-chain transfer of any data or asset types, not just tokens, thereby making a wide range of blockchains interoperable with each other."
+                    }
+                    desc = fallbacks.get(ticker)
                 
                 if desc and len(str(desc).strip()) > 10:
                     with st.expander(f"📖 {ticker} Project Wisdom & Highlights", expanded=True):
@@ -1875,26 +1890,6 @@ def page_single_coin():
                                 st.markdown(desc_th)
                         else:
                             st.markdown(desc)
-                else: 
-                    # Fallback for TOP coins if info fails
-                    if ticker == "BTC-USD":
-                        with st.expander(f"📖 {ticker} Project Wisdom & Highlights", expanded=True):
-                            st.write("Bitcoin is a decentralized digital currency, without a central bank or single administrator, that can be sent from user to user on the peer-to-peer bitcoin network without the need for intermediaries.")
-                    elif ticker == "ETH-USD":
-                         with st.expander(f"📖 {ticker} Project Wisdom & Highlights", expanded=True):
-                            st.write("Ethereum is a decentralized, open-source blockchain with smart contract functionality. Ether is the native cryptocurrency of the platform.")
-                    elif ticker == "SOL-USD":
-                         with st.expander(f"📖 {ticker} Project Wisdom & Highlights", expanded=True):
-                            st.write("Solana is a high-performance blockchain supporting builders around the world creating crypto apps that scale today.")
-                    elif ticker == "XRP-USD":
-                         with st.expander(f"📖 {ticker} Project Wisdom & Highlights", expanded=True):
-                            st.write("XRP is a digital asset built for payments. It is the native digital asset on the XRP Ledger—an open-source, permissionless and decentralized blockchain technology.")
-                    elif ticker == "ADA-USD":
-                         with st.expander(f"📖 {ticker} Project Wisdom & Highlights", expanded=True):
-                            st.write("Cardano is a proof-of-stake blockchain platform: the first to be founded on peer-reviewed research and developed through evidence-based methods.")
-                    elif ticker == "DOGE-USD":
-                         with st.expander(f"📖 {ticker} Project Wisdom & Highlights", expanded=True):
-                            st.write("Dogecoin is an open source peer-to-peer digital currency, favored by Shiba Inus worldwide.")
                         
                 st.subheader("🏆 Bitnow Pro Score (Expert Intelligence)")
                 
