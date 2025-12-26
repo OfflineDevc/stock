@@ -278,7 +278,15 @@ TRANS = {
         
         # --- Page Headers ---
         'scanner_header': "Crypash Scan",
+        'scanner_subtitle': "Institutional-Grade Crypto Screener powered by Crypash Engine.",
         'deep_dive_title': "Crypash Dept",
+        'deep_dive_subtitle': "Deep-tier fundamental analysis and valuation modeling.",
+        'wealth_title': "Crypash Wealth",
+        'wealth_subtitle': "Institutional-Grade Portfolio Construction using Modern Portfolio Theory (MPT).",
+        'glossary_title': "Crypash Glossary",
+        'glossary_subtitle': "Technical definitions and quantitative methodology framework.",
+        'howto_title': "Crypash Methodology",
+        'howto_subtitle': "Technical framework and procedural guidelines for institutional analysis.",
         
         # --- Restored Keys --- 
         'tab_holdings': "📋 Holdings",
@@ -457,6 +465,15 @@ TRANS = {
         'nav_howto': "คู่มือการใช้งาน",
         'nav_help': "คู่มือการใช้งาน", 
         'scanner_header': "Crypash Scan",
+        'scanner_subtitle': "สแกนเนอร์คริปโตระดับสถาบัน ขับเคลื่อนด้วยระบบ Crypash Engine",
+        'deep_dive_title': "Crypash Dept",
+        'deep_dive_subtitle': "นิเคราะห์ปัจจัยพื้นฐานเชิงลึกและการสร้างแบบจำลองมูลค่า",
+        'wealth_title': "Crypash Wealth",
+        'wealth_subtitle': "การสร้างพอร์ตโฟลิโอระดับสถาบันด้วยทฤษฎี Modern Portfolio Theory (MPT)",
+        'glossary_title': "Crypash Glossary",
+        'glossary_subtitle': "คำนิยามทางเทคนิคและกรอบระเบียบวิธีวิเคราะห์เชิงปริมาณ",
+        'howto_title': "Crypash Methodology",
+        'howto_subtitle': "กรอบแนวทางทางเทคนิคและระเบียบขั้นตอนการวิเคราะห์ระดับสถาบัน",
         'footer_caption': "Professional Crypto Analytics Platform",
         'health_check_title': "🔍 On-Chain Health Check",
         'val_label': "Valuation",
@@ -1077,8 +1094,8 @@ STRATEGY_PROFILES = {
 }
 
 def page_scanner():
-    st.title(f"{get_text('scanner_header')}")
-    st.caption("Institutional-Grade Crypto Screener powered by Crypash Engine.")
+    st.title(get_text('scanner_header'))
+    st.caption(get_text('scanner_subtitle'))
 
     # --- 1. CONFIGURATION (Main Page) ---
     with st.expander("🛠️ **Scanner Configuration**", expanded=True):
@@ -1618,6 +1635,7 @@ def calculate_crypash_line(hist):
 
 def page_single_coin():
     st.title(get_text('deep_dive_title'))
+    st.caption(get_text('deep_dive_subtitle'))
     all_tickers = get_crypto_universe('All (Top 200)')
     # Ensure BTC-USD is first or default
     if "BTC-USD" in all_tickers:
@@ -1790,6 +1808,7 @@ def get_text(key):
 
 def page_glossary():
     st.title(get_text('glossary_title'))
+    st.caption(get_text('glossary_subtitle'))
     
     terms = {
         "Crypash Score": get_text('gloss_crypash_score'),
@@ -1935,8 +1954,8 @@ except ImportError:
     st.error("Optimizer module not found. Please ensure crypto_optimizer.py exists.")
 
 def page_auto_wealth():
-    st.title("Crypash Wealth")
-    st.info("Institutional-Grade Portfolio Construction using Modern Portfolio Theory (MPT).")
+    st.title(get_text('wealth_title'))
+    st.caption(get_text('wealth_subtitle'))
     
     # 1. User Inputs
     with st.expander("💼 Investment Profile", expanded=True):
@@ -2045,7 +2064,8 @@ def page_auto_wealth():
 
 
 def page_howto():
-    st.title("🎓 Institutional Training Curriculum: Crypash Methodology")
+    st.title(get_text('howto_title'))
+    st.caption(get_text('howto_subtitle'))
     lang = st.session_state.get('lang', 'EN')
     
     # Custom CSS for high-quality professional guide
@@ -2070,8 +2090,6 @@ def page_howto():
     """, unsafe_allow_html=True)
 
     if lang == 'EN':
-        st.markdown("This curriculum provides a technical framework for utilizing the Crypash institutional suite. Users are expected to apply quantitative discipline when interpreting signals.")
-        
         # Module 1
         st.markdown("""
         <div class="curriculum-module">
@@ -2120,8 +2138,6 @@ def page_howto():
         """, unsafe_allow_html=True)
 
     else:
-        st.markdown("หลักสูตรการฝึกอบรมระดับสถาบัน: ระเบียบวิธีวิเคราะห์ของ Crypash (Methodology)")
-        
         # บทที่ 1
         st.markdown("""
         <div class="curriculum-module">
