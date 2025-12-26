@@ -206,7 +206,7 @@ TRANS = {
         'mode_header': "3. Mode",
         'strict_label': "Select Strictly Enforced Metrics",
         'perf_label': "Performance Metrics",
-        'val_header': "� On-Chain (Valuation)",
+        'val_header': " On-Chain (Valuation)",
         'prof_header': "⚡ Momentum (Technical)",
         'risk_header': "🛡️ Risk & Volatility",
         'sector_label': "Select Narrative (Optional)",
@@ -220,6 +220,7 @@ TRANS = {
         'no_data': "❌ No coins matched your STRICT criteria.",
         'deep_dive_title': "🔍 Deep Dive Analysis",
         'glossary_title': "📚 Crypto Glossary",
+        'howto_title': "📘 How to Use",
         'search_ticker': "Enter Coin Symbol (e.g. BTC-USD, ETH-USD)",
         'analyze_btn': "Analyze Coin",
         'about_title': "ℹ️ About Crypash",
@@ -232,21 +233,77 @@ TRANS = {
         'opt_filters': "Optional Filters",
         'analyze_top_n': "Analyze Top N Deeply (Stage 2)",
         
-        'port_config': "⚙️ Portfolio Configuration", # Legacy key but keeping safe
-        'asset_univ': "1. Asset Universe",
-        'strat_prof': "2. Strategic Profile",
-        'risk_tol': "Risk Tolerance",
-        'max_holdings': "Max Holdings Count",
-        'gen_port_btn': "🚀 Generate Portfolio",
-        'port_target_caption': "Allocating based on Market Cap Weighting.",
+        # New Glossary Terms (EN)
+        'gloss_mvrv': "MVRV Z-Score: Market Value to Realized Value. Measures if price is 'overheated' vs the average cost basis of all holders. > 3.0 is Selling Zone, < 0 is Accumulation.",
+        'gloss_rsi': "RSI (Relative Strength Index): Momentum indicator. > 70 is Overbought (Potential Sell), < 30 is Oversold (Potential Buy).",
+        'gloss_sharpe': "Sharpe Ratio: Measures risk-adjusted return. Higher is better (more return for less risk).",
+        'gloss_crypash_score': "Crypash Score: A proprietary 0-100 score combining Financial Health, Network Activity, Tech Quality, and Tokenomics. > 70 is Elite.",
+        'gloss_cycle': "Cycle Risk Gauge: Measures how close current price is to historical or projected cycle tops. < 20% is Accumulation, > 80% is Top Risk.",
         
-        'status_processing': "🔄 Processing Chain Data...",
-        'status_fetch': "📡 Fetching Coin List...",
-        'status_scan': "🔬 Scanning On-Chain Metrics...",
-        'status_scan_fail': "❌ Scan Failed: No data.",
-        'status_scan_complete': "✅ Scan Complete!",
-        'status_deep': "🔍 Deep Analysis (Volatility & Cycle)...",
-        'status_deep_complete': "✅ Deep Analysis Complete!",
+        # New How To (EN)
+        'howto_step1': "1. **Scan the Market**: Use the 'Crypto Scanner' to find top-ranked coins based on your strategy (e.g., Value, Momentum, or Balanced).",
+        'howto_step2': "2. **Deep Dive**: Click on a coin or go to 'Single Coin Analysis' to see the breakdown of WHY it scored high (Financials, Tokenomics, etc). Check the 'Details' dropdowns.",
+        'howto_step3': "3. **Auto-Wealth**: Use the Robo-Advisor to build a balanced portfolio allocated professionally (Foundation, Growth, Alpha tiers).",
+        
+        # UI Labels
+        'ui_capital': "Capital Amount (USD)",
+        'ui_risk': "Risk Tolerance",
+        'ui_generate': "Generate Optimal Portfolio",
+        'ui_results': "Results",
+    },
+    'TH': {
+        'sidebar_title': "🏛️ แผงควบคุมสแกนเนอร์",
+        'market_label': "หมวดหมู่คริปโต",
+        'strategy_label': "กลยุทธ์การลงทุน",
+        'mode_header': "3. โหมดการค้นหา",
+        'strict_label': "เลือกเกณฑ์ที่ต้องการเน้น (Strict Logic)",
+        'perf_label': "ตัวชี้วัดประสิทธิภาพ",
+        'val_header': " ประเมินมูลค่า (On-Chain)",
+        'prof_header': "⚡ โมเมนตัม (Technical)",
+        'risk_header': "🛡️ ความเสี่ยง & ความผันผวน",
+        'sector_label': "เลือกกลุ่มธุรกิจ (Sector)",
+        'lynch_label': "เลือกวัฏจักรราคา (Cycle Phase)",
+        'execute_btn': "🚀 เริ่มการสแกน (Crypash Scan)",
+        'main_title': "Crypash (คริป-แอช)",
+        'scan_limit': "จำนวนเหรียญที่จะสแกน",
+        'results_header': "🏆 ผลลัพธ์การค้นหา (วิเคราะห์เชิงลึก)",
+        'stage1_msg': "📡 ขั้นแรก: กำลังดึงข้อมูลตลาด...",
+        'stage2_msg': "✅ โหลดเสร็จสิ้น: กำลังวิเคราะห์ปัจจัยพื้นฐาน...",
+        'no_data': "❌ ไม่พบเหรียญที่ตรงตามเงื่อนไข (ลองลดความเข้มงวดลง)",
+        'deep_dive_title': "🔍 วิเคราะห์รายเหรียญ (Deep Dive)",
+        'glossary_title': "📚 คลังความรู้คริปโต (Glossary)",
+        'howto_title': "📘 คู่มือการใช้งาน",
+        'search_ticker': "พิมพ์ชื่อเหรียญ (เช่น BTC-USD, ETH-USD)",
+        'analyze_btn': "วิเคราะห์เหรียญนี้",
+        'about_title': "ℹ️ เกี่ยวกับ Crypash",
+        'about_desc': "แพลตฟอร์มวิเคราะห์คริปโตระดับมืออาชีพ ใช้ทฤษฎีวัฏจักร (Cycle Theory) และข้อมูล On-Chain ในการหาจุดเข้าซื้อที่ได้เปรียบ",
+
+        'scanner_config': "🛠️ ตั้งค่าสแกนเนอร์",
+        'univ_scale': "1. ขอบเขตจักรวาล (Scale)",
+        'strat_mandate': "2. เลือกกลยุทธ์ (Mandate)",
+        'crit_thresh': "3. กำหนดเกณฑ์ (Thresholds)",
+        'opt_filters': "ตัวกรองเสริม (Optional)",
+        'analyze_top_n': "จำนวนเหรียญที่วิเคราะห์ลึก (Top N)",
+
+        # Glossary Terms (Thai)
+        'gloss_mvrv': "MVRV Z-Score: อัตราส่วนมูลค่าตลาดเทียบกับต้นทุนเฉลี่ยของทั้งตลาด ใช้วัดว่าราคาตอนนี้ 'แพงเกินไป' หรือไม่ ค่า > 3.0 คือโซนขายทำกำไร, ค่า < 0 คือโซนเก็บของ (Undervalued)",
+        'gloss_rsi': "RSI (Relative Strength Index): ดัชนีวัดโมเมนตัมการซื้อขาย ค่า > 70 คือมีการซื้อมากเกินไป (Overbought - ระวังร่วง), ค่า < 30 คือมีการขายมากเกินไป (Oversold - น่าสวน)",
+        'gloss_sharpe': "Sharpe Ratio: อัตราผลตอบแทนต่อความเสี่ยง ค่านี้ยิ่งสูงยิ่งดี หมายความว่าเราได้กำไรคุ้มค่ากับความเสี่ยงที่แบกรับ",
+        'gloss_crypash_score': "Crypash Score: คะแนนคุณภาพเหรียญ 0-100 (สูตรเฉพาะของ Crypash) โดยคำนวณจาก 4 ปัจจัยหลัก: การเงิน (Financial), เครือข่าย (Network), เทคโนโลยี (Tech), และ Tokenomics (คะแนน > 70 คือเกรด A)",
+        'gloss_cycle': "Cycle Risk Gauge: มาตรวัดความเสี่ยงวัฏจักร บอกว่าเราอยู่ใกล้ 'ยอดดอย' แค่ไหน ค่า < 20% คือโซนปลอดภัย (สะสมได้), ค่า > 80% คือโซนอันตราย (เตรียมขาย)",
+
+        # How To (Thai)
+        'howto_step1': "1. **สแกนหาเหรียญ**: ใช้เมนู 'Crypto Scanner' ด้านบน เพื่อค้นหาเหรียญที่ผ่านเกณฑ์คุณภาพหรือสัญญาณเทคนิคตามกลยุทธ์ที่คุณเลือก (เช่น หาเหรียญตกหนัก หรือ หาเหรียญกำลังพุ่ง)",
+        'howto_step2': "2. **เจาะลึกข้อมูล**: เมื่อเจอเหรียญที่สนใจ ให้กดที่เหรียญหรือไปที่ 'Single Coin Analysis' เพื่อดูไส้ในว่าทำไมถึงได้คะแนนดี (รายได้ดีไหม? คนใช้งานจริงหรือเปล่า? เหรียญเฟ้อแค่ไหน?)",
+        'howto_step3': "3. **จัดพอร์ตอัตโนมัติ**: ใช้เมนู 'Auto-Wealth' เพื่อให้ระบบ Robo-Advisor ช่วยจัดพอร์ตแบบกองทุนมืออาชีพ (แบ่งเงินตามความเสี่ยงและคุณภาพเหรียญให้เอง)",
+
+        # UI Labels (Thai)
+        'ui_capital': "เงินทุนเริ่มต้น (USD)",
+        'ui_risk': "ความเสี่ยงที่รับได้ (Risk Tolerance)",
+        'ui_generate': "คำนวณพอร์ตแนะนำ (Generate)",
+        'ui_results': "ผลลัพธ์การจัดพอร์ต (Portfolio Allocation)",
+    }
+}
         
         'tab_holdings': "📋 Holdings",
         'tab_alloc': "🍕 Allocation",
@@ -1840,22 +1897,36 @@ def page_single_coin():
 # PAGES: Glossary (Crypto)
 # ---------------------------------------------------------
 
+
+# --- HELPER: GET TEXT ---
+def get_text(key):
+    """Retrieves text based on session state language."""
+    lang = st.session_state.get('lang', 'EN')
+    if lang not in TRANS: lang = 'EN'
+    return TRANS[lang].get(key, TRANS['EN'].get(key, key))
+
 def page_glossary():
-    st.title("📚 Crypto Glossary")
-    st.info("Learn the key metrics used in Crypash.")
+    st.title(get_text('glossary_title'))
     
-    metrics = {
-        "MVRV Z-Score": "Market Value to Realized Value. Measures if price is 'overheated' vs the average cost basis of all holders. > 3.0 is Selling Zone, < 0 is Accumulation.",
-        "RSI (Relative Strength)": "Momentum indicator. > 70 is Overbought, < 30 is Oversold.",
-        "Power Law": "Bitcoin's long-term logarithmic growth trend. Acts as a 'fair value' floor over decades.",
-        "Cycle Risk Gauge": "Measures how close we are to the All-Time High. Near ATH = High Cycle Risk.",
-        "Realized Price": "The average price at which every Bitcoin last moved. It's the 'Cost Basis' of the network."
+    terms = {
+        "Crypash Score": get_text('gloss_crypash_score'),
+        "MVRV Z-Score": get_text('gloss_mvrv'),
+        "RSI (Relative Strength Index)": get_text('gloss_rsi'),
+        "Cycle Risk Gauge": get_text('gloss_cycle'),
+        "Sharpe Ratio": get_text('gloss_sharpe'),
     }
     
-    for k, v in metrics.items():
-        with st.expander(f"📘 {k}"):
-            st.write(v)
+    for term, definition in terms.items():
+        with st.expander(term):
+            st.write(definition)
 
+def page_how_to_use():
+    st.title(get_text('howto_title'))
+    st.markdown(get_text('howto_step1'))
+    st.markdown(get_text('howto_step2'))
+    st.markdown(get_text('howto_step3'))
+    st.divider()
+    st.info(get_text('about_desc'))
         
 
 
@@ -2259,27 +2330,13 @@ if __name__ == "__main__":
          tab_scan, tab_single, tab_auto, tab_gloss, tab_howto = st.tabs([
             get_text('nav_scanner'), 
             get_text('nav_single'), 
-            "🤖 Auto-Wealth",
+            get_text('nav_wealth'),
             get_text('nav_glossary'),
-            get_text('nav_help')
+            get_text('nav_howto')
          ])
 
-    c_logo, c_lang = st.columns([8, 2])
-    with c_logo:
-        st.caption(get_text('footer_caption'))
-        
-    with c_lang:
-        # Move Language Switcher to Top Right
-        # KEY is vital for pre-calculation
-        lang_choice = st.radio(get_text('lang_label'), ["English (EN)", "Thai (TH)"], horizontal=True, label_visibility="collapsed", key="lang_choice_key")
-        # No need to manually set session_state['lang'] here, we did it at top.
+    # ... logic ...
     
-    with tab_scan:
-        page_scanner()
-        
-    with tab_single:
-        page_single_coin()
-        
     with tab_auto:
         page_auto_wealth()
         
@@ -2287,4 +2344,4 @@ if __name__ == "__main__":
         page_glossary()
 
     with tab_howto:
-        page_howto()
+        page_how_to_use()
