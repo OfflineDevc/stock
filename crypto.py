@@ -1114,26 +1114,26 @@ def page_scanner():
     st.header(f"🔍 {get_text('scanner_header')}")
     st.caption("Institutional-Grade Crypto Screener powered by Crypash Engine.")
 
-    # --- 1. STRATEGY MANDATE ---
-    col_strat, col_badge = st.columns([3, 1])
-    with col_strat:
-        strat_choice = st.selectbox("🎯 Strategy Mandate (Select Profile)", list(STRATEGY_PROFILES.keys()))
-    
-    with col_badge:
-        if strat_choice != 'Custom':
-            roi = STRATEGY_PROFILES[strat_choice]['roi']
-            st.metric("Hist. Return", roi, delta_color="normal")
-            st.caption(STRATEGY_PROFILES[strat_choice]['desc'])
+    # --- 1. CONFIGURATION (Main Page) ---
+    with st.expander("🛠️ **Scanner Configuration**", expanded=True):
+        col_uni, col_strat = st.columns(2)
+        
+        with col_uni:
+            st.subheader("1. Crypto Universe")
+            market_choice = st.selectbox("Universe", ['All (Top 200)', 'Layer 1', 'DeFi', 'Meme', 'AI & Big Data'])
+            scan_limit = st.slider("Max Coins to Scan", 10, 200, 50)
+            
+        with col_strat:
+            st.subheader("2. Strategy Mandate")
+            strat_choice = st.selectbox("Select Profile", list(STRATEGY_PROFILES.keys()))
+            if strat_choice != 'Custom':
+                roi = STRATEGY_PROFILES[strat_choice]['roi']
+                st.caption(f"**Hist. ROI:** {roi} | {STRATEGY_PROFILES[strat_choice]['desc']}")
     
     # Pre-fill settings
     prof = STRATEGY_PROFILES[strat_choice].get('settings', {})
     
-    with st.sidebar:
-        st.header("⚙️ Universe Config")
-        market_choice = st.selectbox("Universe", ['All (Top 200)', 'Layer 1', 'DeFi', 'Meme', 'AI & Big Data'])
-        scan_limit = st.slider("Max Coins to Scan", 10, 200, 50) # Reduced default for speed
-    
-    # --- 2. CRITERIA THRESHOLDS (Collapsible) ---
+    # --- 2. CRITERIA THRESHOLDS ---
     st.subheader("📊 Screening Criteria")
     
     # A. Valuation & On-Chain
