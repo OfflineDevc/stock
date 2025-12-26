@@ -2072,94 +2072,90 @@ def page_howto():
     if lang == 'EN':
         st.markdown("This curriculum provides a technical framework for utilizing the Crypash institutional suite. Users are expected to apply quantitative discipline when interpreting signals.")
         
-        with st.container():
-            st.markdown('<div class="curriculum-module">', unsafe_allow_html=True)
-            st.markdown('<div class="module-title">Module 1: Quantitative Market Scanning</div>', unsafe_allow_html=True)
-            st.markdown("""
-            **Objective**: Systematic identification of high-probability investment candidates through multi-factor filtering.
-            
-            1.  **Universe Definition**: Select the target asset class (e.g., Layer 1, DeFi) to define the screening scope.
-            2.  **Strategic Mandate Selection**: 
-                - **Institutional Alpha**: Focuses on assets with low volatility and high qualitative scores.
-                - **Contrarian Mean Reversion**: Targets extreme oversold conditions (Low MVRV + Low RSI).
-                - **Momentum Growth**: Identifies assets with accelerating on-chain activity.
-            3.  **Threshold Optimization**: Calibrate the **MVRV Z-Score** to ensure entry within the historical accumulation range (< 1.0).
-            4.  **Verification**: Execute the protocol and prioritize assets achieving a **Scan Score of 4/4**, indicating 100% criteria compliance.
-            """)
-            st.markdown('</div>', unsafe_allow_html=True)
-
-        with st.container():
-            st.markdown('<div class="curriculum-module">', unsafe_allow_html=True)
-            st.markdown('<div class="module-title">Module 2: Fundamental Integrity Verification (Crypash Dept)</div>', unsafe_allow_html=True)
-            st.markdown("""
-            **Objective**: Deep-tier fundamental analysis and valuation modeling.
-            
-            - **Crypash Score Dynamics**: Assets maintaining a score above **75%** demonstrate strong revenue-to-valuation ratios and network health.
-            - **Hybrid Valuation Modeling (Crypash Line)**: 
-                - **Asset Pricing**: Represented by the Blue trendline.
-                - **Intrinsic Value Calculation**: Represented by the Orange trendline (Derived from Network Growth and Realized Price).
-                - **Investment Thesis**: Long-term positions should ideally be initiated when Market Price resides below the Intrinsic Value Line.
-            - **Risk Gauge Calibration**: Monitor the **Cycle Risk Gauge** to detect market saturation; levels exceeding 80% suggest a distribution phase.
-            """)
-            st.markdown('</div>', unsafe_allow_html=True)
-
-        with st.container():
-            st.markdown('<div class="curriculum-module">', unsafe_allow_html=True)
-            st.markdown('<div class="module-title">Module 3: Strategic Portfolio Management (Auto-Wealth)</div>', unsafe_allow_html=True)
-            st.markdown("""
-            **Objective**: Automated asset allocation utilizing Modern Portfolio Theory (MPT) principles.
-            
-            1.  **Risk Profile Assessment**: Quantitative determination of the user's risk-adjusted return requirements.
-            2.  **Selection Algortihm**: The engine harvests the top-ranked candidates from the Crypash scoring matrix.
-            3.  **Capital Allocation**: Implementation of **Market Capitalization Weighting** to prioritize liquidity and institutional stability, reducing the impact of idiosyncratic risk.
-            """)
-            st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="curriculum-module">
+            <div class="module-title">Module 1: Quantitative Market Scanning</div>
+            <p><strong>Objective</strong>: Systematic identification of high-probability investment candidates through multi-factor filtering.</p>
+            <p>1. <strong>Universe Definition</strong>: Select the target asset class (e.g., Layer 1, DeFi) to define the screening scope.</p>
+            <p>2. <strong>Strategic Mandate Selection</strong>: 
+                <ul>
+                    <li>Institutional Alpha: Focuses on assets with low volatility and high qualitative scores.</li>
+                    <li>Contrarian Mean Reversion: Targets extreme oversold conditions (Low MVRV + Low RSI).</li>
+                    <li>Momentum Growth: Identifies assets with accelerating on-chain activity.</li>
+                </ul>
+            </p>
+            <p>3. <strong>Threshold Optimization</strong>: Calibrate the MVRV Z-Score to ensure entry within the historical accumulation range (&lt; 1.0).</p>
+            <p>4. <strong>Verification</strong>: Execute the protocol and prioritize assets achieving a Scan Score of 4/4, indicating 100% criteria compliance.</p>
+        </div>
+        
+        <div class="curriculum-module">
+            <div class="module-title">Module 2: Fundamental Integrity Verification (Crypash Dept)</div>
+            <p><strong>Objective</strong>: Deep-tier fundamental analysis and valuation modeling.</p>
+            <ul>
+                <li><strong>Crypash Score Dynamics</strong>: Assets maintaining a score above 75% demonstrate strong revenue-to-valuation ratios and network health.</li>
+                <li><strong>Hybrid Valuation Modeling (Crypash Line)</strong>: 
+                    <ul>
+                        <li>Asset Pricing: Represented by the Blue trendline.</li>
+                        <li>Intrinsic Value Calculation: Represented by the Orange trendline (Derived from Network Growth and Realized Price).</li>
+                        <li>Investment Thesis: Long-term positions should ideally be initiated when Market Price resides below the Intrinsic Value Line.</li>
+                    </ul>
+                </li>
+                <li><strong>Risk Gauge Calibration</strong>: Monitor the Cycle Risk Gauge to detect market saturation; levels exceeding 80% suggest a distribution phase.</li>
+            </ul>
+        </div>
+        
+        <div class="curriculum-module">
+            <div class="module-title">Module 3: Strategic Portfolio Management (Auto-Wealth)</div>
+            <p><strong>Objective</strong>: Automated asset allocation utilizing Modern Portfolio Theory (MPT) principles.</p>
+            <p>1. <strong>Risk Profile Assessment</strong>: Quantitative determination of the user's risk-adjusted return requirements.</p>
+            <p>2. <strong>Selection Algorithm</strong>: The engine harvests the top-ranked candidates from the Crypash scoring matrix.</p>
+            <p>3. <strong>Capital Allocation</strong>: Implementation of Market Capitalization Weighting to prioritize liquidity and institutional stability, reducing the impact of idiosyncratic risk.</p>
+        </div>
+        """, unsafe_allow_html=True)
 
     else:
         st.markdown("หลักสูตรการฝึกอบรมระดับสถาบัน: ระเบียบวิธีวิเคราะห์ของ Crypash (Methodology)")
         
-        with st.container():
-            st.markdown('<div class="curriculum-module">', unsafe_allow_html=True)
-            st.markdown('<div class="module-title">บทที่ 1: การสแกนตลาดเชิงปริมาณ (Quantitative Market Scanning)</div>', unsafe_allow_html=True)
-            st.markdown("""
-            **วัตถุประสงค์**: การระบุกลุ่มสินทรัพย์ที่มีโอกาสเกิดผลตอบแทนสูงอย่างเป็นระบบผ่านตัวกรองหลายปัจจัย
-            
-            1.  **การกำหนดขอบเขต (Universe)**: เลือกกลุ่มสินทรัพย์เป้าหมาย (เช่น Layer 1, DeFi) เพื่อกำหนดขอบเขตในการคัดกรอง
-            2.  **การเลือกกลยุทธ์เชิงกลยุทธ์ (Strategic Mandate)**: 
-                - **Institutional Alpha**: มุ่งเน้นสินทรัพย์ที่มีความผันผวนต่ำและคะแนนคุณภาพสูง
-                - **Contrarian Mean Reversion**: มุ่งเน้นสินทรัพย์ที่อยู่ในสภาวะขายมากเกินไปขั้นสุด (Low MVRV + Low RSI)
-                - **Momentum Growth**: ระบุสินทรัพย์ที่มีการเติบโตของธุรกรรมบนเครือข่ายที่เร่งตัวขึ้น
-            3.  **การปรับค่าเกณฑ์มาตรฐาน (Thresholds)**: ปรับค่า **MVRV Z-Score** เพื่อให้มั่นใจว่าจุดเข้าซื้ออยู่ในช่วงการสะสมพลังทางประวัติศาสตร์ (< 1.0)
-            4.  **การตรวจสอบ**: เริ่มดำเนินการและจัดลำดับความสำคัญของสินทรัพย์ที่ได้รับ **Scan Score 4/4** ซึ่งบ่งชี้ว่าตรงตามเกณฑ์ 100%
-            """)
-            st.markdown('</div>', unsafe_allow_html=True)
-
-        with st.container():
-            st.markdown('<div class="curriculum-module">', unsafe_allow_html=True)
-            st.markdown('<div class="module-title">บทที่ 2: การตรวจสอบความสมบูรณ์ของปัจจัยพื้นฐาน (Crypash Dept)</div>', unsafe_allow_html=True)
-            st.markdown("""
-            **วัตถุประสงค์**: การวิเคราะห์ปัจจัยพื้นฐานเชิงลึกและการสร้างแบบจำลองมูลค่า
-            
-            - **พลวัตของ Crypash Score**: สินทรัพย์ที่รักษาคะแนนเหนือ **75%** บ่งชี้ถึงอัตราส่วนรายได้ต่อราคาที่ดีและสุขภาพของเครือข่ายที่แข็งแกร่ง
-            - **แบบจำลองมูลค่าผสม (Crypash Line)**: 
-                - **ราคาตลาด**: แสดงโดยเส้นแนวโน้มสีน้ำเงิน
-                - **การคำนวณมูลค่าที่เหมาะสม (Intrinsic Value)**: แสดงโดยเส้นแนวโน้มสีส้ม (คำนวณจากการเติบโตของเครือข่ายและราคาต้นทุนจริง)
-                - **สมมติฐานการลงทุน**: การลงทุนระยะยาวควรเริ่มเมื่อราคาตลาดอยู่ต่ำกว่าเส้นมูลค่าที่เหมาะสม
-            - **การวัดระดับความเสี่ยง**: ตรวจสอบ **Cycle Risk Gauge** เพื่อตรวจจับความอิ่มตัวของตลาด โดยระดับที่สูงกว่า 80% บ่งชี้ถึงระยะการกระจายของ (Distribution Phase)
-            """)
-            st.markdown('</div>', unsafe_allow_html=True)
-
-        with st.container():
-            st.markdown('<div class="curriculum-module">', unsafe_allow_html=True)
-            st.markdown('<div class="module-title">บทที่ 3: การบริหารพอร์ตโฟลิโอเชิงกลยุทธ์ (Auto-Wealth)</div>', unsafe_allow_html=True)
-            st.markdown("""
-            **วัตถุประสงค์**: การจัดสรรสินทรัพย์โดยอัตโนมัติโดยใช้หลักการ Modern Portfolio Theory (MPT)
-            
-            1.  **การประเมินระดับความเสี่ยง**: การกำหนดเชิงปริมาณของความคุ้มค่าของผลตอบแทนต่อความเสี่ยงของผู้ใช้
-            2.  **อัลกอริทึมการคัดเลือก**: ระบบจะคัดเลือกสินทรัพย์ที่มีอันดับสูงสุดจากเมทริกซ์การให้คะแนนของ Crypash
-            3.  **การจัดสรรเงินทุน**: การใช้ **Market Capitalization Weighting** เพื่อให้ความสำคัญกับสภาพคล่องและความเสถียรระดับสถาบัน เพื่อลดผลกระทบจากความเสี่ยงเฉพาะตัว (Idiosyncratic Risk)
-            """)
-            st.markdown('</div>', unsafe_allow_html=True)
+        st.markdown("""
+        <div class="curriculum-module">
+            <div class="module-title">บทที่ 1: การสแกนตลาดเชิงปริมาณ (Quantitative Market Scanning)</div>
+            <p><strong>วัตถุประสงค์</strong>: การระบุกลุ่มสินทรัพย์ที่มีโอกาสเกิดผลตอบแทนสูงอย่างเป็นระบบผ่านตัวกรองหลายปัจจัย</p>
+            <p>1. <strong>การกำหนดขอบเขต (Universe)</strong>: เลือกกลุ่มสินทรัพย์เป้าหมาย (เช่น Layer 1, DeFi) เพื่อกำหนดขอบเขตในการคัดกรอง</p>
+            <p>2. <strong>การเลือกกลยุทธ์เชิงกลยุทธ์ (Strategic Mandate)</strong>: 
+                <ul>
+                    <li>Institutional Alpha: มุ่งเน้นสินทรัพย์ที่มีความผันผวนต่ำและคะแนนคุณภาพสูง</li>
+                    <li>Contrarian Mean Reversion: มุ่งเน้นสินทรัพย์ที่อยู่ในสภาวะขายมากเกินไปขั้นสุด (Low MVRV + Low RSI)</li>
+                    <li>Momentum Growth: ระบุสินทรัพย์ที่มีการเติบโตของธุรกรรมบนเครือข่ายที่เร่งตัวขึ้น</li>
+                </ul>
+            </p>
+            <p>3. <strong>การปรับค่าเกณฑ์มาตรฐาน (Thresholds)</strong>: ปรับค่า MVRV Z-Score เพื่อให้มั่นใจว่าจุดเข้าซื้ออยู่ในช่วงการสะสมพลังทางประวัติศาสตร์ (&lt; 1.0)</p>
+            <p>4. <strong>การตรวจสอบ</strong>: เริ่มดำเนินการและจัดลำดับความสำคัญของสินทรัพย์ที่ได้รับ Scan Score 4/4 ซึ่งบ่งชี้ว่าตรงตามเกณฑ์ 100%</p>
+        </div>
+        
+        <div class="curriculum-module">
+            <div class="module-title">บทที่ 2: การตรวจสอบความสมบูรณ์ของปัจจัยพื้นฐาน (Crypash Dept)</div>
+            <p><strong>วัตถุประสงค์</strong>: การวิเคราะห์ปัจจัยพื้นฐานเชิงลึกและการสร้างแบบจำลองมูลค่า</p>
+            <ul>
+                <li><strong>พลวัตของ Crypash Score</strong>: สินทรัพย์ที่รักษาคะแนนเหนือ 75% บ่งชี้ถึงอัตราส่วนรายได้ต่อราคาที่ดีและสุขภาพของเครือข่ายที่แข็งแกร่ง</li>
+                <li><strong>แบบจำลองมูลค่าผสม (Crypash Line)</strong>: 
+                    <ul>
+                        <li>ราคาตลาด: แสดงโดยเส้นแนวโน้มสีน้ำเงิน</li>
+                        <li>การคำนวณมูลค่าที่เหมาะสม (Intrinsic Value): แสดงโดยเส้นแนวโน้มสีส้ม (คำนวณจากการเติบโตของเครือข่ายและราคาต้นทุนจริง)</li>
+                        <li>สมมติฐานการลงทุน: การลงทุนระยะยาวควรเริ่มเมื่อราคาตลาดอยู่ต่ำกว่าเส้นมูลค่าที่เหมาะสม</li>
+                    </ul>
+                </li>
+                <li><strong>การวัดระดับความเสี่ยง</strong>: ตรวจสอบ Cycle Risk Gauge เพื่อตรวจจับความอิ่มตัวของตลาด โดยระดับที่สูงกว่า 80% บ่งชี้ถึงระยะการกระจายของ (Distribution Phase)</li>
+            </ul>
+        </div>
+        
+        <div class="curriculum-module">
+            <div class="module-title">บทที่ 3: การบริหารพอร์ตโฟลิโอเชิงกลยุทธ์ (Auto-Wealth)</div>
+            <p><strong>วัตถุประสงค์</strong>: การจัดสรรสินทรัพย์โดยอัตโนมัติโดยใช้หลักการ Modern Portfolio Theory (MPT)</p>
+            <p>1. <strong>การประเมินระดับความเสี่ยง</strong>: การกำหนดเชิงปริมาณของความคุ้มค่าของผลตอบแทนต่อความเสี่ยงของผู้ใช้</p>
+            <p>2. <strong>อัลกอริทึมการคัดเลือก</strong>: ระบบจะคัดเลือกสินทรัพย์ที่มีอันดับสูงสุดจากเมทริกซ์การให้คะแนนของ Crypash</p>
+            <p>3. <strong>การจัดสรรเงินทุน</strong>: การใช้ Market Capitalization Weighting เพื่อให้ความสำคัญกับสภาพคล่องและความเสถียรระดับสถาบัน เพื่อลดผลกระทบจากความเสี่ยงเฉพาะตัว (Idiosyncratic Risk)</p>
+        </div>
+        """, unsafe_allow_html=True)
 
     st.divider()
     st.caption("Institutional Grade Methodology | © 2025 Crypash Quantitative Research")
@@ -2175,27 +2171,21 @@ if __name__ == "__main__":
         # Update immediately based on widget value
         pass # Widget triggers rerun, so we read it below or use key
         
-    # Hack: Render the radio button logic-first but UI-later? No, can't move UI easily.
-    # Better: Use key to read state at top.
-    
-    # --- SIDEBAR LANGUAGE SELECTOR ---
-    with st.sidebar:
-        st.radio("Language / เลือกภาษา", ["English (EN)", "ภาษาไทย (TH)"], key='lang_choice_key')
-        st.divider()
-
-    current_lang_sel = st.session_state.get('lang_choice_key', "English (EN)")
-    st.session_state['lang'] = 'EN' if "English" in current_lang_sel else 'TH'
-
-    # --- BRANDING (Explicit Fallback) ---
-    # We create a top header row to force the logo visibility
-    c_brand_a, c_brand_b = st.columns([1, 20]) # Adjusted for Semi-Wide 
+    # --- BRANDING & LANGUAGE SELECTOR (Top Header) ---
+    c_brand_a, c_brand_b = st.columns([1, 20])
     with c_brand_a:
          st.image("logo.png", width=45) # Visible Logo
     
-    with c_brand_b: 
-         # --- TOP TABS NAVIGATION (CFA Style) ---
-         # Define Tabs (Rendered at the very top)
-         tab_scan, tab_single, tab_auto, tab_gloss, tab_howto = st.tabs([
+    # Place Language Selector at the Top Right using a separate container
+    st.markdown("""
+        <div style="position: absolute; top: -55px; right: 0px; z-index: 1000; width: 140px;">
+    """, unsafe_allow_html=True)
+    st.selectbox("Lang", ["English (EN)", "ภาษาไทย (TH)"], key='lang_choice_key', label_visibility="collapsed")
+    st.markdown("</div>", unsafe_allow_html=True)
+    
+    # --- TOP TABS NAVIGATION (CFA Style) ---
+    # Define Tabs (Rendered at the very top)
+    tab_scan, tab_single, tab_auto, tab_gloss, tab_howto = st.tabs([
             get_text('nav_scanner'), 
             get_text('nav_single'), 
             get_text('nav_wealth'),
