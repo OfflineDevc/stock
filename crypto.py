@@ -2027,8 +2027,8 @@ def page_auto_wealth():
             st.error("No historical data found.")
             return
 
-        # Run Optimizer
-        optimal_weights = opt.optimize_weights(data)
+        # Run Optimizer (Strategic Tier-Based)
+        optimal_weights = opt.optimize_weights(data, metadata_df=df_selected)
         
         # --- DISPLAY RESULTS ---
         st.divider()

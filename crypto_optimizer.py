@@ -81,53 +81,76 @@ class CrypashOptimizer:
         
         return combined_df.head(target_n)
 
-    def optimize_weights(self, price_history_df):
+    def optimize_weights(self, price_history_df, metadata_df=None):
         """
-        Calculates optimal weights (Mean-Variance Optimization).
+        Calculates optimal weights using Strategic Asset Allocation (Tier-Based).
+        Emulates a Professional Crypto Fund structure:
+        - Foundation (Safe): ~50%
+        - Growth (Core): ~30%
+        - Alpha (Moon): ~20%
+        
+        Within tiers, weights are distributed based on 'Crypash_Score' (Fundamental Quality).
         """
         if price_history_df.empty: return {}
-        
-        # 1. Calculate Returns & Covariance
-        returns = price_history_df.pct_change().dropna()
-        mean_returns = returns.mean() * 365 # Annualized
-        cov_matrix = returns.cov() * 365
-        
-        num_assets = len(price_history_df.columns)
         tickers = price_history_df.columns.tolist()
+        num_assets = len(tickers)
         
-        # 2. Define Objective Function
-        def portfolio_performance(weights, mean_returns, cov_matrix):
-            p_ret = np.sum(mean_returns * weights)
-            p_vol = np.sqrt(np.dot(weights.T, np.dot(cov_matrix, weights)))
-            return p_ret, p_vol
+        # Default fallback
+        if metadata_df is None or 'Tier' not in metadata_df.columns:
+             return {t: round(1.0/num_assets, 4) for t in tickers}
 
-        def neg_sharpe(weights, mean_returns, cov_matrix, risk_free_rate=0.0):
-            p_ret, p_vol = portfolio_performance(weights, mean_returns, cov_matrix)
-            return -(p_ret - risk_free_rate) / p_vol
+        # --- STRATEGIC ALLOCATION ---
+        weights = {}
         
-        def min_volatility(weights, mean_returns, cov_matrix):
-            return portfolio_performance(weights, mean_returns, cov_matrix)[1]
-
-        # 3. Optimization Setup
-        constraints = ({'type': 'eq', 'fun': lambda x: np.sum(x) - 1}) # Sum of weights = 1
-        bounds = tuple((0.03, 0.25) for asset in range(num_assets)) # Min 3%, Max 25% constraint
-        
-        init_guess = num_assets * [1. / num_assets,]
-        
-        # Choose Objective based on Profile
+        # 1. Define Tier Targets based on Risk Profile
         if self.risk_profile == 'Conservative':
-            target_fun = min_volatility
-        else:
-            target_fun = neg_sharpe
+            tier_targets = {'Foundation': 0.60, 'Growth': 0.30, 'Alpha': 0.10}
+        elif self.risk_profile == 'Aggressive':
+            tier_targets = {'Foundation': 0.30, 'Growth': 0.40, 'Alpha': 0.30}
+        else: # Moderate
+            tier_targets = {'Foundation': 0.50, 'Growth': 0.30, 'Alpha': 0.20}
             
-        try:
-            result = minimize(target_fun, init_guess, args=(mean_returns, cov_matrix), 
-                              method='SLSQP', bounds=bounds, constraints=constraints)
+        # 2. Group Assets
+        grouped = metadata_df[metadata_df['Symbol'].isin(tickers)].groupby('Tier')
+        
+        total_assigned = 0
+        
+        # Calculate sub-weights for each tier
+        for tier, target_pct in tier_targets.items():
+            # Get assets in this tier
+            # Note: Tier names must match what we assigned in select_universe
+            # select_universe uses: 'Foundation', 'Growth', 'Alpha'
             
-            opt_weights = result.x
-        except:
-            # Fallback to Equal Weight if optimization fails
-            opt_weights = init_guess
+            tier_assets = metadata_df[(metadata_df['Symbol'].isin(tickers)) & (metadata_df['Tier'] == tier)]
+            
+            if tier_assets.empty:
+                # Distribute this tier's target to others or ignore
+                continue
+                
+            # Weighting within Tier: Score Weighted
+            # Higher Score = Higher Weight
+            total_score = tier_assets['Crypash_Score'].sum()
+            
+            if total_score == 0:
+                # Equal weight if no scores
+                sub_weight = target_pct / len(tier_assets)
+                for _, row in tier_assets.iterrows():
+                    weights[row['Symbol']] = sub_weight
+            else:
+                # Proportional to Score
+                for _, row in tier_assets.iterrows():
+                    share = row['Crypash_Score'] / total_score
+                    weights[row['Symbol']] = target_pct * share
+                    
+        # 3. Normalize (in case some tiers were empty)
+        total_w = sum(weights.values())
+        if total_w > 0:
+            weights = {k: v / total_w for k, v in weights.items()}
+            
+        # 4. Fill missing (if any tickers passed but not in metadata)
+        # Should not happen given logic, but safety check
+        for t in tickers:
+            if t not in weights:
+                weights[t] = 0.0
 
-        # Return Dictionary
-        return {tickers[i]: round(opt_weights[i], 4) for i in range(num_assets)}
+        return {k: round(v, 4) for k, v in weights.items()}
