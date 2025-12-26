@@ -188,7 +188,41 @@ def inject_custom_css():
             transform: translateY(0);
         }
 
-        </style>
+        /* NEW: Global Gold Overrides for Sliders, Progress Bars, and Tab Highlights */
+        /* Slider handle and track */
+        div[data-testid="stSlider"] > div > div > div > div {
+            background-color: #D4AF37 !important;
+        }
+        /* Slider dots/ticks */
+        div[data-testid="stSlider"] [data-baseweb="slider"] [role="slider"] {
+            background-color: #D4AF37 !important;
+            border-color: #D4AF37 !important;
+        }
+        
+        /* Tab Highlight Bar (The moving underline) */
+        div[data-baseweb="tab-highlight-point"] {
+            background-color: #B8860B !important;
+        }
+
+        /* Progress Bar */
+        div[data-testid="stProgress"] > div > div > div > div {
+            background-color: #D4AF37 !important;
+        }
+
+        /* Checkbox & Radio active state */
+        div[data-testid="stCheckbox"] > label > div:first-child[role="checkbox"][aria-checked="true"] {
+            background-color: #D4AF37 !important;
+            border-color: #D4AF37 !important;
+        }
+        
+        div[data-testid="stRadio"] label div[role="radiogroup"] div[data-bvst] {
+             background-color: #D4AF37 !important;
+        }
+
+        /* Global primary color override attempt via CSS variables */
+        :root {
+            --primary-color: #D4AF37;
+        }
     """, unsafe_allow_html=True)
 
 # --- LOCALIZATION & TEXT ASSETS ---
