@@ -1875,7 +1875,7 @@ def page_single_coin():
                                 st.markdown(desc_th)
                         else:
                             st.markdown(desc)
-                else:
+                else: 
                     # Fallback for TOP coins if info fails
                     if ticker == "BTC-USD":
                         with st.expander(f"📖 {ticker} Project Wisdom & Highlights", expanded=True):
