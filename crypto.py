@@ -2072,28 +2072,31 @@ def page_howto():
     if lang == 'EN':
         st.markdown("This curriculum provides a technical framework for utilizing the Crypash institutional suite. Users are expected to apply quantitative discipline when interpreting signals.")
         
+        # Module 1
         st.markdown("""
         <div class="curriculum-module">
             <div class="module-title">Module 1: Quantitative Market Scanning</div>
             <p><strong>Objective</strong>: Systematic identification of high-probability investment candidates through multi-factor filtering.</p>
             <p>1. <strong>Universe Definition</strong>: Select the target asset class (e.g., Layer 1, DeFi) to define the screening scope.</p>
-            <p>2. <strong>Strategic Mandate Selection</strong>: 
-                <ul>
-                    <li>Institutional Alpha: Focuses on assets with low volatility and high qualitative scores.</li>
-                    <li>Contrarian Mean Reversion: Targets extreme oversold conditions (Low MVRV + Low RSI).</li>
-                    <li>Momentum Growth: Identifies assets with accelerating on-chain activity.</li>
-                </ul>
-            </p>
+            <p>2. <strong>Strategic Mandate Selection</strong>:</p>
+            <ul>
+                <li>Institutional Alpha: Focuses on assets with low volatility and high qualitative scores.</li>
+                <li>Contrarian Mean Reversion: Targets extreme oversold conditions (Low MVRV + Low RSI).</li>
+                <li>Momentum Growth: Identifies assets with accelerating on-chain activity.</li>
+            </ul>
             <p>3. <strong>Threshold Optimization</strong>: Calibrate the MVRV Z-Score to ensure entry within the historical accumulation range (&lt; 1.0).</p>
             <p>4. <strong>Verification</strong>: Execute the protocol and prioritize assets achieving a Scan Score of 4/4, indicating 100% criteria compliance.</p>
         </div>
-        
+        """, unsafe_allow_html=True)
+
+        # Module 2
+        st.markdown("""
         <div class="curriculum-module">
             <div class="module-title">Module 2: Fundamental Integrity Verification (Crypash Dept)</div>
             <p><strong>Objective</strong>: Deep-tier fundamental analysis and valuation modeling.</p>
             <ul>
                 <li><strong>Crypash Score Dynamics</strong>: Assets maintaining a score above 75% demonstrate strong revenue-to-valuation ratios and network health.</li>
-                <li><strong>Hybrid Valuation Modeling (Crypash Line)</strong>: 
+                <li><strong>Hybrid Valuation Modeling (Crypash Line)</strong>:
                     <ul>
                         <li>Asset Pricing: Represented by the Blue trendline.</li>
                         <li>Intrinsic Value Calculation: Represented by the Orange trendline (Derived from Network Growth and Realized Price).</li>
@@ -2103,7 +2106,10 @@ def page_howto():
                 <li><strong>Risk Gauge Calibration</strong>: Monitor the Cycle Risk Gauge to detect market saturation; levels exceeding 80% suggest a distribution phase.</li>
             </ul>
         </div>
-        
+        """, unsafe_allow_html=True)
+
+        # Module 3
+        st.markdown("""
         <div class="curriculum-module">
             <div class="module-title">Module 3: Strategic Portfolio Management (Auto-Wealth)</div>
             <p><strong>Objective</strong>: Automated asset allocation utilizing Modern Portfolio Theory (MPT) principles.</p>
@@ -2116,28 +2122,31 @@ def page_howto():
     else:
         st.markdown("หลักสูตรการฝึกอบรมระดับสถาบัน: ระเบียบวิธีวิเคราะห์ของ Crypash (Methodology)")
         
+        # บทที่ 1
         st.markdown("""
         <div class="curriculum-module">
             <div class="module-title">บทที่ 1: การสแกนตลาดเชิงปริมาณ (Quantitative Market Scanning)</div>
             <p><strong>วัตถุประสงค์</strong>: การระบุกลุ่มสินทรัพย์ที่มีโอกาสเกิดผลตอบแทนสูงอย่างเป็นระบบผ่านตัวกรองหลายปัจจัย</p>
             <p>1. <strong>การกำหนดขอบเขต (Universe)</strong>: เลือกกลุ่มสินทรัพย์เป้าหมาย (เช่น Layer 1, DeFi) เพื่อกำหนดขอบเขตในการคัดกรอง</p>
-            <p>2. <strong>การเลือกกลยุทธ์เชิงกลยุทธ์ (Strategic Mandate)</strong>: 
-                <ul>
-                    <li>Institutional Alpha: มุ่งเน้นสินทรัพย์ที่มีความผันผวนต่ำและคะแนนคุณภาพสูง</li>
-                    <li>Contrarian Mean Reversion: มุ่งเน้นสินทรัพย์ที่อยู่ในสภาวะขายมากเกินไปขั้นสุด (Low MVRV + Low RSI)</li>
-                    <li>Momentum Growth: ระบุสินทรัพย์ที่มีการเติบโตของธุรกรรมบนเครือข่ายที่เร่งตัวขึ้น</li>
-                </ul>
-            </p>
+            <p>2. <strong>การเลือกกลยุทธ์เชิงกลยุทธ์ (Strategic Mandate)</strong>:</p>
+            <ul>
+                <li>Institutional Alpha: มุ่งเน้นสินทรัพย์ที่มีความผันผวนต่ำและคะแนนคุณภาพสูง</li>
+                <li>Contrarian Mean Reversion: มุ่งเน้นสินทรัพย์ที่อยู่ในสภาวะขายมากเกินไปขั้นสุด (Low MVRV + Low RSI)</li>
+                <li>Momentum Growth: ระบุสินทรัพย์ที่มีการเติบโตของธุรกรรมบนเครือข่ายที่เร่งตัวขึ้น</li>
+            </ul>
             <p>3. <strong>การปรับค่าเกณฑ์มาตรฐาน (Thresholds)</strong>: ปรับค่า MVRV Z-Score เพื่อให้มั่นใจว่าจุดเข้าซื้ออยู่ในช่วงการสะสมพลังทางประวัติศาสตร์ (&lt; 1.0)</p>
             <p>4. <strong>การตรวจสอบ</strong>: เริ่มดำเนินการและจัดลำดับความสำคัญของสินทรัพย์ที่ได้รับ Scan Score 4/4 ซึ่งบ่งชี้ว่าตรงตามเกณฑ์ 100%</p>
         </div>
-        
+        """, unsafe_allow_html=True)
+
+        # บทที่ 2
+        st.markdown("""
         <div class="curriculum-module">
             <div class="module-title">บทที่ 2: การตรวจสอบความสมบูรณ์ของปัจจัยพื้นฐาน (Crypash Dept)</div>
             <p><strong>วัตถุประสงค์</strong>: การวิเคราะห์ปัจจัยพื้นฐานเชิงลึกและการสร้างแบบจำลองมูลค่า</p>
             <ul>
                 <li><strong>พลวัตของ Crypash Score</strong>: สินทรัพย์ที่รักษาคะแนนเหนือ 75% บ่งชี้ถึงอัตราส่วนรายได้ต่อราคาที่ดีและสุขภาพของเครือข่ายที่แข็งแกร่ง</li>
-                <li><strong>แบบจำลองมูลค่าผสม (Crypash Line)</strong>: 
+                <li><strong>แบบจำลองมูลค่าผสม (Crypash Line)</strong>:
                     <ul>
                         <li>ราคาตลาด: แสดงโดยเส้นแนวโน้มสีน้ำเงิน</li>
                         <li>การคำนวณมูลค่าที่เหมาะสม (Intrinsic Value): แสดงโดยเส้นแนวโน้มสีส้ม (คำนวณจากการเติบโตของเครือข่ายและราคาต้นทุนจริง)</li>
@@ -2147,7 +2156,10 @@ def page_howto():
                 <li><strong>การวัดระดับความเสี่ยง</strong>: ตรวจสอบ Cycle Risk Gauge เพื่อตรวจจับความอิ่มตัวของตลาด โดยระดับที่สูงกว่า 80% บ่งชี้ถึงระยะการกระจายของ (Distribution Phase)</li>
             </ul>
         </div>
-        
+        """, unsafe_allow_html=True)
+
+        # บทที่ 3
+        st.markdown("""
         <div class="curriculum-module">
             <div class="module-title">บทที่ 3: การบริหารพอร์ตโฟลิโอเชิงกลยุทธ์ (Auto-Wealth)</div>
             <p><strong>วัตถุประสงค์</strong>: การจัดสรรสินทรัพย์โดยอัตโนมัติโดยใช้หลักการ Modern Portfolio Theory (MPT)</p>
@@ -2172,16 +2184,16 @@ if __name__ == "__main__":
         pass # Widget triggers rerun, so we read it below or use key
         
     # --- BRANDING & LANGUAGE SELECTOR (Top Header) ---
-    c_brand_a, c_brand_b = st.columns([1, 20])
+    c_brand_a, c_brand_b, c_brand_c = st.columns([2, 12, 6]) 
     with c_brand_a:
          st.image("logo.png", width=45) # Visible Logo
     
-    # Place Language Selector at the Top Right using a separate container
-    st.markdown("""
-        <div style="position: absolute; top: -55px; right: 0px; z-index: 1000; width: 140px;">
-    """, unsafe_allow_html=True)
-    st.selectbox("Lang", ["English (EN)", "ภาษาไทย (TH)"], key='lang_choice_key', label_visibility="collapsed")
-    st.markdown("</div>", unsafe_allow_html=True)
+    with c_brand_c:
+         st.selectbox("Lang", ["English (EN)", "ภาษาไทย (TH)"], key='lang_choice_key', label_visibility="collapsed")
+    
+    # Update language based on the new selector position
+    current_lang_sel = st.session_state.get('lang_choice_key', "English (EN)")
+    st.session_state['lang'] = 'EN' if "English" in current_lang_sel else 'TH'
     
     # --- TOP TABS NAVIGATION (CFA Style) ---
     # Define Tabs (Rendered at the very top)
