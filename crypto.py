@@ -251,6 +251,14 @@ TRANS = {
         'ui_generate': "Generate Optimal Portfolio",
         'ui_results': "Results",
         
+        
+        # --- Navigation Keys ---
+        'nav_scanner': "Crypto Scanner",
+        'nav_single': "Single Coin Analysis",
+        'nav_wealth': "Auto-Wealth",
+        'nav_glossary': "Crypto Glossary",
+        'nav_howto': "How to Use",
+        
         # --- Restored Keys ---
         'tab_holdings': "📋 Holdings",
         'tab_alloc': "🍕 Allocation",
@@ -405,13 +413,15 @@ TRANS = {
         'run_backtest_btn': "🚀 Run Backtest",
         'historical_chart_title': "### 🔬 Interactive Historical Charts",
         'select_stock_view': "Select Coin to View:",
-        # 'nav_scanner': "Crypto Scanner", # Dupe
-        'nav_portfolio': "Auto Portfolio",
-        # 'nav_single': "Single Coin Analysis", # Dupe
-        'nav_health': "Portfolio Health",
-        'nav_ai': "AI Insight",
-        # 'nav_glossary': "Crypto Glossary", # Dupe
-        'nav_help': "How to Use",
+        'nav_scanner': "สแกนคริปโต",
+        'nav_single': "วิเคราะห์รายตัว",
+        'nav_wealth': "จัดพอร์ต",
+        'nav_portfolio': "จัดพอร์ต",
+        'nav_health': "สุขภาพพอร์ต",
+        'nav_ai': "AI วิเคราะห์",
+        'nav_glossary': "คลังคำศัพท์",
+        'nav_howto': "คู่มือการใช้งาน",
+        'nav_help': "คู่มือการใช้งาน",
         'footer_caption': "Professional Crypto Analytics Platform",
         'health_check_title': "🔍 On-Chain Health Check",
         'val_label': "Valuation",
