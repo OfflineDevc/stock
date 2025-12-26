@@ -1077,7 +1077,7 @@ STRATEGY_PROFILES = {
 }
 
 def page_scanner():
-    st.header(f"🔍 {get_text('scanner_header')}")
+    st.header(f"{get_text('scanner_header')}")
     st.caption("Institutional-Grade Crypto Screener powered by Crypash Engine.")
 
     # --- 1. CONFIGURATION (Main Page) ---
