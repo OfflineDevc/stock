@@ -1604,7 +1604,7 @@ def calculate_dcf(current_fcf, growth_rate, discount_rate, terminal_growth=0.025
 def page_single_stock():
     c_t, c_l = st.columns([3, 1])
     with c_t: st.title(get_text('deep_dive_title'))
-    with c_l: st.markdown("<br>👉 [**Check out Bidnow 🪙**](https://Bidnow.streamlit.app/)", unsafe_allow_html=True)
+    with c_l: st.markdown("<br>👉 [**Check out bidnow 🪙**](https://bidnow.streamlit.app/)", unsafe_allow_html=True)
     ticker = st.text_input(get_text('search_ticker'))
     
     # Initialize df to prevent UnboundLocalError
@@ -2392,7 +2392,7 @@ def page_glossary():
 def page_scanner():
     c_t, c_l = st.columns([3, 1])
     with c_t: st.title(get_text('main_title'))
-    with c_l: st.markdown("<br>[**Check out Bitnow 🪙**](https://bitnow.streamlit.app/)", unsafe_allow_html=True)
+    with c_l: st.markdown("<br>[**Check out Bidnow 🪙**](https://bidnow.streamlit.app/)", unsafe_allow_html=True)
     st.info(get_text('about_desc'))
 
     # NEW: Market Dashboard
@@ -2635,7 +2635,7 @@ def page_scanner():
 def page_portfolio():
     c_t, c_l = st.columns([3, 1])
     with c_t: st.title(get_text('port_title'))
-    with c_l: st.markdown("<br>👉 [**Check out Bitnow 🪙**](https://Bitnow.streamlit.app/)", unsafe_allow_html=True)
+    with c_l: st.markdown("<br>👉 [**Check out Bidnow 🪙**](https://Bidnow.streamlit.app/)", unsafe_allow_html=True)
     st.markdown("---")
     
     
@@ -3156,7 +3156,7 @@ def page_portfolio():
 def page_howto():
     c_t, c_l = st.columns([3, 1])
     with c_t: st.title("📖 How to Use / คู่มือการใช้งาน")
-    with c_l: st.markdown("<br>👉 [**Check out Bitnow 🪙**](https://Bitnow.streamlit.app/)", unsafe_allow_html=True)
+    with c_l: st.markdown("<br>👉 [**Check out Bidnow 🪙**](https://Bidnow.streamlit.app/)", unsafe_allow_html=True)
     lang = st.session_state.get('lang', 'EN')
     
     HOWTO_DATA = {
