@@ -1241,18 +1241,18 @@ def page_scanner():
             return score, ", ".join(checks)
 
         # Apply Calculation
-        df_results[['Match_Score', 'Criteria_Met']] = df_results.apply(
+        df_results[['Scan_Score', 'Criteria_Met']] = df_results.apply(
             lambda x: pd.Series(calculate_match(x)), axis=1
         )
         
-        # Sort by Match Score DESC, then Crypash Score DESC
-        df = df_results.sort_values(by=['Match_Score', 'Crypash_Score'], ascending=[False, False])
+        # Sort by Scan Score DESC, then Crypash Score DESC
+        df = df_results.sort_values(by=['Scan_Score', 'Crypash_Score'], ascending=[False, False])
         
         # Apply Crypash Ranking
         df = calculate_crypash_ranking(df)
 
         st.markdown(f"### Results ({len(df)} Matches)")
-        st.info("Ranking by Criteria Match. Assets meeting more conditions appear first.")
+        st.info("Ranking by Scan Score (Criteria Met).")
 
 
         
@@ -1261,23 +1261,34 @@ def page_scanner():
         def color_cycle(val):
             # Pro Rating Colors
             if isinstance(val, str):
-                if "A" in val: return "background-color: #d1e7dd; color: #0f5132; font-weight: bold" # Success Green
-                if "B" in val: return "color: #198754; font-weight: bold"
-                if "D" in val or "F" in val: return "color: #dc3545"
+                if "A" in val: return "color: #00FF00; font-weight: bold" # Green
+                if "B" in val: return "color: lightgreen"
+                if "D" in val or "F" in val: return "color: #ff4b4b"
                 # Cycle Colors
-                if "Accumulation" in val: return "background-color: #d4edda; color: #155724; font-weight: bold"
-                if "Euphoria" in val: return "background-color: #f8d7da; color: #721c24; font-weight: bold"
-                if "Greed" in val: return "background-color: #fff3cd; color: #856404"
+                if "Accumulation" in val: return "color: lightgreen; font-weight: bold"
+                if "Euphoria" in val: return "color: #ff4b4b; font-weight: bold"
+                if "Greed" in val: return "color: orange"
             return ""
-        
+            
+        def color_scan_score(val):
+             return 'color: #00ccff; font-weight: bold' # Cyan
+
         # Columns to display
         # Added Crypash_Score, Fair_Value, Margin_Safety
-        display_cols = ['Symbol', 'Narrative', 'Crypash_Score', 'Pro_Rating', 'Price', 'Fair_Value', 'Margin_Safety', 'Cycle_State', 'MVRV_Z', 'Vol_30D', '7D']
+        display_cols = ['Symbol', 'Narrative', 'Scan_Score', 'Crypash_Score', 'Pro_Rating', 'Price', 'Fair_Value', 'Margin_Safety', 'Cycle_State', '7D', '30D']
         
         st.dataframe(
             df[display_cols].style.applymap(color_cycle, subset=['Cycle_State', 'Pro_Rating'])
+            .applymap(color_scan_score, subset=['Scan_Score'])
             .format({
                 'Price': '${:,.2f}',
+                'Fair_Value': '${:,.2f}',
+                'Margin_Safety': '{:.1f}%',
+                '7D': '{:+.1f}%',
+                '30D': '{:+.1f}%',
+                'Crypash_Score': '{:.0f}',
+                'Scan_Score': '{:.0f}/4'   
+            }),
                 'Fair_Value': '${:,.2f}',
                 'Margin_Safety': '{:+.1f}%',
                 'MVRV_Z': '{:.2f}',
