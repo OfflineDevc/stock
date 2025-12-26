@@ -928,7 +928,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                 'Symbol': ticker,
                 'Narrative': narrative,
                 'Price': price,
-                'Crypash_Score': total_pro_score, # Renamed for clarity
+                'Crypash_Score': total_pro_score, 
                 'Pro_Rating': analysis_str,
                 'Fair_Value': fair_value,
                 'Margin_Safety': mos,
