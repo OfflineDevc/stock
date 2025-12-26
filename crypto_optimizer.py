@@ -28,68 +28,58 @@ class CrypashOptimizer:
 
     def select_universe(self, ranking_df):
         """
-        Filters and selects top candidates based on Multi-Factor Score.
+        Selects assets using a 'Pyramid' Tiered Strategy.
+        Tier 1 (Foundation): Top Trusted (Blue Chips)
+        Tier 2 (Growth): High Crypash Score (Quality)
+        Tier 3 (Alpha): High Momentum/Volatility (Potential)
         """
-        # 1. Basic Filters
+        if ranking_df.empty: return pd.DataFrame()
+        
         df = ranking_df.copy()
         
-        # Ensure we have required columns
-        req_cols = ['Crypash_Score', 'Vol_30D', 'RSI']
+        # Helper: Ensure we have data
+        req_cols = ['Symbol', 'Crypash_Score', 'Vol_30D', 'RSI']
         for c in req_cols:
-            if c not in df.columns: return pd.DataFrame() # Fail safe
+            if c not in df.columns: return pd.DataFrame()
             
-        # Filter: Liquidity & Quality
-        df = df[df['Crypash_Score'] >= 60] # Grade B minimum
+        # --- PYRAMID SELECTION ---
+        target_n = self.determine_asset_count()
         
-        # 2. Calculate Multi-Factor Score (Smart Beta)
-        # Factor 1: Quality (Score) - Higher is better
-        # Factor 2: Momentum (RSI) - 50-70 is sweet spot, but for scoring we want trend. 
-        #           Let's use a simplified logical score.
-        # Factor 3: Low Vol - Lower is better
+        # 1. Foundation (Blue Chips) - Safety
+        # We assume known list or top matches
+        blue_chips = ['BTC-USD', 'ETH-USD', 'SOL-USD', 'BNB-USD', 'XRP-USD', 'ADA-USD', 'AVAX-USD']
+        foundation_candidates = df[df['Symbol'].isin(blue_chips)].sort_values(by='Crypash_Score', ascending=False)
         
-        # Normalize columns (Simple Min-Max for scoring)
-        def normalize(series):
-            return (series - series.min()) / (series.max() - series.min())
+        # Select Top 3-5 Foundation
+        n_foundation = max(2, int(target_n * 0.3)) # 30% count
+        selected_foundation = foundation_candidates.head(n_foundation)
         
-        df['Norm_Score'] = normalize(df['Crypash_Score'])
-        df['Norm_Vol'] = normalize(df['Vol_30D'])
+        # 2. Core Growth (Quality) - High Score
+        # Exclude already selected
+        remaining = df[~df['Symbol'].isin(selected_foundation['Symbol'])]
+        # Sort by Score
+        growth_candidates = remaining.sort_values(by='Crypash_Score', ascending=False)
         
-        # Smart Beta Formula
-        # Aggressive: Focus on Score + Momentum (ignored here for simplicity, reusing Score)
-        # Conservative: Focus on Low Vol
+        n_growth = max(3, int(target_n * 0.5)) # 50% count
+        selected_growth = growth_candidates.head(n_growth)
         
-        if self.risk_profile == 'Conservative':
-            # 60% Low Vol, 40% Quality
-            df['Factor_Score'] = (0.4 * df['Norm_Score']) - (0.6 * df['Norm_Vol'])
-        elif self.risk_profile == 'Aggressive':
-            # 70% Quality/Growth, 30% Vol (Risk tolerance)
-            df['Factor_Score'] = (0.7 * df['Norm_Score']) - (0.3 * df['Norm_Vol'])
-        else:
-            # Balanced
-            df['Factor_Score'] = (0.5 * df['Norm_Score']) - (0.5 * df['Norm_Vol'])
-            
-        # Sort
-        df = df.sort_values(by='Factor_Score', ascending=False)
+        # 3. Alpha (Momentum) - High RSI/Vol (but check for reasonable limits)
+        remaining = remaining[~remaining['Symbol'].isin(selected_growth['Symbol'])]
+        # Sort by RSI (Momentum) or Vol
+        alpha_candidates = remaining.sort_values(by='RSI', ascending=False)
         
-        # Select Top N
-        n = self.determine_asset_count()
+        n_alpha = max(2, int(target_n * 0.2)) # 20% count
+        selected_alpha = alpha_candidates.head(n_alpha)
         
-        # Apply Sector Constraint Logic (Naive: Max 2 per narrative)
-        # We need 'Narrative' column.
-        selected = []
-        sector_counts = {}
+        # Combine
+        combined_df = pd.concat([selected_foundation, selected_growth, selected_alpha]).drop_duplicates(subset=['Symbol'])
         
-        for idx, row in df.iterrows():
-            if len(selected) >= n: break
-            
-            narrative = row.get('Narrative', 'Unknown')
-            if sector_counts.get(narrative, 0) >= 2:
-                continue # Skip if sector full
-            
-            selected.append(row)
-            sector_counts[narrative] = sector_counts.get(narrative, 0) + 1
-            
-        return pd.DataFrame(selected)
+        # Label Tiers
+        combined_df['Tier'] = 'Growth'
+        combined_df.loc[combined_df['Symbol'].isin(blue_chips), 'Tier'] = 'Foundation'
+        combined_df.loc[combined_df['Symbol'].isin(selected_alpha['Symbol']), 'Tier'] = 'Alpha'
+        
+        return combined_df.head(target_n)
 
     def optimize_weights(self, price_history_df):
         """

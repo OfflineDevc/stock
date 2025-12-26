@@ -1210,30 +1210,49 @@ def page_scanner():
             st.error("No data found. Check your internet or API limits.")
             return
 
-        # --- FILTERING LOGIC ---
-        # 1. Score
-        df = df_results[df_results['Crypash_Score'] >= filt_score]
+        # --- CHECKLIST MATCHING LOGIC (Modified) ---
+        # Instead of strict filtering, we calculate a "Match Score"
         
-        # 2. MVRV
-        if 'MVRV_Z' in df.columns:
-            df = df[df['MVRV_Z'] <= filt_mvrv]
+        def calculate_match(row):
+            score = 0
+            checks = []
             
-        # 3. RSI
-        if 'RSI' in df.columns:
-            df = df[df['RSI'] <= filt_rsi]
+            # 1. Crypash Score
+            if row['Crypash_Score'] >= filt_score: 
+                score += 1
+                checks.append("✅ Score")
             
-        # 4. Volatility
-        if 'Vol_30D' in df.columns:
-            df = df[df['Vol_30D'] <= filt_vol]
+            # 2. MVRV
+            if 'MVRV_Z' in row and row['MVRV_Z'] <= filt_mvrv:
+                score += 1
+                checks.append("✅ MVRV")
+                
+            # 3. RSI
+            if 'RSI' in row and row['RSI'] <= filt_rsi:
+                score += 1
+                checks.append("✅ RSI")
+                
+            # 4. Volatility
+            if 'Vol_30D' in row and row['Vol_30D'] <= filt_vol:
+                score += 1
+                checks.append("✅ Vol")
+                
+            return score, ", ".join(checks)
+
+        # Apply Calculation
+        df_results[['Match_Score', 'Criteria_Met']] = df_results.apply(
+            lambda x: pd.Series(calculate_match(x)), axis=1
+        )
         
-        # 5. Vol Growth (Proxied by 30D change? No, we need Vol Growth metric in DF)
-        # We need to ensure scan_market_basic returns Vol Growth.
-        # Currently it returns 7D/30D Price change. Let's start with basic filters first.
+        # Sort by Match Score DESC, then Crypash Score DESC
+        df = df_results.sort_values(by=['Match_Score', 'Crypash_Score'], ascending=[False, False])
         
         # Apply Crypash Ranking
         df = calculate_crypash_ranking(df)
 
         st.markdown(f"### Results ({len(df)} Matches)")
+        st.info("Ranking by Criteria Match. Assets meeting more conditions appear first.")
+
 
         
         # Color Styling for Cycle State
