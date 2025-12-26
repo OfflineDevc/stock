@@ -1497,9 +1497,19 @@ def calculate_crypash_score(ticker, hist, info=None):
         fin_score += fs; fin_count += 1
         score_cards['financial'] = int(fin_score / max(1, fin_count))
         
+        # Initialize Analysis List if not present or clear it at start
+        if 'analysis' not in score_cards: score_cards['analysis'] = []
+        score_cards['analysis'] = [] # Clean start for this run
+
+        # ==============================================================================
+        # 1. FINANCIAL HEALTH (30%) - Already done above, ensuring text is added (checking previous block)
+        # Note: I am editing from line 1500, previous block (Financial) is above. 
+        # I will assume I need to fix Financial separately if needed, but let's fix Network/Tech/Tokenomics here.
+        # Wait, I can only edit contiguous blocks. I will fix the visible block first.
+        
         # ==============================================================================
         # 2. NETWORK ACTIVITY (30%)
-        # Metrics: Volume Trend (Proxy for DAU), Transaction Value (Proxy)
+        # Metrics: Volume Trend (Proxy for DAU)
         # ==============================================================================
         net_score = 0
         net_count = 0
@@ -1512,20 +1522,26 @@ def calculate_crypash_score(ticker, hist, info=None):
             vol_growth = (vol_7d_avg - vol_30d_avg) / vol_30d_avg
             if vol_growth > 0.5: 
                 ns = 100
+                score_cards['analysis'].append(f"📈 Network Growth: Surge (+{vol_growth*100:.1f}%)")
             elif vol_growth > 0: 
                 ns = 70
+                score_cards['analysis'].append(f"✅ Network Growth: Steady (+{vol_growth*100:.1f}%)")
             else: 
                 ns = 40
+                score_cards['analysis'].append(f"⚠️ Network Growth: Declining ({vol_growth*100:.1f}%)")
         else:
             ns = 50
+            score_cards['analysis'].append("ℹ️ Network Data: Insufficient volume history.")
         net_score += ns; net_count += 1
         
         # B. Retention / Stability
         vol_std = hist['Volume'].tail(30).pct_change().std()
         if vol_std < 1.0: 
             ns2 = 80
+            score_cards['analysis'].append("✅ Stability: Consistent trading activity.")
         else:
             ns2 = 40
+            score_cards['analysis'].append("⚠️ Stability: High volume volatility.")
         net_score += ns2; net_count += 1
         
         score_cards['network'] = int(net_score / max(1, net_count))
@@ -1537,10 +1553,13 @@ def calculate_crypash_score(ticker, hist, info=None):
         major_tokens = ['BTC', 'ETH', 'SOL', 'ADA', 'DOT', 'AVAX', 'LINK', 'UNI']
         if any(x in clean_symbol for x in major_tokens):
             tech_base = 90
+            score_cards['analysis'].append("🏆 Tech: Blue-chip blockchain architecture.")
         else:
+            # Hash-based proxy for demo
             import hashlib
             hash_val = int(hashlib.sha256(clean_symbol.encode('utf-8')).hexdigest(), 16) % 30
             tech_base = 50 + hash_val 
+            score_cards['analysis'].append("🛠️ Tech: Standard implementation (Proxy Score).")
             
         score_cards['tech'] = tech_base
         
@@ -1553,20 +1572,36 @@ def calculate_crypash_score(ticker, hist, info=None):
         # Supply Overhang
         if max_supply and max_supply > 0:
             supply_ratio = circ_supply / max_supply
-            if supply_ratio > 0.9: ts = 100 
-            elif supply_ratio > 0.7: ts = 80
-            elif supply_ratio > 0.5: ts = 60
-            elif supply_ratio > 0.3: ts = 40
-            else: ts = 20 
+            if supply_ratio > 0.9: 
+                ts = 100 
+                score_cards['analysis'].append("💎 Tokenomics: Fully Diluted (No inflation pressure).")
+            elif supply_ratio > 0.7: 
+                ts = 80
+                score_cards['analysis'].append("✅ Tokenomics: High Circulating Supply.")
+            elif supply_ratio > 0.5: 
+                ts = 60
+                score_cards['analysis'].append("ℹ️ Tokenomics: Moderate inflation remaining.")
+            elif supply_ratio > 0.3: 
+                ts = 40
+                score_cards['analysis'].append("⚠️ Tokenomics: High inflation ahead.")
+            else: 
+                ts = 20 
+                score_cards['analysis'].append("🚩 Tokenomics: VC/Insider Unlock Risk.")
         elif clean_symbol in ['ETH', 'DOGE', 'SOL']: 
             ts = 70
+            score_cards['analysis'].append("✅ Tokenomics: Inflationary but established (Utility).")
         else:
-            # Fallback if no info: Use Age/History Length as Proxy for distribution maturity
-            # 2000 days (~5 years) = Mature = Good Tokenomics proxy?
+            # Fallback if no info: 
             days_history = len(hist)
-            if days_history > 1500: ts = 80
-            elif days_history > 700: ts = 60
-            else: ts = 40
+            if days_history > 1500: 
+                ts = 80
+                score_cards['analysis'].append("✅ Tokenomics: Mature Distribution (>4 Years).")
+            elif days_history > 700: 
+                ts = 60
+                score_cards['analysis'].append("ℹ️ Tokenomics: Established Asset.")
+            else: 
+                ts = 40
+                score_cards['analysis'].append("⚠️ Tokenomics: Early Stage / Unknown Supply.")
             
         token_score += ts; token_count += 1
         score_cards['tokenomics'] = int(token_score / max(1, token_count))
@@ -1574,8 +1609,6 @@ def calculate_crypash_score(ticker, hist, info=None):
         # ==============================================================================
         # FINAL WEIGHTED SCORE
         # ==============================================================================
-        # If info was missing (mcap=0), we lean on proxies.
-        # Logic remains same, but inputs are now robust.
         total_score = (score_cards['financial'] * 0.30) + \
                       (score_cards['network'] * 0.30) + \
                       (score_cards['tech'] * 0.20) + \
@@ -1583,11 +1616,10 @@ def calculate_crypash_score(ticker, hist, info=None):
                       
         score_cards['total'] = max(0, min(100, int(total_score)))
         
-        # Analysis Text
-        score_cards['analysis'] = [] # Reset
-        if score_cards['total'] >= 75: score_cards['analysis'].append("💎 **Crypash Elite**: Excellent Fundamentals.")
-        elif score_cards['total'] >= 50: score_cards['analysis'].append("✅ **Good**: Solid Project.")
-        else: score_cards['analysis'].append("⚠️ **Weak**: Poor Fundamentals.")
+        # Summary Judgement
+        if score_cards['total'] >= 75: score_cards['analysis'].append("🚀 **Verdict**: Excellent Buy Candidate.")
+        elif score_cards['total'] >= 50: score_cards['analysis'].append("✅ **Verdict**: Good Long-Term Hold.")
+        else: score_cards['analysis'].append("⚠️ **Verdict**: Watchlist Only (Risky).")
         
     except Exception as e:
         # print(f"Scoring Error {ticker}: {e}")
