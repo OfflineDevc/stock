@@ -1896,128 +1896,116 @@ def select_assets(risk_profile, df_ranking):
              
     return allocation
 
-    return allocation
+# ---------------------------------------------------------
+# IMPORT OPTIMIZER
+# ---------------------------------------------------------
+try:
+    from crypto_optimizer import CrypashOptimizer
+except ImportError:
+    st.error("Optimizer module not found. Please ensure crypto_optimizer.py exists.")
 
 def page_auto_wealth():
-    st.title("🤖 Crypash Auto-Wealth (Beta)")
-    st.info("Automated Portfolio Management based on your Risk Profile. Uses Crypash Ranking to pick the best assets.")
+    st.title("🤖 Crypash Auto-Wealth (Quantitative Engine)")
+    st.info("Institutional-Grade Portfolio Construction using Modern Portfolio Theory (MPT).")
     
-    # Session State for Profile
-    if 'risk_profile' not in st.session_state:
-        st.session_state.risk_profile = None
+    # 1. User Inputs
+    with st.expander("💼 Investment Profile", expanded=True):
+        c1, c2 = st.columns(2)
+        with c1:
+            capital = st.number_input("Capital Amount (USD)", min_value=1000, value=10000, step=1000, help="Used to determine position sizing and concentration.")
+        with c2:
+            # Reusing the existing Profile State if available, else simple select
+            risk_options = ["Conservative", "Moderate", "Aggressive"]
+            # Auto-select input based on previous quiz if exists
+            idx = 1
+            if 'risk_profile' in st.session_state and st.session_state.risk_profile in risk_options:
+                idx = risk_options.index(st.session_state.risk_profile)
+            
+            risk_profile = st.selectbox("Risk Tolerance", risk_options, index=idx)
+            st.session_state.risk_profile = risk_profile
+
+    # 2. Execution
+    if st.button("Generate Optimal Portfolio", type="primary"):
+        # Initialize Optimizer
+        opt = CrypashOptimizer(risk_profile, capital)
         
-    # --- STEP 1: RISK ASSESSMENT ---
-    if not st.session_state.risk_profile:
-        st.subheader("Step 1: Determine Your Risk Profile")
-        with st.form("risk_form"):
-            q1 = st.selectbox("1. Time Horizon: How long do you plan to hold?", 
-                             ("Less than 1 year (Short Term)", "1-3 Years (Medium Term)", "3+ Years (Long Term)"))
-            
-            q2 = st.selectbox("2. Drawdown Tolerance: How much drop can you handle?", 
-                             ("-10% (I panic easily)", "-30% (Uncomfortable)", "-50%+ (Diamond Hands)"))
-            
-            q3 = st.selectbox("3. Income Stability: How stable is your main income?", 
-                             ("Unstable / Student", "Stable Job", "High Net Worth / Retired"))
-            
-            submit = st.form_submit_button("Calculate Profile")
-            
-            if submit:
-                # Score Logic
-                score = 0
-                if "1-3" in q1: score += 2
-                elif "3+" in q1: score += 3
-                else: score += 1
-                
-                if "-30%" in q2: score += 2
-                elif "-50%" in q2: score += 3
-                else: score += 1
-                
-                if "Stable" in q3: score += 2
-                elif "High" in q3: score += 3
-                else: score += 1
-                
-                # Determine Profile
-                profile = calculate_risk_profile({'h': score}) # Hacky mapping, logic is sum based
-                # Re-do logic properly:
-                # Max score = 3+3+3 = 9. Min = 3.
-                # < 5: Conservative. 5-7: Moderate. > 7: Aggressive.
-                if score <= 4: profile = "Conservative"
-                elif score <= 7: profile = "Moderate"
-                else: profile = "Aggressive"
-                
-                st.session_state.risk_profile = profile
-                st.rerun()
-                
-    # --- STEP 2: PORTFOLIO GENERATION ---
-    else:
-        profile = st.session_state.risk_profile
-        st.success(f"### Your Risk Profile: {profile}")
+        # A. Determine Constraints
+        target_n = opt.determine_asset_count()
+        st.write(f"**Target Asset Count:** {target_n} Assets (Based on Capital Efficiency)")
         
-        col_res, col_act = st.columns([3, 1])
-        with col_act:
-            if st.button("Retake Quiz"):
-                st.session_state.risk_profile = None
-                st.rerun()
+        # B. Get Market Data (Simulated Scan for Logic Demo)
+        # In prod, this calls scan_market_basic logic.
+        progress = st.progress(0)
+        status = st.empty()
         
-        # Fetch Ranking Data (Using Cache if possible, but here we run scan for fresh data)
-        # In prod, this should be cached. For now, we simulate or fetch.
-        st.spinner("Analyzing Market for Top Picks...")
+        status.write("Scanning Market & Scoring Factors...")
+        # Fetch generic universe for selection
+        tickers = get_crypto_universe("All (Top 200)")[:60] # top 60 candidates
         
-        # We need the DF. Let's borrow scan_market_basic logic or assume we have it.
-        # Ideally, we should have a `get_market_data()` function separate from `scan`.
-        # For now, we will use a cached check or run a quick scan of top 20 assets.
+        # Use existing scanner logic to get metrics
+        # We need a headless version or just use the DF if we can.
+        # For speed in this demo, we'll try to fetch cached data or run a fast scan.
+        df_scan = scan_market_basic(tickers, progress, status)
         
-        # Quick Scan List
-        top_tickers = ["BTC-USD", "ETH-USD", "SOL-USD", "BNB-USD", "XRP-USD", "ADA-USD", "AVAX-USD", "DOGE-USD", "DOT-USD", "LINK-USD", "UNI-USD", "MATIC-USD", "LTC-USD", "ATOM-USD", "NEAR-USD"]
+        if df_scan.empty:
+            st.error("Market Data Unavailable.")
+            return
+
+        # Score & Filter
+        status.write("Calculating Multi-Factor Scores...")
+        # Ensure ranking is applied
+        df_scan = calculate_crypash_ranking(df_scan) 
         
-        # Placeholder for data
-        with st.spinner("Running Crypash Engine..."):
-            # Reuse scan logic (simplified)
-            import yfinance as yf
-            data = yf.download(top_tickers, period="1y", group_by='ticker', threads=True)
+        # C. Select Universe
+        df_selected = opt.select_universe(df_scan)
+        
+        if df_selected.empty:
+            st.warning("No assets met the strict criteria (Score > 60).")
+            return
             
-            rows = []
-            for t in top_tickers:
-                try: 
-                    h = data[t]
-                    if h.empty: continue
-                    score_obj = calculate_crypash_score(t, h)
-                    
-                    # Margin of safety (Rough)
-                    price = h['Close'].iloc[-1]
-                    fv = calculate_crypash_line(h).iloc[-1]
-                    mos = (fv - price)/price*100
-                    
-                    rows.append({
-                        'Symbol': t,
-                        'Crypash_Score': score_obj['total'],
-                        'Margin_Safety': mos
-                    })
-                except: pass
-            
-            df_ranks = pd.DataFrame(rows)
-            # Apply Ranking
-            df_ranks = calculate_crypash_ranking(df_ranks)
-            
-            # Select Assets
-            allocation_dict = select_assets(profile, df_ranks)
-            
-            # --- DISPLAY ---
-            st.subheader("Your Recommended Portfolio")
-            
-            # 1. Allocation Chart
-            labels = list(allocation_dict.keys())
-            values = list(allocation_dict.values())
-            
-            import plotly.express as px
-            fig = px.pie(values=values, names=labels, title=f"{profile} Allocation Strategy")
+        st.write(f"**Selected Universe:** {len(df_selected)} Candidates (Top Rated)")
+        st.dataframe(df_selected[['Symbol', 'Crypash_Score', 'Vol_30D', 'RSI']].head(target_n))
+        
+        # D. Optimization (MPT)
+        status.write("Running Mean-Variance Optimization (scipy)...")
+        
+        # We need historical prices for the selected assets to calculate covariance
+        selected_tickers = df_selected['Symbol'].head(target_n).tolist()
+        
+        # Fetch History
+        import yfinance as yf
+        try:
+            data = yf.download(selected_tickers, period="1y")['Close']
+        except:
+             st.error("Failed to download historical data for optimization.")
+             return
+        
+        if data.empty:
+            st.error("No historical data found.")
+            return
+
+        # Run Optimizer
+        optimal_weights = opt.optimize_weights(data)
+        
+        # --- DISPLAY RESULTS ---
+        st.divider()
+        st.subheader(f"✅ Your Optimized Portfolio ({risk_profile})")
+        
+        # Pie Chart
+        import plotly.express as px
+        df_alloc = pd.DataFrame(list(optimal_weights.items()), columns=['Asset', 'Weight'])
+        df_alloc['Value ($)'] = df_alloc['Weight'] * capital
+        
+        c_pie, c_tab = st.columns([1, 1])
+        
+        with c_pie:
+            fig = px.pie(df_alloc, values='Weight', names='Asset', hole=0.4)
             st.plotly_chart(fig)
             
-            # 2. Table
-            st.markdown("### Asset Details")
-            st.table(pd.DataFrame(allocation_dict.items(), columns=['Asset', 'Target Allocation (Weight)']))
+        with c_tab:
+            st.dataframe(df_alloc.style.format({'Weight': '{:.2%}', 'Value ($)': '${:,.2f}'}))
             
-            st.info("💡 **Next Step:** You can execute this trade on your exchange manually. Automated Execution Coming Soon.")
+        st.success("Optimization Complete. This portfolio maximizes Sharpe Ratio based on your constraints.")
 
 
 def page_howto():
