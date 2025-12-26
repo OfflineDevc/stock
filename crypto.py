@@ -1935,7 +1935,7 @@ except ImportError:
     st.error("Optimizer module not found. Please ensure crypto_optimizer.py exists.")
 
 def page_auto_wealth():
-    st.title("🤖 Crypash Auto-Wealth (Quantitative Engine)")
+    st.title("Crypash Wealth")
     st.info("Institutional-Grade Portfolio Construction using Modern Portfolio Theory (MPT).")
     
     # 1. User Inputs
