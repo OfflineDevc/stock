@@ -1120,8 +1120,12 @@ def page_scanner():
         
         with col_uni:
             st.subheader("1. Crypto Universe")
-            market_choice = st.selectbox("Universe", ['All (Top 200)', 'Layer 1', 'DeFi', 'Meme', 'AI & Big Data'])
-            scan_limit = st.slider("Max Coins to Scan", 10, 200, 50)
+            
+            # Helper to get count
+            total_coins = len(get_crypto_universe('All (Top 200)'))
+            
+            market_choice = st.selectbox(f"Universe (Total: {total_coins} Coins)", ['All (Top 200)', 'Layer 1', 'DeFi', 'Meme', 'AI & Big Data'])
+            scan_limit = st.slider("Max Coins to Scan", 10, total_coins, min(200, total_coins))
             
         with col_strat:
             st.subheader("2. Strategy Mandate")
