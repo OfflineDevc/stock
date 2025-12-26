@@ -1604,7 +1604,7 @@ def calculate_dcf(current_fcf, growth_rate, discount_rate, terminal_growth=0.025
 def page_single_stock():
     c_t, c_l = st.columns([3, 1])
     with c_t: st.title(get_text('deep_dive_title'))
-    with c_l: st.markdown("<br>👉 [**Check out Bitnow 🪙**](https://Bitnow.streamlit.app/)", unsafe_allow_html=True)
+    with c_l: st.markdown("<br>👉 [**Check out Bidnow 🪙**](https://Bidnow.streamlit.app/)", unsafe_allow_html=True)
     ticker = st.text_input(get_text('search_ticker'))
     
     # Initialize df to prevent UnboundLocalError
