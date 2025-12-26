@@ -349,8 +349,8 @@ TRANS = {
         'tab_alloc': "🍕 สัดส่วนพอร์ต",
         'tab_logic': "⚖️ ตรรกะการคำนวณ",
         'gen_success': "✅ สร้างพอร์ตสำเร็จ: {n} เหรียญ",
-    }
-}
+        
+        # --- Legacy / Inherited Keys (kept to prevent missing key errors) ---
         'lynch_tooltip': "",
         'lynch_desc': "Cycle Phases (Wyckoff/Market Cycle):\n- Accumulation: Smart Money buying quietly.\n- Markup: Public participation phase.\n- Distribution: Smart Money selling.\n- Markdown: Price decline.",
         'sector_tooltip': "",
@@ -364,20 +364,21 @@ TRANS = {
         'run_backtest_btn': "🚀 Run Backtest",
         'historical_chart_title': "### 🔬 Interactive Historical Charts",
         'select_stock_view': "Select Coin to View:",
-        'nav_scanner': "Crypto Scanner",
+        # 'nav_scanner': "Crypto Scanner", # Dupe
         'nav_portfolio': "Auto Portfolio",
-        'nav_single': "Single Coin Analysis",
+        # 'nav_single': "Single Coin Analysis", # Dupe
         'nav_health': "Portfolio Health",
         'nav_ai': "AI Insight",
-        'nav_glossary': "Crypto Glossary",
+        # 'nav_glossary': "Crypto Glossary", # Dupe
         'nav_help': "How to Use",
         'footer_caption': "Professional Crypto Analytics Platform",
         'health_check_title': "🔍 On-Chain Health Check",
         'val_label': "Valuation",
         'qual_label': "Quality",
-        # Dead keys removed (Guru/Analyst/Holders)
         'no_target': "No analyst target price available.",
         'err_recs': "Could not fetch recommendations.",
+    }
+}
         'price_trend_title': "📉 5-Year Price Trend",
         'err_fetch': "Could not fetch data.",
         'perfect_match': "✅ Perfect Match",
