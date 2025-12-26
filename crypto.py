@@ -748,14 +748,20 @@ def get_crypto_universe(category='Top 50'):
         'QTUM-USD', 'XEM-USD', 'RVN-USD', 'HOT-USD', 'ZRX-USD', 'ANKR-USD', 'ICX-USD', 'WAVES-USD', 'OMG-USD', 'SC-USD'
     ]))
 
+    # Categories
+    l1 = ['BTC-USD', 'ETH-USD', 'SOL-USD', 'ADA-USD', 'AVAX-USD', 'DOT-USD', 'NEAR-USD', 'MATIC-USD', 'ATOM-USD']
+    defi = ['UNI-USD', 'AAVE-USD', 'MKR-USD', 'WIF-USD', 'LDO-USD', 'CRV-USD', 'LINK-USD']
+    meme = ['DOGE-USD', 'SHIB-USD', 'PEPE-USD', 'FLOKI-USD', 'BONK-USD']
+    ai_coins = ['RNDR-USD', 'TAO-USD', 'FET-USD', 'AGIX-USD', 'WLD-USD', 'GRT-USD']
+    
     if category == 'Layer 1': return l1
     if category == 'DeFi': return defi
     if category == 'Meme': return meme
     if category == 'AI & Big Data': return ai_coins
     if category == 'All (Top 200)': return all_market
     
-    # Default to Top 50
-    return top_50
+    # Default to Top 50 (Slice of all market)
+    return list(all_market)[:50]
 
 
 # --- CRYPTO METRIC HELPERS ---
