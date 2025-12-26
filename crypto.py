@@ -1690,7 +1690,13 @@ def page_single_coin():
                 risk_score = calculate_cycle_risk(current_price, ath)
                 
                 # --- PRO INTELLIGENCE (Signal Source) ---
-                scores = calculate_crypash_score(ticker, hist, stock.info)
+                try:
+                    info_data = stock.info
+                except:
+                    # Rate limit fallback
+                    info_data = None
+                    
+                scores = calculate_crypash_score(ticker, hist, info_data)
                 
                 # --- SIGNAL LOGIC (Unified with Expert Score) ---
                 grade = get_grade(scores['total'])
