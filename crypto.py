@@ -1863,34 +1863,6 @@ def page_single_coin():
 
                 # --- PRO SCORECARD (Expert Intelligence) ---
                 st.markdown("---")
-                
-                # NEW: Coin Summary / Description (Robust Approach)
-                desc = info_data.get('description') or info_data.get('longBusinessSummary')
-                
-                # Check for hardcoded fallbacks if desc is still empty or too short
-                if not desc or len(str(desc).strip()) < 20:
-                    fallbacks = {
-                        "BTC-USD": "Bitcoin is a decentralized digital currency, without a central bank or single administrator, that can be sent from user to user on the peer-to-peer bitcoin network without the need for intermediaries.",
-                        "ETH-USD": "Ethereum is a decentralized, open-source blockchain with smart contract functionality. Ether is the native cryptocurrency of the platform.",
-                        "SOL-USD": "Solana is a high-performance blockchain supporting builders around the world creating crypto apps that scale today.",
-                        "XRP-USD": "XRP is a digital asset built for payments. It is the native digital asset on the XRP Ledger—an open-source, permissionless and decentralized blockchain technology.",
-                        "ADA-USD": "Cardano is a proof-of-stake blockchain platform: the first to be founded on peer-reviewed research and developed through evidence-based methods.",
-                        "DOGE-USD": "Dogecoin is an open source peer-to-peer digital currency, favored by Shiba Inus worldwide.",
-                        "BNB-USD": "BNB is the cryptocurrency coin that powers the Binance ecosystem. As one of the world's most popular utility tokens, not only can you trade BNB like any other cryptocurrency, you can also use BNB in a wide range of applications and benefits.",
-                        "DOT-USD": "Polkadot is an open-source sharding multichain protocol that facilitates the cross-chain transfer of any data or asset types, not just tokens, thereby making a wide range of blockchains interoperable with each other."
-                    }
-                    desc = fallbacks.get(ticker)
-                
-                if desc and len(str(desc).strip()) > 10:
-                    with st.expander(f"📖 {ticker} Project Wisdom & Highlights", expanded=True):
-                        # Auto-translate if TH
-                        if st.session_state.get('lang') == 'TH':
-                            with st.spinner("Translating Project Wisdom..."):
-                                desc_th = translate_text(str(desc), target_lang='th')
-                                st.markdown(desc_th)
-                        else:
-                            st.markdown(desc)
-                        
                 st.subheader("🏆 Bitnow Pro Score (Expert Intelligence)")
                 
                 # scores already calculated with info
