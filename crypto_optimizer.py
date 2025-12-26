@@ -2,7 +2,7 @@ import numpy as np
 import pandas as pd
 from scipy.optimize import minimize
 
-class QryptOptimizer:
+class CrypashOptimizer:
     def __init__(self, risk_profile, capital_amount):
         """
         Initializes the Optimizer.
@@ -30,7 +30,7 @@ class QryptOptimizer:
         """
         Selects assets using a 'Pyramid' Tiered Strategy.
         Tier 1 (Foundation): Top Trusted (Blue Chips)
-        Tier 2 (Growth): High Qrypt Score (Quality)
+        Tier 2 (Growth): High Crypash Score (Quality)
         Tier 3 (Alpha): High Momentum/Volatility (Potential)
         """
         if ranking_df.empty: return pd.DataFrame()
@@ -38,7 +38,7 @@ class QryptOptimizer:
         df = ranking_df.copy()
         
         # Helper: Ensure we have data
-        req_cols = ['Symbol', 'Qrypt_Score', 'Vol_30D', 'RSI']
+        req_cols = ['Symbol', 'Crypash_Score', 'Vol_30D', 'RSI']
         for c in req_cols:
             if c not in df.columns: return pd.DataFrame()
             
@@ -48,7 +48,7 @@ class QryptOptimizer:
         # 1. Foundation (Blue Chips) - Safety
         # We assume known list or top matches
         blue_chips = ['BTC-USD', 'ETH-USD', 'SOL-USD', 'BNB-USD', 'XRP-USD', 'ADA-USD', 'AVAX-USD']
-        foundation_candidates = df[df['Symbol'].isin(blue_chips)].sort_values(by='Qrypt_Score', ascending=False)
+        foundation_candidates = df[df['Symbol'].isin(blue_chips)].sort_values(by='Crypash_Score', ascending=False)
         
         # Select Top 3-5 Foundation
         n_foundation = max(2, int(target_n * 0.3)) # 30% count
@@ -58,7 +58,7 @@ class QryptOptimizer:
         # Exclude already selected
         remaining = df[~df['Symbol'].isin(selected_foundation['Symbol'])]
         # Sort by Score
-        growth_candidates = remaining.sort_values(by='Qrypt_Score', ascending=False)
+        growth_candidates = remaining.sort_values(by='Crypash_Score', ascending=False)
         
         n_growth = max(3, int(target_n * 0.5)) # 50% count
         selected_growth = growth_candidates.head(n_growth)
@@ -89,7 +89,7 @@ class QryptOptimizer:
         - Growth (Core): ~30%
         - Alpha (Moon): ~20%
         
-        Within tiers, weights are distributed based on 'Qrypt_Score' (Fundamental Quality).
+        Within tiers, weights are distributed based on 'Crypash_Score' (Fundamental Quality).
         """
         if price_history_df.empty: return {}
         tickers = price_history_df.columns.tolist()
@@ -129,7 +129,7 @@ class QryptOptimizer:
                 
             # Weighting within Tier: Score Weighted
             # Higher Score = Higher Weight
-            total_score = tier_assets['Qrypt_Score'].sum()
+            total_score = tier_assets['Crypash_Score'].sum()
             
             if total_score == 0:
                 # Equal weight if no scores
@@ -139,7 +139,7 @@ class QryptOptimizer:
             else:
                 # Proportional to Score
                 for _, row in tier_assets.iterrows():
-                    share = row['Qrypt_Score'] / total_score
+                    share = row['Crypash_Score'] / total_score
                     weights[row['Symbol']] = target_pct * share
                     
         # 3. Normalize (in case some tiers were empty)

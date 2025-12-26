@@ -211,8 +211,8 @@ TRANS = {
         'risk_header': "🛡️ Risk & Volatility",
         'sector_label': "Select Narrative (Optional)",
         'lynch_label': "Select Cycle Phase (Optional)",
-        'execute_btn': "🚀 Execute Qrypt Scan",
-        'main_title': "Qrypt",
+        'execute_btn': "🚀 Execute Crypash Scan",
+        'main_title': "Crypash",
         'scan_limit': "Scan Limit",
         'results_header': "🏆 Top Coins (Cycle & On-Chain Analysis)",
         'stage1_msg': "📡 Stage 1: Fetching Universe...",
@@ -223,7 +223,7 @@ TRANS = {
         'howto_title': "📘 How to Use",
         'search_ticker': "Enter Coin Symbol (e.g. BTC-USD, ETH-USD)",
         'analyze_btn': "Analyze Coin",
-        'about_title': "ℹ️ About Qrypt",
+        'about_title': "ℹ️ About Crypash",
         'about_desc': "Professional Crypto Analysis Platform using Cycle Theory, On-Chain Metrics (MVRV), and Power Law support bands. Designed for serious investors to find high-probability setups.",
         
         'scanner_config': "🛠️ Scanner Configuration & Settings",
@@ -245,7 +245,7 @@ TRANS = {
                         "and the risk-free rate, divided by the standard deviation of its excess returns.\n\n"
                         "**Interpretation**: A ratio above 1.0 is considered acceptable to good. Higher values indicate that the excess return is a result of superior asset selection "
                         "rather than excessive volatility exposure.",
-        'gloss_Qrypt_score': "**Qrypt Score (Institutional Grade)**: A multi-factor quantitative model (0-100) assessing the fundamental integrity of a digital asset based on four core pillars:\n\n"
+        'gloss_crypash_score': "**Crypash Score (Institutional Grade)**: A multi-factor quantitative model (0-100) assessing the fundamental integrity of a digital asset based on four core pillars:\n\n"
                                "1. **Capital Adequacy & Financial Health (30%)**: Evaluation of protocol revenue generation (DeFiLlama data) and relative valuation (P/S Ratio).\n"
                                "2. **Network Dynamics & Adoption (30%)**: Quantitative analysis of on-chain activity, comparing 7-day average volume against the 30-day baseline to detect usage acceleration.\n"
                                "3. **Technological Infrastructure (20%)**: Assessment of ecosystem maturity, developer activity, and blue-chip classification (L1/L2 status).\n"
@@ -277,15 +277,15 @@ TRANS = {
         'nav_howto': "How to Use",
         
         # --- Page Headers ---
-        'scanner_header': "Qrypt Scan",
-        'scanner_subtitle': "Institutional-Grade Crypto Screener powered by Qrypt Engine.",
-        'deep_dive_title': "Qrypt Dept",
+        'scanner_header': "Crypash Scan",
+        'scanner_subtitle': "Institutional-Grade Crypto Screener powered by Crypash Engine.",
+        'deep_dive_title': "Crypash Dept",
         'deep_dive_subtitle': "Deep-tier fundamental analysis and valuation modeling.",
-        'wealth_title': "Qrypt Wealth",
+        'wealth_title': "Crypash Wealth",
         'wealth_subtitle': "Institutional-Grade Portfolio Construction using Modern Portfolio Theory (MPT).",
-        'glossary_title': "Qrypt Glossary",
+        'glossary_title': "Crypash Glossary",
         'glossary_subtitle': "Technical definitions and quantitative methodology framework.",
-        'howto_title': "Qrypt Methodology",
+        'howto_title': "Crypash Methodology",
         'howto_subtitle': "Technical framework and procedural guidelines for institutional analysis.",
         
         # --- Restored Keys --- 
@@ -381,8 +381,8 @@ TRANS = {
         'risk_header': "🛡️ ความเสี่ยง & ความผันผวน",
         'sector_label': "เลือกกลุ่มธุรกิจ (Sector)",
         'lynch_label': "เลือกวัฏจักรราคา (Cycle Phase)",
-        'execute_btn': "🚀 เริ่มการสแกน (Qrypt Scan)",
-        'main_title': "Qrypt (คริป-แอช)",
+        'execute_btn': "🚀 เริ่มการสแกน (Crypash Scan)",
+        'main_title': "Crypash (คริป-แอช)",
         'scan_limit': "จำนวนเหรียญที่จะสแกน",
         'results_header': "🏆 ผลลัพธ์การค้นหา (วิเคราะห์เชิงลึก)",
         'stage1_msg': "📡 ขั้นแรก: กำลังดึงข้อมูลตลาด...",
@@ -393,7 +393,7 @@ TRANS = {
         'howto_title': "📘 คู่มือการใช้งาน",
         'search_ticker': "พิมพ์ชื่อเหรียญ (เช่น BTC-USD, ETH-USD)",
         'analyze_btn': "วิเคราะห์เหรียญนี้",
-        'about_title': "ℹ️ เกี่ยวกับ Qrypt",
+        'about_title': "ℹ️ เกี่ยวกับ Crypash",
         'about_desc': "แพลตฟอร์มวิเคราะห์คริปโตระดับมืออาชีพ ใช้ทฤษฎีวัฏจักร (Cycle Theory) และข้อมูล On-Chain ในการหาจุดเข้าซื้อที่ได้เปรียบ",
 
         'scanner_config': "🛠️ ตั้งค่าสแกนเนอร์",
@@ -418,7 +418,7 @@ TRANS = {
         'gloss_sharpe': "**Sharpe Ratio**: มาตรวัดทางคณิตศาสตร์สำหรับประเมิน 'ผลตอบแทนที่ปรับด้วยความเสี่ยง' (Risk-Adjusted Return) "
                         "โดยคำนวณจากส่วนต่างของผลตอบแทนสินทรัพย์เทียบกับอัตราผลตอบแทนที่ปราศจากความเสี่ยง (Risk-free rate) หารด้วยค่าส่วนเบี่ยงเบนมาตรฐาน\n\n"
                         "**การตีความ**: ค่าที่สูงกว่า 1.0 บ่งชี้ถึงประสิทธิภาพในการบริหารพอร์ตโฟลิโอ โดยผลตอบแทนที่เพิ่มขึ้นไม่ได้มาจากความผันผวนที่เป็นอันตรายแต่มาจากความสามารถในการเลือกสินทรัพย์",
-        'gloss_Qrypt_score': "**Qrypt Score (Institutional Standard)**: โมเดลเชิงปริมาณ (Quantitative Model) สำหรับประเมินความแข็งแกร่งปัจจัยพื้นฐาน โดยพิจารณาจาก 4 เสาหลัก:\n\n"
+        'gloss_crypash_score': "**Crypash Score (Institutional Standard)**: โมเดลเชิงปริมาณ (Quantitative Model) สำหรับประเมินความแข็งแกร่งปัจจัยพื้นฐาน โดยพิจารณาจาก 4 เสาหลัก:\n\n"
                                "1. **Financial Health (30%)**: วิเคราะห์กระแสรายได้ของโปรโตคอล (Revenue Generation) และความสมเหตุสมผลของราคาเมื่อเทียบกับรายได้ (P/S Ratio)\n"
                                "2. **Network Dynamics (30%)**: วิเคราะห์การเติบโตของธุรกรรมบนบล็อกเชน (On-chain Activity) โดยเปรียบเทียบปริมาณธุรกรรมปัจจุบันกับค่าเฉลี่ยย้อนหลัง\n"
                                "3. **Technological Infrastructure (20%)**: ประเมินระดับความเชื่อถือของระบบนิเวศและแผนการนำไปใช้จริง (Ecosystem Maturity)\n"
@@ -464,15 +464,15 @@ TRANS = {
         'nav_glossary': "คลังคำศัพท์",
         'nav_howto': "คู่มือการใช้งาน",
         'nav_help': "คู่มือการใช้งาน", 
-        'scanner_header': "Qrypt Scan",
-        'scanner_subtitle': "สแกนเนอร์คริปโตระดับสถาบัน ขับเคลื่อนด้วยระบบ Qrypt Engine",
-        'deep_dive_title': "Qrypt Dept",
+        'scanner_header': "Crypash Scan",
+        'scanner_subtitle': "สแกนเนอร์คริปโตระดับสถาบัน ขับเคลื่อนด้วยระบบ Crypash Engine",
+        'deep_dive_title': "Crypash Dept",
         'deep_dive_subtitle': "นิเคราะห์ปัจจัยพื้นฐานเชิงลึกและการสร้างแบบจำลองมูลค่า",
-        'wealth_title': "Qrypt Wealth",
+        'wealth_title': "Crypash Wealth",
         'wealth_subtitle': "การสร้างพอร์ตโฟลิโอระดับสถาบันด้วยทฤษฎี Modern Portfolio Theory (MPT)",
-        'glossary_title': "Qrypt Glossary",
+        'glossary_title': "Crypash Glossary",
         'glossary_subtitle': "คำนิยามทางเทคนิคและกรอบระเบียบวิธีวิเคราะห์เชิงปริมาณ",
-        'howto_title': "Qrypt Methodology",
+        'howto_title': "Crypash Methodology",
         'howto_subtitle': "กรอบแนวทางทางเทคนิคและระเบียบขั้นตอนการวิเคราะห์ระดับสถาบัน",
         'footer_caption': "Professional Crypto Analytics Platform",
         'health_check_title': "🔍 On-Chain Health Check",
@@ -618,7 +618,7 @@ def fetch_defillama_fees():
 # 1. Page Configuration
 # ---------------------------------------------------------
 st.set_page_config(
-    page_title="Qrypt",
+    page_title="Crypash",
     page_icon="🪙",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -888,9 +888,9 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
             
             # --- PRO SCORE CALCULATION (Centralized Expert Engine) ---
             try:
-                # scores = calculate_Qrypt_score(ticker, hist, info=None)
+                # scores = calculate_crypash_score(ticker, hist, info=None)
                 # Fallback to empty score if calculation fails
-                scores = calculate_Qrypt_score(ticker, hist, info=None)
+                scores = calculate_crypash_score(ticker, hist, info=None)
                 total_pro_score = scores.get('total', 0)
                 analysis_str = get_grade(total_pro_score)
             except Exception as e:
@@ -899,9 +899,9 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                 analysis_str = "Error"
                 scores = {} # Empty dict
                 
-            # --- Qrypt LINE & MARGIN OF SAFETY ---
+            # --- CRYPASH LINE & MARGIN OF SAFETY ---
             try:
-                c_line_series = calculate_Qrypt_line(hist)
+                c_line_series = calculate_crypash_line(hist)
                 if not c_line_series.empty:
                     fair_value = c_line_series.iloc[-1]
                     mos = (fair_value - price) / price * 100 
@@ -917,7 +917,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                 'Symbol': ticker,
                 'Narrative': narrative,
                 'Price': price,
-                'Qrypt_Score': total_pro_score, 
+                'Crypash_Score': total_pro_score, 
                 'Pro_Rating': analysis_str,
                 'Fair_Value': fair_value,
                 'Margin_Safety': mos,
@@ -1137,7 +1137,7 @@ def page_scanner():
     with st.expander("B. Financials & Quality (The 'Good')"):
         c1, c2 = st.columns(2)
         with c1:
-            filt_score = st.slider("Qrypt Score (Min)", 0, 100, prof.get('score_min', 40), help="0-100 Quality Score based on 4 pillars.")
+            filt_score = st.slider("Crypash Score (Min)", 0, 100, prof.get('score_min', 40), help="0-100 Quality Score based on 4 pillars.")
         with c2:
             filt_vol_growth = st.slider("Vol Growth 30D (%) (Min)", -100, 500, prof.get('vol_growth_min', -100), help="Is usage growing?")
 
@@ -1175,8 +1175,8 @@ def page_scanner():
             score = 0
             checks = []
             
-            # 1. Qrypt Score
-            if row['Qrypt_Score'] >= filt_score: 
+            # 1. Crypash Score
+            if row['Crypash_Score'] >= filt_score: 
                 score += 1
                 checks.append("✅ Score")
             
@@ -1202,12 +1202,12 @@ def page_scanner():
             lambda x: pd.Series(calculate_match(x)), axis=1
         )
         
-        # Apply Qrypt Ranking (Calculates Rank_Score but we will override Sort)
-        df = calculate_Qrypt_ranking(df_results)
+        # Apply Crypash Ranking (Calculates Rank_Score but we will override Sort)
+        df = calculate_crypash_ranking(df_results)
         
-        # Sort by Scan Score DESC, then Qrypt Score DESC (Enforce Scan Priority)
+        # Sort by Scan Score DESC, then Crypash Score DESC (Enforce Scan Priority)
         if not df.empty:
-            df = df.sort_values(by=['Scan_Score', 'Qrypt_Score'], ascending=[False, False])
+            df = df.sort_values(by=['Scan_Score', 'Crypash_Score'], ascending=[False, False])
 
         st.markdown(f"### Results ({len(df)} Matches)")
         st.info("Ranking by Scan Score (Criteria Met).")
@@ -1232,8 +1232,8 @@ def page_scanner():
              return 'color: #00ccff; font-weight: bold' # Cyan
 
         # Columns to display
-        # Added Qrypt_Score, Fair_Value, Margin_Safety
-        display_cols = ['Symbol', 'Narrative', 'Scan_Score', 'Qrypt_Score', 'Pro_Rating', 'Price', 'Fair_Value', 'Margin_Safety', 'Cycle_State', '7D', '30D']
+        # Added Crypash_Score, Fair_Value, Margin_Safety
+        display_cols = ['Symbol', 'Narrative', 'Scan_Score', 'Crypash_Score', 'Pro_Rating', 'Price', 'Fair_Value', 'Margin_Safety', 'Cycle_State', '7D', '30D']
         
         st_df = df[display_cols].style.applymap(color_cycle, subset=['Cycle_State', 'Pro_Rating']) \
             .applymap(color_scan_score, subset=['Scan_Score']) \
@@ -1243,16 +1243,16 @@ def page_scanner():
                 'Margin_Safety': '{:.1f}%',
                 '7D': '{:+.1f}%',
                 '30D': '{:+.1f}%',
-                'Qrypt_Score': '{:.0f}',
+                'Crypash_Score': '{:.0f}',
                 'Scan_Score': '{:.0f}/4'   
             })
             
         st.dataframe(
             st_df,
             column_config={
-                "Qrypt_Score": st.column_config.ProgressColumn("Qrypt Score", min_value=0, max_value=100, format="%d"),
+                "Crypash_Score": st.column_config.ProgressColumn("Crypash Score", min_value=0, max_value=100, format="%d"),
                 "Margin_Safety": st.column_config.NumberColumn("Margin of Safety", help="+ve: Undervalued, -ve: Overvalued"),
-                "Fair_Value": st.column_config.NumberColumn("Wait-Wait Price", help="Intrinsic Value (Qrypt Line)"),
+                "Fair_Value": st.column_config.NumberColumn("Wait-Wait Price", help="Intrinsic Value (Crypash Line)"),
                 "MVRV_Z": st.column_config.NumberColumn("On-Chain Z", help="< 0 is Buy")
             },
             hide_index=True,
@@ -1369,11 +1369,11 @@ def calculate_cci(high, low, close, period=20):
 # PRO INTELLIGENCE SCORING (Startup Grade)
 # ---------------------------------------------------------
 # ---------------------------------------------------------
-# PRO INTELLIGENCE SCORING (Qrypt Engine)
+# PRO INTELLIGENCE SCORING (Crypash Engine)
 # ---------------------------------------------------------
-def calculate_Qrypt_score(ticker, hist, info=None):
+def calculate_crypash_score(ticker, hist, info=None):
     """
-    Qrypt SCORE A.I. (4 Pillars)
+    CRYPASH SCORE A.I. (4 Pillars)
     1. Financial Health (30%) - Revenue & Valuation
     2. Network Activity (30%) - Usage & Volume
     3. Tech & Dev (20%) - Innovation (Simulated)
@@ -1586,9 +1586,9 @@ def calculate_Qrypt_score(ticker, hist, info=None):
     return score_cards
 
 
-def calculate_Qrypt_line(hist):
+def calculate_crypash_line(hist):
     """
-    Calculates the 'Qrypt Line' (Fair Value) using a Hybrid Model.
+    Calculates the 'Crypash Line' (Fair Value) using a Hybrid Model.
     Logic:
     1. Base: Realized Price Proxy (200D SMA as a rough anchor for cost basis).
     2. Growth: Adjusted by Network Growth (Volume Trend).
@@ -1621,11 +1621,11 @@ def calculate_Qrypt_line(hist):
         
         # Fair Value = Annual Average Price * Activity Premium
         # If activity is 2x normal, Fair Value is higher.
-        Qrypt_line = ma_365 * (network_premium ** 0.5) # Square root to conservative
+        crypash_line = ma_365 * (network_premium ** 0.5) # Square root to conservative
     except:
-        Qrypt_line = ma_365
+        crypash_line = ma_365
         
-    return Qrypt_line
+    return crypash_line
 
 
 # ---------------------------------------------------------
@@ -1678,7 +1678,7 @@ def page_single_coin():
                     # Rate limit fallback
                     info_data = None
                     
-                scores = calculate_Qrypt_score(ticker, hist, info_data)
+                scores = calculate_crypash_score(ticker, hist, info_data)
                 
                 # --- SIGNAL LOGIC (Unified with Expert Score) ---
                 grade = get_grade(scores['total'])
@@ -1688,15 +1688,15 @@ def page_single_coin():
                 
                 # Signal Banner (Unified)
                 if "A" in grade: 
-                    st.success(f"### Qrypt SCORE: {grade} ({scores['total']}) 💎")
+                    st.success(f"### CRYPASH SCORE: {grade} ({scores['total']}) 💎")
                 elif "B" in grade:
-                    st.success(f"### Qrypt SCORE: {grade} ({scores['total']}) ✅")
+                    st.success(f"### CRYPASH SCORE: {grade} ({scores['total']}) ✅")
                 elif "C" in grade:
-                    st.info(f"### Qrypt SCORE: {grade} ({scores['total']}) 😐")
+                    st.info(f"### CRYPASH SCORE: {grade} ({scores['total']}) 😐")
                 elif "D" in grade: 
-                    st.warning(f"### Qrypt SCORE: {grade} ({scores['total']}) ⚠️")
+                    st.warning(f"### CRYPASH SCORE: {grade} ({scores['total']}) ⚠️")
                 else: 
-                    st.error(f"### Qrypt SCORE: {grade} ({scores['total']}) ❌")
+                    st.error(f"### CRYPASH SCORE: {grade} ({scores['total']}) ❌")
 
                 c1, c2, c3, c4 = st.columns(4)
                 c1.metric("Price", f"${current_price:,.2f}", f"{(current_price/hist['Close'].iloc[-2]-1)*100:.2f}%")
@@ -1706,7 +1706,7 @@ def page_single_coin():
 
                 # --- PRO SCORECARD (Expert Intelligence) ---
                 st.markdown("---")
-                st.subheader("🏆 Qrypt Pro Score (Expert Intelligence)")
+                st.subheader("🏆 Crypash Pro Score (Expert Intelligence)")
                 
                 # scores already calculated with info
                 
@@ -1753,17 +1753,17 @@ def page_single_coin():
                 st.markdown("---")
                 st.divider()
 
-                # 4. Qrypt Line / Fair Value Chart
-                st.subheader("🌊 Qrypt Valuation Line")
-                st.info("The Blue Line = Price. The Orange Line = Qrypt Fair Value (Based on Network Growth & Realized Price).")
+                # 4. Crypash Line / Fair Value Chart
+                st.subheader("🌊 Crypash Valuation Line")
+                st.info("The Blue Line = Price. The Orange Line = Crypash Fair Value (Based on Network Growth & Realized Price).")
                 
                 # Calculate Line
-                Qrypt_line = calculate_Qrypt_line(hist)
+                crypash_line = calculate_crypash_line(hist)
                 
                 # Create Comparison DF
                 chart_df = pd.DataFrame({
                     'Price': hist['Close'],
-                    'Qrypt Line (Fair Value)': Qrypt_line
+                    'Crypash Line (Fair Value)': crypash_line
                 }).dropna()
                 
                 # Filter to last 2 years for clarity or max? Max is good for context.
@@ -1773,7 +1773,7 @@ def page_single_coin():
                 
                 st.line_chart(chart_df, color=["#0000FF", "#FFA500"]) # Blue and Orange
                 
-                latest_fv = Qrypt_line.iloc[-1]
+                latest_fv = crypash_line.iloc[-1]
                 upside = (latest_fv - current_price) / current_price * 100
                 
                 if upside > 0:
@@ -1811,7 +1811,7 @@ def page_glossary():
     st.caption(get_text('glossary_subtitle'))
     
     terms = {
-        "Qrypt Score": get_text('gloss_Qrypt_score'),
+        "Crypash Score": get_text('gloss_crypash_score'),
         "MVRV Z-Score": get_text('gloss_mvrv'),
         "RSI (Relative Strength Index)": get_text('gloss_rsi'),
         "Cycle Risk Gauge": get_text('gloss_cycle'),
@@ -1839,16 +1839,16 @@ def page_how_to_use():
 
 
 
-def calculate_Qrypt_ranking(df):
+def calculate_crypash_ranking(df):
     """
-    Ranks the coins based on Qrypt Logic:
-    1. Filter: Qrypt Score >= 40 (Allow slightly lower than 50 to see potential)
+    Ranks the coins based on Crypash Logic:
+    1. Filter: Crypash Score >= 40 (Allow slightly lower than 50 to see potential)
     2. Rank: Weighted Average of Score (60%) and Margin of Safety (40%)
     """
     if df.empty: return df
     
     # 1. Removed Hard Filter to show ALL matches in Scanner
-    # df = df[df['Qrypt_Score'] >= 40] 
+    # df = df[df['Crypash_Score'] >= 40] 
     
     # 2. Composite Rank Score
     # Normalize Margin of Safety (Cap at +/- 100 for scoring)
@@ -1862,7 +1862,7 @@ def calculate_Qrypt_ranking(df):
     mos_score = 50 + (mos_clamped / 2)
     
     # Final Rank Score = 60% Quality + 40% Valuation
-    df['Rank_Score'] = (df['Qrypt_Score'] * 0.6) + (mos_score * 0.4)
+    df['Rank_Score'] = (df['Crypash_Score'] * 0.6) + (mos_score * 0.4)
     
     # Default Sort (Usually overridden by downstream tools)
     df = df.sort_values(by='Rank_Score', ascending=False)
@@ -1910,7 +1910,7 @@ def select_assets(risk_profile, df_ranking):
         # Pick top 3 Grade A/B coins (excluding BTC/ETH)
         candidates = df_ranking[
             (~df_ranking['Symbol'].isin(['BTC-USD', 'ETH-USD'])) & 
-            (df_ranking['Qrypt_Score'] >= 60) # Grade B+
+            (df_ranking['Crypash_Score'] >= 60) # Grade B+
         ].head(4)
         
         if not candidates.empty:
@@ -1932,7 +1932,7 @@ def select_assets(risk_profile, df_ranking):
         # Pick top 5 Grade A/B coins (High Upside preferred)
         candidates = df_ranking[
             (~df_ranking['Symbol'].isin(['BTC-USD', 'ETH-USD'])) & 
-            (df_ranking['Qrypt_Score'] >= 60)
+            (df_ranking['Crypash_Score'] >= 60)
         ].head(7)
         
         if not candidates.empty:
@@ -1949,7 +1949,7 @@ def select_assets(risk_profile, df_ranking):
 # IMPORT OPTIMIZER
 # ---------------------------------------------------------
 try:
-    from crypto_optimizer import QryptOptimizer
+    from crypto_optimizer import CrypashOptimizer
 except ImportError:
     st.error("Optimizer module not found. Please ensure crypto_optimizer.py exists.")
 
@@ -1977,7 +1977,7 @@ def page_auto_wealth():
     import importlib
     import crypto_optimizer
     importlib.reload(crypto_optimizer) # Force Reload to pick up logic changes
-    opt = QryptOptimizer(risk_profile, capital)
+    opt = CrypashOptimizer(risk_profile, capital)
     
     # Custom Asset Count Override (Now Visible)
     rec_n = opt.determine_asset_count()
@@ -2006,7 +2006,7 @@ def page_auto_wealth():
         # Score & Filter
         status.write("Calculating Multi-Factor Scores...")
         # Ensure ranking is applied
-        df_scan = calculate_Qrypt_ranking(df_scan) 
+        df_scan = calculate_crypash_ranking(df_scan) 
         
         # C. Select Universe
         df_selected = opt.select_universe(df_scan, override_n=target_n) 
@@ -2016,7 +2016,7 @@ def page_auto_wealth():
             df_selected = df_scan.head(target_n)
             
         st.write(f"**Selected Universe:** {len(df_selected)} Candidates (Top Rated)")
-        st.dataframe(df_selected[['Symbol', 'Qrypt_Score', 'Vol_30D', 'RSI', 'Tier']].head(target_n))
+        st.dataframe(df_selected[['Symbol', 'Crypash_Score', 'Vol_30D', 'RSI', 'Tier']].head(target_n))
         
         # D. Optimization (MPT)
         status.write("Running Mean-Variance Optimization (scipy)...")
@@ -2110,11 +2110,11 @@ def page_howto():
         # Module 2
         st.markdown("""
         <div class="curriculum-module">
-            <div class="module-title">Module 2: Fundamental Integrity Verification (Qrypt Dept)</div>
+            <div class="module-title">Module 2: Fundamental Integrity Verification (Crypash Dept)</div>
             <p><strong>Objective</strong>: Deep-tier fundamental analysis and valuation modeling.</p>
             <ul>
-                <li><strong>Qrypt Score Dynamics</strong>: Assets maintaining a score above 75% demonstrate strong revenue-to-valuation ratios and network health.</li>
-                <li><strong>Hybrid Valuation Modeling (Qrypt Line)</strong>:
+                <li><strong>Crypash Score Dynamics</strong>: Assets maintaining a score above 75% demonstrate strong revenue-to-valuation ratios and network health.</li>
+                <li><strong>Hybrid Valuation Modeling (Crypash Line)</strong>:
                     <ul>
                         <li>Asset Pricing: Represented by the Blue trendline.</li>
                         <li>Intrinsic Value Calculation: Represented by the Orange trendline (Derived from Network Growth and Realized Price).</li>
@@ -2132,7 +2132,7 @@ def page_howto():
             <div class="module-title">Module 3: Strategic Portfolio Management (Auto-Wealth)</div>
             <p><strong>Objective</strong>: Automated asset allocation utilizing Modern Portfolio Theory (MPT) principles.</p>
             <p>1. <strong>Risk Profile Assessment</strong>: Quantitative determination of the user's risk-adjusted return requirements.</p>
-            <p>2. <strong>Selection Algorithm</strong>: The engine harvests the top-ranked candidates from the Qrypt scoring matrix.</p>
+            <p>2. <strong>Selection Algorithm</strong>: The engine harvests the top-ranked candidates from the Crypash scoring matrix.</p>
             <p>3. <strong>Capital Allocation</strong>: Implementation of Market Capitalization Weighting to prioritize liquidity and institutional stability, reducing the impact of idiosyncratic risk.</p>
         </div>
         """, unsafe_allow_html=True)
@@ -2158,11 +2158,11 @@ def page_howto():
         # บทที่ 2
         st.markdown("""
         <div class="curriculum-module">
-            <div class="module-title">บทที่ 2: การตรวจสอบความสมบูรณ์ของปัจจัยพื้นฐาน (Qrypt Dept)</div>
+            <div class="module-title">บทที่ 2: การตรวจสอบความสมบูรณ์ของปัจจัยพื้นฐาน (Crypash Dept)</div>
             <p><strong>วัตถุประสงค์</strong>: การวิเคราะห์ปัจจัยพื้นฐานเชิงลึกและการสร้างแบบจำลองมูลค่า</p>
             <ul>
-                <li><strong>พลวัตของ Qrypt Score</strong>: สินทรัพย์ที่รักษาคะแนนเหนือ 75% บ่งชี้ถึงอัตราส่วนรายได้ต่อราคาที่ดีและสุขภาพของเครือข่ายที่แข็งแกร่ง</li>
-                <li><strong>แบบจำลองมูลค่าผสม (Qrypt Line)</strong>:
+                <li><strong>พลวัตของ Crypash Score</strong>: สินทรัพย์ที่รักษาคะแนนเหนือ 75% บ่งชี้ถึงอัตราส่วนรายได้ต่อราคาที่ดีและสุขภาพของเครือข่ายที่แข็งแกร่ง</li>
+                <li><strong>แบบจำลองมูลค่าผสม (Crypash Line)</strong>:
                     <ul>
                         <li>ราคาตลาด: แสดงโดยเส้นแนวโน้มสีน้ำเงิน</li>
                         <li>การคำนวณมูลค่าที่เหมาะสม (Intrinsic Value): แสดงโดยเส้นแนวโน้มสีส้ม (คำนวณจากการเติบโตของเครือข่ายและราคาต้นทุนจริง)</li>
@@ -2180,13 +2180,13 @@ def page_howto():
             <div class="module-title">บทที่ 3: การบริหารพอร์ตโฟลิโอเชิงกลยุทธ์ (Auto-Wealth)</div>
             <p><strong>วัตถุประสงค์</strong>: การจัดสรรสินทรัพย์โดยอัตโนมัติโดยใช้หลักการ Modern Portfolio Theory (MPT)</p>
             <p>1. <strong>การประเมินระดับความเสี่ยง</strong>: การกำหนดเชิงปริมาณของความคุ้มค่าของผลตอบแทนต่อความเสี่ยงของผู้ใช้</p>
-            <p>2. <strong>อัลกอริทึมการคัดเลือก</strong>: ระบบจะคัดเลือกสินทรัพย์ที่มีอันดับสูงสุดจากเมทริกซ์การให้คะแนนของ Qrypt</p>
+            <p>2. <strong>อัลกอริทึมการคัดเลือก</strong>: ระบบจะคัดเลือกสินทรัพย์ที่มีอันดับสูงสุดจากเมทริกซ์การให้คะแนนของ Crypash</p>
             <p>3. <strong>การจัดสรรเงินทุน</strong>: การใช้ Market Capitalization Weighting เพื่อให้ความสำคัญกับสภาพคล่องและความเสถียรระดับสถาบัน เพื่อลดผลกระทบจากความเสี่ยงเฉพาะตัว (Idiosyncratic Risk)</p>
         </div>
         """, unsafe_allow_html=True)
 
     st.divider()
-    st.caption("Institutional Grade Methodology | © 2025 Qrypt Quantitative Research")
+    st.caption("Institutional Grade Methodology | © 2025 Crypash Quantitative Research")
 
 # ---------------------------------------------------------
 if __name__ == "__main__":
