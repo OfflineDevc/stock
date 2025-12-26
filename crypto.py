@@ -102,9 +102,9 @@ def inject_custom_css():
         }
 
         @keyframes pulseGlow {
-            0% { box-shadow: 0 0 5px rgba(0, 51, 102, 0.2); }
-            50% { box-shadow: 0 0 15px rgba(0, 51, 102, 0.5); }
-            100% { box-shadow: 0 0 5px rgba(0, 51, 102, 0.2); }
+            0% { box-shadow: 0 0 5px rgba(212, 175, 55, 0.2); }
+            50% { box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); }
+            100% { box-shadow: 0 0 5px rgba(212, 175, 55, 0.2); }
         }
 
         /* Apply Page Transition to the main content area */
@@ -134,7 +134,7 @@ def inject_custom_css():
             gap: 0px; /* Remove gap between tabs */
             background-color: transparent; 
             padding: 0px;
-            border-bottom: 2px solid #003366;
+            border-bottom: 2px solid #D4AF37;
         }
 
         .stTabs [data-baseweb="tab"] {
@@ -144,7 +144,7 @@ def inject_custom_css():
             background-color: #f8f9fa; /* Light gray for unselected */
             transition: all 0.3s ease;
             border-radius: 0px; /* No corners */
-            color: #003366; 
+            color: #D4AF37; 
             font-weight: 600;
             border: none; /* Clean Look */
             display: flex;
@@ -154,11 +154,11 @@ def inject_custom_css():
 
         .stTabs [data-baseweb="tab"]:hover {
             background-color: #e9ecef;
-            color: #002244;
+            color: #B8860B;
         }
 
         .stTabs [aria-selected="true"] {
-            background-color: #003366 !important; /* Active Blue */
+            background-color: #D4AF37 !important; /* Active Gold */
             color: #ffffff !important;
             font-weight: 700;
             transform: scale(1.02);
@@ -168,13 +168,13 @@ def inject_custom_css():
         /* Metrics & Buttons */
         div[data-testid="stMetricValue"] {
             font-size: 1.4rem !important;
-            color: #003366;
+            color: #D4AF37;
             animation: fadeInSlideUp 1s ease-out;
         }
         
-        /* Primary Button Blue */
+        /* Primary Button Gold */
         div.stButton > button:first-child {
-            background-color: #003366;
+            background-color: #D4AF37;
             color: white;
             border-radius: 8px;
             border: none;
@@ -183,10 +183,10 @@ def inject_custom_css():
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         div.stButton > button:first-child:hover {
-            background-color: #002244;
+            background-color: #B8860B;
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0, 51, 102, 0.3);
+            box-shadow: 0 6px 15px rgba(212, 175, 55, 0.3);
             animation: pulseGlow 2s infinite;
         }
         div.stButton > button:first-child:active {
@@ -1928,7 +1928,7 @@ def page_single_coin():
                 if len(chart_df) > 1000:
                     chart_df = chart_df.tail(1000)
                 
-                st.line_chart(chart_df, color=["#0000FF", "#FFA500"]) # Blue and Orange
+                st.line_chart(chart_df, color=["#0000FF", "#D4AF37"]) # Blue and Gold
                 
                 latest_fv = Bitnow_line.iloc[-1]
                 upside = (latest_fv - current_price) / current_price * 100
@@ -2261,7 +2261,7 @@ def page_howto():
         color: #1a1a1a;
         font-weight: 700;
         font-size: 1.25rem;
-        border-bottom: 2px solid #00ccff;
+        border-bottom: 2px solid #D4AF37;
         padding-bottom: 8px;
         margin-bottom: 16px;
     }
@@ -2379,9 +2379,10 @@ if __name__ == "__main__":
         pass # Widget triggers rerun, so we read it below or use key
         
     # --- BRANDING & LANGUAGE SELECTOR (Top Header) ---
-    c_brand_a, c_brand_b, c_brand_c = st.columns([2, 12, 6]) 
+    c_brand_a, c_brand_b, c_brand_c = st.columns([0.1, 14, 6]) 
     with c_brand_a:
-         st.image("logo.png", width=45) # Visible Logo
+         # st.image("logo.png", width=45) # Logo Removed
+         pass
     
     with c_brand_c:
          st.selectbox("Lang", ["English (EN)", "ภาษาไทย (TH)"], key='lang_choice_key', label_visibility="collapsed")
