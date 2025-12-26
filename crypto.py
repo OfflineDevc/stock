@@ -321,6 +321,14 @@ TRANS = {
                            "- **Yield Basis**: Often the safest way to earn yield through Lending or LPing on stable pairs.\n"
                            "- **Primary Examples**: Tether (USDT), Circle (USDC), DAI, Ethena (USDe).",
         
+        'cat_alt_title': "Altcoins - The Diversification Layer",
+        'cat_alt_desc': "**Altcoins** (Alternative Coins) refer to any cryptocurrency other than Bitcoin. This broad category includes everything from major smart contract platforms to tiny experimental tokens.\n\n"
+                        "**Deep Dive Analysis**:\n"
+                        "- **Market Correlation**: Altcoins typically have a high positive correlation with Bitcoin but with higher volatility (higher Beta). During 'Altseason', Altcoins often outperform Bitcoin significantly.\n"
+                        "- **The Innovation Lab**: Alts are where the most radical experiments happen—new consensus models, privacy features, and complex financial instruments.\n"
+                        "- **Risk Strategy**: Investors use Altcoins to find 'Alpha' (excess return). While Bitcoin is 'Digital Gold' for capital preservation, Altcoins are 'Growth Tech' for capital appreciation.\n"
+                        "- **Cycle Dynamics**: Funds typically flow from Bitcoin -> Ethereum -> Large Cap Alts -> Mid/Small Cap Alts. Tracking this rotation is the key to timing market exits.",
+        
         # New How To (EN)
         'howto_step1': "1. **Scan**: Use 'Crypto Scanner' to find coins with High Scores (>70) and Low Risk.",
         'howto_step2': "2. **Analyze**: Check 'Deep Dive' to see if whales are buying (Volume Growth).",
@@ -562,6 +570,14 @@ TRANS = {
                            "- **บทบาทในระบบ**: เป็นสกุลเงินหลักที่ใช้เทรดทุกเหรียญในโลก เป็นดัชนีวัดปริมาณเงินในระบบคริปโต (Stablecoin Inflow = ตลาดกระทิงกำลังมา)\n"
                            "- **การสร้างกระแสเงินสด**: เป็นวิธีที่ปลอดภัยที่สุดในการหา Yield ผ่านการเป็นผู้ให้สภาพคล่องในคู่เหรียญที่ราคาคงที่\n"
                            "- **ตัวอย่าง**: Tether (USDT), Circle (USDC), DAI, USDe",
+        
+        'cat_alt_title': "อัลคอยน์ (Altcoins) - เลเยอร์แห่งการกระจายการลงทุน",
+        'cat_alt_desc': "**Altcoins** (Alternative Coins) คือชื่อเรียกเหรียญคริปโตเคอร์เรนซีทุกชนิดที่ไม่ใช่ Bitcoin หมวดหมู่นี้ครอบคลุมตั้งแต่โปรเจกต์ระดับโลกไปจนถึงเหรียญทดลองคริปโตใหม่ๆ\n\n"
+                        "**การวิเคราะห์เชิงลึก (Deep Dive)**:\n"
+                        "- **ความสัมพันธ์กับตลาด**: ปกติแล้ว Altcoins จะวิ่งตาม Bitcoin แต่จะมีความผันผวนที่สูงกว่ามาก (High Beta) ในช่วง 'Altseason' เหรียญกลุ่มนี้มักจะสร้างผลตอบแทนได้ดีกว่า Bitcoin หลายเท่าตัว\n"
+                        "- **ห้องทดลองนวัตกรรม**: Altcoins คือพื้นที่สำหรับนวัตกรรมที่ล้ำหน้าที่สุด เช่น ระบบการปกครองแบบ DAO, กลไกความเป็นส่วนตัวขั้นสูง และตราสารทางการเงินซับซ้อน\n"
+                        "- **กลยุทธ์ความเสี่ยง**: นักลงทุนใช้ Altcoins เพื่อหา 'Alpha' (ผลตอบแทนส่วนเกิน) หาก Bitcoin คือทองคำเพื่อรักษาความมั่งคั่ง Altcoins ก็คือหุ้นเทคโนโลยีเติบโตสูงเพื่อเพิ่มความมั่งคั่ง\n"
+                        "- **วัฏจักรการไหลของเงิน**: เงินมักจะไหลจาก Bitcoin -> Ethereum -> เหรียญ Alts ขนาดใหญ่ -> เหรียญขนาดกลาง/เล็ก การจับจังหวะการหมุนเวียนนี้คือหัวใจของการทำกำไร",
 
         'ui_capital': "เงินทุนเริ่มต้น (USD)",
         'ui_risk': "ความเสี่ยงที่รับได้",
@@ -1841,6 +1857,19 @@ def page_single_coin():
 
                 # --- PRO SCORECARD (Expert Intelligence) ---
                 st.markdown("---")
+                
+                # NEW: Coin Summary / Description
+                if info_data and (info_data.get('description') or info_data.get('longBusinessSummary')):
+                    with st.expander(f"📖 {ticker} Project Wisdom & Highlights", expanded=True):
+                        desc = info_data.get('description') or info_data.get('longBusinessSummary')
+                        # Auto-translate if TH
+                        if st.session_state.get('lang') == 'TH':
+                            with st.spinner("Translating Project Wisdom..."):
+                                desc_th = translate_text(desc, target_lang='th')
+                                st.markdown(desc_th)
+                        else:
+                            st.markdown(desc)
+                        
                 st.subheader("🏆 Bitnow Pro Score (Expert Intelligence)")
                 
                 # scores already calculated with info
@@ -1971,6 +2000,7 @@ def page_glossary():
             (get_text('cat_gamefi_title'), get_text('cat_gamefi_desc')),
             (get_text('cat_ai_title'), get_text('cat_ai_desc')),
             (get_text('cat_meme_title'), get_text('cat_meme_desc')),
+            (get_text('cat_alt_title'), get_text('cat_alt_desc')),
             (get_text('cat_stable_title'), get_text('cat_stable_desc')),
         ]
         
