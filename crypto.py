@@ -265,7 +265,7 @@ TRANS = {
         'scanner_header': "Crypash Scan",
         'deep_dive_title': "Crypash Dept",
         
-        # --- Restored Keys ---
+        # --- Restored Keys --- 
         'tab_holdings': "📋 Holdings",
         'tab_alloc': "🍕 Allocation",
         'tab_logic': "⚖️ Weighting Logic",
