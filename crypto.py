@@ -1277,9 +1277,8 @@ def page_scanner():
         # Added Crypash_Score, Fair_Value, Margin_Safety
         display_cols = ['Symbol', 'Narrative', 'Scan_Score', 'Crypash_Score', 'Pro_Rating', 'Price', 'Fair_Value', 'Margin_Safety', 'Cycle_State', '7D', '30D']
         
-        st.dataframe(
-            df[display_cols].style.applymap(color_cycle, subset=['Cycle_State', 'Pro_Rating'])
-            .applymap(color_scan_score, subset=['Scan_Score'])
+        st_df = df[display_cols].style.applymap(color_cycle, subset=['Cycle_State', 'Pro_Rating']) \
+            .applymap(color_scan_score, subset=['Scan_Score']) \
             .format({
                 'Price': '${:,.2f}',
                 'Fair_Value': '${:,.2f}',
@@ -1288,7 +1287,10 @@ def page_scanner():
                 '30D': '{:+.1f}%',
                 'Crypash_Score': '{:.0f}',
                 'Scan_Score': '{:.0f}/4'   
-            }),
+            })
+            
+        st.dataframe(
+            st_df,
             column_config={
                 "Crypash_Score": st.column_config.ProgressColumn("Crypash Score", min_value=0, max_value=100, format="%d"),
                 "Margin_Safety": st.column_config.NumberColumn("Margin of Safety", help="+ve: Undervalued, -ve: Overvalued"),
