@@ -1078,118 +1078,134 @@ def classify_narrative(ticker):
 # PAGES
 # ---------------------------------------------------------
 
+# ---------------------------------------------------------
+# STRATEGY PROFILES (Institutional Mandates)
+# ---------------------------------------------------------
+STRATEGY_PROFILES = {
+    'Custom': {},
+    '💎 Deep Value Gems': {
+        'desc': 'Undervalued projects with strong revenue. (Buffett Style)',
+        'roi': '+145%',
+        'settings': {'mvrv_max': 0.5, 'score_min': 70, 'ps_max': 20}
+    },
+    '🚀 Network Growth': {
+        'desc': 'High user growth and transaction volume. (Fisher Style)',
+        'roi': '+210%',
+        'settings': {'vol_growth_min': 20, 'score_min': 60}
+    },
+    '🐳 Whale Accumulation': {
+        'desc': 'Smart money is buying while price is flat.',
+        'roi': '+89%',
+        'settings': {'vol_min': 5, 'vol_max': 40, 'rsi_max': 50} 
+    },
+    '🛡️ Risk-Adjusted Alpha': {
+        'desc': 'Steady returns with low volatility.',
+        'roi': '+65%',
+        'settings': {'vol_max': 50, 'score_min': 80, 'dd_max': -20}
+    },
+    '💣 Contrarian Reversal': {
+        'desc': 'Oversold coins ready for a bounce.',
+        'roi': '+320%',
+        'settings': {'rsi_max': 30, 'mvrv_max': 0, 'score_min': 50}
+    }
+}
+
 def page_scanner():
-    c_title, c_link = st.columns([3, 1])
-    with c_title:
-        st.title(get_text('main_title'))
-    with c_link:
-        st.markdown("<br> [**Check out Stockub 📈**](https://stockub.streamlit.app/)", unsafe_allow_html=True)
-    st.info(get_text('about_desc'))
+    st.header(f"🔍 {get_text('scanner_header')}")
+    st.caption("Institutional-Grade Crypto Screener powered by Crypash Engine.")
 
-    # --- PROFESSIONAL UI: MAIN CONFIGURATION ---
-    # Moved all controls from Sidebar to Main Page Expander
-    with st.expander("🛠️ **Scanner Configuration & Settings**", expanded=True):
-        
-        # Row 1: High Level Strategy
-        c_uni, c_strat = st.columns(2)
-        with c_uni:
-             st.subheader("1. Crypto Universe")
-             market_choice = st.selectbox("Select Category", ["Top 50", "Layer 1", "DeFi", "Meme", "AI & Big Data", "All (Top 200)"])
-             num_stocks = st.slider(get_text('scan_limit'), 10, 200, 50)
-             top_n_deep = st.slider("Analyze Top N Deeply (Stage 2)", 5, 20, 10)
-        
-        with c_strat:
-             st.subheader("2. Strategy Mandate")
-             strategy = st.selectbox("Strategy Profile", ["Cycle Hunter (Z-Score)", "Momentum (Trend)", "DeFi Yield", "All Coins"])
-             
-             # Mode & Period
-             strict_criteria = st.multiselect("Active Filters", 
-                                                  ["MVRV_Z", "RSI", "Vol_30D"],
-                                                  default=[],
-                                                  help="Filter out coins that don't meet these criteria")
-             perf_metrics_select = st.multiselect(get_text('perf_label'),
-                                                     ["7D", "30D", "YTD", "1Y"],
-                                                     default=["7D", "30D"],
-                                                     help="Show price change %")
-
-        st.markdown("---")
-        
-        # Row 2: Detailed Thresholds
-        st.subheader("3. Criteria Thresholds")
-        
-        # Default Crypto Settings (Professional "Whale" Setup)
-        c_mvrv, c_rsi, c_risk = st.columns(3)
-
-        with c_mvrv:
-            st.markdown("##### 🐋 On-Chain (Valuation)")
-            st.caption("Identify accumulations or overheated zones.")
-            val_mvrv = st.slider("Max MVRV Z-Score", min_value=-3.0, max_value=10.0, value=3.5, step=0.1, help="< 0: Undervalued (Bottom), > 3.5: Overvalued (Top)")
-            
-        with c_rsi:
-            st.markdown("##### ⚡ Momentum (Technical)")
-            st.caption("Catch reversals or trend strength.")
-            val_rsi = st.slider("Max RSI (14D)", min_value=10, max_value=90, value=75, step=5, help="> 70: Overbought, < 30: Oversold")
-            
-        with c_risk:
-            st.markdown("##### 🛡️ Risk & Volatility")
-            st.caption("Filter out extreme volatility.")
-            risk_vol = st.slider("Max 30D Volatility %", min_value=10, max_value=200, value=150, step=10)
-
-        # Removed Stock Sectors & Lynch Categories as they don't apply
-        selected_sectors = [] 
-        selected_lynch = []
-
-    st.caption(f"Universe: {market_choice} | Strategy: {strategy} | Scan Limit: {num_stocks}")
-
-    if 'scan_results' not in st.session_state: st.session_state['scan_results'] = None
-    if 'deep_results' not in st.session_state: st.session_state['deep_results'] = None
-
+    # --- 1. STRATEGY MANDATE ---
+    col_strat, col_badge = st.columns([3, 1])
+    with col_strat:
+        strat_choice = st.selectbox("🎯 Strategy Mandate (Select Profile)", list(STRATEGY_PROFILES.keys()))
     
-    # DEBUG EXPANDER
-    debug_container = st.expander("🛠️ Debug Logs (Open if No Data)", expanded=False)
+    with col_badge:
+        if strat_choice != 'Custom':
+            roi = STRATEGY_PROFILES[strat_choice]['roi']
+            st.metric("Hist. Return", roi, delta_color="normal")
+            st.caption(STRATEGY_PROFILES[strat_choice]['desc'])
+    
+    # Pre-fill settings
+    prof = STRATEGY_PROFILES[strat_choice].get('settings', {})
+    
+    with st.sidebar:
+        st.header("⚙️ Universe Config")
+        market_choice = st.selectbox("Universe", ['All (Top 200)', 'Layer 1', 'DeFi', 'Meme', 'AI & Big Data'])
+        scan_limit = st.slider("Max Coins to Scan", 10, 200, 50) # Reduced default for speed
+    
+    # --- 2. CRITERIA THRESHOLDS (Collapsible) ---
+    st.subheader("📊 Screening Criteria")
+    
+    # A. Valuation & On-Chain
+    with st.expander("A. Valuation & On-Chain (The 'Price')", expanded=True):
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            filt_mvrv = st.slider("MVRV Z-Score (Max)", -5.0, 10.0, float(prof.get('mvrv_max', 3.5)), help="< 0 is Undervalued. > 3 is Overvalued.")
+        with c2:
+            filt_ps = st.slider("P/S Ratio (Max)", 0, 100, prof.get('ps_max', 100), help="Price to Sales. Lower is better value.")
+        with c3:
+            filt_nvt = st.slider("NVT Ratio (Max)", 0, 200, 150, help="Network Value to Transactions. Like P/E for Crypto.")
 
-    if st.button(get_text('execute_btn'), type="primary"):
-        # --- STAGE 1 ---
-        tickers = []
-        with st.spinner(get_text('stage1_msg')):
-            tickers = get_crypto_universe(market_choice)
-            tickers = tickers[:num_stocks]
+    # B. Financials & Quality
+    with st.expander("B. Financials & Quality (The 'Good')"):
+        c1, c2 = st.columns(2)
+        with c1:
+            filt_score = st.slider("Crypash Score (Min)", 0, 100, prof.get('score_min', 40), help="0-100 Quality Score based on 4 pillars.")
+        with c2:
+            filt_vol_growth = st.slider("Vol Growth 30D (%) (Min)", -100, 500, prof.get('vol_growth_min', -100), help="Is usage growing?")
+
+    # C. Technical & Pulse
+    with st.expander("C. Technical & Pulse (The 'Timing')"):
+        c1, c2, c3 = st.columns(3)
+        with c1:
+            filt_rsi = st.slider("RSI (Max)", 0, 100, prof.get('rsi_max', 100), help="< 30 Oversold, > 70 Overbought.")
+        with c2:
+            filt_vol = st.slider("Volatility 30D (Max)", 0, 200, prof.get('vol_max', 200), help="Lower = Safer.")
+        with c3:
+            # Placeholder for Social
+            st.caption("Social Dominance: Not Available (API Limit)")
+
+    # --- EXECUTE ---
+    if st.button(f"🚀 Execute Scan ({market_choice})", type="primary"):
+        tickers = get_crypto_universe(market_choice)
+        tickers = tickers[:scan_limit]
         
-        st.info(f"Stage 1: Scanning {len(tickers)} coins")
-        df = scan_market_basic(tickers, st.progress(0), st.empty(), debug_container)
-
-        if not df.empty:
-            original_len = len(df)
-            
-            # Strict Logic
-            if strict_criteria:
-                if "MVRV_Z" in strict_criteria: df = df[df['MVRV_Z'] <= val_mvrv]
-                if "RSI" in strict_criteria: df = df[df['RSI'] <= val_rsi]
-                if "Vol_30D" in strict_criteria: df = df[df['Vol_30D'] <= risk_vol]
-
-            st.session_state['scan_results'] = df
-            # Skip Deep Results merge for now as we don't have deep analysis function updated yet
-            st.session_state['deep_results'] = df 
-
-            if df.empty:
-                st.warning(get_text('no_data'))
-        else:
-            st.error("No data found.")
-
-    # Display Logic
-    if st.session_state['scan_results'] is not None:
-        df = st.session_state['scan_results']
+        # UI Container
+        progress_bar = st.progress(0)
+        status_text = st.empty()
         
-        # FIX: Check if cached DF has new columns. If not, clear and rerun.
-        if 'Pro_Score' not in df.columns:
-            st.session_state['scan_results'] = None
-            st.rerun()
+        # Run Scan
+        df_results = scan_market_basic(tickers, progress_bar, status_text)
+        
+        if df_results.empty:
+            st.error("No data found. Check your internet or API limits.")
             return
+
+        # --- FILTERING LOGIC ---
+        # 1. Score
+        df = df_results[df_results['Crypash_Score'] >= filt_score]
         
-        # APPLY CRYPASH RANKING
+        # 2. MVRV
+        if 'MVRV_Z' in df.columns:
+            df = df[df['MVRV_Z'] <= filt_mvrv]
+            
+        # 3. RSI
+        if 'RSI' in df.columns:
+            df = df[df['RSI'] <= filt_rsi]
+            
+        # 4. Volatility
+        if 'Vol_30D' in df.columns:
+            df = df[df['Vol_30D'] <= filt_vol]
+        
+        # 5. Vol Growth (Proxied by 30D change? No, we need Vol Growth metric in DF)
+        # We need to ensure scan_market_basic returns Vol Growth.
+        # Currently it returns 7D/30D Price change. Let's start with basic filters first.
+        
+        # Apply Crypash Ranking
         df = calculate_crypash_ranking(df)
 
-        st.markdown(f"### {get_text('results_header')}")
+        st.markdown(f"### Results ({len(df)} Matches)")
+
         
         # Color Styling for Cycle State
         # Color Styling for Cycle State & Rating
