@@ -1968,6 +1968,9 @@ def page_auto_wealth():
             st.session_state.risk_profile = risk_profile
 
     # Initialize Optimizer (Early Init for UI)
+    import importlib
+    import crypto_optimizer
+    importlib.reload(crypto_optimizer) # Force Reload to pick up logic changes
     opt = CrypashOptimizer(risk_profile, capital)
     
     # Custom Asset Count Override (Now Visible)
