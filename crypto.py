@@ -1823,11 +1823,14 @@ def page_single_coin():
                 risk_score = calculate_cycle_risk(current_price, ath)
                 
                 # --- PRO INTELLIGENCE (Signal Source) ---
-                try:
-                    info_data = stock.info
-                except:
-                    # Rate limit fallback
-                    info_data = None
+                # Use cached info for reliability and performance
+                info_data = fetch_cached_info(ticker)
+                if not info_data:
+                     # One more try if cache failed
+                     try:
+                         info_data = stock.info
+                     except:
+                         info_data = {}
                     
                 scores = calculate_Bitnow_score(ticker, hist, info_data)
                 
@@ -1859,16 +1862,39 @@ def page_single_coin():
                 st.markdown("---")
                 
                 # NEW: Coin Summary / Description
-                if info_data and (info_data.get('description') or info_data.get('longBusinessSummary')):
+                desc = None
+                if info_data:
+                    desc = info_data.get('description') or info_data.get('longBusinessSummary')
+                
+                if desc and len(str(desc).strip()) > 10:
                     with st.expander(f"📖 {ticker} Project Wisdom & Highlights", expanded=True):
-                        desc = info_data.get('description') or info_data.get('longBusinessSummary')
                         # Auto-translate if TH
                         if st.session_state.get('lang') == 'TH':
                             with st.spinner("Translating Project Wisdom..."):
-                                desc_th = translate_text(desc, target_lang='th')
+                                desc_th = translate_text(str(desc), target_lang='th')
                                 st.markdown(desc_th)
                         else:
                             st.markdown(desc)
+                else:
+                    # Fallback for TOP coins if info fails
+                    if ticker == "BTC-USD":
+                        with st.expander(f"📖 {ticker} Project Wisdom & Highlights", expanded=True):
+                            st.write("Bitcoin is a decentralized digital currency, without a central bank or single administrator, that can be sent from user to user on the peer-to-peer bitcoin network without the need for intermediaries.")
+                    elif ticker == "ETH-USD":
+                         with st.expander(f"📖 {ticker} Project Wisdom & Highlights", expanded=True):
+                            st.write("Ethereum is a decentralized, open-source blockchain with smart contract functionality. Ether is the native cryptocurrency of the platform.")
+                    elif ticker == "SOL-USD":
+                         with st.expander(f"📖 {ticker} Project Wisdom & Highlights", expanded=True):
+                            st.write("Solana is a high-performance blockchain supporting builders around the world creating crypto apps that scale today.")
+                    elif ticker == "XRP-USD":
+                         with st.expander(f"📖 {ticker} Project Wisdom & Highlights", expanded=True):
+                            st.write("XRP is a digital asset built for payments. It is the native digital asset on the XRP Ledger—an open-source, permissionless and decentralized blockchain technology.")
+                    elif ticker == "ADA-USD":
+                         with st.expander(f"📖 {ticker} Project Wisdom & Highlights", expanded=True):
+                            st.write("Cardano is a proof-of-stake blockchain platform: the first to be founded on peer-reviewed research and developed through evidence-based methods.")
+                    elif ticker == "DOGE-USD":
+                         with st.expander(f"📖 {ticker} Project Wisdom & Highlights", expanded=True):
+                            st.write("Dogecoin is an open source peer-to-peer digital currency, favored by Shiba Inus worldwide.")
                         
                 st.subheader("🏆 Bitnow Pro Score (Expert Intelligence)")
                 
