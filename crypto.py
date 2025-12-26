@@ -1784,6 +1784,211 @@ def calculate_crypash_ranking(df):
     return df
 
 
+    # Sort
+    df = df.sort_values(by='Rank_Score', ascending=False)
+    
+    return df
+
+# ---------------------------------------------------------
+# AUTO-WEALTH ROBO ADVISOR ENGINE
+# ---------------------------------------------------------
+def calculate_risk_profile(answers):
+    """
+    Determines Risk Profile based on score (0-10).
+    Input: answers = {'horizon': int, 'drawdown': int, 'income': int}
+    """
+    score = sum(answers.values())
+    
+    if score <= 4: return "Conservative"
+    if score <= 7: return "Moderate"
+    return "Aggressive"
+
+def select_assets(risk_profile, df_ranking):
+    """
+    Allocates portfolio based on Risk Profile.
+    Returns: Dict of {Ticker: Weight%}
+    """
+    allocation = {}
+    
+    # 1. Define Strategy
+    if risk_profile == "Conservative":
+        # Strategy: The Shield (60% Stable, 30% BTC, 10% ETH)
+        allocation = {
+            'USDC': 0.60,
+            'BTC-USD': 0.30,
+            'ETH-USD': 0.10
+        }
+        
+    elif risk_profile == "Moderate":
+        # Strategy: The Balance (20% Stable, 40% Majors, 40% Picks)
+        allocation = {
+            'USDC': 0.20,
+            'BTC-USD': 0.25,
+            'ETH-USD': 0.15
+        }
+        
+        # Pick top 3 Grade A/B coins (excluding BTC/ETH)
+        candidates = df_ranking[
+            (~df_ranking['Symbol'].isin(['BTC-USD', 'ETH-USD'])) & 
+            (df_ranking['Crypash_Score'] >= 60) # Grade B+
+        ].head(4)
+        
+        if not candidates.empty:
+            weight_per_pick = 0.40 / len(candidates)
+            for _, row in candidates.iterrows():
+                allocation[row['Symbol']] = weight_per_pick
+        else:
+            # Fallback if no good alts
+            allocation['BTC-USD'] += 0.20
+            allocation['ETH-USD'] += 0.20
+
+    elif risk_profile == "Aggressive":
+        # Strategy: The Growth (0% Stable, 30% Majors, 70% Growth)
+        allocation = {
+            'BTC-USD': 0.20,
+            'ETH-USD': 0.10
+        }
+        
+        # Pick top 5 Grade A/B coins (High Upside preferred)
+        candidates = df_ranking[
+            (~df_ranking['Symbol'].isin(['BTC-USD', 'ETH-USD'])) & 
+            (df_ranking['Crypash_Score'] >= 60)
+        ].head(7)
+        
+        if not candidates.empty:
+            weight_per_pick = 0.70 / len(candidates)
+            for _, row in candidates.iterrows():
+                allocation[row['Symbol']] = weight_per_pick
+        else:
+             allocation['BTC-USD'] += 0.40
+             allocation['ETH-USD'] += 0.30
+             
+    return allocation
+
+    return allocation
+
+def page_auto_wealth():
+    st.title("🤖 Crypash Auto-Wealth (Beta)")
+    st.info("Automated Portfolio Management based on your Risk Profile. Uses Crypash Ranking to pick the best assets.")
+    
+    # Session State for Profile
+    if 'risk_profile' not in st.session_state:
+        st.session_state.risk_profile = None
+        
+    # --- STEP 1: RISK ASSESSMENT ---
+    if not st.session_state.risk_profile:
+        st.subheader("Step 1: Determine Your Risk Profile")
+        with st.form("risk_form"):
+            q1 = st.selectbox("1. Time Horizon: How long do you plan to hold?", 
+                             ("Less than 1 year (Short Term)", "1-3 Years (Medium Term)", "3+ Years (Long Term)"))
+            
+            q2 = st.selectbox("2. Drawdown Tolerance: How much drop can you handle?", 
+                             ("-10% (I panic easily)", "-30% (Uncomfortable)", "-50%+ (Diamond Hands)"))
+            
+            q3 = st.selectbox("3. Income Stability: How stable is your main income?", 
+                             ("Unstable / Student", "Stable Job", "High Net Worth / Retired"))
+            
+            submit = st.form_submit_button("Calculate Profile")
+            
+            if submit:
+                # Score Logic
+                score = 0
+                if "1-3" in q1: score += 2
+                elif "3+" in q1: score += 3
+                else: score += 1
+                
+                if "-30%" in q2: score += 2
+                elif "-50%" in q2: score += 3
+                else: score += 1
+                
+                if "Stable" in q3: score += 2
+                elif "High" in q3: score += 3
+                else: score += 1
+                
+                # Determine Profile
+                profile = calculate_risk_profile({'h': score}) # Hacky mapping, logic is sum based
+                # Re-do logic properly:
+                # Max score = 3+3+3 = 9. Min = 3.
+                # < 5: Conservative. 5-7: Moderate. > 7: Aggressive.
+                if score <= 4: profile = "Conservative"
+                elif score <= 7: profile = "Moderate"
+                else: profile = "Aggressive"
+                
+                st.session_state.risk_profile = profile
+                st.rerun()
+                
+    # --- STEP 2: PORTFOLIO GENERATION ---
+    else:
+        profile = st.session_state.risk_profile
+        st.success(f"### Your Risk Profile: {profile}")
+        
+        col_res, col_act = st.columns([3, 1])
+        with col_act:
+            if st.button("Retake Quiz"):
+                st.session_state.risk_profile = None
+                st.rerun()
+        
+        # Fetch Ranking Data (Using Cache if possible, but here we run scan for fresh data)
+        # In prod, this should be cached. For now, we simulate or fetch.
+        st.spinner("Analyzing Market for Top Picks...")
+        
+        # We need the DF. Let's borrow scan_market_basic logic or assume we have it.
+        # Ideally, we should have a `get_market_data()` function separate from `scan`.
+        # For now, we will use a cached check or run a quick scan of top 20 assets.
+        
+        # Quick Scan List
+        top_tickers = ["BTC-USD", "ETH-USD", "SOL-USD", "BNB-USD", "XRP-USD", "ADA-USD", "AVAX-USD", "DOGE-USD", "DOT-USD", "LINK-USD", "UNI-USD", "MATIC-USD", "LTC-USD", "ATOM-USD", "NEAR-USD"]
+        
+        # Placeholder for data
+        with st.spinner("Running Crypash Engine..."):
+            # Reuse scan logic (simplified)
+            import yfinance as yf
+            data = yf.download(top_tickers, period="1y", group_by='ticker', threads=True)
+            
+            rows = []
+            for t in top_tickers:
+                try: 
+                    h = data[t]
+                    if h.empty: continue
+                    score_obj = calculate_crypash_score(t, h)
+                    
+                    # Margin of safety (Rough)
+                    price = h['Close'].iloc[-1]
+                    fv = calculate_crypash_line(h).iloc[-1]
+                    mos = (fv - price)/price*100
+                    
+                    rows.append({
+                        'Symbol': t,
+                        'Crypash_Score': score_obj['total'],
+                        'Margin_Safety': mos
+                    })
+                except: pass
+            
+            df_ranks = pd.DataFrame(rows)
+            # Apply Ranking
+            df_ranks = calculate_crypash_ranking(df_ranks)
+            
+            # Select Assets
+            allocation_dict = select_assets(profile, df_ranks)
+            
+            # --- DISPLAY ---
+            st.subheader("Your Recommended Portfolio")
+            
+            # 1. Allocation Chart
+            labels = list(allocation_dict.keys())
+            values = list(allocation_dict.values())
+            
+            import plotly.express as px
+            fig = px.pie(values=values, names=labels, title=f"{profile} Allocation Strategy")
+            st.plotly_chart(fig)
+            
+            # 2. Table
+            st.markdown("### Asset Details")
+            st.table(pd.DataFrame(allocation_dict.items(), columns=['Asset', 'Target Allocation (Weight)']))
+            
+            st.info("💡 **Next Step:** You can execute this trade on your exchange manually. Automated Execution Coming Soon.")
+
+
 def page_howto():
     st.title("📖 How to Use / คู่มือการใช้งาน")
     lang = st.session_state.get('lang', 'EN')
@@ -1950,9 +2155,10 @@ if __name__ == "__main__":
     with c_brand_b: 
          # --- TOP TABS NAVIGATION (CFA Style) ---
          # Define Tabs (Rendered at the very top)
-         tab_scan, tab_single, tab_gloss, tab_howto = st.tabs([
+         tab_scan, tab_single, tab_auto, tab_gloss, tab_howto = st.tabs([
             get_text('nav_scanner'), 
             get_text('nav_single'), 
+            "🤖 Auto-Wealth",
             get_text('nav_glossary'),
             get_text('nav_help')
          ])
@@ -1972,6 +2178,9 @@ if __name__ == "__main__":
         
     with tab_single:
         page_single_coin()
+        
+    with tab_auto:
+        page_auto_wealth()
         
     with tab_gloss:
         page_glossary()
