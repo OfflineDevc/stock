@@ -233,24 +233,26 @@ TRANS = {
         'opt_filters': "Optional Filters",
         'analyze_top_n': "Analyze Top N Deeply (Stage 2)",
         
-        # New Glossary Terms (EN)
-        'gloss_mvrv': "MVRV Z-Score: Market Value to Realized Value. Measures if price is 'overheated' vs the average cost basis of all holders.\n\n"
-                      "🐣 **Beginner**: A value < 0 means the coin is 'Undervalued' (Buy Zone). A value > 3.5 means it's 'Overvalued' (Bubble Zone).\n"
-                      "🧠 **Guru Wisdom**: *'The best time to buy is when there is blood in the streets.'* - Baron Rothschild. Low MVRV reflects maximum pain and maximum opportunity.",
-        'gloss_rsi': "RSI: Relative Strength Index. A momentum indicator that measures the speed and change of price movements.\n\n"
-                     "🐣 **Beginner**: < 30 is 'Oversold' (Price might bounce). > 70 is 'Overbought' (Price might drop).\n"
-                     "🧠 **Guru Wisdom**: *'Momentum precedes price.'* High RSI isn't always bad if it's a breakout, but combined with high MVRV, it's a signal to exit.",
-        'gloss_sharpe': "Sharpe Ratio: Measures risk-adjusted return.\n\n"
-                        "🐣 **Beginner**: Higher is better. > 1.0 means you are getting good returns for the risk you are taking.\n"
-                        "🧠 **Guru Wisdom**: *'Return without risk is just a dream.'* A high Sharpe ratio confirms that the gains are due to smart selection rather than just taking reckless risks.",
-        'gloss_crypash_score': "Crypash Score: A 0-100 institutional-grade quality score based on 4 key pillars:\n\n"
-                               "1. **Financial Health (30%)**: Analyzes Protocol Revenue (via DeFiLlama) and P/S Ratio. It detects if a project has a real business model.\n"
-                               "2. **Network Activity (30%)**: Tracks 'On-Chain Pulse'. We compare recent transaction volume growth vs the 30-day baseline.\n"
-                               "3. **Tech & Development (20%)**: Evaluates ecosystem maturity. Blue-chips (BTC/ETH) get 90+ points; others are rated by implementation quality.\n"
-                               "4. **Tokenomics (20%)**: Checks Supply Discipline. We look at the 'Circulating vs Max Supply' ratio to identify dump risks from unlocks.",
-        'gloss_cycle': "Cycle Risk: A gauge showing where we are in the market cycle.\n\n"
-                       "🐣 **Beginner**: < 20% is the 'Safe Zone' (Accumulation). > 80% is the 'Danger Zone' (Euphoria).\n"
-                       "🧠 **Guru Wisdom**: *'Bull markets are born on pessimism, grow on skepticism, mature on optimism and die on euphoria.'* - Sir John Templeton.",
+        # New Glossary Terms (EN) - Professional Curriculum Style
+        'gloss_mvrv': "**MVRV Z-Score (Market Value to Realized Value)**: An institutional-grade metric used to identify market extremes. "
+                      "It calculates the standard deviation of market capitalization compared to the 'realized' capitalization (the aggregate cost basis of all holders).\n\n"
+                      "**Methodology**: A Z-Score above 3.5 statistically indicates an 'Overvalued' state (Bubble Zone), while a value below 0.0 suggests an 'Undervalued' state "
+                      "(Accumulation Zone). This disparity identifies periods where the unrealized profit/loss of the network is at a historical outlier.",
+        'gloss_rsi': "**RSI (Relative Strength Index)**: A technical momentum oscillator that measures the magnitude of recent price changes to evaluate overbought or oversold conditions.\n\n"
+                     "**Application**: Values are bound between 0 and 100. Traditionally, an RSI above 70 indicates a security is becoming overbought or overvalued and may be primed for a trend reversal "
+                      "or corrective pullback. Conversely, an RSI below 30 indicates an oversold or undervalued condition.",
+        'gloss_sharpe': "**Sharpe Ratio**: A mathematical measure of the 'Risk-Adjusted Return' of an asset or portfolio. It is defined as the difference between the returns of the investment "
+                        "and the risk-free rate, divided by the standard deviation of its excess returns.\n\n"
+                        "**Interpretation**: A ratio above 1.0 is considered acceptable to good. Higher values indicate that the excess return is a result of superior asset selection "
+                        "rather than excessive volatility exposure.",
+        'gloss_crypash_score': "**Crypash Score (Institutional Grade)**: A multi-factor quantitative model (0-100) assessing the fundamental integrity of a digital asset based on four core pillars:\n\n"
+                               "1. **Capital Adequacy & Financial Health (30%)**: Evaluation of protocol revenue generation (DeFiLlama data) and relative valuation (P/S Ratio).\n"
+                               "2. **Network Dynamics & Adoption (30%)**: Quantitative analysis of on-chain activity, comparing 7-day average volume against the 30-day baseline to detect usage acceleration.\n"
+                               "3. **Technological Infrastructure (20%)**: Assessment of ecosystem maturity, developer activity, and blue-chip classification (L1/L2 status).\n"
+                               "4. **Supply-Side Dynamics (20%)**: Analysis of tokenomics, inflation schedules, and circulating supply ratios to mitigate unlock-driven dilution risks.",
+        'gloss_cycle': "**Cycle Risk Assessment**: A proprietary gauge determining the asset's proximity to its historical market cycle peak or trough.\n\n"
+                       "**Quantitative Range**: Levels below 20% represent the 'Maximum Opportunity' zone (Post-Drawdown), whereas levels above 80% indicate 'Maximum Risk' or 'Euphoria' "
+                       "correlated with significant market corrections.",
         
         # New How To (EN)
         'howto_step1': "1. **Scan**: Use 'Crypto Scanner' to find coins with High Scores (>70) and Low Risk.",
@@ -398,25 +400,24 @@ TRANS = {
         'strat_prof': "2. โปรไฟล์กลยุทธ์",
         'max_holdings': "จำนวนเหรียญสูงสุด",
 
-        'gloss_mvrv': "MVRV Z-Score: ดัชนีวัดความถูก-แพงของราคาเมื่อเทียบกับต้นทุนจริง\n\n"
-                      "🐣 **ฉบับมือใหม่**: \n"
-                      "- ค่าติดลบ (< 0) = **'ของถูก'** (Undervalued) ราคาตลาดต่ำกว่าต้นทุนเฉลี่ยของคนส่วนใหญ่ เป็นจุดซื้อที่ดีที่สุด\n"
-                      "- ค่าสูง (> 3.5) = **'ของแพง'** (Bubble) ทุกคนกำไรเยอะแล้ว มีความเสี่ยงจะถูกเทขาย\n"
-                      "🧠 **มุมมองเซียน**: *'จงกล้าเมื่อคนอื่นกลัว'* ช่วงที่ MVRV ติดลบหนักๆ คือช่วงที่คนส่วนใหญ่ยอมแพ้ (Capitulation) ซึ่งมักจะเป็นจุดต่ำสุดของรอบ",
-        'gloss_rsi': "RSI (Relative Strength Index): ดัชนีวัดแรงส่งและกำลังของราคา\n\n"
-                     "🐣 **ฉบับมือใหม่**: < 30 คือ **ขายมากเกินไป** (ราคาถูกชั่วคราว), > 70 คือ **ซื้อมากเกินไป** (ราคาแพงชั่วคราว)\n"
-                     "🧠 **มุมมองเซียน**: ในตลาดกระทั่ง RSI ที่สูงอาจหมายถึงความแข็งแกร่ง (Strong Trend) แต่ถ้า RSI สูงพร้อมกับ MVRV ที่สูงด้วย นั่นคือสัญญาณอันตรายให้เตรียมทางหนีทีไล่",
-        'gloss_sharpe': "Sharpe Ratio: ความคุ้มค่าของผลตอบแทนต่อความผันผวน\n\n"
-                        "🐣 **ฉบับมือใหม่**: ยิ่งสูงยิ่งดี (> 1.0 คือดีมาก) แปลว่าเหรียญนั้นให้กำไรที่สม่ำเสมอและไม่เหวี่ยงจนน่ากลัว\n"
-                        "🧠 **มุมมองเซียน**: *'กำไรเยอะไม่ได้แปลว่าเก่งเสมอไป'* Sharpe Ratio ช่วยแยกแยะระหว่าง 'โชค' กับ 'ความสามารถทางการวิเคราะห์'",
-        'gloss_crypash_score': "Crypash Score: คะแนนคุณภาพเหรียญ 0-100 คำนวณจากเกณฑ์ 4 ด้าน:\n\n"
-                               "1. **ธุรกิจและการเงิน (30%)**: ดูรายได้จริงของโปรโตคอล (Revenue) และความถูกแพงเมื่อเทียบกับรายได้ (P/S Ratio)\n"
-                               "2. **การใช้งานเครือข่าย (30%)**: ดูการเติบโตของปริมาณธุรกรรม (Volume Growth) ในช่วง 30 วันเทียบกับอดีต\n"
-                               "3. **เทคโนโลยีและการพัฒนา (20%)**: ให้คะแนนตามความน่าเชื่อถือ เช่น เหรียญกลุ่ม Blue-chip (BTC, ETH) จะได้คะแนนส่วนนี้สูง\n"
-                               "4. **เศรษฐศาสตร์เหรียญ (20%)**: ตรวจสอบการไหลเวียนของเหรียญ (Circulating Supply) เพื่อดูความเสี่ยงจากการเทขายของเจ้ามือ",
-        'gloss_cycle': "Cycle Risk: เข็มวัดความเสี่ยงตามวัฏจักรราคา\n\n"
-                       "🐣 **ฉบับมือใหม่**: < 20% คือ **โซนปลอดภัย** (ต้นน้ำ), > 80% คือ **โซนอันตราย** (ปลายน้ำ)\n"
-                       "🧠 **มุมมองเซียน**: *'ตลาดกระทิงเกิดจากความกลัว เติบโตบนความสงสัย และตายด้วยความบ้าคลั่ง'*",
+        'gloss_mvrv': "**MVRV Z-Score (Market Value to Realized Value)**: ตัวบ่งชี้ระดับสถาบันที่ใช้ประเมินสภาวะตลาดสุดโต่ง (Market Extremes)\n\n"
+                      "**ระเบียบวิธีวิเคราะห์**: คำนวณจากส่วนเบี่ยงเบนมาตรฐาน (Standard Deviation) ระหว่างมูลค่าตลาด (Market Cap) และต้นทุนจริง (Realized Cap) "
+                      "หากค่าสูงกว่า 3.5 จะถูกพิจารณาว่าเป็นสภาวะ 'ราคาสูงเกินจริง' (Overvalued) ขณะที่ค่าต่ำกว่า 0.0 บ่งชี้สภาวะ 'ราคาต่ำกว่าพื้นฐาน' (Undervalued) "
+                      "ซึ่งสะสมมาจากการกระจายตัวของต้นทุนผู้ถือครองในเครือข่าย",
+        'gloss_rsi': "**RSI (Relative Strength Index)**: เครื่องมือคำนวณโมเมนตัมทางเทคนิครูปแบบ Oscillator สำหรับประเมินความเร็วและทิศทางของการเปลี่ยนแปลงราคา\n\n"
+                     "**การประยุกต์ใช้**: ค่าดัชนีมีขอบเขตระหว่าง 0-100 โดยค่าที่สูงกว่า 70 บ่งชี้สภาวะการซื้อมากเกินไป (Overbought) ซึ่งมักนำไปสู่การปรับฐานราคา "
+                     "และค่าที่ต่ำกว่า 30 บ่งชี้สภาวะการขายมากเกินไป (Oversold) ที่ราคาอาจมีการกลับตัวขึ้น",
+        'gloss_sharpe': "**Sharpe Ratio**: มาตรวัดทางคณิตศาสตร์สำหรับประเมิน 'ผลตอบแทนที่ปรับด้วยความเสี่ยง' (Risk-Adjusted Return) "
+                        "โดยคำนวณจากส่วนต่างของผลตอบแทนสินทรัพย์เทียบกับอัตราผลตอบแทนที่ปราศจากความเสี่ยง (Risk-free rate) หารด้วยค่าส่วนเบี่ยงเบนมาตรฐาน\n\n"
+                        "**การตีความ**: ค่าที่สูงกว่า 1.0 บ่งชี้ถึงประสิทธิภาพในการบริหารพอร์ตโฟลิโอ โดยผลตอบแทนที่เพิ่มขึ้นไม่ได้มาจากความผันผวนที่เป็นอันตรายแต่มาจากความสามารถในการเลือกสินทรัพย์",
+        'gloss_crypash_score': "**Crypash Score (Institutional Standard)**: โมเดลเชิงปริมาณ (Quantitative Model) สำหรับประเมินความแข็งแกร่งปัจจัยพื้นฐาน โดยพิจารณาจาก 4 เสาหลัก:\n\n"
+                               "1. **Financial Health (30%)**: วิเคราะห์กระแสรายได้ของโปรโตคอล (Revenue Generation) และความสมเหตุสมผลของราคาเมื่อเทียบกับรายได้ (P/S Ratio)\n"
+                               "2. **Network Dynamics (30%)**: วิเคราะห์การเติบโตของธุรกรรมบนบล็อกเชน (On-chain Activity) โดยเปรียบเทียบปริมาณธุรกรรมปัจจุบันกับค่าเฉลี่ยย้อนหลัง\n"
+                               "3. **Technological Infrastructure (20%)**: ประเมินระดับความเชื่อถือของระบบนิเวศและแผนการนำไปใช้จริง (Ecosystem Maturity)\n"
+                               "4. **Supply-Side Dynamics (20%)**: ตรวจสอบโครงสร้างเศรษฐศาสตร์เหรียญ (Tokenomics) อัตราเงินเฟ้อ และกำหนดการปลดล็อคเหรียญเพื่อจำกัดความเสี่ยงจาก Dilution",
+        'gloss_cycle': "**Cycle Risk Assessment**: มาตรวัดความเสี่ยงเชิงพยากรณ์สำหรับระบุตำแหน่งของสินทรัพย์ในวัฏจักรตลาด (Market Cycle Positions)\n\n"
+                       "**ระดับการวิเคราะห์**: ระดับต่ำกว่า 20% บ่งชี้ถึงโซน 'โอกาสสะสมสูงสุด' (Low Risk) และกลุ่มระดับที่สูงกว่า 80% บ่งชี้ถึงโซน 'ความเสี่ยงสูงสุด' (Euphoria) "
+                       "ซึ่งเป็นจุดที่มีความสัมพันธ์กับการเกิดการปรับฐานครั้งใหญ่ (Major Correction)",
 
         'howto_step1': "1. **สแกน (Scan)**: ใช้ Scanner หาเหรียญคะแนนสูง (>70)",
         'howto_step2': "2. **วิเคราะห์ (Analyze)**: ดู Deep Dive ว่าวาฬเก็บของไหม",
@@ -2044,107 +2045,124 @@ def page_auto_wealth():
 
 
 def page_howto():
-    st.title("📖 How to Use / คู่มือการใช้งาน")
+    st.title("🎓 Institutional Training Curriculum: Crypash Methodology")
     lang = st.session_state.get('lang', 'EN')
     
-    # Custom CSS for high-quality guide
+    # Custom CSS for high-quality professional guide
     st.markdown("""
     <style>
-    .guide-card {
-        padding: 20px;
-        border-radius: 10px;
-        background-color: rgba(0, 204, 255, 0.05);
-        border-left: 5px solid #00ccff;
-        margin-bottom: 20px;
+    .curriculum-module {
+        padding: 24px;
+        border-radius: 8px;
+        background-color: #f8f9fa;
+        border: 1px solid #e9ecef;
+        margin-bottom: 24px;
     }
-    .step-header {
-        color: #00ccff;
-        font-weight: bold;
-        font-size: 1.2rem;
+    .module-title {
+        color: #1a1a1a;
+        font-weight: 700;
+        font-size: 1.25rem;
+        border-bottom: 2px solid #00ccff;
+        padding-bottom: 8px;
+        margin-bottom: 16px;
     }
     </style>
     """, unsafe_allow_html=True)
 
     if lang == 'EN':
-        st.info("👋 **Welcome to Crypash (Beta)!**  This tool uses Institutional-Grade analytics to help you find 'Value' in the chaotic crypto market. Follow this guide to master all features.")
+        st.markdown("This curriculum provides a technical framework for utilizing the Crypash institutional suite. Users are expected to apply quantitative discipline when interpreting signals.")
         
-        with st.expander("� FEATURE 1: Crypash Scan (The Hunter)", expanded=True):
+        with st.container():
+            st.markdown('<div class="curriculum-module">', unsafe_allow_html=True)
+            st.markdown('<div class="module-title">Module 1: Quantitative Market Scanning</div>', unsafe_allow_html=True)
             st.markdown("""
-            **Purpose**: To scan 200+ coins in seconds and find those with strong fundamentals and low prices.
+            **Objective**: Systematic identification of high-probability investment candidates through multi-factor filtering.
             
-            1.  **Select Universe**: Choose 'All' for a wide search or 'Layer 1' for a focused one.
-            2.  **Choose Strategy Preset**: 
-                - 🚀 **Moonshot**: High risk, high reward.
-                - �️ **Risk-Adjusted Alpha**: Safe, stable growth.
-                - 💣 **Contrarian Reversal**: Finding coins at the absolute bottom.
-            3.  **Set Filters**: Use **MVRV Max** to ensure you aren't buying a bubble. Use **Score Min** to ensure quality.
-            4.  **Execute**: Look for the **'Scan Score' (x/4)**. 4/4 means all your strict criteria are met!
+            1.  **Universe Definition**: Select the target asset class (e.g., Layer 1, DeFi) to define the screening scope.
+            2.  **Strategic Mandate Selection**: 
+                - **Institutional Alpha**: Focuses on assets with low volatility and high qualitative scores.
+                - **Contrarian Mean Reversion**: Targets extreme oversold conditions (Low MVRV + Low RSI).
+                - **Momentum Growth**: Identifies assets with accelerating on-chain activity.
+            3.  **Threshold Optimization**: Calibrate the **MVRV Z-Score** to ensure entry within the historical accumulation range (< 1.0).
+            4.  **Verification**: Execute the protocol and prioritize assets achieving a **Scan Score of 4/4**, indicating 100% criteria compliance.
             """)
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        with st.expander("🔬 FEATURE 2: Crypash Dept (The Deep Diver)"):
+        with st.container():
+            st.markdown('<div class="curriculum-module">', unsafe_allow_html=True)
+            st.markdown('<div class="module-title">Module 2: Fundamental Integrity Verification (Crypash Dept)</div>', unsafe_allow_html=True)
             st.markdown("""
-            **Purpose**: To verify a specific coin before you commit capital.
+            **Objective**: Deep-tier fundamental analysis and valuation modeling.
             
-            - **Crypash Score (0-100)**: Look for **Green (75+)**. This means the project has revenue and adoption.
-            - **Crypash Valuation Line**: 
-                - **Blue Line**: Current Price.
-                - **Orange Line**: Fair Value.
-                - **Goal**: Buy when Blue is BELOW Orange (Undervalued).
-            - **Cycle Risk Gauge**: 
-                - **Safe Zone (Green)**: Good time to start DCA (Dollar-Cost Averaging).
-                - **Danger Zone (Red)**: Market is euphoric. Consider taking profits.
+            - **Crypash Score Dynamics**: Assets maintaining a score above **75%** demonstrate strong revenue-to-valuation ratios and network health.
+            - **Hybrid Valuation Modeling (Crypash Line)**: 
+                - **Asset Pricing**: Represented by the Blue trendline.
+                - **Intrinsic Value Calculation**: Represented by the Orange trendline (Derived from Network Growth and Realized Price).
+                - **Investment Thesis**: Long-term positions should ideally be initiated when Market Price resides below the Intrinsic Value Line.
+            - **Risk Gauge Calibration**: Monitor the **Cycle Risk Gauge** to detect market saturation; levels exceeding 80% suggest a distribution phase.
             """)
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        with st.expander("🍕 FEATURE 3: Auto-Wealth (The Manager)"):
+        with st.container():
+            st.markdown('<div class="curriculum-module">', unsafe_allow_html=True)
+            st.markdown('<div class="module-title">Module 3: Strategic Portfolio Management (Auto-Wealth)</div>', unsafe_allow_html=True)
             st.markdown("""
-            **Purpose**: To build a professional portfolio without the guesswork.
+            **Objective**: Automated asset allocation utilizing Modern Portfolio Theory (MPT) principles.
             
-            1.  **Risk Assessment**: Answer the 3 questions. Be honest about your tolerance for price drops.
-            2.  **Portfolio Generation**: Our engine selects the **Top 5-10 coins** based on current score rankings.
-            3.  **Smart Allocation**: We use **Market Cap Weighting** (standard practice for S&P 500) so that stable coins get more weight, protecting your wealth.
+            1.  **Risk Profile Assessment**: Quantitative determination of the user's risk-adjusted return requirements.
+            2.  **Selection Algortihm**: The engine harvests the top-ranked candidates from the Crypash scoring matrix.
+            3.  **Capital Allocation**: Implementation of **Market Capitalization Weighting** to prioritize liquidity and institutional stability, reducing the impact of idiosyncratic risk.
             """)
+            st.markdown('</div>', unsafe_allow_html=True)
 
     else:
-        st.info("👋 **ยินดีต้อนรับสู่ Crypash (เบต้า)!** เครื่องมือวิเคราะห์ระดับสถาบันที่จะช่วยคุณหา 'มูลค่า' ที่แท้จริงในตลาดคริปโต ทำตามคู่มือนี้เพื่อใช้งานทุกฟีเจอร์อย่างมืออาชีพ")
+        st.markdown("หลักสูตรการฝึกอบรมระดับสถาบัน: ระเบียบวิธีวิเคราะห์ของ Crypash (Methodology)")
         
-        with st.expander("🚀 ฟีเจอร์ที่ 1: Crypash Scan (สแกนเนอร์ล่าเหรียญ)", expanded=True):
+        with st.container():
+            st.markdown('<div class="curriculum-module">', unsafe_allow_html=True)
+            st.markdown('<div class="module-title">บทที่ 1: การสแกนตลาดเชิงปริมาณ (Quantitative Market Scanning)</div>', unsafe_allow_html=True)
             st.markdown("""
-            **วัตถุประสงค์**: เพื่อสแกนเหรียญกว่า 200 ตัวในไม่กี่วินาที และหาตัวที่มีพื้นฐานแกร่งแต่ราคาถูก
+            **วัตถุประสงค์**: การระบุกลุ่มสินทรัพย์ที่มีโอกาสเกิดผลตอบแทนสูงอย่างเป็นระบบผ่านตัวกรองหลายปัจจัย
             
-            1.  **เลือกขอบเขต (Universe)**: เลือก 'All' เพื่อค้นหาในมุมกว้าง หรือเลือกกลุ่มเฉพาะเช่น 'Layer 1'
-            2.  **เลือกกลยุทธ์สำเร็จรูป**: 
-                - 🚀 **Moonshot**: ความเสี่ยงสูง แต่กำไรก้าวกระโดด
-                - 🛡️ **Risk-Adjusted Alpha**: มั่นคง ปลอดภัย เน้นโตระยะยาว
-                - 💣 **Contrarian Reversal**: หาเหรียญที่ 'ลงจนสุด' และกำลังจะกลับตัว
-            3.  **ตั้งค่าตัวกรอง (Filters)**: ใช้ **MVRV Max** เพื่อเลี่ยงเหรียญที่ราคาเป็นฟองสบู่ และใช้ **Score Min** เพื่อคัดแต่เหรียญเกรด A
-            4.  **เริ่มสแกน**: สังเกต **'Scan Score' (x/4)** ตัวที่ได้ 4/4 คือตัวที่ตรงเงื่อนไขอันเข้มงวดของคุณทุกข้อ!
+            1.  **การกำหนดขอบเขต (Universe)**: เลือกกลุ่มสินทรัพย์เป้าหมาย (เช่น Layer 1, DeFi) เพื่อกำหนดขอบเขตในการคัดกรอง
+            2.  **การเลือกกลยุทธ์เชิงกลยุทธ์ (Strategic Mandate)**: 
+                - **Institutional Alpha**: มุ่งเน้นสินทรัพย์ที่มีความผันผวนต่ำและคะแนนคุณภาพสูง
+                - **Contrarian Mean Reversion**: มุ่งเน้นสินทรัพย์ที่อยู่ในสภาวะขายมากเกินไปขั้นสุด (Low MVRV + Low RSI)
+                - **Momentum Growth**: ระบุสินทรัพย์ที่มีการเติบโตของธุรกรรมบนเครือข่ายที่เร่งตัวขึ้น
+            3.  **การปรับค่าเกณฑ์มาตรฐาน (Thresholds)**: ปรับค่า **MVRV Z-Score** เพื่อให้มั่นใจว่าจุดเข้าซื้ออยู่ในช่วงการสะสมพลังทางประวัติศาสตร์ (< 1.0)
+            4.  **การตรวจสอบ**: เริ่มดำเนินการและจัดลำดับความสำคัญของสินทรัพย์ที่ได้รับ **Scan Score 4/4** ซึ่งบ่งชี้ว่าตรงตามเกณฑ์ 100%
             """)
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        with st.expander("🔬 ฟีเจอร์ที่ 2: Crypash Dept (เจาะลึกรายตัว)"):
+        with st.container():
+            st.markdown('<div class="curriculum-module">', unsafe_allow_html=True)
+            st.markdown('<div class="module-title">บทที่ 2: การตรวจสอบความสมบูรณ์ของปัจจัยพื้นฐาน (Crypash Dept)</div>', unsafe_allow_html=True)
             st.markdown("""
-            **วัตถุประสงค์**: เพื่อตรวจสอบความมั่นใจขั้นสุดท้ายก่อนลงเงินจริง
+            **วัตถุประสงค์**: การวิเคราะห์ปัจจัยพื้นฐานเชิงลึกและการสร้างแบบจำลองมูลค่า
             
-            - **Crypash Score (0-100)**: เล็งตัวที่ได้ **สีเขียว (75+)** แปลว่ามีรายได้จริงและคนใช้เยอะ
-            - **เส้นมูลค่า Crypash Line**: 
-                - **เส้นน้ำเงิน**: ราคาตลาดปัจจุบัน
-                - **เส้นส้ม**: มูลค่าที่เหมาะสม (Fair Value)
-                - **เป้าหมาย**: ซื้อเมื่อน้ำเงินอยู่ **'ใต้'** เส้นส้ม (ถูกกว่าราคาที่ควรจะเป็น)
-            - **เข็มวัดวัฏจักร (Cycle Risk)**: 
-                - **โซนเขียว (Safe)**: จุดเริ่มต้นการสะสมของ (DCA)
-                - **โซนแดง (Danger)**: ตลาดกำลังบ้าคลั่ง ควรพิจารณาทอยขายทำกำไร
+            - **พลวัตของ Crypash Score**: สินทรัพย์ที่รักษาคะแนนเหนือ **75%** บ่งชี้ถึงอัตราส่วนรายได้ต่อราคาที่ดีและสุขภาพของเครือข่ายที่แข็งแกร่ง
+            - **แบบจำลองมูลค่าผสม (Crypash Line)**: 
+                - **ราคาตลาด**: แสดงโดยเส้นแนวโน้มสีน้ำเงิน
+                - **การคำนวณมูลค่าที่เหมาะสม (Intrinsic Value)**: แสดงโดยเส้นแนวโน้มสีส้ม (คำนวณจากการเติบโตของเครือข่ายและราคาต้นทุนจริง)
+                - **สมมติฐานการลงทุน**: การลงทุนระยะยาวควรเริ่มเมื่อราคาตลาดอยู่ต่ำกว่าเส้นมูลค่าที่เหมาะสม
+            - **การวัดระดับความเสี่ยง**: ตรวจสอบ **Cycle Risk Gauge** เพื่อตรวจจับความอิ่มตัวของตลาด โดยระดับที่สูงกว่า 80% บ่งชี้ถึงระยะการกระจายของ (Distribution Phase)
             """)
+            st.markdown('</div>', unsafe_allow_html=True)
 
-        with st.expander("🍕 ฟีเจอร์ที่ 3: Auto-Wealth (ระบบจัดพอร์ตอัจฉริยะ)"):
+        with st.container():
+            st.markdown('<div class="curriculum-module">', unsafe_allow_html=True)
+            st.markdown('<div class="module-title">บทที่ 3: การบริหารพอร์ตโฟลิโอเชิงกลยุทธ์ (Auto-Wealth)</div>', unsafe_allow_html=True)
             st.markdown("""
-            **วัตถุประสงค์**: สร้างพอร์ตการลงทุนระดับโปรโดยไม่ต้องเดาเอง
+            **วัตถุประสงค์**: การจัดสรรสินทรัพย์โดยอัตโนมัติโดยใช้หลักการ Modern Portfolio Theory (MPT)
             
-            1.  **ประเมินความเสี่ยง**: ตอบคำถาม 3 ข้อเพื่อดูว่าคุณรับการขาดทุนชั่วคราวได้แค่ไหน
-            2.  **สร้างพอร์ต**: ระบบจะคัดเหรียญที่ **ดีที่สุด 5-10 อันดับแรก** จากการจัดลำดับของระบบ
-            3.  **การแบ่งสัดส่วน**: เราใช้ระบบ **Market Cap Weighting** (มาตรฐานเดียวกับดัชนี S&P 500) เพื่อให้เงินส่วนใหญ่อยู่ในเหรียญที่มั่นคงกว่า ช่วยบริหารความเสี่ยงให้พอร์ตของคุณ
+            1.  **การประเมินระดับความเสี่ยง**: การกำหนดเชิงปริมาณของความคุ้มค่าของผลตอบแทนต่อความเสี่ยงของผู้ใช้
+            2.  **อัลกอริทึมการคัดเลือก**: ระบบจะคัดเลือกสินทรัพย์ที่มีอันดับสูงสุดจากเมทริกซ์การให้คะแนนของ Crypash
+            3.  **การจัดสรรเงินทุน**: การใช้ **Market Capitalization Weighting** เพื่อให้ความสำคัญกับสภาพคล่องและความเสถียรระดับสถาบัน เพื่อลดผลกระทบจากความเสี่ยงเฉพาะตัว (Idiosyncratic Risk)
             """)
+            st.markdown('</div>', unsafe_allow_html=True)
 
     st.divider()
-    st.caption("© 2025 Crypash Engine | Data powered by Yahoo Finance & DeFiLlama")
+    st.caption("Institutional Grade Methodology | © 2025 Crypash Quantitative Research")
 
 # ---------------------------------------------------------
 if __name__ == "__main__":
@@ -2160,6 +2178,11 @@ if __name__ == "__main__":
     # Hack: Render the radio button logic-first but UI-later? No, can't move UI easily.
     # Better: Use key to read state at top.
     
+    # --- SIDEBAR LANGUAGE SELECTOR ---
+    with st.sidebar:
+        st.radio("Language / เลือกภาษา", ["English (EN)", "ภาษาไทย (TH)"], key='lang_choice_key')
+        st.divider()
+
     current_lang_sel = st.session_state.get('lang_choice_key', "English (EN)")
     st.session_state['lang'] = 'EN' if "English" in current_lang_sel else 'TH'
 
