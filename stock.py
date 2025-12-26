@@ -1250,7 +1250,7 @@ def page_scanner():
     with c_title:
         st.title(get_text('main_title'))
     with c_link:
-        st.markdown("<br>👉 [**Check out Bitnow 🪙**](https://Bitnow.streamlit.app/)", unsafe_allow_html=True)
+        st.markdown("<br>👉 [**Check out Bidnow 🪙**](https://Bidnow.streamlit.app/)", unsafe_allow_html=True)
     st.info(get_text('about_desc'))
 
     # --- PROFESSIONAL UI: MAIN CONFIGURATION ---
