@@ -254,6 +254,73 @@ TRANS = {
                        "**Quantitative Range**: Levels below 20% represent the 'Maximum Opportunity' zone (Post-Drawdown), whereas levels above 80% indicate 'Maximum Risk' or 'Euphoria' "
                        "correlated with significant market corrections.",
         
+        # --- Asset Categories (EN) ---
+        'cat_l1_title': "Layer 1 (L1) - The Sovereign Foundations",
+        'cat_l1_desc': "**Layer 1 (L1)** protocols are the sovereign infrastructures of the blockchain world. They operate their own independent ledgers and consensus mechanisms (Proof of Work or Proof of Stake).\n\n"
+                       "**Deep Dive Analysis**:\n"
+                       "- **The Scalability Trilemma**: Every L1 must balance Security, Decentralization, and Scalability. Bitcoin prioritizes security; Solana prioritizes speed.\n"
+                       "- **Economic Value**: L1 tokens are 'Digital Real Estate'. Value is driven by network effects—the more developers and applications (dApps) built on top, the higher the demand for the native gas token.\n"
+                       "- **Consensus Dynamics**: POX (Proof of Stake) models allow for 'Yield' via staking, creating a floor price for long-term holders.\n"
+                       "- **Risk Factors**: High competition ('L1 Wars'). If developers migrate to a faster/cheaper chain, the network can lose its premium valuation rapidly.\n"
+                       "- **Primary Examples**: Bitcoin (Digital Gold), Ethereum (The World Computer), Solana (High-Frequency Infrastructure).",
+        
+        'cat_l2_title': "Layer 2 (L2) - Scaling the Frontier",
+        'cat_l2_desc': "**Layer 2 (L2)** consists of protocols built on top of an existing L1 (mostly Ethereum) to increase throughput without compromising the security of the underlying base layer.\n\n"
+                       "**Deep Dive Analysis**:\n"
+                       "- **Rollup Technology**: Transactions are processed off-chain, compressed, and 'rolled up' into a single proof submitted to the L1. Breakdown:\n"
+                         "  - *Optimistic Rollups*: Assume transactions are valid unless challenged (e.g., Arbitrum, Optimism).\n"
+                         "  - *Zero-Knowledge (ZK) Rollups*: Use complex mathematics (validity proofs) to prove transactions are correct instantly (e.g., ZK-Sync, Starknet).\n"
+                       "- **Data Availability**: L2s rely on the L1 for 'Truth'. If the L2 goes down, your funds are still safe on the L1 through 'escape hatches'.\n"
+                       "- **The Revenue Model**: L2s keep the difference between the gas fees they collect from users and the rent they pay to the L1.\n"
+                       "- **Primary Examples**: Arbitrum, Optimism, Base, Polygon (AggLayer).",
+        
+        'cat_defi_title': "DeFi - The Global Permissionless Bank",
+        'cat_defi_desc': "**Decentralized Finance (DeFi)** replaces traditional intermediaries (banks, brokers) with open-source 'Smart Contracts'.\n\n"
+                         "**Deep Dive Analysis**:\n"
+                         "- **The AMM Model**: Automated Market Makers like Uniswap replaced 'Order Books' with 'Liquidity Pools'. Prices are determined by the ratio of assets in a pool, allowing 24/7 permissionless swapping.\n"
+                         "- **Composability (Money Legos)**: Protocols can be stacked. You can deposit collateral in Aave, take a loan, and provide liquidity in Curve—all in one transaction sequence.\n"
+                         "- **Yield Generation**: Driven by protocol fees or 'Liquidity Mining' (rewarding users with tokens). Institutional interest is focused on 'Real Yield' (revenue-based) rather than inflationary rewards.\n"
+                         "- **Critical Risks**: Smart Contract exploits, 'Rug Pulls', and Oracle Failures (incorrect price data triggering liquidations).\n"
+                         "- **Primary Examples**: Uniswap (Exchange), Aave (Lending), MakerDAO (CDPs/Stablecoins).",
+        
+        'cat_gamefi_title': "GameFi & The Metaverse Economy",
+        'cat_gamefi_desc': "**GameFi** merges Decentralized Finance with the Gaming industry through 'Play-to-Earn' (P2E) models and true digital ownership.\n\n"
+                           "**Deep Dive Analysis**:\n"
+                           "- **Asset Tokenization**: Using NFTs (ERC-721/1155), in-game items like swords or land become liquid assets that can be traded on open markets (Opensea).\n"
+                           "- **The Virtual Economy**: Entire GDPs are formed within virtual worlds. Land ownership allows owners to monetize digital experiences (concerts, advertising).\n"
+                           "- **The Sustainability Issue**: Early models (like Axie) faced high inflation. The next generation focuses on 'Play-and-Earn', where fun precedes financial rewards.\n"
+                           "- **Market Dynamics**: Extremely high beta (high volatility). These assets often lag the broader market but rally explosively during 'Euphoria' phases.\n"
+                           "- **Primary Examples**: Axie Infinity, The Sandbox, Illuvium, Gala Games.",
+        
+        'cat_meme_title': "Memecoins - Social Consensus Assets",
+        'cat_meme_desc': "**Memecoins** are assets backed by social attention, community culture, and internet memes rather than cash flows or technical utility.\n\n"
+                         "**Deep Dive Analysis**:\n"
+                         "- **Social Consensus**: If millions of people agree a 'dog picture' has value, it has value. This is the ultimate expression of the 'Attention Economy'.\n"
+                         "- **Zero-to-One Launch**: Unlike VC-backed projects, many memes launch fairly (no pre-sale), creating a 'cult' community with high loyalty.\n"
+                         "- **The Slot Machine Effect**: High speculation attracts retail investors looking for '1000x' gains. This creates a reflexive cycle: Price goes up -> more attention -> more buyers -> price goes up.\n"
+                         "- **Risk Assessment**: Extremely high risk of 'Total Loss'. Liquidity is often thin, meaning prices can drop 90% in hours if the trend shifts.\n"
+                         "- **Primary Examples**: Dogecoin, Shiba Inu, Pepe, Dogwifhat.",
+        
+        'cat_ai_title': "AI Protocols - The Distributed Intelligence",
+        'cat_ai_desc': "**AI Protocols** build decentralized marketplaces for the components required for Artificial Intelligence: Compute, Data, and Models.\n\n"
+                       "**Deep Dive Analysis**:\n"
+                       "- **Decentralized Compute**: Instead of relying on Nvidia/Azure, protocols like Render/Akash allow people to rent idle GPU power for AI training.\n"
+                       "- **Data Orchestration**: The Graph/Bittensor allow for decentralized 'searching' and 'training' of models, preventing AI from being a 'monopoly' of Big Tech.\n"
+                       "- **FHE & Privacy**: Advanced encryption (Fully Homomorphic Encryption) allows AI models to process encrypted data without ever seeing the raw sensitive info.\n"
+                       "- **Bull Case**: One of the strongest narratives due to the 'AI Revolution' in the real world. High correlation with Nvidia stock price.\n"
+                       "- **Primary Examples**: Bittensor (TAO), Render (RNDR), Fetch.ai (FET), SingularityNET.",
+        
+        'cat_stable_title': "Stablecoins - The Global Dollar Rail",
+        'cat_stable_desc': "**Stablecoins** act as the medium of exchange and 'Safe Haven' within the crypto ecosystem.\n\n"
+                           "**Deep Dive Analysis**:\n"
+                           "- **Collateral Models**:\n"
+                             "  - *Fiat-Backed*: 1:1 backed by real dollars in bank accounts (e.g., USDT, USDC). Subject to central counterparty risk/regulation.\n"
+                             "  - *Over-Collateralized*: Backed by other crypto (e.g., DAI). 1 dollar is backed by $1.50 of ETH to absorb volatility.\n"
+                             "  - *Algorithmic*: Depend on supply/demand math. Extremely high-risk (reminder: Terra/Luna collapse).\n"
+                           "- **Role in Liquidity**: Stablecoins are the most liquid pairs. They provide the 'Fuel' for every other market sector.\n"
+                           "- **Yield Basis**: Often the safest way to earn yield through Lending or LPing on stable pairs.\n"
+                           "- **Primary Examples**: Tether (USDT), Circle (USDC), DAI, Ethena (USDe).",
+        
         # New How To (EN)
         'howto_step1': "1. **Scan**: Use 'Crypto Scanner' to find coins with High Scores (>70) and Low Risk.",
         'howto_step2': "2. **Analyze**: Check 'Deep Dive' to see if whales are buying (Volume Growth).",
@@ -368,6 +435,8 @@ TRANS = {
         'why_mcap_desc': "- **Professional Standard**: S&P 500 and Nasdaq 100 use this.\n- **Stability**: Larger, more established companies get more money.\n- **Self-Correcting**: As companies grow, they become a larger part of your portfolio naturally.",
         'how_works_title': "**How it works here:**",
         'how_works_desc': "1. We select the Top 20 stocks that match your **Strategy Score**.\n2. We allocate money based on **Company Size (Market Cap)**.",
+        'tab_glossary_metrics': "📊 Metrics & Logic",
+        'tab_glossary_cats': "🪙 Asset Categories",
     },
     'TH': {
         'sidebar_title': "🏛️ แผงควบคุมสแกนเนอร์",
@@ -427,9 +496,73 @@ TRANS = {
                        "**ระดับการวิเคราะห์**: ระดับต่ำกว่า 20% บ่งชี้ถึงโซน 'โอกาสสะสมสูงสุด' (Low Risk) และกลุ่มระดับที่สูงกว่า 80% บ่งชี้ถึงโซน 'ความเสี่ยงสูงสุด' (Euphoria) "
                        "ซึ่งเป็นจุดที่มีความสัมพันธ์กับการเกิดการปรับฐานครั้งใหญ่ (Major Correction)",
 
-        'howto_step1': "1. **สแกน (Scan)**: ใช้ Scanner หาเหรียญคะแนนสูง (>70)",
-        'howto_step2': "2. **วิเคราะห์ (Analyze)**: ดู Deep Dive ว่าวาฬเก็บของไหม",
-        'howto_step3': "3. **จัดพอร์ต (Portfolio)**: ใช้ Auto-Wealth แบ่งเงินลงทุน",
+        # --- Asset Categories (TH) ---
+        'cat_l1_title': "Layer 1 (L1) - รากฐานมหาอำนาจบล็อกเชน",
+        'cat_l1_desc': "**Layer 1 (L1)** คือเครือข่ายบล็อกเชนที่เป็นอิสระ มีระบบความปลอดภัยและกฎเกณฑ์ (Consensus) ของตัวเอง เปรียบเสมือน \"ประเทศ\" หรือ \"ระบบปฏิบัติการ\" ของโลกคริปโต\n\n"
+                       "**การวิเคราะห์เชิงลึก (Deep Dive)**:\n"
+                       "- **Scalability Trilemma**: ทุกเครือข่ายต้องสู้กับวิกฤต 3 ประการคือ ความปลอดภัย (Security), การกระจายศูนย์ (Decentralization) และความเร็ว (Scalability) การเลือกอย่างใดอย่างหนึ่งมักต้องเสียอีกอย่างไป เช่น Bitcoin เลือกความปลอดภัยสูงสุด แต่ช้าลง\n"
+                       "- **โมเดลทางเศรษฐกิจ**: เหรียญ L1 คือ \"อสังหาริมทรัพย์ดิจิทัล\" มูลค่าของมันมาจากจำนวน dApps และผู้ใช้ที่มาสร้างบนเครือข่าย ยิ่งมีการใช้งานมาก ความต้องการเหรียญเพื่อจ่ายค่า Gas ก็ยิ่งสูงขึ้น\n"
+                       "- **กลไกการปั๊มกำไร**: ในยุค Proof of Stake (PoS) การถือเหรียญ L1 ช่วยให้คุณได้รับ \"ปันผล\" ผ่านการ Staking ซึ่งเป็นรากฐานของรายได้แบบ Passive Income\n"
+                       "- **ความเสี่ยง**: สงคราม L1 Wars มีความรุนแรง หากนักพัฒนาหนีไปใช้เชนที่เร็วกว่าหรือถูกกว่า มูลค่าเครือข่ายอาจลดลงอย่างรวดเร็ว\n"
+                       "- **ตัวอย่าง**: Bitcoin (ทองคำดิจิทัล), Ethereum (คอมพิวเตอร์โลก), Solana (โครงสร้างพื้นฐานความเร็วสูง)",
+        
+        'cat_l2_title': "Layer 2 (L2) - กองทัพเสริมเพื่อการขยายตัว",
+        'cat_l2_desc': "**Layer 2 (L2)** คือโปรโตคอลที่สร้างขึ้นบน Layer 1 (ส่วนใหญ่คือ Ethereum) เพื่อช่วยทำรายการให้เร็วขึ้นและถูกลง โดยยังคงพึ่งพาความปลอดภัยจากเครือข่ายหลัก\n\n"
+                       "**การวิเคราะห์เชิงลึก (Deep Dive)**:\n"
+                       "- **เทคโนโลยี Rollup**: คือการรวบรวมธุรกรรมจำนวนมากมาประมวลผลข้างนอกเครือข่ายหลัก แล้วส่ง \"หลักฐาน\" กลับไปบันทึกครั้งเดียว แบ่งเป็น:\n"
+                         "  - *Optimistic Rollups*: เชื่อว่าทุกคนทำรายการถูกต้องก่อน ถ้ามีคนค้านค่อยตรวจสอบ (เช่น Arbitrum, Optimism)\n"
+                         "  - *ZK-Rollups*: ใช้คณิตศาสตร์ขั้นสูงพิสูจน์ความถูกต้องทันที (Zero-Knowledge) ซึ่งมีความปลอดภัยและเป็นส่วนตัวสูงกว่า (เช่น ZK-Sync, Starknet)\n"
+                       "- **ความปลอดภัยแบบ inheritance**: แม้ระบบ L2 จะล่ม แต่เงินของคุณยังคงปลอดภัยอยู่ใน L1 เสมอผ่านกลไกการถอนเงินฉุกเฉิน\n"
+                       "- **โมเดลรายได้**: L2 ทำกำไรจากส่วนต่างของค่า Gas ที่เก็บจากผู้ใช้ เทียบกับค่าเช่าที่ต้องจ่ายให้ L1\n"
+                       "- **ตัวอย่าง**: Arbitrum, Optimism, Base, Polygon",
+        
+        'cat_defi_title': "DeFi - ธนาคารโลกใหม่ไร้ตัวกลาง",
+        'cat_defi_desc': "**Decentralized Finance (DeFi)** คือการยกเอาระบบการเงินทั้งหมดมาไว้บนบล็อกเชน โดยใช้โค้ดคอมพิวเตอร์ (Smart Contracts) ทำหน้าที่แทนธนาคาร\n\n"
+                         "**การวิเคราะห์เชิงลึก (Deep Dive)**:\n"
+                         "- **ระบบ AMM (Automated Market Maker)**: การเทรดแบบไม่ต้องง้อ Matching Order แต่เทรดกับ \"Liquidity Pool\" (สระสภาพคล่อง) ทำให้คุณเทรดได้ 24 ชั่วโมงโดยไม่มีวันหยุด\n"
+                         "- **Money Legos (คอมโพสซาบิลิตี้)**: โปรโตคอลต่างๆ สามารถต่อยอดกันได้เหมือนเลโก้ เช่น คุณฝากเหรียญในโปรโตคอล A เพื่อกู้ แล้วเอาเงินกู้ไปฟาร์มต่อในโปรโตคอล B ทั้งหมดนี้จบได้ในธุรกรรมเดียว\n"
+                         "- **Real Yield vs Inflation**: นักลงทุนสถาบันมุ่งเน้นไปที่โปรโตคอลที่มีรายได้จริงจากค่าธรรมเนียม (Real Yield) มากกว่าการแจกเหรียญฟรีที่ทำให้เกิดเงินเฟ้อ\n"
+                         "- **ความเสี่ยง**: การถูก Hack ช่องโหว่ของโค้ด (Exploits) หรือความเสี่ยงจาก Oracle (ข้อมูลราคาผิดพลาดจนทำให้ถูกล้างพอร์ต)\n"
+                         "- **ตัวอย่าง**: Uniswap (กระดานเทรด), Aave (ธนาคารกู้ยืม), MakerDAO (ระบบผลิต Stablecoin)",
+        
+        'cat_gamefi_title': "GameFi & Metaverse - เศรษฐกิจโลกเสมือน",
+        'cat_gamefi_desc': "**GameFi** คือจุดตัดระหว่างเกมและการเงิน (Game + Finance) ที่ทำให้การเล่นเกมไม่ใช่แค่ความสนุก แต่คือการสร้างรายได้จริง\n\n"
+                           "**การวิเคราะห์เชิงลึก (Deep Dive)**:\n"
+                           "- **กรรมสิทธิ์ดิจิทัลที่แท้จริง**: ผ่านเทคโนโลยี NFT ไอเทมในเกมทุกชิ้น หรือที่ดินในโลกเสมือน คือทรัพย์สินที่คุณเป็นเจ้าของจริง และสามารถนำไปขายหรือค้ำประกันเงินกู้ได้\n"
+                           "- **GDP ของโลกเสมือน**: ใน Metaverse มีการสร้างระบบเศรษฐกิจที่มีมูลค่าจริง มีการจ้างงาน การโฆษณา และการจัดคอนเสิร์ตที่เก็บค่าเข้าชมเป็นคริปโต\n"
+                           "- **จาก P2E สู่ Play-and-Earn**: ยุคแรกเน้นปั่นเงินจนล่มสลาย แต่ยุคใหม่มุ่งเน้นความสนุกนำหน้า แล้วมีรางวัลเป็นผลพลอยได้ เพื่อความยั่งยืนของระบบ\n"
+                           "- **พฤติกรรมราคา**: เป็นสินทรัพย์ที่มีค่า Beta สูงมาก (ผันผวนแรงกว่าตลาด) มักจะวิ่งแรงที่สุดในช่วงที่ตลาดเข้าสู่ภาวะโลภสูงสุด (Euphoria)\n"
+                           "- **ตัวอย่าง**: Axie Infinity, The Sandbox, Illuvium, Gala Games",
+        
+        'cat_meme_title': "Memecoins - สินทรัพย์แห่งกระแสศรัทธา",
+        'cat_meme_desc': "**Memecoins** คือเหรียญที่ขับเคลื่อนด้วยพลังของชุมชน วัฒนธรรมอินเทอร์เน็ต และกระแสสังคม มากกว่าพื้นฐานทางธุรกิจหรือเทคโนโลยี\n\n"
+                         "**การวิเคราะห์เชิงลึก (Deep Dive)**:\n"
+                         "- **Social Consensus**: พลังแห่งความเชื่อร่วมกัน หากคนนับล้านเชื่อว่ารูปหมามีมูลค่า มันก็จะมีมูลค่าตามกฎ Demand & Supply เป็นตัวแทนของ Attention Economy (เศรษฐกิจฐานความสนใจ)\n"
+                         "- **Fair Launch**: หลายเหรียญเปิดตัวอย่างยุติธรรม ไม่มีเจ้ามือหรือ VC ถือเหรียญราคาถูก ทำให้ชุมชนมีความร่วมใจสูงและมีความเป็นลัทธิ (Cult) ในการถือครอง\n"
+                         "- **Slot Machine Reflexivity**: มีแรงดึงดูดใจจากการสร้างผลตอบแทน 1,000 เท่า ทำให้เกิดวงจรสะท้อนกลับ ราคาขึ้น -> คนรุม -> ราคาขึ้นต่อ\n"
+                         "- **ความอันตราย**: มีความเสี่ยงสูงที่จะกลายเป็นศูนย์ (Total Loss) มีสภาพคล่องต่ำ ถ้าราคาตกร่วงแรงอาจจะไม่มีคนรับซื้อ\n"
+                         "- **ตัวอย่าง**: Dogecoin, Shiba Inu, Pepe, Dogwifhat",
+        
+        'cat_ai_title': "AI Protocols - พลังปัญญาประดิษฐ์ไร้ศูนย์กลาง",
+        'cat_ai_desc': "**AI Protocols** คือโครงการที่ผสานบล็อกเชนเข้ากับ AI เพื่อให้เข้าถึงพลังประมวลผล (Compute) และข้อมูล (Data) ได้อย่างเสรี\n\n"
+                       "**การวิเคราะห์เชิงลึก (Deep Dive)**:\n"
+                       "- **GPU กระจายศูนย์**: แทนที่จะหวังพึ่งแค่ Nvidia หรือ Azure โปรโตคอลอย่าง Render ช่วยให้คนทั่วไปสามารถเช่าพลังการประมวลผลที่เหลืออยู่เพื่อใช้อบรม AI ได้\n"
+                         "- **การต่อต้านการผูกขาด**: Bittensor ช่วยสร้างฐานข้อมูลขนาดใหญ่ที่ไม่มีใครคนใดคนหนึ่งเป็นเจ้าของ ป้องกันไม่ให้ AI ตกอยู่ใต้การควบคุมของบริษัท Big Tech เพียงอย่างเดียว\n"
+                         "- **AI + Privacy**: ใช้เทคโนโลยีการเข้ารหัสขั้นสูง เพื่อให้ AI เรียนรู้จากข้อมูลได้โดยไม่ต้องเห็นข้อมูลส่วนตัวของผู้ใช้จริงๆ\n"
+                         "- **The AI Supercycle**: เป็นกลุ่มที่ได้รับความสนใจสูงสุดตามกระแสโลกจริง มีความสัมพันธ์ (Correlation) สูงกับราคาหุ้นกลุ่มเซมิคอนดักเตอร์\n"
+                         "- **ตัวอย่าง**: Bittensor (TAO), Render (RNDR), Fetch.ai (FET)",
+        
+        'cat_stable_title': "Stablecoins - เส้นเลือดใหญ่และความมั่งคั่ง",
+        'cat_stable_desc': "**Stablecoins** คือเสาหลักของสภาพคล่อง เป็นสินทรัพย์ที่ใช้พักเงินและรักษามูลค่าในช่วงที่ตลาดผันผวน\n\n"
+                           "**การวิเคราะห์เชิงลึก (Deep Dive)**:\n"
+                           "- **โมเดลการค้ำประกัน**:\n"
+                             "  - *Fiat-Backed*: ค้ำด้วยเงินจริง 1:1 ในธนาคาร (เช่น USDT, USDC) มั่นใจสุดแต่เสี่ยงเรื่องการตรวจสอบโดยภาครัฐ\n"
+                             "  - *Over-Collateralized*: ค้ำด้วยคริปโตเหรียญอื่นเกินมูลค่า (เช่น DAI) เช่น ใช้ ETH มูลค่า 150 บาท เพื่อผลิตเหรียญ 100 บาท ปลอดภัยจากตัวกลาง\n"
+                             "  - *Algorithmic*: ค้ำด้วยคณิตศาสตร์ล้วนๆ (เช่น UST ในอดีต) เสี่ยงสูงมากหากเกิดวิกฤตความเชื่อ\n"
+                           "- **บทบาทในระบบ**: เป็นสกุลเงินหลักที่ใช้เทรดทุกเหรียญในโลก เป็นดัชนีวัดปริมาณเงินในระบบคริปโต (Stablecoin Inflow = ตลาดกระทิงกำลังมา)\n"
+                           "- **การสร้างกระแสเงินสด**: เป็นวิธีที่ปลอดภัยที่สุดในการหา Yield ผ่านการเป็นผู้ให้สภาพคล่องในคู่เหรียญที่ราคาคงที่\n"
+                           "- **ตัวอย่าง**: Tether (USDT), Circle (USDC), DAI, USDe",
+
         'ui_capital': "เงินทุนเริ่มต้น (USD)",
         'ui_risk': "ความเสี่ยงที่รับได้",
         'ui_generate': "คำนวณพอร์ตแนะนำ",
@@ -480,6 +613,8 @@ TRANS = {
         'qual_label': "Quality",
         'no_target': "No analyst target price available.",
         'err_recs': "Could not fetch recommendations.",
+        'tab_glossary_metrics': "📊 ตัวชี้วัดและตรรกะ",
+        'tab_glossary_cats': "🪙 ประเภทคริปโต",
     }
 }
 
@@ -1810,17 +1945,38 @@ def page_glossary():
     st.title(get_text('glossary_title'))
     st.caption(get_text('glossary_subtitle'))
     
-    terms = {
-        "Bitnow Score": get_text('gloss_Bitnow_score'),
-        "MVRV Z-Score": get_text('gloss_mvrv'),
-        "RSI (Relative Strength Index)": get_text('gloss_rsi'),
-        "Cycle Risk Gauge": get_text('gloss_cycle'),
-        "Sharpe Ratio": get_text('gloss_sharpe'),
-    }
+    tab_metrics, tab_cats = st.tabs([get_text('tab_glossary_metrics'), get_text('tab_glossary_cats')])
     
-    for term, definition in terms.items():
-        with st.expander(term):
-            st.write(definition)
+    with tab_metrics:
+        terms = {
+            "Bitnow Score": get_text('gloss_Bitnow_score'),
+            "MVRV Z-Score": get_text('gloss_mvrv'),
+            "RSI (Relative Strength Index)": get_text('gloss_rsi'),
+            "Cycle Risk Gauge": get_text('gloss_cycle'),
+            "Sharpe Ratio": get_text('gloss_sharpe'),
+        }
+        
+        for term, definition in terms.items():
+            with st.expander(term, expanded=False):
+                st.write(definition)
+
+    with tab_cats:
+        st.markdown("### 🏹 Cryptocurrency Narratives & Categories")
+        st.info("Different categories of crypto respond differently to market cycles. Understanding what you own is key to a professional portfolio.")
+        
+        cats = [
+            (get_text('cat_l1_title'), get_text('cat_l1_desc')),
+            (get_text('cat_l2_title'), get_text('cat_l2_desc')),
+            (get_text('cat_defi_title'), get_text('cat_defi_desc')),
+            (get_text('cat_gamefi_title'), get_text('cat_gamefi_desc')),
+            (get_text('cat_ai_title'), get_text('cat_ai_desc')),
+            (get_text('cat_meme_title'), get_text('cat_meme_desc')),
+            (get_text('cat_stable_title'), get_text('cat_stable_desc')),
+        ]
+        
+        for title, desc in cats:
+            with st.expander(title, expanded=False):
+                st.markdown(desc)
 
 def page_how_to_use():
     st.title(get_text('howto_title'))
