@@ -2392,7 +2392,7 @@ def page_glossary():
 def page_scanner():
     c_t, c_l = st.columns([3, 1])
     with c_t: st.title(get_text('main_title'))
-    with c_l: st.markdown("<br>[**Check out Bitnow 🪙**](https://Bitnow.streamlit.app/)", unsafe_allow_html=True)
+    with c_l: st.markdown("<br>[**Check out Bitnow 🪙**](https://bitnow.streamlit.app/)", unsafe_allow_html=True)
     st.info(get_text('about_desc'))
 
     # NEW: Market Dashboard
