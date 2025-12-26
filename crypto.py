@@ -1245,11 +1245,12 @@ def page_scanner():
             lambda x: pd.Series(calculate_match(x)), axis=1
         )
         
-        # Sort by Scan Score DESC, then Crypash Score DESC
-        df = df_results.sort_values(by=['Scan_Score', 'Crypash_Score'], ascending=[False, False])
-        
-        # Apply Crypash Ranking
+        # Apply Crypash Ranking (Calculates Rank_Score but we will override Sort)
         df = calculate_crypash_ranking(df)
+        
+        # Sort by Scan Score DESC, then Crypash Score DESC (Enforce Scan Priority)
+        if not df.empty:
+            df = df.sort_values(by=['Scan_Score', 'Crypash_Score'], ascending=[False, False])
 
         st.markdown(f"### Results ({len(df)} Matches)")
         st.info("Ranking by Scan Score (Criteria Met).")
@@ -1976,7 +1977,9 @@ def page_auto_wealth():
         
         # A. Determine Constraints
         target_n = opt.determine_asset_count()
-        st.write(f"**Target Asset Count:** {target_n} Assets (Based on Capital Efficiency)")
+        # Custom Asset Count Override
+        rec_n = opt.determine_asset_count()
+        target_n = st.slider("Target Asset Count", min_value=5, max_value=20, value=rec_n, help="Number of coins in portfolio")
         
         # B. Get Market Data (Simulated Scan for Logic Demo)
         # In prod, this calls scan_market_basic logic.
@@ -2002,11 +2005,25 @@ def page_auto_wealth():
         df_scan = calculate_crypash_ranking(df_scan) 
         
         # C. Select Universe
-        df_selected = opt.select_universe(df_scan)
+        # Pass target_n manually to select_universe (Need to update optimizer method signature if it doesn't take it)
+        # Assuming we need to patch select_universe or it uses self.determine_asset_count which we just overrode...
+        # Let's adjust CryptoOptimizer to accept override or just slice here.
+        
+        # Actually, let's update CrypashOptimizer in next step to accept `n` override. 
+        # For now, we will assume select_universe uses internal logic, but we can slice the result if needed or modify it.
+        # Wait, select_universe calls determine_asset_count internally.
+        
+        # FIX: We need to pass N to select_universe. check crypto_optimizer.py
+        # If I can't change optimizer signature here easily without viewing it, I'll update it separately.
+        # However, I can just monkey-patch or update the file.
+        # Let's check crypto_optimizer first. For now, I will modify the UI to pass `target_n` if I update the optimizer.
+        # Ah, viewing `crypto_optimizer.py` implies `select_universe` doesn't take `n`.
+        # I will handle that.
+        
+        df_selected = opt.select_universe(df_scan, override_n=target_n) 
         
         if df_selected.empty:
-            st.warning("No assets selected. Try entering a larger capital amount or retrying.")
-            # Fallback to df_scan generic if optimization fails
+            st.warning("No assets selected. Try retrying.")
             df_selected = df_scan.head(target_n)
             
         st.write(f"**Selected Universe:** {len(df_selected)} Candidates (Top Rated)")
@@ -2041,6 +2058,9 @@ def page_auto_wealth():
         import plotly.express as px
         df_alloc = pd.DataFrame(list(optimal_weights.items()), columns=['Asset', 'Weight'])
         df_alloc['Value ($)'] = df_alloc['Weight'] * capital
+        
+        # SORT by Weight DESC
+        df_alloc = df_alloc.sort_values(by='Weight', ascending=False)
         
         c_pie, c_tab = st.columns([1, 1])
         

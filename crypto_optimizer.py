@@ -26,7 +26,7 @@ class CrypashOptimizer:
             # Preservation Phase: Diversify (12-18 assets)
             return 15
 
-    def select_universe(self, ranking_df):
+    def select_universe(self, ranking_df, override_n=None):
         """
         Selects assets using a 'Pyramid' Tiered Strategy.
         Tier 1 (Foundation): Top Trusted (Blue Chips)
@@ -43,7 +43,7 @@ class CrypashOptimizer:
             if c not in df.columns: return pd.DataFrame()
             
         # --- PYRAMID SELECTION ---
-        target_n = self.determine_asset_count()
+        target_n = override_n if override_n is not None else self.determine_asset_count()
         
         # 1. Foundation (Blue Chips) - Safety
         # We assume known list or top matches
