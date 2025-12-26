@@ -102,7 +102,7 @@ def inject_custom_css():
             100% { box-shadow: 0 0 5px rgba(212, 175, 55, 0.2); }
         }
 
-        /* Apply Page Transition to the main content area */
+        /* Apply Page Transition */
         .block-container {
             padding-top: 1rem;
             animation: fadeInSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -112,36 +112,26 @@ def inject_custom_css():
             margin: auto;
         }
 
-        /* Responsive Breakpoint for Large Screens to prevent stretching */
-        @media (min-width: 1200px) {
-            .block-container {
-                max-width: 1200px !important;
-            }
-        }
-        
         /* Hide Streamlit Header/Toolbar */
         header {visibility: hidden;}
         [data-testid="stToolbar"] {visibility: hidden;}
         .stDeployButton {display:none;}
 
-        /* CFA-Style Blue Header for Tabs (Full Width) */
+        /* Gold Header for Tabs */
         .stTabs [data-baseweb="tab-list"] {
-            gap: 0px; /* Remove gap between tabs */
+            gap: 0px;
             background-color: transparent; 
             padding: 0px;
             border-bottom: 2px solid #D4AF37;
         }
 
         .stTabs [data-baseweb="tab"] {
-            flex-grow: 1; /* Stretch to fill width */
+            flex-grow: 1;
             height: 50px;
-            white-space: pre-wrap;
-            background-color: #f8f9fa; /* Light gray for unselected */
+            background-color: #f8f9fa;
             transition: all 0.3s ease;
-            border-radius: 0px; /* No corners */
             color: #D4AF37; 
             font-weight: 600;
-            border: none; /* Clean Look */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -153,21 +143,22 @@ def inject_custom_css():
         }
 
         .stTabs [aria-selected="true"] {
-            background-color: #D4AF37 !important; /* Active Gold */
+            background-color: #D4AF37 !important;
             color: #ffffff !important;
             font-weight: 700;
-            transform: scale(1.02);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         
+        /* Tab Highlight Bar */
+        div[data-baseweb="tab-highlight-point"] {
+            background-color: #B8860B !important;
+        }
+
         /* Metrics & Buttons */
         div[data-testid="stMetricValue"] {
             font-size: 1.4rem !important;
             color: #D4AF37;
-            animation: fadeInSlideUp 1s ease-out;
         }
         
-        /* Primary Button Gold */
         div.stButton > button:first-child {
             background-color: #D4AF37;
             color: white;
@@ -179,50 +170,69 @@ def inject_custom_css():
         }
         div.stButton > button:first-child:hover {
             background-color: #B8860B;
-            color: white;
-            transform: translateY(-2px);
             box-shadow: 0 6px 15px rgba(212, 175, 55, 0.3);
             animation: pulseGlow 2s infinite;
         }
-        div.stButton > button:first-child:active {
-            transform: translateY(0);
-        }
 
-        /* NEW: Global Gold Overrides for Sliders, Progress Bars, and Tab Highlights */
-        /* Slider handle and track */
+        /* Sliders, Progress Bars, and Widgets */
         div[data-testid="stSlider"] > div > div > div > div {
             background-color: #D4AF37 !important;
         }
-        /* Slider dots/ticks */
         div[data-testid="stSlider"] [data-baseweb="slider"] [role="slider"] {
             background-color: #D4AF37 !important;
             border-color: #D4AF37 !important;
         }
-        
-        /* Tab Highlight Bar (The moving underline) */
-        div[data-baseweb="tab-highlight-point"] {
-            background-color: #B8860B !important;
-        }
-
-        /* Progress Bar */
         div[data-testid="stProgress"] > div > div > div > div {
             background-color: #D4AF37 !important;
         }
-
-        /* Checkbox & Radio active state */
         div[data-testid="stCheckbox"] > label > div:first-child[role="checkbox"][aria-checked="true"] {
             background-color: #D4AF37 !important;
             border-color: #D4AF37 !important;
         }
-        
         div[data-testid="stRadio"] label div[role="radiogroup"] div[data-bvst] {
              background-color: #D4AF37 !important;
         }
 
-        /* Global primary color override attempt via CSS variables */
+        /* Form Overrides (No Blue Borders) */
+        div[data-baseweb="input"] {
+            border-color: #e6e6e6 !important;
+        }
+        div[data-baseweb="input"]:focus-within {
+            border-color: #D4AF37 !important;
+        }
+        div[data-baseweb="select"] > div {
+            border-color: #e6e6e6 !important;
+        }
+
+        /* Global Overrides */
         :root {
             --primary-color: #D4AF37;
         }
+        h1, h2, h3, h4, h5, h6 {
+            color: #1a1a1a !important;
+        }
+        a {
+            color: #D4AF37 !important;
+            text-decoration: none;
+        }
+        hr {
+            border: 0;
+            border-top: 1px solid #D4AF37 !important;
+            opacity: 0.3;
+        }
+        div[data-testid="stAlert"] {
+            border-left: 5px solid #D4AF37 !important;
+            background-color: #fffaf0 !important;
+        }
+        div[data-testid="stExpander"] {
+            border-color: #D4AF37 !important;
+        }
+        div[role="tooltip"] {
+            background-color: #1a1a1a !important;
+            color: #D4AF37 !important;
+        }
+        </style>
+    """, unsafe_allow_html=True)
     """, unsafe_allow_html=True)
 
 # --- LOCALIZATION & TEXT ASSETS ---
@@ -2945,7 +2955,7 @@ def page_portfolio():
                  base = alt.Chart(chart_df).encode(theta=alt.Theta("Weight %", stack=True))
                  
                  pie = base.mark_arc(outerRadius=120, innerRadius=60).encode(
-                    color=alt.Color(color_col, legend=alt.Legend(title=legend_title)), 
+                    color=alt.Color(color_col, scale=alt.Scale(range=['#D4AF37', '#B8860B', '#444444', '#1a1a1a', '#8B4513']), legend=alt.Legend(title=legend_title)), 
                     order=alt.Order("Weight %", sort="descending"),
                     tooltip=["Ticker", "Bucket", "Weight %", "Sector"] 
                  )
@@ -3178,8 +3188,8 @@ def page_portfolio():
         ac2.metric(f"{get_text('nav_bench')} {cagr_lbl}", b_cagr_str)
         ac3.metric(get_text('gap_annual'), gap_str)
         
-        # Chart
-        st.line_chart(res['chart_data'])
+        # Chart (Gold & Dark Grey)
+        st.line_chart(res['chart_data'], color=["#D4AF37", "#444444"])
 
 
 
