@@ -1289,12 +1289,6 @@ def page_scanner():
                 'Crypash_Score': '{:.0f}',
                 'Scan_Score': '{:.0f}/4'   
             }),
-                'Fair_Value': '${:,.2f}',
-                'Margin_Safety': '{:+.1f}%',
-                'MVRV_Z': '{:.2f}',
-                'Vol_30D': '{:.1f}%',
-                '7D': '{:+.1f}%'
-            }),
             column_config={
                 "Crypash_Score": st.column_config.ProgressColumn("Crypash Score", min_value=0, max_value=100, format="%d"),
                 "Margin_Safety": st.column_config.NumberColumn("Margin of Safety", help="+ve: Undervalued, -ve: Overvalued"),
