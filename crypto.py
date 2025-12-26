@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import streamlit as st
 import yfinance as yf
 import altair as alt # Visuals
@@ -425,12 +426,11 @@ TRANS = {
         'market_sentiment_title': "### 🧭 Market Sentiment (CNN-Style Proxy)",
         'fear_greed_title': "Fear & Greed Index (Proxy)",
         'vix_caption': "Driven by VIX: {vix:.2f} (Lower VIX = Higher Greed)",
-        'state_extreme_fear': "🥶 Extreme Fear",
-        'state_fear': "😨 Fear",
-        'state_neutral': "😐 Neutral",
-        'state_greed': "😎 Greed",
-        'state_extreme_greed': "🤑 Extreme Greed",
-        'state_extreme_greed': "🤑 Extreme Greed",
+        'state_extreme_fear': "Extreme Fear",
+        'state_fear': "Fear",
+        'state_neutral': "Neutral",
+        'state_greed': "Greed",
+        'state_extreme_greed': "Extreme Greed",
         'faq_title': "📚 Definition & Methodology (FAQs)",
         'max_pe': "Max P/E Ratio",
         'max_peg': "Max PEG Ratio",
@@ -746,8 +746,8 @@ def render_market_dashboard():
         trend = data.get('Trend_Diff', 0)
         st.metric("Bitcoin Bull Market Support", f"{trend:+.1f}%", "Above 200 DMA" if trend > 0 else "Below Support")
         st.caption("Distance from 200-Day Moving Average. > 0% is Bullish.")
-        if trend > 0: st.success("Bitcon is in a Bull Trend 🐂")
-        else: st.error("Bitcoin is in a Bear/Correction Trend 🐻")
+        if trend > 0: st.success("Bitcoin is in a Bull Trend")
+        else: st.error("Bitcoin is in a Bear/Correction Trend")
 
     # --- ROW 2: FAQs ---
     with st.expander(get_text('faq_title')):
@@ -760,11 +760,11 @@ def render_market_dashboard():
         - *Our Proxy*: We rely primarily on **Volatility (VIX)** and **Market Momentum** due to real-time data availability.
 
         **Scale:**  
-        - **0-25**: Extreme Fear 🥶  
-        - **25-45**: Fear 😨  
-        - **45-55**: Neutral 😐  
-        - **55-75**: Greed 😎  
-        - **75-100**: Extreme Greed 🤑
+        - **0-25**: Extreme Fear
+        - **25-45**: Fear
+        - **45-55**: Neutral
+        - **55-75**: Greed
+        - **75-100**: Extreme Greed
         """)
 
 
