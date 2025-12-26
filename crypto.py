@@ -1077,7 +1077,7 @@ STRATEGY_PROFILES = {
 }
 
 def page_scanner():
-    st.header(f"{get_text('scanner_header')}")
+    st.title(f"{get_text('scanner_header')}")
     st.caption("Institutional-Grade Crypto Screener powered by Crypash Engine.")
 
     # --- 1. CONFIGURATION (Main Page) ---
@@ -1666,7 +1666,7 @@ def page_single_coin():
                 grade = get_grade(scores['total'])
                 
                 # 3. Header
-                st.markdown(f"## {ticker} {narrative}")
+                st.title(f"{ticker} {narrative}")
                 
                 # Signal Banner (Unified)
                 if "A" in grade: 
