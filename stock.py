@@ -1803,7 +1803,9 @@ def page_single_stock():
                 # SAFE INFO FETCH
                 s_info = safe_get_info(stock_obj)
                 shares = s_info.get('sharesOutstanding')
-                if not shares: shares = row.get('Market_Cap', 0) / row.get('Price', 1) # Fallback
+                mkt_cap_val = row.get('Market_Cap', 0) or 0
+                price_val = row.get('Price', 1) or 1
+                if not shares: shares = mkt_cap_val / price_val # Fallback
                 
                 cashflow = stock_obj.cashflow
                 
@@ -1907,7 +1909,7 @@ def page_single_stock():
                                   fcf_series = cashflow.loc['Free Cash Flow'].dropna()
                                   if not fcf_series.empty: fcf_base = fcf_series.iloc[0] / shares
 
-                        if fcf_base > 0:
+                        if fcf_base and fcf_base > 0:
                             # CALL INTERACTIVE CARD
                             # Note: We pass the calculated defaults. The card will either use them (first run) or use widget state (reruns).
                             # We don't need to manually calc val_high/low here anymore, the card does it.
@@ -1930,7 +1932,7 @@ def page_single_stock():
 
                     # --- MODEL 2: EPS ---
                     eps_base = row.get('EPS_TTM', 0)
-                    if eps_base > 0:
+                    if eps_base and eps_base > 0:
                         high_val_eps = val_card_interactive("NVDA Intrinsic Value Range w/EPS", price, {
                                 'base': eps_base, 
                                 'g_high': g_high, 
@@ -1977,7 +1979,7 @@ def page_single_stock():
                     
                     if (pd.isna(row.get('Fair_Value')) or row.get('Fair_Value') is None) and row.get('Derived_FV'):
                         row['Fair_Value'] = row['Derived_FV']
-                        if row.get('Price') and row['Fair_Value'] != 0:
+                        if row.get('Price') and row.get('Fair_Value') is not None and row['Fair_Value'] != 0:
                              row['Margin_Safety'] = ((row['Fair_Value'] - row['Price']) / row['Fair_Value']) * 100
                     
                     # Strategy Scores
