@@ -97,9 +97,9 @@ def inject_custom_css():
         }
 
         @keyframes pulseGlow {
-            0% { box-shadow: 0 0 5px rgba(0, 51, 102, 0.2); }
-            50% { box-shadow: 0 0 15px rgba(0, 51, 102, 0.5); }
-            100% { box-shadow: 0 0 5px rgba(0, 51, 102, 0.2); }
+            0% { box-shadow: 0 0 5px rgba(212, 175, 55, 0.2); }
+            50% { box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); }
+            100% { box-shadow: 0 0 5px rgba(212, 175, 55, 0.2); }
         }
 
         /* Apply Page Transition to the main content area */
@@ -129,7 +129,7 @@ def inject_custom_css():
             gap: 0px; /* Remove gap between tabs */
             background-color: transparent; 
             padding: 0px;
-            border-bottom: 2px solid #003366;
+            border-bottom: 2px solid #D4AF37;
         }
 
         .stTabs [data-baseweb="tab"] {
@@ -139,7 +139,7 @@ def inject_custom_css():
             background-color: #f8f9fa; /* Light gray for unselected */
             transition: all 0.3s ease;
             border-radius: 0px; /* No corners */
-            color: #003366; 
+            color: #D4AF37; 
             font-weight: 600;
             border: none; /* Clean Look */
             display: flex;
@@ -149,11 +149,11 @@ def inject_custom_css():
 
         .stTabs [data-baseweb="tab"]:hover {
             background-color: #e9ecef;
-            color: #002244;
+            color: #B8860B;
         }
 
         .stTabs [aria-selected="true"] {
-            background-color: #003366 !important; /* Active Blue */
+            background-color: #D4AF37 !important; /* Active Gold */
             color: #ffffff !important;
             font-weight: 700;
             transform: scale(1.02);
@@ -163,13 +163,13 @@ def inject_custom_css():
         /* Metrics & Buttons */
         div[data-testid="stMetricValue"] {
             font-size: 1.4rem !important;
-            color: #003366;
+            color: #D4AF37;
             animation: fadeInSlideUp 1s ease-out;
         }
         
-        /* Primary Button Blue */
+        /* Primary Button Gold */
         div.stButton > button:first-child {
-            background-color: #003366;
+            background-color: #D4AF37;
             color: white;
             border-radius: 8px;
             border: none;
@@ -178,10 +178,10 @@ def inject_custom_css():
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         div.stButton > button:first-child:hover {
-            background-color: #002244;
+            background-color: #B8860B;
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(0, 51, 102, 0.3);
+            box-shadow: 0 6px 15px rgba(212, 175, 55, 0.3);
             animation: pulseGlow 2s infinite;
         }
         div.stButton > button:first-child:active {
@@ -3271,23 +3271,17 @@ if __name__ == "__main__":
     st.session_state['lang'] = 'EN' if "English" in current_lang_sel else 'TH'
 
     # --- BRANDING (Explicit Fallback) ---
-    # We create a top header row to force the logo visibility
-    c_brand_a, c_brand_b = st.columns([1, 20]) # Adjusted for Semi-Wide 
-    with c_brand_a:
-         st.image("logo.png", width=45) # Visible Logo
-    
-    with c_brand_b: 
-         # --- TOP TABS NAVIGATION (CFA Style) ---
-         # Define Tabs (Rendered at the very top)
-         tab_scan, tab_port, tab_single, tab_health, tab_ai, tab_gloss, tab_help = st.tabs([
-            get_text('nav_scanner'), 
-            get_text('nav_portfolio'), 
-            get_text('nav_single'), 
-            get_text('nav_health'), 
-            get_text('nav_ai'), 
-            get_text('nav_glossary'), 
-            get_text('nav_help')
-         ])
+    # We create a top header row to force the tabs visibility
+    # Define Tabs (Rendered at the very top)
+    tab_scan, tab_port, tab_single, tab_health, tab_ai, tab_gloss, tab_help = st.tabs([
+       get_text('nav_scanner'), 
+       get_text('nav_portfolio'), 
+       get_text('nav_single'), 
+       get_text('nav_health'), 
+       get_text('nav_ai'), 
+       get_text('nav_glossary'), 
+       get_text('nav_help')
+    ])
 
     c_logo, c_lang = st.columns([8, 2])
     with c_logo:
