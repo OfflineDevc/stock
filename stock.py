@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 import streamlit as st
 import yfinance as yf
 import altair as alt # Visuals
@@ -98,12 +97,12 @@ def inject_custom_css():
         }
 
         @keyframes pulseGlow {
-            0% { box-shadow: 0 0 5px rgba(212, 175, 55, 0.2); }
-            50% { box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); }
-            100% { box-shadow: 0 0 5px rgba(212, 175, 55, 0.2); }
+            0% { box-shadow: 0 0 5px rgba(0, 51, 102, 0.2); }
+            50% { box-shadow: 0 0 15px rgba(0, 51, 102, 0.5); }
+            100% { box-shadow: 0 0 5px rgba(0, 51, 102, 0.2); }
         }
 
-        /* Apply Page Transition */
+        /* Apply Page Transition to the main content area */
         .block-container {
             padding-top: 1rem;
             animation: fadeInSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
@@ -113,26 +112,36 @@ def inject_custom_css():
             margin: auto;
         }
 
+        /* Responsive Breakpoint for Large Screens to prevent stretching */
+        @media (min-width: 1200px) {
+            .block-container {
+                max-width: 1200px !important;
+            }
+        }
+        
         /* Hide Streamlit Header/Toolbar */
         header {visibility: hidden;}
         [data-testid="stToolbar"] {visibility: hidden;}
         .stDeployButton {display:none;}
 
-        /* Gold Header for Tabs */
+        /* CFA-Style Blue Header for Tabs (Full Width) */
         .stTabs [data-baseweb="tab-list"] {
-            gap: 0px;
+            gap: 0px; /* Remove gap between tabs */
             background-color: transparent; 
             padding: 0px;
-            border-bottom: 2px solid #D4AF37;
+            border-bottom: 2px solid #003366;
         }
 
         .stTabs [data-baseweb="tab"] {
-            flex-grow: 1;
+            flex-grow: 1; /* Stretch to fill width */
             height: 50px;
-            background-color: #f8f9fa;
+            white-space: pre-wrap;
+            background-color: #f8f9fa; /* Light gray for unselected */
             transition: all 0.3s ease;
-            color: #D4AF37; 
+            border-radius: 0px; /* No corners */
+            color: #003366; 
             font-weight: 600;
+            border: none; /* Clean Look */
             display: flex;
             align-items: center;
             justify-content: center;
@@ -140,28 +149,27 @@ def inject_custom_css():
 
         .stTabs [data-baseweb="tab"]:hover {
             background-color: #e9ecef;
-            color: #B8860B;
+            color: #002244;
         }
 
         .stTabs [aria-selected="true"] {
-            background-color: #D4AF37 !important;
+            background-color: #003366 !important; /* Active Blue */
             color: #ffffff !important;
             font-weight: 700;
+            transform: scale(1.02);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
         }
         
-        /* Tab Highlight Bar */
-        div[data-baseweb="tab-highlight-point"] {
-            background-color: #B8860B !important;
-        }
-
         /* Metrics & Buttons */
         div[data-testid="stMetricValue"] {
             font-size: 1.4rem !important;
-            color: #D4AF37;
+            color: #003366;
+            animation: fadeInSlideUp 1s ease-out;
         }
         
+        /* Primary Button Blue */
         div.stButton > button:first-child {
-            background-color: #D4AF37;
+            background-color: #003366;
             color: white;
             border-radius: 8px;
             border: none;
@@ -170,70 +178,17 @@ def inject_custom_css():
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         div.stButton > button:first-child:hover {
-            background-color: #B8860B;
-            box-shadow: 0 6px 15px rgba(212, 175, 55, 0.3);
+            background-color: #002244;
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0, 51, 102, 0.3);
             animation: pulseGlow 2s infinite;
         }
-
-        /* Sliders, Progress Bars, and Widgets */
-        div[data-testid="stSlider"] > div > div > div > div {
-            background-color: #D4AF37 !important;
-        }
-        div[data-testid="stSlider"] [data-baseweb="slider"] [role="slider"] {
-            background-color: #D4AF37 !important;
-            border-color: #D4AF37 !important;
-        }
-        div[data-testid="stProgress"] > div > div > div > div {
-            background-color: #D4AF37 !important;
-        }
-        div[data-testid="stCheckbox"] > label > div:first-child[role="checkbox"][aria-checked="true"] {
-            background-color: #D4AF37 !important;
-            border-color: #D4AF37 !important;
-        }
-        div[data-testid="stRadio"] label div[role="radiogroup"] div[data-bvst] {
-             background-color: #D4AF37 !important;
+        div.stButton > button:first-child:active {
+            transform: translateY(0);
         }
 
-        /* Form Overrides (No Blue Borders) */
-        div[data-baseweb="input"] {
-            border-color: #e6e6e6 !important;
-        }
-        div[data-baseweb="input"]:focus-within {
-            border-color: #D4AF37 !important;
-        }
-        div[data-baseweb="select"] > div {
-            border-color: #e6e6e6 !important;
-        }
-
-        /* Global Overrides */
-        :root {
-            --primary-color: #D4AF37;
-        }
-        h1, h2, h3, h4, h5, h6 {
-            color: #1a1a1a !important;
-        }
-        a {
-            color: #D4AF37 !important;
-            text-decoration: none;
-        }
-        hr {
-            border: 0;
-            border-top: 1px solid #D4AF37 !important;
-            opacity: 0.3;
-        }
-        div[data-testid="stAlert"] {
-            border-left: 5px solid #D4AF37 !important;
-            background-color: #fffaf0 !important;
-        }
-        div[data-testid="stExpander"] {
-            border-color: #D4AF37 !important;
-        }
-        div[role="tooltip"] {
-            background-color: #1a1a1a !important;
-            color: #D4AF37 !important;
-        }
         </style>
-    """, unsafe_allow_html=True)
     """, unsafe_allow_html=True)
 
 # --- LOCALIZATION & TEXT ASSETS ---
@@ -316,11 +271,11 @@ TRANS = {
         'market_sentiment_title': "### 🧭 Market Sentiment (CNN-Style Proxy)",
         'fear_greed_title': "Fear & Greed Index (Proxy)",
         'vix_caption': "Driven by VIX: {vix:.2f} (Lower VIX = Higher Greed)",
-        'state_extreme_fear': "Extreme Fear",
-        'state_fear': "Fear",
-        'state_neutral': "Neutral",
-        'state_greed': "Greed",
-        'state_extreme_greed': "Extreme Greed",
+        'state_extreme_fear': "🥶 Extreme Fear",
+        'state_fear': "😨 Fear",
+        'state_neutral': "😐 Neutral",
+        'state_greed': "😎 Greed",
+        'state_extreme_greed': "🤑 Extreme Greed",
         'buffett_title': "Buffett Indicator (Q3 2025)",
         'buffett_caption': "Ratio of Total US Stock Market ($70.68T) to GDP ($30.77T).",
         'buffett_status': "Status: 2.4 Std Dev above historical average.",
@@ -699,11 +654,11 @@ def render_market_dashboard():
             - *Our Proxy*: We rely primarily on **Volatility (VIX)** and **Market Momentum** due to real-time data availability.
 
             **Scale:**  
-            - **0-25**: Extreme Fear
-            - **25-45**: Fear
-            - **45-55**: Neutral
-            - **55-75**: Greed
-            - **75-100**: Extreme Greed
+            - **0-25**: Extreme Fear 🥶  
+            - **25-45**: Fear 😨  
+            - **45-55**: Neutral 😐  
+            - **55-75**: Greed 😎  
+            - **75-100**: Extreme Greed 🤑
             """)
             
         with tab_buff:
@@ -2956,7 +2911,7 @@ def page_portfolio():
                  base = alt.Chart(chart_df).encode(theta=alt.Theta("Weight %", stack=True))
                  
                  pie = base.mark_arc(outerRadius=120, innerRadius=60).encode(
-                    color=alt.Color(color_col, scale=alt.Scale(range=['#D4AF37', '#B8860B', '#444444', '#1a1a1a', '#8B4513']), legend=alt.Legend(title=legend_title)), 
+                    color=alt.Color(color_col, legend=alt.Legend(title=legend_title)), 
                     order=alt.Order("Weight %", sort="descending"),
                     tooltip=["Ticker", "Bucket", "Weight %", "Sector"] 
                  )
@@ -3189,8 +3144,8 @@ def page_portfolio():
         ac2.metric(f"{get_text('nav_bench')} {cagr_lbl}", b_cagr_str)
         ac3.metric(get_text('gap_annual'), gap_str)
         
-        # Chart (Gold & Dark Grey)
-        st.line_chart(res['chart_data'], color=["#D4AF37", "#444444"])
+        # Chart
+        st.line_chart(res['chart_data'])
 
 
 
@@ -3316,17 +3271,23 @@ if __name__ == "__main__":
     st.session_state['lang'] = 'EN' if "English" in current_lang_sel else 'TH'
 
     # --- BRANDING (Explicit Fallback) ---
-    # We create a top header row to force the tabs visibility
-    # Define Tabs (Rendered at the very top)
-    tab_scan, tab_port, tab_single, tab_health, tab_ai, tab_gloss, tab_help = st.tabs([
-       get_text('nav_scanner'), 
-       get_text('nav_portfolio'), 
-       get_text('nav_single'), 
-       get_text('nav_health'), 
-       get_text('nav_ai'), 
-       get_text('nav_glossary'), 
-       get_text('nav_help')
-    ])
+    # We create a top header row to force the logo visibility
+    c_brand_a, c_brand_b = st.columns([1, 20]) # Adjusted for Semi-Wide 
+    with c_brand_a:
+         st.image("logo.png", width=45) # Visible Logo
+    
+    with c_brand_b: 
+         # --- TOP TABS NAVIGATION (CFA Style) ---
+         # Define Tabs (Rendered at the very top)
+         tab_scan, tab_port, tab_single, tab_health, tab_ai, tab_gloss, tab_help = st.tabs([
+            get_text('nav_scanner'), 
+            get_text('nav_portfolio'), 
+            get_text('nav_single'), 
+            get_text('nav_health'), 
+            get_text('nav_ai'), 
+            get_text('nav_glossary'), 
+            get_text('nav_help')
+         ])
 
     c_logo, c_lang = st.columns([8, 2])
     with c_logo:
