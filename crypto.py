@@ -102,9 +102,9 @@ def inject_custom_css():
         }
 
         @keyframes pulseGlow {
-            0% { box-shadow: 0 0 5px rgba(212, 175, 55, 0.2); }
-            50% { box-shadow: 0 0 15px rgba(212, 175, 55, 0.5); }
-            100% { box-shadow: 0 0 5px rgba(212, 175, 55, 0.2); }
+            0% { box-shadow: 0 0 5px rgba(204, 186, 67, 0.2); }
+            50% { box-shadow: 0 0 15px rgba(204, 186, 67, 0.5); }
+            100% { box-shadow: 0 0 5px rgba(204, 186, 67, 0.2); }
         }
 
         /* Apply Page Transition to the main content area */
@@ -130,11 +130,10 @@ def inject_custom_css():
         .stDeployButton {display:none;}
 
         /* CFA-Style Blue Header for Tabs (Full Width) */
-        .stTabs [data-baseweb="tab-list"] {
             gap: 0px; /* Remove gap between tabs */
             background-color: transparent; 
             padding: 0px;
-            border-bottom: 2px solid #D4AF37;
+            border-bottom: 2px solid #ccba43ff;
         }
 
         .stTabs [data-baseweb="tab"] {
@@ -144,7 +143,7 @@ def inject_custom_css():
             background-color: #f8f9fa; /* Light gray for unselected */
             transition: all 0.3s ease;
             border-radius: 0px; /* No corners */
-            color: #D4AF37; 
+            color: #ccba43ff; 
             font-weight: 600;
             border: none; /* Clean Look */
             display: flex;
@@ -154,11 +153,11 @@ def inject_custom_css():
 
         .stTabs [data-baseweb="tab"]:hover {
             background-color: #e9ecef;
-            color: #B8860B;
+            color: #bfa12f;
         }
 
         .stTabs [aria-selected="true"] {
-            background-color: #D4AF37 !important; /* Active Gold */
+            background-color: #ccba43ff !important; /* Active Gold */
             color: #ffffff !important;
             font-weight: 700;
             transform: scale(1.02);
@@ -168,13 +167,13 @@ def inject_custom_css():
         /* Metrics & Buttons */
         div[data-testid="stMetricValue"] {
             font-size: 1.4rem !important;
-            color: #D4AF37;
+            color: #ccba43ff;
             animation: fadeInSlideUp 1s ease-out;
         }
         
         /* Primary Button Gold */
         div.stButton > button:first-child {
-            background-color: #D4AF37;
+            background-color: #ccba43ff;
             color: white;
             border-radius: 8px;
             border: none;
@@ -183,15 +182,60 @@ def inject_custom_css():
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
         div.stButton > button:first-child:hover {
-            background-color: #B8860B;
+            background-color: #bfa12f;
             color: white;
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(212, 175, 55, 0.3);
+            box-shadow: 0 6px 15px rgba(204, 186, 67, 0.3);
             animation: pulseGlow 2s infinite;
         }
         div.stButton > button:first-child:active {
             transform: translateY(0);
         }
+
+        /* --- STREAMLIT WIDGET OVERRIDES (Fix for Blue Config) --- */
+        
+        /* Sliders */
+        div[data-baseweb="slider"] div[data-testid="stTickBar"] div {
+            background-color: #ccba43ff !important;
+        }
+        div[data-baseweb="slider"] div[role="slider"] {
+            background-color: #ccba43ff !important;
+            box-shadow: 0 0 5px rgba(204, 186, 67, 0.5) !important;
+        }
+        div[data-baseweb="slider"] div[data-testid="stThumbValue"] {
+            color: #ccba43ff !important;
+        }
+        
+        /* Text Inputs & Selectors Focus */
+        div[data-baseweb="input"]:focus-within, 
+        div[data-baseweb="select"]:focus-within {
+            border-color: #ccba43ff !important;
+            box-shadow: 0 0 0 1px #ccba43ff !important;
+        }
+        
+        /* Checkboxes & Radios */
+        div[data-testid="stCheckbox"] label span[data-testid="stWidgetLabel"] {
+             /* color: #ccba43ff; optional text coloring */
+        }
+        /* Custom checkbox check color is harder to override without very specific selectors, 
+           but usually :checked accent-color works in some browsers, or specific SVG fills.
+           Streamlit uses pseudo elements. */
+        div[role="checkbox"][aria-checked="true"] div:first-child {
+            background-color: #ccba43ff !important;
+            border-color: #ccba43ff !important;
+        }
+        
+        /* Progress Bar */
+        div[data-testid="stProgress"] > div > div {
+             background-color: #ccba43ff !important;
+        }
+
+        /* Expander Header Hover */
+        div[data-testid="stExpander"] div[role="button"]:hover {
+            color: #ccba43ff !important;
+            border-color: #ccba43ff !important;
+        }
+
 
         </style>
     """, unsafe_allow_html=True)
@@ -1928,7 +1972,7 @@ def page_single_coin():
                 if len(chart_df) > 1000:
                     chart_df = chart_df.tail(1000)
                 
-                st.line_chart(chart_df, color=["#0000FF", "#D4AF37"]) # Blue and Gold
+                st.line_chart(chart_df, color=["#0000FF", "#ccba43ff"]) # Blue and Gold
                 
                 latest_fv = Bitnow_line.iloc[-1]
                 upside = (latest_fv - current_price) / current_price * 100
@@ -2261,7 +2305,7 @@ def page_howto():
         color: #1a1a1a;
         font-weight: 700;
         font-size: 1.25rem;
-        border-bottom: 2px solid #D4AF37;
+        border-bottom: 2px solid #ccba43ff;
         padding-bottom: 8px;
         margin-bottom: 16px;
     }
