@@ -56,6 +56,16 @@ def safe_get_info(stock_obj):
     
     return val if val is not None else {}
 
+def get_grade(score):
+    if score >= 80: return "A+"
+    if score >= 70: return "A"
+    if score >= 60: return "B"
+    if score >= 50: return "C"
+    if score >= 40: return "D"
+    return "F"
+
+# ---------------------------------------------------------
+
 
 
 
@@ -894,10 +904,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
             scores = calculate_crypash_score(ticker, hist, info=None)
             total_pro_score = scores['total']
             
-            analysis_str = "Neutral"
-            if total_pro_score >= 75: analysis_str = "💎 Elite"
-            elif total_pro_score >= 55: analysis_str = "✅ Buy"
-            elif total_pro_score <= 35: analysis_str = "⚠️ Avoid"
+            analysis_str = get_grade(total_pro_score)
             
             # --- CRYPASH LINE & MARGIN OF SAFETY ---
             c_line_series = calculate_crypash_line(hist)
@@ -1174,9 +1181,9 @@ def page_scanner():
         def color_cycle(val):
             # Pro Rating Colors
             if isinstance(val, str):
-                if "Elite" in val: return "background-color: #d1e7dd; color: #0f5132; font-weight: bold" # Success Green
-                if "Buy" in val: return "color: #198754; font-weight: bold"
-                if "Avoid" in val: return "color: #dc3545"
+                if "A" in val: return "background-color: #d1e7dd; color: #0f5132; font-weight: bold" # Success Green
+                if "B" in val: return "color: #198754; font-weight: bold"
+                if "D" in val or "F" in val: return "color: #dc3545"
                 # Cycle Colors
                 if "Accumulation" in val: return "background-color: #d4edda; color: #155724; font-weight: bold"
                 if "Euphoria" in val: return "background-color: #f8d7da; color: #721c24; font-weight: bold"
@@ -1606,24 +1613,22 @@ def page_single_coin():
                 scores = calculate_crypash_score(ticker, hist, stock.info)
                 
                 # --- SIGNAL LOGIC (Unified with Expert Score) ---
-                signal = "NEUTRAL 😐"
-                if scores['total'] >= 75: 
-                    signal = "STRONG BUY 💎"
-                elif scores['total'] >= 55:
-                    signal = "ACCUMULATE 🟢"
-                elif scores['total'] <= 35:
-                    signal = "WEAK / AVOID 🔴"
-                    
+                grade = get_grade(scores['total'])
+                
                 # 3. Header
                 st.markdown(f"## {ticker} {narrative}")
                 
                 # Signal Banner (Unified)
-                if "BUY" in signal or "ACCUMULATE" in signal: 
-                    st.success(f"### RECOMMENDATION: {signal} (Score: {scores['total']})")
-                elif "WEAK" in signal: 
-                    st.error(f"### RECOMMENDATION: {signal} (Score: {scores['total']})")
+                if "A" in grade: 
+                    st.success(f"### CRYPASH SCORE: {grade} ({scores['total']}) 💎")
+                elif "B" in grade:
+                    st.success(f"### CRYPASH SCORE: {grade} ({scores['total']}) ✅")
+                elif "C" in grade:
+                    st.info(f"### CRYPASH SCORE: {grade} ({scores['total']}) 😐")
+                elif "D" in grade: 
+                    st.warning(f"### CRYPASH SCORE: {grade} ({scores['total']}) ⚠️")
                 else: 
-                    st.warning(f"### RECOMMENDATION: {signal} (Score: {scores['total']})")
+                    st.error(f"### CRYPASH SCORE: {grade} ({scores['total']}) ❌")
 
                 c1, c2, c3, c4 = st.columns(4)
                 c1.metric("Price", f"${current_price:,.2f}", f"{(current_price/hist['Close'].iloc[-2]-1)*100:.2f}%")
@@ -1644,8 +1649,7 @@ def page_single_coin():
                 if scores['total'] >= 80: total_color = "off" # Use delta color
                 
                 with sc_main:
-                    st.metric("Total Score", f"{scores['total']}/100", 
-                             "Strong Buy" if scores['total']>=75 else "Neutral" if scores['total']>=40 else "Sell")
+                    st.metric("Total Score", f"{scores['total']}/100", grade)
                     st.progress(scores['total'])
                     for ana in scores['analysis']:
                         st.caption(ana)
