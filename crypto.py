@@ -360,7 +360,7 @@ TRANS = {
         'wealth_subtitle': "Institutional-Grade Portfolio Construction using Modern Portfolio Theory (MPT).",
         'glossary_title': "Bitnow Glossary",
         'glossary_subtitle': "Technical definitions and quantitative methodology framework.",
-        'howto_title': "Bitnow Methodology",
+        'howto_title': "Bitnow (Beta)",
         'howto_subtitle': "Technical framework and procedural guidelines for institutional analysis.",
         
         # --- Restored Keys --- 
