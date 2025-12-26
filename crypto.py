@@ -875,7 +875,8 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
             
             # Drop NaN
             hist = hist.dropna(subset=['Close'])
-            if len(hist) < 200: continue # Need history for Z-Score
+            if len(hist) < 30: continue # Need at least 30d history
+
             
             # --- CALCULATE METRICS ---
             closes = hist['Close']
@@ -2008,11 +2009,12 @@ def page_auto_wealth():
         df_selected = opt.select_universe(df_scan)
         
         if df_selected.empty:
-            st.warning("No assets met the strict criteria (Score > 60).")
-            return
+            st.warning("No assets selected. Try entering a larger capital amount or retrying.")
+            # Fallback to df_scan generic if optimization fails
+            df_selected = df_scan.head(target_n)
             
         st.write(f"**Selected Universe:** {len(df_selected)} Candidates (Top Rated)")
-        st.dataframe(df_selected[['Symbol', 'Crypash_Score', 'Vol_30D', 'RSI']].head(target_n))
+        st.dataframe(df_selected[['Symbol', 'Crypash_Score', 'Vol_30D', 'RSI', 'Tier']].head(target_n))
         
         # D. Optimization (MPT)
         status.write("Running Mean-Variance Optimization (scipy)...")
