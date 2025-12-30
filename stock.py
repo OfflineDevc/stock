@@ -2249,13 +2249,12 @@ def page_ai_analysis():
             1. **Chain of Thought:** Think step-by-step. First analyze the financials, then the business model, then the management, and finally synthesize everything into a grade.
             2. **Analyze Deeply:** Look at the business model, moat, and financial health structure based on the provided context.
             3. **CEO & Management Focus:** specifically analyze the **CEO** (Who are they? Pros/Cons). 
-            4. **SWOT Analysis:** Conduct a detailed SWOT Analysis (Strengths, Weaknesses, Opportunities, Threats).
-            5. **Future Product Radar:** Predict future products or services this company might launch based on their current trajectory and R&D. Provide reasoning for why this is feasible.
-            6. **Assign a Grade (A-F):** Based on business quality.
-            7. **NO HALLUCINATION:** Do NOT invent data. If a piece of information (like CEO name) is not in the context or widely known facts, state "No Data". Do not assume.
-            8. **Output:** Strictly in valid JSON format. Use Thai language for content values.
-
-
+            4. **Detailed Business Model:** Explain heavily what they do. Do not summarize in 1 line. Write 2-3 paragraphs.
+            5. **Product Portfolio:** Analyze key products/services. What are they? How are they performing? What is the future outlook?
+            6. **SWOT Analysis:** Conduct a detailed SWOT Analysis.
+            7. **Assign a Grade (A-F):** Based on business quality.
+            8. **NO HALLUCINATION:** Do NOT invent data. If a piece of information (like CEO name) is not in the context or widely known facts, state "No Data".
+            9. **Output:** Strictly in valid JSON format. Use Thai language for content values.
 
             **JSON Schema:**
 
@@ -2277,15 +2276,30 @@ def page_ai_analysis():
                     "String"
                 ]
               }},
+              "business_deep_dive": {{
+                "what_they_do": "String (Very Detailed 2-3 paragraphs explanation of business model)",
+                "revenue_sources": "String (Detailed breakdown)",
+                "product_portfolio": [
+                    {{
+                        "name": "String (Product Name)",
+                        "description": "String (What is it?)",
+                        "current_performance": "String (Is it selling well? Cash cow?)",
+                        "future_outlook": "String (Growth potential/Next gen version)"
+                    }},
+                    {{
+                        "name": "String (Product Name)",
+                        "description": "String (What is it?)",
+                        "current_performance": "String",
+                        "future_outlook": "String"
+                    }}
+                ],
+                "pricing_power": "String (High/Low - Maker or Taker)"
+              }},
               "swot_analysis": {{
                 "strengths": ["String", "String"],
                 "weaknesses": ["String", "String"],
                 "opportunities": ["String", "String"],
                 "threats": ["String", "String"]
-              }},
-              "future_product_radar": {{
-                "upcoming_products": ["String (Product 1)", "String (Product 2)"],
-                "feasibility_reasoning": "String (Why can they do this? Technical/Financial capacity?)"
               }},
               "management_analysis": {{
                 "ceo_name": "String (Name of CEO)",
@@ -2293,16 +2307,30 @@ def page_ai_analysis():
                 "management_integrity": "String (Transparency/Governance)",
                 "strategy_vision": "String"
               }},
-              "business_deep_dive": {{
-                "what_they_do": "String (Detailed business model)",
-                "revenue_sources": "String (Detailed breakdown)",
-                "pricing_power": "String (High/Low - Maker or Taker)"
-              }},
               "moat_analysis": {{
                 "moat_level": "String (Wide / Narrow / None)",
                 "moat_source": "String",
                 "moat_durability": "String (Long-term sustainability)"
               }},
+              "financial_structure_health": {{
+                "balance_sheet_status": "String (Strong/Weak - Debt level)",
+                "cash_flow_status": "String (Cash Rich or Cash Burn)",
+                "profitability_trend": "String (Margin expansion or compression)"
+              }},
+              "competitive_landscape": {{
+                "direct_competitors": [
+                    "String",
+                    "String"
+                ],
+                "market_position_rank": "String",
+                "competition_intensity": "String"
+              }},
+              "long_term_outlook": {{
+                "bull_case": "String",
+                "bear_case": "String"
+              }}
+            }}
+            """
               "financial_structure_health": {{
                 "balance_sheet_status": "String (Strong/Weak - Debt level)",
                 "cash_flow_status": "String (Cash Rich or Cash Burn)",
@@ -2389,19 +2417,25 @@ def page_ai_analysis():
                             for t in swot.get('threats', []): st.warning(f"- {t}")
 
                     with t_future:
-                        future = data.get('future_product_radar', {})
-                        st.subheader("🚀 Predicted Future Products")
-                        if 'upcoming_products' in future:
-                            for p in future['upcoming_products']:
-                                st.write(f"✨ **{p}**")
+                        # Now integrated into Business Deep Dive or specific Product Tab, but let's keep Future Radar for products
+                        bus = data.get('business_deep_dive', {})
+                        products = bus.get('product_portfolio', [])
                         
-                        st.divider()
-                        st.info(f"**Feasibility Logic:** {future.get('feasibility_reasoning', 'N/A')}")
+                        st.subheader("🚀 Product & Service Portfolio")
+                        for p in products:
+                            with st.expander(f"📦 {p.get('name', 'Product')}", expanded=True):
+                                st.markdown(f"**Description:** {p.get('description', '-')}")
+                                c1, c2 = st.columns(2)
+                                c1.info(f"**Current:** {p.get('current_performance', '-')}")
+                                c2.success(f"**Future:** {p.get('future_outlook', '-')}")
 
                     with t_bus:
                         bus = data['business_deep_dive']
-                        st.write(f"**What they do:** {bus['what_they_do']}")
-                        st.write(f"**Revenue:** {bus['revenue_sources']}")
+                        st.subheader("🏢 Business Model")
+                        st.markdown(bus['what_they_do'])  # Markdown handles long text wrapping better
+                        
+                        st.divider()
+                        st.write(f"**💰 Revenue Sources:** {bus['revenue_sources']}")
                         st.metric("Pricing Power", bus['pricing_power'])
                         
                         st.markdown("---")
