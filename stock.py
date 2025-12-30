@@ -3757,6 +3757,16 @@ if __name__ == "__main__":
         lang_choice = st.radio(get_text('lang_label'), ["English (EN)", "Thai (TH)"], horizontal=True, label_visibility="collapsed", key="lang_choice_key")
         # No need to manually set session_state['lang'] here, we did it at top.
     
+    # --- GLOBAL SIDEBAR SETTINGS ---
+    with st.sidebar:
+        st.divider()
+        st.caption("🔧 System Tools")
+        if st.button("🗑️ Clear Cache / Reset", use_container_width=True):
+            st.cache_data.clear()
+            st.session_state.clear()
+            st.success("Cache Cleared!")
+            st.rerun()
+
     with tab_scan:
         page_scanner()
         
