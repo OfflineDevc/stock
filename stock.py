@@ -2148,7 +2148,7 @@ def page_ai_analysis():
     with c_t: st.title("🧠 AI Stock Analysis")
     with c_l: st.markdown("<br>👉 [**Check out Bidnow 🪙**](https://bidnow.streamlit.app/)", unsafe_allow_html=True)
     
-    st.info("Power by **Gemini** (Lite Latest). This module provides a 360-degree investment research report with **Real-time Data Context**.")
+    st.info("Powered by **Gemini 3.0 Flash**. This module provides a 360-degree investment research report with **Real-time Data Context**.")
 
     # API Key Handling (HIDDEN)
     api_key = "AIzaSyB5BS9mqnaelxkkwYdYyleSFqh7vqTZbj4" 
