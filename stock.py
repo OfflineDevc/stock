@@ -2189,6 +2189,14 @@ def page_ai_analysis():
                 try:
                     holders = stock.major_holders.to_string()
                 except: holders = "No Shareholder Data"
+                
+                # Management / Officers
+                officers_data = "No Officer Data"
+                try:
+                    officers_list = info.get('companyOfficers', [])
+                    if officers_list:
+                         officers_data = "\n".join([f"- {o.get('name')} ({o.get('title')})" for o in officers_list[:5]])
+                except: pass
 
                 # Context String
                 context_data = f"""
@@ -2213,6 +2221,9 @@ def page_ai_analysis():
                 
                 [MAJOR HOLDERS]
                 {holders}
+                
+                [MANAGEMENT & OFFICERS]
+                {officers_data}
                 
                 [RECENT PRICE ACTION (Last 10 Days)]
                 {hist_text}
@@ -2429,58 +2440,11 @@ def page_ai_analysis():
                     
                     st.divider()
                     
-                    # 3. Strategy & Outlook
-                    st.header("🎯 Investment Strategy (10-Year Outlook)")
+
                     
-                    # Action Plan
-                    strat = data['investment_strategy_guide']
-                    
-                    s1, s2, s3 = st.columns(3)
-                    s1.metric("Verdict", strat['valuation_verdict'])
-                    s2.metric("Investor Type", strat['suitable_investor_type'])
-                    s3.metric("Max Allocation", strat['portfolio_allocation_advice']['max_port_allocation'])
-                    
-                    st.warning(f"**Action Plan:** {strat['actionable_plan']}")
-                    st.info(f"**Allocation Logic:** {strat['portfolio_allocation_advice']['reasoning']}")
-                    
-                    # Scenarios
-                    st.subheader("🔮 Scenarios")
-                    tab_bull, tab_base, tab_bear = st.tabs(["🟢 Bull Case", "⚪ Base Case", "🔴 Bear Case"])
-                    with tab_bull: st.success(data['ten_year_outlook_scenarios']['bull_case_best'])
-                    with tab_base: st.info(data['ten_year_outlook_scenarios']['base_case_moderate'])
-                    with tab_bear: st.error(data['ten_year_outlook_scenarios']['bear_case_worst'])
-                    
-                    st.divider()
-                    
-                    # 4. Technicals & Consensus
-                    c_tech, c_con = st.columns(2)
-                    with c_tech:
-                        st.subheader("📈 Technicals")
-                        tech = data['technical_analysis_zones']
-                        st.write(f"**Trend:** {tech['trend_status']}")
-                        st.write(f"**Support:** {tech['support_level']}")
-                        st.write(f"**Resistance:** {tech['resistance_level']}")
-                        if 'analysis_as_of' in tech:
-                            st.caption(f"📅 Chart Date: {tech['analysis_as_of']}")
+
                         
-                    with c_con:
-                        st.subheader("🗣️ Consensus")
-                        con = data['analyst_consensus']
-                        st.write(f"**View:** {con['market_view']}")
-                        st.write(f"**Target:** {con['average_target_price']}")
-                        st.write(f"**Upside:** {con['upside_downside']}")
-                        
-                    # ESG
-                    with st.expander("🌱 ESG & Sustainability"):
-                        st.write(f"**Risk:** {data['esg_sustainability']['esg_rating_or_risk']}")
-                        st.write(f"**Future:** {data['esg_sustainability']['future_impact']}")
-                        
-                    # News
-                    with st.expander("📰 Recent News Impact"):
-                        st.write(f"**Headline:** {data['recent_news_analysis']['headline_summary']}")
-                        if 'news_date' in data['recent_news_analysis']:
-                             st.caption(f"📅 Published: {data['recent_news_analysis']['news_date']}")
-                        st.write(f"**Impact:** {data['recent_news_analysis']['impact_assessment']}")
+
 
                 except json.JSONDecodeError:
                     st.error("Error parsing AI response. The model might have failed to return valid JSON.")
