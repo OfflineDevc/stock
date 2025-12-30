@@ -4,6 +4,8 @@ import altair as alt # Visuals
 import pandas as pd
 import numpy as np
 import time
+import requests
+import xml.etree.ElementTree as ET
 
 import datetime
 
@@ -2096,6 +2098,28 @@ def page_single_stock():
 # ---------------------------------------------------------
 # AI ANALYSIS PAGE
 # ---------------------------------------------------------
+# --- HELPER: FALLBACK NEWS ---
+def fetch_google_news(ticker):
+    """Fetch news from Google RSS if Yahoo fails."""
+    try:
+        # Clean ticker for search
+        query = ticker.replace('.BK', ' Thailand Stock')
+        url = f"https://news.google.com/rss/search?q={query}&hl=en-TH&gl=TH&ceid=TH:en"
+        
+        headers = {'User-Agent': 'Mozilla/5.0'}
+        response = requests.get(url, headers=headers, timeout=5)
+        
+        root = ET.fromstring(response.content)
+        news_items = []
+        for item in root.findall('.//item')[:5]:
+            title = item.find('title').text
+            pub_date = item.find('pubDate').text
+            news_items.append(f"- {title} ({pub_date}) [Source: Google News]")
+            
+        return "\\n".join(news_items)
+    except Exception as e:
+        return f"Error fetching fallback news: {str(e)}"
+
 def page_ai_analysis():
     c_t, c_l = st.columns([3, 1])
     with c_t: st.title("🧠 AI Stock Analysis")
@@ -2129,9 +2153,13 @@ def page_ai_analysis():
                 # Fetch Info
                 info = stock.info
                 
-                # Fetch News (Top 5)
+                # Fetch News (Yahoo First, Then Google Fallback)
                 news = stock.news[:5] if stock.news else []
-                news_text = "\n".join([f"- {n.get('title')} ({n.get('publisher')}) [{datetime.datetime.fromtimestamp(n.get('providerPublishTime', 0)).strftime('%Y-%m-%d')}]" for n in news])
+                if news:
+                    news_text = "\n".join([f"- {n.get('title')} ({n.get('publisher')}) [{datetime.datetime.fromtimestamp(n.get('providerPublishTime', 0)).strftime('%Y-%m-%d')}]" for n in news])
+                else:
+                    # FALLBACK
+                    news_text = fetch_google_news(formatted_ticker)
                 
                 # Fetch Recent History (30 Days)
                 hist = stock.history(period="1mo")

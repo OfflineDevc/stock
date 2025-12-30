@@ -8,3 +8,4 @@ deep-translator
 plotly
 scipy
 google-generativeai
+requests
