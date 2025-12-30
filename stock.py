@@ -2128,7 +2128,7 @@ def page_ai_analysis():
     st.info("Power by **Gemini** (Lite Latest). This module provides a 360-degree investment research report with **Real-time Data Context**.")
 
     # API Key Handling (HIDDEN)
-    api_key = "AIzaSyDa2XaIsma-J79MsislBXhi7uW44RkPlPI" 
+    api_key = "AIzaSyBfmtzOBzMfEAwNcvUsan-FwGL-2P66f9c" 
     
     # Input Ticker
     col_input, col_btn = st.columns([3, 1])
