@@ -2331,25 +2331,7 @@ def page_ai_analysis():
               }}
             }}
             """
-              "financial_structure_health": {{
-                "balance_sheet_status": "String (Strong/Weak - Debt level)",
-                "cash_flow_status": "String (Cash Rich or Cash Burn)",
-                "profitability_trend": "String (Margin expansion or compression)"
-              }},
-              "competitive_landscape": {{
-                "direct_competitors": [
-                    "String",
-                    "String"
-                ],
-                "market_position_rank": "String",
-                "competition_intensity": "String"
-              }},
-              "long_term_outlook": {{
-                "bull_case": "String",
-                "bear_case": "String"
-              }}
-            }}
-            """
+
             
             with st.spinner("🤖 AI is analyzing... (This may take 10-20 seconds)"):
                 try:
