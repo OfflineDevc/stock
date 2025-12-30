@@ -213,7 +213,7 @@ TRANS = {
         'sector_label': "Select Sectors (Optional)",
         'lynch_label': "Select Lynch Categories (Optional)",
         'execute_btn': "🚀 Execute 2-Stage Screen",
-        'main_title': "Stockub",
+        'main_title': "Stockub (AI updated)",
         'scan_limit': "Scan Limit",
         'results_header': "🏆 Top Picks (Deep Analyzed)",
         'stage1_msg': "📡 Stage 1: Fetching Universe...",
