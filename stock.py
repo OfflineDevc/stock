@@ -2379,6 +2379,8 @@ def page_ai_analysis():
                 except Exception as e:
                     st.error(f"An error occurred: {str(e)}")
                     st.error("Make sure your API Key is valid and supports the selected model.")
+        except Exception as e:
+            st.error(f"Configuration Error: {str(e)}")
 
 
 def page_glossary():
