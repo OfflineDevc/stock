@@ -2194,121 +2194,76 @@ def page_ai_analysis():
             
             # Construct Prompt with Context
             prompt = f"""
-            Act as a Senior Equity Analyst, Portfolio Manager, and Technical Analyst.
+            Act as a Senior Equity Analyst and Rating Agency (like Moody's or Morningstar).
 
-            Your task is to conduct a comprehensive 360-degree research on the stock ticker: "{ticker}".
+            Your task is to analyze the structural fundamentals of the stock ticker: "{ticker}".
             
             **INPUT CONTEXT:**
             {context_data}
 
-            **Crucial Instruction:**
-            - **TIMESTAMP EVERYTHING:** Since stock data changes rapidly, you must indicate the **Date and Time** (or "As of date") for the price, news, and analysis generation.
-            - **USE CONTEXT:** Prioritize the provided "REAL-TIME CONTEXT DATA" for prices, news, and technicals.
-
-            **Research Steps:**
-            1.  **Fundamental:** Analyze business, revenue, financial health, and dividends.
-            2.  **Market & Management:** Check competitors, moat, management, and **Insider Trading**.
-            3.  **Shareholders:** Look for major shareholders and fund flows.
-            4.  **Consensus & Technical:** Find analyst targets and technical trends.
-            5.  **Strategy:** Formulate a 10-year outlook and investment strategy.
-
-            **Output Rule:**
-            -   Output strictly in **valid JSON format**.
-            -   Use **Thai language** for content values.
+            **Core Instructions:**
+            1. **Analyze Deeply:** Look at the business model, moat, and financial health structure based on the provided context (Financials, Business Summary).
+            2. **Assign a Grade (A-F):** Based on business quality (NOT stock price).
+               - **Grade A:** World-class moat, cash cow, great management.
+               - **Grade B:** Strong company, minor risks.
+               - **Grade C:** Average company, cyclical, or intense competition.
+               - **Grade D:** Weak fundamentals, high debt, or declining industry.
+               - **Grade F:** Distress, fraud risk, or structural failure.
+            3. **List Competitors:** Identify specific rival companies.
+            4. **Output:** Strictly in valid JSON format. Use Thai language for content values.
 
             **JSON Schema:**
 
             {{
-              "meta_info": {{
-                "generated_at_datetime": "String (Current Date & Time of this analysis e.g., 2024-05-20 10:30 AM)",
-                "data_freshness_check": "String (Comment on whether the data is Real-time or Delayed)"
-              }},
-              "stock_info": {{
+              "stock_identity": {{
                 "symbol": "String",
                 "company_name": "String",
-
-                "sector": "String",
-                "current_price": "String",
-                "price_as_of": "String (Time/Date of this price e.g., Closing price on 19 May)",
-                "current_price_status": "String (e.g., All-time High, Sideway)"
+                "business_nature": "String"
+              }},
+              "fundamental_grading_report": {{
+                "overall_grade": "String (A / B+ / B / C / D / F)",
+                "score_summary": "String (Short justification: Why did it get this grade?)",
+                "key_strengths": [
+                    "String",
+                    "String"
+                ],
+                "key_weaknesses": [
+                    "String",
+                    "String"
+                ]
+              }},
+              "competitive_landscape": {{
+                "direct_competitors": [
+                    "String (Name of Competitor 1)",
+                    "String (Name of Competitor 2)",
+                    "String (Name of Competitor 3)"
+                ],
+                "market_position_rank": "String (e.g., Market Leader / Challenger / Niche Player)",
+                "competition_intensity": "String (Low / Moderate / Red Ocean)"
               }},
               "business_deep_dive": {{
-                "key_products_services": [
-                  "String",
-                  "String"
-                ],
-                "revenue_mix": "String"
+                "what_they_do": "String (Detailed business model)",
+                "revenue_sources": "String (Detailed breakdown)",
+                "pricing_power": "String (High/Low - Maker or Taker)"
               }},
-              "financial_health_check": {{
-                "performance_trend": "String",
-                "balance_sheet_strength": "String",
-                "cash_flow_quality": "String"
-              }},
-              "dividend_intelligence": {{
-                "current_yield": "String",
-                "payout_consistency": "String",
-                "dividend_outlook": "String"
-              }},
-              "market_position": {{
-                "main_competitors": [
-                  "String",
-                  "String"
-                ],
-                "market_share_insight": "String"
-              }},
-              "competitive_advantage": {{
+              "moat_analysis": {{
                 "moat_level": "String (Wide / Narrow / None)",
                 "moat_source": "String",
-                "moat_analysis": "String"
+                "moat_durability": "String (Long-term sustainability)"
               }},
-              "major_shareholders": {{
-                "top_holders": "String",
-                "institutional_view": "String",
-                "free_float_concern": "String"
+              "management_quality": {{
+                "key_vision": "String",
+                "track_record": "String (Capability assessment)",
+                "shareholder_friendliness": "String (Dividend policy & Transparency)"
               }},
-              "management_and_insider": {{
-                "key_executives": "String",
-                "reputation_track_record": "String",
-                "insider_trading_activity": {{
-                    "recent_moves": "String (Specific details: Who, Buy/Sell, Amount)",
-                    "transaction_dates": "String (When did these happen?)",
-                    "sentiment_signal": "String"
-                }}
+              "financial_structure_health": {{
+                "balance_sheet_status": "String (Strong/Weak - Debt level)",
+                "cash_flow_status": "String (Cash Rich or Cash Burn)",
+                "profitability_trend": "String (Margin expansion or compression)"
               }},
-              "analyst_consensus": {{
-                "market_view": "String",
-                "average_target_price": "String",
-                "upside_downside": "String"
-              }},
-              "technical_analysis_zones": {{
-                "analysis_as_of": "String (Date of chart analysis)",
-                "trend_status": "String",
-                "support_level": "String",
-                "resistance_level": "String"
-              }},
-              "esg_sustainability": {{
-                "esg_rating_or_risk": "String",
-                "future_impact": "String"
-              }},
-              "recent_news_analysis": {{
-                "headline_summary": "String",
-                "news_date": "String (When was this news published?)",
-                "impact_assessment": "String"
-              }},
-              "ten_year_outlook_scenarios": {{
-                "bull_case_best": "String",
-                "base_case_moderate": "String",
-                "bear_case_worst": "String"
-              }},
-              "investment_strategy_guide": {{
-                "suitable_investor_type": "String",
-                "valuation_verdict": "String",
-                "portfolio_allocation_advice": {{
-                    "risk_level": "String",
-                    "max_port_allocation": "String",
-                    "reasoning": "String"
-                }},
-                "actionable_plan": "String"
+              "long_term_outlook": {{
+                "bull_case": "String",
+                "bear_case": "String"
               }}
             }}
             """
@@ -2321,125 +2276,87 @@ def page_ai_analysis():
                     clean_json = text_out.replace("```json", "").replace("```", "").strip()
                     data = json.loads(clean_json)
                     
-                    st.success(f"Analysis Complete for {data['stock_info']['symbol']}")
+                    st.success(f"Grading Complete for {data['stock_identity']['symbol']}")
                     
-                    # --- RENDER UI CARDS ---
+                    # --- RENDER UI CARDS (NEW GRADING LAYOUT) ---
                     
-                    # 0. Meta Info (Timestamp)
-                    if 'meta_info' in data:
-                        st.caption(f"🕒 Generated at: {data['meta_info']['generated_at_datetime']} | ℹ️ Data Status: {data['meta_info']['data_freshness_check']}")
-
-                    # 1. Header Card
+                    # 1. Identity & Grade Banner
                     with st.container():
-                        c1, c2, c3 = st.columns([1, 2, 1])
-                        c1.metric("Ticker", data['stock_info']['symbol'])
-                        c2.subheader(f"{data['stock_info']['company_name']}")
-                        c2.caption(f"{data['stock_info']['sector']}")
+                        c1, c2 = st.columns([1, 4])
                         
-                        # Price with Timestamp
-                        price_display = data['stock_info'].get('current_price', 'N/A')
-                        price_time = data['stock_info'].get('price_as_of', '')
-                        c3.metric("Status", data['stock_info']['current_price_status'], f"{price_display} ({price_time})")
+                        # Grade Circle (Simulated)
+                        grade = data['fundamental_grading_report']['overall_grade']
+                        color_map = {'A': 'green', 'B': 'teal', 'C': 'orange', 'D': 'red', 'F': 'red'}
+                        grade_color = color_map.get(grade[0], 'blue')
+                        
+                        with c1:
+                            st.markdown(f"<h1 style='text-align: center; color: {grade_color}; font-size: 60px;'>{grade}</h1>", unsafe_allow_html=True)
+                            st.caption("Fundamental Grade")
+                            
+                        with c2:
+                            st.subheader(f"{data['stock_identity']['company_name']} ({data['stock_identity']['symbol']})")
+                            st.write(f"**Business:** {data['stock_identity']['business_nature']}")
+                            st.info(f"**Verdict:** {data['fundamental_grading_report']['score_summary']}")
                     
                     st.divider()
                     
-                    # 2. Key Insights Grid
-                    col1, col2 = st.columns(2)
-                    
-                    with col1:
-                        st.subheader("🏢 Business & Financials")
-                        with st.expander("Business Deep Dive", expanded=True):
-                            st.write(f"**Products:** {', '.join(data['business_deep_dive']['key_products_services'])}")
-                            st.write(f"**Revenue Mix:** {data['business_deep_dive']['revenue_mix']}")
-                            st.info(f"**Moat:** {data['competitive_advantage']['moat_level']} ({data['competitive_advantage']['moat_source']})")
-                            st.caption(data['competitive_advantage']['moat_analysis'])
+                    # 2. Key Grades Details
+                    k1, k2 = st.columns(2)
+                    with k1:
+                        st.subheader("✅ Key Strengths")
+                        for s in data['fundamental_grading_report']['key_strengths']:
+                            st.success(f"- {s}")
+                            
+                    with k2:
+                        st.subheader("⚠️ Key Risks")
+                        for w in data['fundamental_grading_report']['key_weaknesses']:
+                            st.error(f"- {w}")
 
-                        with st.expander("Financial Health", expanded=True):
-                             st.write(f"**Trend:** {data['financial_health_check']['performance_trend']}")
-                             st.write(f"**Balance Sheet:** {data['financial_health_check']['balance_sheet_strength']}")
-                             st.write(f"**Cash Flow:** {data['financial_health_check']['cash_flow_quality']}")
-                             
-                        with st.expander("Dividends"):
-                             st.metric("Yield", data['dividend_intelligence']['current_yield'])
-                             st.write(f"**Consistency:** {data['dividend_intelligence']['payout_consistency']}")
-                             st.write(f"**Outlook:** {data['dividend_intelligence']['dividend_outlook']}")
+                    st.divider()
 
-                    with col2:
-                        st.subheader("🌍 Market & Management")
-                        with st.expander("Market Position", expanded=True):
-                             st.write(f"**Competitors:** {', '.join(data['market_position']['main_competitors'])}")
-                             st.write(f"**Insight:** {data['market_position']['market_share_insight']}")
-                             
-                        with st.expander("Management & Insider", expanded=True):
-                             st.write(f"**Executives:** {data['management_and_insider']['key_executives']}")
-                             st.write(f"**Reputation:** {data['management_and_insider']['reputation_track_record']}")
-                             
-                             # Insider with Date
-                             insider = data['management_and_insider']['insider_trading_activity']
-                             st.markdown(f"**Insider Moves:** {insider['recent_moves']}")
-                             if 'transaction_dates' in insider:
-                                 st.caption(f"📅 Date: {insider['transaction_dates']}")
-                             st.caption(f"Signal: {insider['sentiment_signal']}")
-                             
-                        with st.expander("Shareholders"):
-                             st.write(f"**Top Holders:** {data['major_shareholders']['top_holders']}")
-                             st.write(f"**Institutional:** {data['major_shareholders']['institutional_view']}")
-                             st.write(f"**Free Float:** {data['major_shareholders']['free_float_concern']}")
+                    # 3. Deep Dive Tabs
+                    t_bus, t_moat, t_fin, t_comp = st.tabs(["🏭 Business", "🏰 Moat & Mgmt", "💰 Financials", "⚔️ Competition"])
                     
-                    st.divider()
-                    
-                    # 3. Strategy & Outlook
-                    st.header("🎯 Investment Strategy (10-Year Outlook)")
-                    
-                    # Action Plan
-                    strat = data['investment_strategy_guide']
-                    
-                    s1, s2, s3 = st.columns(3)
-                    s1.metric("Verdict", strat['valuation_verdict'])
-                    s2.metric("Investor Type", strat['suitable_investor_type'])
-                    s3.metric("Max Allocation", strat['portfolio_allocation_advice']['max_port_allocation'])
-                    
-                    st.warning(f"**Action Plan:** {strat['actionable_plan']}")
-                    st.info(f"**Allocation Logic:** {strat['portfolio_allocation_advice']['reasoning']}")
-                    
-                    # Scenarios
-                    st.subheader("🔮 Scenarios")
-                    tab_bull, tab_base, tab_bear = st.tabs(["🟢 Bull Case", "⚪ Base Case", "🔴 Bear Case"])
-                    with tab_bull: st.success(data['ten_year_outlook_scenarios']['bull_case_best'])
-                    with tab_base: st.info(data['ten_year_outlook_scenarios']['base_case_moderate'])
-                    with tab_bear: st.error(data['ten_year_outlook_scenarios']['bear_case_worst'])
-                    
-                    st.divider()
-                    
-                    # 4. Technicals & Consensus
-                    c_tech, c_con = st.columns(2)
-                    with c_tech:
-                        st.subheader("📈 Technicals")
-                        tech = data['technical_analysis_zones']
-                        st.write(f"**Trend:** {tech['trend_status']}")
-                        st.write(f"**Support:** {tech['support_level']}")
-                        st.write(f"**Resistance:** {tech['resistance_level']}")
-                        if 'analysis_as_of' in tech:
-                            st.caption(f"📅 Chart Date: {tech['analysis_as_of']}")
+                    with t_bus:
+                        bus = data['business_deep_dive']
+                        st.write(f"**What they do:** {bus['what_they_do']}")
+                        st.write(f"**Revenue:** {bus['revenue_sources']}")
+                        st.metric("Pricing Power", bus['pricing_power'])
                         
-                    with c_con:
-                        st.subheader("🗣️ Consensus")
-                        con = data['analyst_consensus']
-                        st.write(f"**View:** {con['market_view']}")
-                        st.write(f"**Target:** {con['average_target_price']}")
-                        st.write(f"**Upside:** {con['upside_downside']}")
+                        st.markdown("---")
+                        st.subheader("🔭 Outlook")
+                        c_bull, c_bear = st.columns(2)
+                        with c_bull: 
+                            st.success(f"**Bull Case:** {data['long_term_outlook']['bull_case']}")
+                        with c_bear:
+                            st.error(f"**Bear Case:** {data['long_term_outlook']['bear_case']}")
+
+                    with t_moat:
+                        moat = data['moat_analysis']
+                        mgmt = data['management_quality']
                         
-                    # ESG
-                    with st.expander("🌱 ESG & Sustainability"):
-                        st.write(f"**Risk:** {data['esg_sustainability']['esg_rating_or_risk']}")
-                        st.write(f"**Future:** {data['esg_sustainability']['future_impact']}")
+                        m1, m2 = st.columns(2)
+                        with m1:
+                            st.metric("Moat Level", moat['moat_level'])
+                            st.write(f"**Source:** {moat['moat_source']}")
+                            st.caption(f"Durability: {moat['moat_durability']}")
+                        with m2:
+                            st.write(f"**Vision:** {mgmt['key_vision']}")
+                            st.write(f"**Track Record:** {mgmt['track_record']}")
+                            st.write(f"**Shareholder:** {mgmt['shareholder_friendliness']}")
+                            
+                    with t_fin:
+                        fin = data['financial_structure_health']
+                        st.info(f"**Balance Sheet:** {fin['balance_sheet_status']}")
+                        st.info(f"**Cash Flow:** {fin['cash_flow_status']}")
+                        st.info(f"**Profitability:** {fin['profitability_trend']}")
                         
-                    # News
-                    with st.expander("📰 Recent News Impact"):
-                        st.write(f"**Headline:** {data['recent_news_analysis']['headline_summary']}")
-                        if 'news_date' in data['recent_news_analysis']:
-                             st.caption(f"📅 Published: {data['recent_news_analysis']['news_date']}")
-                        st.write(f"**Impact:** {data['recent_news_analysis']['impact_assessment']}")
+                    with t_comp:
+                        comp = data['competitive_landscape']
+                        st.metric("Market Position", comp['market_position_rank'])
+                        st.metric("Intensity", comp['competition_intensity'])
+                        st.write("**Direct Competitors:**")
+                        st.write(", ".join(comp['direct_competitors']))
 
                 except json.JSONDecodeError:
                     st.error("Error parsing AI response. The model might have failed to return valid JSON.")
