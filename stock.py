@@ -2418,7 +2418,7 @@ def page_ai_analysis():
                         
                         st.divider()
                         st.write(f"**💰 Revenue Sources:** {bus['revenue_sources']}")
-                        st.metric("Pricing Power", bus['pricing_power'])
+                        st.markdown(f"**🏷️ Pricing Power:** {bus['pricing_power']}")
                         
                         st.markdown("---")
                         st.subheader("🔭 Outlook")
