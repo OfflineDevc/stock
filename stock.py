@@ -6,7 +6,11 @@ import numpy as np
 import time
 
 import datetime
+
 from deep_translator import GoogleTranslator
+import google.generativeai as genai
+import json
+
 
 # --- TRANSLATION HELPER ---
 @st.cache_data(ttl=86400, show_spinner=False)
@@ -2086,6 +2090,297 @@ def page_single_stock():
 
 
 
+# ---------------------------------------------------------
+# AI ANALYSIS PAGE
+# ---------------------------------------------------------
+def page_ai_analysis():
+    c_t, c_l = st.columns([3, 1])
+    with c_t: st.title("🧠 AI Stock Analysis (Gemini 3.0)")
+    with c_l: st.markdown("<br>👉 [**Check out Bidnow 🪙**](https://bidnow.streamlit.app/)", unsafe_allow_html=True)
+    
+    st.info("Power by **Gemini 3.0 Flash** (Lite Latest). This module provides a 360-degree investment research report.")
+
+    # API Key Handling
+    # Use the key provided by user as default, but allow overriding
+    default_key = "AIzaSyDa2XaIsma-J79MsislBXhi7uW44RkPlPI" 
+    api_key = st.text_input("🔑 Google Gemini API Key", value=default_key, type="password")
+    
+    if not api_key:
+        st.warning("Please enter your API Key to proceed.")
+        return
+
+    # Input Ticker
+    col_input, col_btn = st.columns([3, 1])
+    with col_input:
+        ticker = st.text_input("Enter Specfic Stock Ticker (e.g., DELTA.BK, NVDA, PTT.BK)", value="DELTA.BK")
+    
+    with col_btn:
+        st.write("") # Spacer
+        st.write("")
+        analyze_click = st.button("✨ Analyze with AI", type="primary", use_container_width=True)
+
+    if analyze_click and ticker:
+        try:
+            genai.configure(api_key=api_key)
+            # Use the requested model
+            model_name = "models/gemini-flash-lite-latest"
+            
+            # Create Model
+            model = genai.GenerativeModel(model_name)
+            
+            # Construct Prompt
+            prompt = f"""
+            Act as a Senior Equity Analyst, Portfolio Manager, and Technical Analyst.
+
+            Your task is to conduct a comprehensive 360-degree research on the stock ticker: "{ticker}".
+
+            **Crucial Instruction:**
+            - **TIMESTAMP EVERYTHING:** Since stock data changes rapidly, you must indicate the **Date and Time** (or "As of date") for the price, news, and analysis generation.
+
+            **Research Steps:**
+            1.  **Fundamental:** Analyze business, revenue, financial health, and dividends.
+            2.  **Market & Management:** Check competitors, moat, management, and **Insider Trading**.
+            3.  **Shareholders:** Look for major shareholders and fund flows.
+            4.  **Consensus & Technical:** Find analyst targets and technical trends.
+            5.  **Strategy:** Formulate a 10-year outlook and investment strategy.
+
+            **Output Rule:**
+            -   Output strictly in **valid JSON format**.
+            -   Use **Thai language** for content values.
+
+            **JSON Schema:**
+
+            {{
+              "meta_info": {{
+                "generated_at_datetime": "String (Current Date & Time of this analysis e.g., 2024-05-20 10:30 AM)",
+                "data_freshness_check": "String (Comment on whether the data is Real-time or Delayed)"
+              }},
+              "stock_info": {{
+                "symbol": "String",
+                "company_name": "String",
+                "sector": "String",
+                "current_price": "String",
+                "price_as_of": "String (Time/Date of this price e.g., Closing price on 19 May)",
+                "current_price_status": "String (e.g., All-time High, Sideway)"
+              }},
+              "business_deep_dive": {{
+                "key_products_services": [
+                  "String",
+                  "String"
+                ],
+                "revenue_mix": "String"
+              }},
+              "financial_health_check": {{
+                "performance_trend": "String",
+                "balance_sheet_strength": "String",
+                "cash_flow_quality": "String"
+              }},
+              "dividend_intelligence": {{
+                "current_yield": "String",
+                "payout_consistency": "String",
+                "dividend_outlook": "String"
+              }},
+              "market_position": {{
+                "main_competitors": [
+                  "String",
+                  "String"
+                ],
+                "market_share_insight": "String"
+              }},
+              "competitive_advantage": {{
+                "moat_level": "String (Wide / Narrow / None)",
+                "moat_source": "String",
+                "moat_analysis": "String"
+              }},
+              "major_shareholders": {{
+                "top_holders": "String",
+                "institutional_view": "String",
+                "free_float_concern": "String"
+              }},
+              "management_and_insider": {{
+                "key_executives": "String",
+                "reputation_track_record": "String",
+                "insider_trading_activity": {{
+                    "recent_moves": "String (Specific details: Who, Buy/Sell, Amount)",
+                    "transaction_dates": "String (When did these happen?)",
+                    "sentiment_signal": "String"
+                }}
+              }},
+              "analyst_consensus": {{
+                "market_view": "String",
+                "average_target_price": "String",
+                "upside_downside": "String"
+              }},
+              "technical_analysis_zones": {{
+                "analysis_as_of": "String (Date of chart analysis)",
+                "trend_status": "String",
+                "support_level": "String",
+                "resistance_level": "String"
+              }},
+              "esg_sustainability": {{
+                "esg_rating_or_risk": "String",
+                "future_impact": "String"
+              }},
+              "recent_news_analysis": {{
+                "headline_summary": "String",
+                "news_date": "String (When was this news published?)",
+                "impact_assessment": "String"
+              }},
+              "ten_year_outlook_scenarios": {{
+                "bull_case_best": "String",
+                "base_case_moderate": "String",
+                "bear_case_worst": "String"
+              }},
+              "investment_strategy_guide": {{
+                "suitable_investor_type": "String",
+                "valuation_verdict": "String",
+                "portfolio_allocation_advice": {{
+                    "risk_level": "String",
+                    "max_port_allocation": "String",
+                    "reasoning": "String"
+                }},
+                "actionable_plan": "String"
+              }}
+            }}
+            """
+            
+            with st.spinner("🤖 AI is analyzing... (This may take 10-20 seconds)"):
+                try:
+                    response = model.generate_content(prompt)
+                    # Try to parse JSON from text (handle potential markdown ticks)
+                    text_out = response.text
+                    clean_json = text_out.replace("```json", "").replace("```", "").strip()
+                    data = json.loads(clean_json)
+                    
+                    st.success(f"Analysis Complete for {data['stock_info']['symbol']}")
+                    
+                    # --- RENDER UI CARDS ---
+                    
+                    # 0. Meta Info (Timestamp)
+                    if 'meta_info' in data:
+                        st.caption(f"🕒 Generated at: {data['meta_info']['generated_at_datetime']} | ℹ️ Data Status: {data['meta_info']['data_freshness_check']}")
+
+                    # 1. Header Card
+                    with st.container():
+                        c1, c2, c3 = st.columns([1, 2, 1])
+                        c1.metric("Ticker", data['stock_info']['symbol'])
+                        c2.subheader(f"{data['stock_info']['company_name']}")
+                        c2.caption(f"{data['stock_info']['sector']}")
+                        
+                        # Price with Timestamp
+                        price_display = data['stock_info'].get('current_price', 'N/A')
+                        price_time = data['stock_info'].get('price_as_of', '')
+                        c3.metric("Status", data['stock_info']['current_price_status'], f"{price_display} ({price_time})")
+                    
+                    st.divider()
+                    
+                    # 2. Key Insights Grid
+                    col1, col2 = st.columns(2)
+                    
+                    with col1:
+                        st.subheader("🏢 Business & Financials")
+                        with st.expander("Business Deep Dive", expanded=True):
+                            st.write(f"**Products:** {', '.join(data['business_deep_dive']['key_products_services'])}")
+                            st.write(f"**Revenue Mix:** {data['business_deep_dive']['revenue_mix']}")
+                            st.info(f"**Moat:** {data['competitive_advantage']['moat_level']} ({data['competitive_advantage']['moat_source']})")
+                            st.caption(data['competitive_advantage']['moat_analysis'])
+
+                        with st.expander("Financial Health", expanded=True):
+                             st.write(f"**Trend:** {data['financial_health_check']['performance_trend']}")
+                             st.write(f"**Balance Sheet:** {data['financial_health_check']['balance_sheet_strength']}")
+                             st.write(f"**Cash Flow:** {data['financial_health_check']['cash_flow_quality']}")
+                             
+                        with st.expander("Dividends"):
+                             st.metric("Yield", data['dividend_intelligence']['current_yield'])
+                             st.write(f"**Consistency:** {data['dividend_intelligence']['payout_consistency']}")
+                             st.write(f"**Outlook:** {data['dividend_intelligence']['dividend_outlook']}")
+
+                    with col2:
+                        st.subheader("🌍 Market & Management")
+                        with st.expander("Market Position", expanded=True):
+                             st.write(f"**Competitors:** {', '.join(data['market_position']['main_competitors'])}")
+                             st.write(f"**Insight:** {data['market_position']['market_share_insight']}")
+                             
+                        with st.expander("Management & Insider", expanded=True):
+                             st.write(f"**Executives:** {data['management_and_insider']['key_executives']}")
+                             st.write(f"**Reputation:** {data['management_and_insider']['reputation_track_record']}")
+                             
+                             # Insider with Date
+                             insider = data['management_and_insider']['insider_trading_activity']
+                             st.markdown(f"**Insider Moves:** {insider['recent_moves']}")
+                             if 'transaction_dates' in insider:
+                                 st.caption(f"📅 Date: {insider['transaction_dates']}")
+                             st.caption(f"Signal: {insider['sentiment_signal']}")
+                             
+                        with st.expander("Shareholders"):
+                             st.write(f"**Top Holders:** {data['major_shareholders']['top_holders']}")
+                             st.write(f"**Institutional:** {data['major_shareholders']['institutional_view']}")
+                             st.write(f"**Free Float:** {data['major_shareholders']['free_float_concern']}")
+                    
+                    st.divider()
+                    
+                    # 3. Strategy & Outlook
+                    st.header("🎯 Investment Strategy (10-Year Outlook)")
+                    
+                    # Action Plan
+                    strat = data['investment_strategy_guide']
+                    
+                    s1, s2, s3 = st.columns(3)
+                    s1.metric("Verdict", strat['valuation_verdict'])
+                    s2.metric("Investor Type", strat['suitable_investor_type'])
+                    s3.metric("Max Allocation", strat['portfolio_allocation_advice']['max_port_allocation'])
+                    
+                    st.warning(f"**Action Plan:** {strat['actionable_plan']}")
+                    st.info(f"**Allocation Logic:** {strat['portfolio_allocation_advice']['reasoning']}")
+                    
+                    # Scenarios
+                    st.subheader("🔮 Scenarios")
+                    tab_bull, tab_base, tab_bear = st.tabs(["🟢 Bull Case", "⚪ Base Case", "🔴 Bear Case"])
+                    with tab_bull: st.success(data['ten_year_outlook_scenarios']['bull_case_best'])
+                    with tab_base: st.info(data['ten_year_outlook_scenarios']['base_case_moderate'])
+                    with tab_bear: st.error(data['ten_year_outlook_scenarios']['bear_case_worst'])
+                    
+                    st.divider()
+                    
+                    # 4. Technicals & Consensus
+                    c_tech, c_con = st.columns(2)
+                    with c_tech:
+                        st.subheader("📈 Technicals")
+                        tech = data['technical_analysis_zones']
+                        st.write(f"**Trend:** {tech['trend_status']}")
+                        st.write(f"**Support:** {tech['support_level']}")
+                        st.write(f"**Resistance:** {tech['resistance_level']}")
+                        if 'analysis_as_of' in tech:
+                            st.caption(f"📅 Chart Date: {tech['analysis_as_of']}")
+                        
+                    with c_con:
+                        st.subheader("🗣️ Consensus")
+                        con = data['analyst_consensus']
+                        st.write(f"**View:** {con['market_view']}")
+                        st.write(f"**Target:** {con['average_target_price']}")
+                        st.write(f"**Upside:** {con['upside_downside']}")
+                        
+                    # ESG
+                    with st.expander("🌱 ESG & Sustainability"):
+                        st.write(f"**Risk:** {data['esg_sustainability']['esg_rating_or_risk']}")
+                        st.write(f"**Future:** {data['esg_sustainability']['future_impact']}")
+                        
+                    # News
+                    with st.expander("📰 Recent News Impact"):
+                        st.write(f"**Headline:** {data['recent_news_analysis']['headline_summary']}")
+                        if 'news_date' in data['recent_news_analysis']:
+                             st.caption(f"📅 Published: {data['recent_news_analysis']['news_date']}")
+                        st.write(f"**Impact:** {data['recent_news_analysis']['impact_assessment']}")
+
+                except json.JSONDecodeError:
+                    st.error("Error parsing AI response. The model might have failed to return valid JSON.")
+                    with st.expander("Raw Output"):
+                        st.code(response.text)
+                except Exception as e:
+                    st.error(f"An error occurred: {str(e)}")
+                    st.error("Make sure your API Key is valid and supports the selected model.")
+
+
 def page_glossary():
     c_t, c_l = st.columns([3, 1])
     with c_t: st.title(get_text('glossary_title'))
@@ -3314,9 +3609,7 @@ if __name__ == "__main__":
         st.info(get_text('health_coming_soon'))
         
     with tab_ai:
-        st.title(get_text('menu_ai'))
-        st.markdown("---")
-        st.info(get_text('ai_coming_soon'))
+        page_ai_analysis()
         
     with tab_gloss:
         page_glossary()
