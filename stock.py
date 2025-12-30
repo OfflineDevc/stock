@@ -772,6 +772,27 @@ def safe_float(val):
     except:
         return None
 
+# --- HELPER: RETRY LOGIC (Rate Limits) ---
+def retry_api_call(func, retries=3, delay=2):
+    """
+    Retries a function call if it hits rate limits (429).
+    """
+    last_exception = None
+    for i in range(retries):
+        try:
+            return func()
+        except Exception as e:
+            last_exception = e
+            error_str = str(e).lower()
+            if "429" in error_str or "too many requests" in error_str or "rate limit" in error_str:
+                sleep_time = delay * (2 ** i) # Exponential Backoff: 2s, 4s, 8s
+                print(f"⚠️ Rate Limit Hit. Retrying in {sleep_time}s...")
+                time.sleep(sleep_time)
+                continue
+            else:
+                raise e # Not a rate limit error, raise immediately
+    raise last_exception
+
 # --- Stage 1: Fast Scan (Basic Metrics) ---
 def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
     data_list = []
@@ -2150,11 +2171,14 @@ def page_ai_analysis():
                 
                 stock = yf.Ticker(formatted_ticker)
                 
-                # Fetch Info
-                info = stock.info
+                # Fetch Info (with Retry)
+                info = retry_api_call(lambda: stock.info)
                 
-                # Fetch News (Yahoo First, Then Google Fallback)
-                news = stock.news[:3] if stock.news else []
+                # Fetch News (with Retry)
+                try:
+                    news = retry_api_call(lambda: stock.news[:3] if stock.news else [])
+                except: news = []
+                
                 if news:
                     news_items = []
                     for n in news:
@@ -2166,9 +2190,12 @@ def page_ai_analysis():
                     # FALLBACK
                     news_text = fetch_google_news(formatted_ticker)
                 
-                # Fetch Recent History (30 Days)
-                hist = stock.history(period="1mo")
-                hist_text = hist.tail(10).to_csv() if not hist.empty else "No Data"
+                # Fetch Recent History (30 Days) (with Retry)
+                try:
+                    hist = retry_api_call(lambda: stock.history(period="1mo"))
+                    hist_text = hist.tail(10).to_csv() if not hist.empty else "No Data"
+                except: 
+                    hist_text = "No Price History Data"
                 
                 # Fetch Richer Data
                 long_summary = info.get('longBusinessSummary', 'No Business Summary Available')
@@ -2335,7 +2362,7 @@ def page_ai_analysis():
             
             with st.spinner("🤖 AI is analyzing... (This may take 10-20 seconds)"):
                 try:
-                    response = model.generate_content(prompt)
+                    response = retry_api_call(lambda: model.generate_content(prompt))
                     # Try to parse JSON from text (handle potential markdown ticks)
                     text_out = response.text
                     clean_json = text_out.replace("```json", "").replace("```", "").strip()
