@@ -2137,6 +2137,26 @@ def page_ai_analysis():
                 hist = stock.history(period="1mo")
                 hist_text = hist.tail(10).to_csv() if not hist.empty else "No Data"
                 
+                # Fetch Richer Data
+                long_summary = info.get('longBusinessSummary', 'No Business Summary Available')
+                sector = info.get('sector', 'Unknown')
+                industry = info.get('industry', 'Unknown')
+                
+                # Financials (Last 2 Years)
+                try: 
+                    financials = stock.financials.iloc[:, :2].to_string() 
+                except: financials = "No Financial Data"
+                
+                # Balance Sheet (Last 1 Year - key columns)
+                try:
+                    bs = stock.balance_sheet.iloc[:, :1].to_string()
+                except: bs = "No Balance Sheet Data"
+                
+                # Shareholders
+                try:
+                    holders = stock.major_holders.to_string()
+                except: holders = "No Shareholder Data"
+
                 # Context String
                 context_data = f"""
                 [REAL-TIME CONTEXT DATA FROM YAHOO FINANCE]
@@ -2144,9 +2164,22 @@ def page_ai_analysis():
                 Market Cap: {info.get('marketCap')}
                 PE Ratio: {info.get('trailingPE')}
                 Target Price: {info.get('targetMeanPrice')}
+                Sector: {sector} | Industry: {industry}
+                
+                [BUSINESS SUMMARY]
+                {long_summary}
                 
                 [LATEST NEWS]
                 {news_text}
+                
+                [FINANCIALS (Annual)]
+                {financials}
+                
+                [BALANCE SHEET (Latest)]
+                {bs}
+                
+                [MAJOR HOLDERS]
+                {holders}
                 
                 [RECENT PRICE ACTION (Last 10 Days)]
                 {hist_text}
