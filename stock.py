@@ -11,7 +11,8 @@ import datetime
 
 from deep_translator import GoogleTranslator
 import google.generativeai as genai
-import json
+import warnings
+warnings.filterwarnings("ignore", category=FutureWarning, module="google.generativeai")
 
 
 # --- TRANSLATION HELPER ---
@@ -1803,8 +1804,8 @@ def page_single_stock():
                             
                         # 3. Margin of Safety (Recalculated)
                         with c3:
-                            mos_base = (val_high - current_price)/val_high * 100 if val_high > 0 else 0
-                            mos_low_val = (val_low - current_price)/val_low * 100 if val_low > 0 else 0
+                            mos_base = (val_high - current_price)/val_high * 100 if (val_high and val_high > 0) else 0
+                            mos_low_val = (val_low - current_price)/val_low * 100 if (val_low and val_low > 0) else 0
                             
                             mos_str = f"{mos_base:.1f}%"
                             color = "green" if mos_base > 0 else "red"
@@ -1906,7 +1907,7 @@ def page_single_stock():
                                     ttm_ocf = q_ocf.sum()
                                     ttm_capex = q_capex.sum()
                                     ttm_fcf = ttm_ocf + ttm_capex
-                                    fcf_base = ttm_fcf / shares
+                                    fcf_base = ttm_fcf / shares if (shares and shares > 0) else 0
                                     found_ttm = True
                                     fcf_label_suffix = "(TTM)"
                             except: pass
