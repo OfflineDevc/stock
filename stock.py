@@ -2266,7 +2266,7 @@ def page_ai_analysis():
 
             # 2. AI ANALYSIS
             genai.configure(api_key=api_key)
-            model_name = "models/gemini-flash-lite-latest"
+            model_name = "models/gemini-3-flash-preview"
             model = genai.GenerativeModel(model_name)
             
             # Construct Prompt with Context
@@ -2281,14 +2281,14 @@ def page_ai_analysis():
             **Core Instructions:**
             1. **Chain of Thought:** Think step-by-step. First analyze the financials, then the business model, then the management, and finally synthesize everything into a grade.
             2. **Analyze Deeply:** Look at the business model, moat, and financial health structure based on the provided context.
-            3. **CEO & Management Focus:** specifically analyze the **CEO** (Who are they? Pros/Cons). 
+            3. **CEO & Management Focus:** specifically analyze the **CEO** (Who are they? Pros/Cons). If CEO data is missing in the context, **USE YOUR KNOWLEDGE** to identify the current CEO.
             4. **Detailed Business Model:** Explain heavily what they do. Do not summarize in 1 line. Write 2-3 paragraphs.
             5. **Product Portfolio:** Analyze key products/services. What are they? How are they performing? What is the future outlook?
             6. **Customer Ecosystem:** Identify key customer groups (Who buys?). How important is this company to them? (Critical supplier or easily replaceable?).
             7. **Industry Landscape:** Analyze the industry structure, growth drivers, outlook, and market share.
             8. **SWOT Analysis:** Conduct a detailed SWOT Analysis.
             9. **Assign a Grade (A-F):** Based on business quality.
-            10. **NO HALLUCINATION:** Do NOT invent data. If a piece of information (like CEO name) is not in the context or widely known facts, state "No Data".
+            10. **NO HALLUCINATION:** Do NOT invent data EXCEPT for the CEO if missing. For other fields, state "No Data" if unsure.
             11. **Output:** Strictly in valid JSON format. Use Thai language for content values.
 
             **JSON Schema:**
