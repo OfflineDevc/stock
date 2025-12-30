@@ -318,10 +318,10 @@ TRANS = {
         'historical_chart_title': "### 🔬 Interactive Historical Charts",
         'select_stock_view': "Select Stock to View:",
         'nav_scanner': "Market Scanner",
-        'nav_portfolio': "Auto Portfolio",
-        'nav_single': "Single Stock Analysis",
-        'nav_health': "Portfolio Health",
-        'nav_ai': "AI Insight",
+        'nav_ai': "Fundamental AI",
+        'nav_single': "DeepDive",
+        'nav_portfolio': "Portfoliokub",
+        'nav_health': "Health",
         'nav_glossary': "Glossary",
         'nav_help': "How to Use",
         'footer_caption': "Professional Stock Analytics Platform",
@@ -504,10 +504,10 @@ TRANS = {
         'historical_chart_title': "### 🔬 กราฟราคาย้อนหลัง",
         'select_stock_view': "เลือกหุ้นเพื่อดูรายละเอียด:",
         'nav_scanner': "สแกนหุ้นดาวเด่น",
-        'nav_portfolio': "พอร์ตอัตโนมัติ",
-        'nav_single': "วิเคราะห์รายตัว",
-        'nav_health': "สุขภาพพอร์ต",
         'nav_ai': "วิเคราะห์ AI",
+        'nav_single': "วิเคราะห์รายตัว",
+        'nav_portfolio': "พอร์ตอัตโนมัติ (Portfoliokub)",
+        'nav_health': "สุขภาพพอร์ต",
         'nav_glossary': "คลังคำศัพท์",
         'nav_help': "วิธีใช้งาน",
         'footer_caption': "แพลตฟอร์มวิเคราะห์หุ้นระดับมืออาชีพ",
@@ -3693,12 +3693,12 @@ if __name__ == "__main__":
     with c_brand_b: 
          # --- TOP TABS NAVIGATION (CFA Style) ---
          # Define Tabs (Rendered at the very top)
-         tab_scan, tab_port, tab_single, tab_health, tab_ai, tab_gloss, tab_help = st.tabs([
+         tab_scan, tab_ai, tab_single, tab_port, tab_health, tab_gloss, tab_help = st.tabs([
             get_text('nav_scanner'), 
-            get_text('nav_portfolio'), 
-            get_text('nav_single'), 
-            get_text('nav_health'), 
             get_text('nav_ai'), 
+            get_text('nav_single'), 
+            get_text('nav_portfolio'), 
+            get_text('nav_health'), 
             get_text('nav_glossary'), 
             get_text('nav_help')
          ])
