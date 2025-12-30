@@ -2151,7 +2151,7 @@ def page_ai_analysis():
     st.info("Power by **Gemini** (Lite Latest). This module provides a 360-degree investment research report with **Real-time Data Context**.")
 
     # API Key Handling (HIDDEN)
-    api_key = "AIzaSyBfmtzOBzMfEAwNcvUsan-FwGL-2P66f9c" 
+    api_key = "AIzaSyB5BS9mqnaelxkkwYdYyleSFqh7vqTZbj4" 
     
     # Input Ticker
     col_input, col_btn = st.columns([3, 1])
@@ -2526,8 +2526,12 @@ def page_ai_analysis():
                         
                     with t_comp:
                         comp = data['competitive_landscape']
-                        st.metric("Market Position", comp['market_position_rank'])
-                        st.metric("Intensity", comp['competition_intensity'])
+                        st.subheader("Market Position")
+                        st.write(comp['market_position_rank'])
+                        
+                        st.subheader("Intensity")
+                        st.markdown(comp['competition_intensity']) # Markdown wraps long text
+                        
                         st.write("**Direct Competitors:**")
                         st.write(", ".join(comp['direct_competitors']))
                     
