@@ -2278,10 +2278,12 @@ def page_ai_analysis():
             3. **CEO & Management Focus:** specifically analyze the **CEO** (Who are they? Pros/Cons). 
             4. **Detailed Business Model:** Explain heavily what they do. Do not summarize in 1 line. Write 2-3 paragraphs.
             5. **Product Portfolio:** Analyze key products/services. What are they? How are they performing? What is the future outlook?
-            6. **SWOT Analysis:** Conduct a detailed SWOT Analysis.
-            7. **Assign a Grade (A-F):** Based on business quality.
-            8. **NO HALLUCINATION:** Do NOT invent data. If a piece of information (like CEO name) is not in the context or widely known facts, state "No Data".
-            9. **Output:** Strictly in valid JSON format. Use Thai language for content values.
+            6. **Customer Ecosystem:** Identify key customer groups (Who buys?). How important is this company to them? (Critical supplier or easily replaceable?).
+            7. **Industry Landscape:** Analyze the industry structure, growth drivers, outlook, and market share.
+            8. **SWOT Analysis:** Conduct a detailed SWOT Analysis.
+            9. **Assign a Grade (A-F):** Based on business quality.
+            10. **NO HALLUCINATION:** Do NOT invent data. If a piece of information (like CEO name) is not in the context or widely known facts, state "No Data".
+            11. **Output:** Strictly in valid JSON format. Use Thai language for content values.
 
             **JSON Schema:**
 
@@ -2306,6 +2308,10 @@ def page_ai_analysis():
               "business_deep_dive": {{
                 "what_they_do": "String (Very Detailed 2-3 paragraphs explanation of business model)",
                 "revenue_sources": "String (Detailed breakdown)",
+                "customer_ecosystem": {{
+                    "key_customers": ["String (Customer Group 1)", "String (Group 2)"],
+                    "dependence_level": "String (High/Low & Explanation of Importance to Customers)"
+                }},
                 "product_portfolio": [
                     {{
                         "name": "String (Product Name)",
@@ -2317,10 +2323,16 @@ def page_ai_analysis():
                         "name": "String (Product Name)",
                         "description": "String (What is it?)",
                         "current_performance": "String",
-                        "future_outlook": "String"
+                         "future_outlook": "String"
                     }}
                 ],
                 "pricing_power": "String (High/Low - Maker or Taker)"
+              }},
+              "industry_overview": {{
+                "industry_landscape": "String (Fragmented/Consolidated, Key Players)",
+                "sector_outlook": "String (Growing, Stagnant, Disrupted?)",
+                "growth_drivers": ["String (Driver 1)", "String (Driver 2)"],
+                "market_share_analysis": "String (Estimated share, Gaining or Losing?)"
               }},
               "swot_analysis": {{
                 "strengths": ["String", "String"],
@@ -2408,8 +2420,11 @@ def page_ai_analysis():
 
                     st.divider()
 
+                    st.divider()
+                    st.divider()
+
                     # 3. Deep Dive Tabs
-                    t_swot, t_future, t_bus, t_mgmt, t_fin, t_comp = st.tabs(["🛡️ SWOT", "🔮 Future Radar", "🏭 Business", "🧠 Mgmt (CEO)", "💰 Financials", "⚔️ Competition"])
+                    t_swot, t_future, t_bus, t_ind, t_mgmt, t_fin, t_comp = st.tabs(["🛡️ SWOT", "🚀 Growth & Future", "🏭 Business", "🌏 Industry", "🧠 Mgmt (CEO)", "💰 Financials", "⚔️ Competition"])
                     
                     with t_swot:
                         swot = data.get('swot_analysis', {})
@@ -2440,13 +2455,25 @@ def page_ai_analysis():
 
                     with t_bus:
                         bus = data['business_deep_dive']
+                        cust = bus.get('customer_ecosystem', {})
+                        
                         st.subheader("🏢 Business Model")
                         st.markdown(bus['what_they_do'])  # Markdown handles long text wrapping better
                         
                         st.divider()
-                        st.write(f"**💰 Revenue Sources:** {bus['revenue_sources']}")
-                        st.markdown(f"**🏷️ Pricing Power:** {bus['pricing_power']}")
                         
+                        c_rev, c_cust = st.columns(2)
+                        with c_rev:
+                             st.write(f"**💰 Revenue Sources:** {bus['revenue_sources']}")
+                             st.markdown(f"**🏷️ Pricing Power:** {bus['pricing_power']}")
+                        
+                        with c_cust:
+                             st.subheader("👥 Customer Ecosystem")
+                             st.info(f"**Dependence Level:** {cust.get('dependence_level', '-')}")
+                             if 'key_customers' in cust:
+                                 for c in cust['key_customers']:
+                                     st.write(f"👤 {c}")
+
                         st.markdown("---")
                         st.subheader("🔭 Outlook")
                         c_bull, c_bear = st.columns(2)
@@ -2454,6 +2481,23 @@ def page_ai_analysis():
                             st.success(f"**Bull Case:** {data['long_term_outlook']['bull_case']}")
                         with c_bear:
                             st.error(f"**Bear Case:** {data['long_term_outlook']['bear_case']}")
+
+                    with t_ind:
+                        ind = data.get('industry_overview', {})
+                        st.subheader("🌏 Industry Landscape")
+                        st.markdown(ind.get('industry_landscape', '-'))
+                        
+                        st.markdown("### 🔮 Sector Outlook")
+                        st.info(ind.get('sector_outlook', '-'))
+                        
+                        c_d, c_m = st.columns(2)
+                        with c_d:
+                            st.subheader("🚀 Growth Drivers")
+                            for d in ind.get('growth_drivers', []):
+                                st.success(f"📈 {d}")
+                        with c_m:
+                            st.subheader("🍰 Market Share")
+                            st.markdown(ind.get('market_share_analysis', '-'))
 
                     with t_mgmt:
                         mgmt = data['management_analysis']
