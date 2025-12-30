@@ -2172,7 +2172,10 @@ def page_ai_analysis():
                 stock = yf.Ticker(formatted_ticker)
                 
                 # Fetch Info (with Retry)
-                info = retry_api_call(lambda: stock.info)
+                try:
+                    info = retry_api_call(lambda: stock.info)
+                    if info is None: info = {} # Safeguard against None
+                except: info = {}
                 
                 # Fetch News (with Retry)
                 try:
@@ -2182,10 +2185,11 @@ def page_ai_analysis():
                 if news:
                     news_items = []
                     for n in news:
-                        ts = n.get('providerPublishTime', 0)
-                        date_str = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d') if ts > 0 else "Date N/A"
-                        news_items.append(f"- {n.get('title')} ({n.get('publisher')}) [{date_str}]")
-                    news_text = "\n".join(news_items)
+                        if isinstance(n, dict): # Check if item is dict
+                            ts = n.get('providerPublishTime', 0)
+                            date_str = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d') if ts > 0 else "Date N/A"
+                            news_items.append(f"- {n.get('title')} ({n.get('publisher')}) [{date_str}]")
+                    news_text = "\n".join(news_items) if news_items else "No News Found"
                 else:
                     # FALLBACK
                     news_text = fetch_google_news(formatted_ticker)
