@@ -13,6 +13,7 @@ from deep_translator import GoogleTranslator
 import google.generativeai as genai
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning, module="google.generativeai")
+import json
 
 
 # --- TRANSLATION HELPER ---
