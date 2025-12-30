@@ -2320,25 +2320,27 @@ def page_ai_analysis():
                     clean_json = text_out.replace("```json", "").replace("```", "").strip()
                     data = json.loads(clean_json)
                     
-                    st.success(f"Analysis Complete for {data['stock_info']['symbol']}")
+                    st.success(f"Analysis Complete for {data['stock_identity']['symbol']}")
                     
                     # --- RENDER UI CARDS ---
                     
-                    # 0. Meta Info (Timestamp)
-                    if 'meta_info' in data:
-                        st.caption(f"🕒 Generated at: {data['meta_info']['generated_at_datetime']} | ℹ️ Data Status: {data['meta_info']['data_freshness_check']}")
-
                     # 1. Header Card
                     with st.container():
-                        c1, c2, c3 = st.columns([1, 2, 1])
-                        c1.metric("Ticker", data['stock_info']['symbol'])
-                        c2.subheader(f"{data['stock_info']['company_name']}")
-                        c2.caption(f"{data['stock_info']['sector']}")
+                        c1, c2 = st.columns([1, 4])
                         
-                        # Price with Timestamp
-                        price_display = data['stock_info'].get('current_price', 'N/A')
-                        price_time = data['stock_info'].get('price_as_of', '')
-                        c3.metric("Status", data['stock_info']['current_price_status'], f"{price_display} ({price_time})")
+                        # Grade Circle (Simulated)
+                        grade = data['fundamental_grading_report']['overall_grade']
+                        color_map = {'A': 'green', 'B': 'teal', 'C': 'orange', 'D': 'red', 'F': 'red'}
+                        grade_color = color_map.get(grade[0], 'blue')
+                        
+                        with c1:
+                            st.markdown(f"<h1 style='text-align: center; color: {grade_color}; font-size: 60px;'>{grade}</h1>", unsafe_allow_html=True)
+                            st.caption("Fundamental Grade")
+                            
+                        with c2:
+                            st.subheader(f"{data['stock_identity']['company_name']} ({data['stock_identity']['symbol']})")
+                            st.write(f"**Business:** {data['stock_identity']['business_nature']}")
+                            st.info(f"**Verdict:** {data['fundamental_grading_report']['score_summary']}")
                     
                     st.divider()
                     
