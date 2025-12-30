@@ -2093,22 +2093,19 @@ def page_single_stock():
 # ---------------------------------------------------------
 # AI ANALYSIS PAGE
 # ---------------------------------------------------------
+# ---------------------------------------------------------
+# AI ANALYSIS PAGE
+# ---------------------------------------------------------
 def page_ai_analysis():
     c_t, c_l = st.columns([3, 1])
     with c_t: st.title("🧠 AI Stock Analysis (Gemini 3.0)")
     with c_l: st.markdown("<br>👉 [**Check out Bidnow 🪙**](https://bidnow.streamlit.app/)", unsafe_allow_html=True)
     
-    st.info("Power by **Gemini 3.0 Flash** (Lite Latest). This module provides a 360-degree investment research report.")
+    st.info("Power by **Gemini 3.0 Flash** (Lite Latest). This module provides a 360-degree investment research report with **Real-time Data Context**.")
 
-    # API Key Handling
-    # Use the key provided by user as default, but allow overriding
-    default_key = "AIzaSyDa2XaIsma-J79MsislBXhi7uW44RkPlPI" 
-    api_key = st.text_input("🔑 Google Gemini API Key", value=default_key, type="password")
+    # API Key Handling (HIDDEN)
+    api_key = "AIzaSyDa2XaIsma-J79MsislBXhi7uW44RkPlPI" 
     
-    if not api_key:
-        st.warning("Please enter your API Key to proceed.")
-        return
-
     # Input Ticker
     col_input, col_btn = st.columns([3, 1])
     with col_input:
@@ -2121,21 +2118,59 @@ def page_ai_analysis():
 
     if analyze_click and ticker:
         try:
+            # 1. FETCH LIVE DATA
+            with st.spinner(f"📡 Fetching Live Data for {ticker}..."):
+                # Clean Ticker
+                if ".BK" in ticker: formatted_ticker = ticker
+                else: formatted_ticker = ticker.replace('.', '-')
+                
+                stock = yf.Ticker(formatted_ticker)
+                
+                # Fetch Info
+                info = stock.info
+                
+                # Fetch News (Top 5)
+                news = stock.news[:5] if stock.news else []
+                news_text = "\n".join([f"- {n.get('title')} ({n.get('publisher')}) [{datetime.datetime.fromtimestamp(n.get('providerPublishTime', 0)).strftime('%Y-%m-%d')}]" for n in news])
+                
+                # Fetch Recent History (30 Days)
+                hist = stock.history(period="1mo")
+                hist_text = hist.tail(10).to_csv() if not hist.empty else "No Data"
+                
+                # Context String
+                context_data = f"""
+                [REAL-TIME CONTEXT DATA FROM YAHOO FINANCE]
+                Current Price: {info.get('currentPrice')} {info.get('currency')}
+                Market Cap: {info.get('marketCap')}
+                PE Ratio: {info.get('trailingPE')}
+                Target Price: {info.get('targetMeanPrice')}
+                
+                [LATEST NEWS]
+                {news_text}
+                
+                [RECENT PRICE ACTION (Last 10 Days)]
+                {hist_text}
+                
+                [END CONTEXT]
+                """
+
+            # 2. AI ANALYSIS
             genai.configure(api_key=api_key)
-            # Use the requested model
             model_name = "models/gemini-flash-lite-latest"
-            
-            # Create Model
             model = genai.GenerativeModel(model_name)
             
-            # Construct Prompt
+            # Construct Prompt with Context
             prompt = f"""
             Act as a Senior Equity Analyst, Portfolio Manager, and Technical Analyst.
 
             Your task is to conduct a comprehensive 360-degree research on the stock ticker: "{ticker}".
+            
+            **INPUT CONTEXT:**
+            {context_data}
 
             **Crucial Instruction:**
             - **TIMESTAMP EVERYTHING:** Since stock data changes rapidly, you must indicate the **Date and Time** (or "As of date") for the price, news, and analysis generation.
+            - **USE CONTEXT:** Prioritize the provided "REAL-TIME CONTEXT DATA" for prices, news, and technicals.
 
             **Research Steps:**
             1.  **Fundamental:** Analyze business, revenue, financial health, and dividends.
@@ -2158,6 +2193,7 @@ def page_ai_analysis():
               "stock_info": {{
                 "symbol": "String",
                 "company_name": "String",
+
                 "sector": "String",
                 "current_price": "String",
                 "price_as_of": "String (Time/Date of this price e.g., Closing price on 19 May)",
