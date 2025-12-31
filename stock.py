@@ -338,7 +338,6 @@ TRANS = {
         'nav_portfolio': "Portfolio",
         'nav_health': "Health Check",
         'nav_glossary': "Glossary",
-        'nav_help': "How to Use",
         'footer_caption': "Professional Stock Analytics Platform",
         'health_check_title': "🔍 Financial Health Check",
         'val_label': "Valuation",
@@ -554,7 +553,6 @@ TRANS = {
         'nav_portfolio': "Portfolio",
         'nav_health': "Health Check",
         'nav_glossary': "คลังคำศัพท์",
-        'nav_help': "วิธีใช้งาน",
         'footer_caption': "แพลตฟอร์มวิเคราะห์หุ้นระดับมืออาชีพ",
         'health_check_title': "🔍 ตรวจสุขภาพทางการเงิน",
         'val_label': "ความถูกแพง (Valuation)",
@@ -3351,104 +3349,6 @@ def page_portfolio():
 
 
 
-def page_howto():
-    st.markdown(f"<h1 style='text-align: center;'>📖 How to Use / คู่มือการใช้งาน</h1>", unsafe_allow_html=True)
-
-    lang = st.session_state.get('lang', 'EN')
-    
-    HOWTO_DATA = {
-        'Intro': {
-            'EN': """
-            **Welcome to the Stock Scanner!**  
-             This tool is designed to help you **find good stocks quickly** without reading 100 annual reports.  
-             It works in 2 stages:  
-             1. **Wide Scan**: Checks hundreds of stocks for basic criteria (Price, P/E).  
-             2. **Financial Analysis**: Digs into the history of the best ones to find "consistency".
-            """,
-            'TH': """
-            **ยินดีต้อนรับสู่โปรแกรมสแกนหุ้น!**  
-            เครื่องมือนี้ช่วยให้คุณ **หาหุ้นดีๆ ได้ในไม่กี่วินาที** โดยไม่ต้องนั่งอ่านงบเองเป็นร้อยบริษัท  
-            หลักการทำงานมี 2 ขั้นตอน:  
-            1. **สแกนกว้าง (Wide Scan)**: กวาดดูหุ้นทั้งตลาด เพื่อคัดตัวที่เข้าเกณฑ์พื้นฐาน (เช่น P/E ต่ำ).  
-            2. **เจาะลึก (Financial Analysis)**: เอาตัวที่เข้ารอบมาดูประวัติย้อนหลังว่า "ดีจริงไหม" หรือแค่ฟลุ๊ค
-            """
-        },
-        'Step1': {
-            'EN': {
-                'title': "Step 1: Setup (Universe & Scale)",
-                'desc': """
-                - **Select Market**: Choose S&P 500 (US Big Caps) or SET 100 (Thai Big Caps).
-                - **Scan Limit**: Start with **50** for speed. Use **500** when you have time (takes 2-3 mins).
-                """
-            },
-            'TH': {
-                'title': "ขั้นตอนที่ 1: ตั้งค่าขอบเขต (Setup)",
-                'desc': """
-                - **เลือกตลาด (Market)**: เช่น S&P 500 (หุ้นใหญ่เมกา) หรือ SET 100 (หุ้นใหญ่ไทย)
-                - **จำนวนสแกน (Limit)**: มือใหม่แนะนำ **50 ตัวแรก** ก่อนเพื่อทดสอบ ถ้าจริงจังค่อยปรับเป็น 500 (ใช้เวลา 2-3 นาที)
-                """
-            }
-        },
-        'Step2': {
-            'EN': {
-                'title': "Step 2: Strategy (The 'Brain')",
-                'desc': """
-                This is the most important part.  
-                - **GARP**: Balanced. Good for most people.
-                - **Dividend**: If you want cash flow > 4%.
-                - **Deep Value**: If you want to buy very cheap stocks (Risky).
-                - **Speculative**: If you want growth at any price.
-                """
-            },
-            'TH': {
-                'title': "ขั้นตอนที่ 2: เลือกกลยุทธ์ (The Brain)",
-                'desc': """
-                ส่วนที่สำคัญที่สุด โปรแกรมจะคัดหุ้นตามสูตรที่คุณเลือก:  
-                - **GARP (แนะนำ)**: หุ้นเติบโตในราคาที่ไม่แพงเกินไป (สายกลาง)
-                - **High Yield**: เน้นหุ้นปันผลเยอะ (>3-4%)
-                - **Deep Value**: เน้นหุ้นถูกมากๆ (P/E ต่ำ) แต่อาจมีความเสี่ยง
-                - **Speculative**: เน้นหุ้นซิ่ง ยอดขายโตแรง ไม่สน P/E
-                """
-            }
-        },
-        'Step3': {
-            'EN': {
-                'title': "Step 3: Execution & Results",
-                'desc': """
-                - Click **🚀 Execute**.
-                - Wait for the progress bar.
-                - **The Table**:
-                    - **Fit Score**: 100 is perfect match.
-                    - **Fair Value**: The 'Real' price vs Market Price.
-                    - **Margin of Safety**: How much discount? (Positive is GOOD).
-                """
-            },
-            'TH': {
-                'title': "ขั้นตอนที่ 3: ดูผลลัพธ์ (Execution)",
-                'desc': """
-                - กดปุ่ม **🚀 เริ่มสแกน**
-                - **ตารางผลลัพธ์**:
-                    - **Fit Score**: คะแนนความตรงโจทย์ (เต็ม 100)
-                    - **Fair Value**: ราคาที่ควรจะเป็น (ประเมินโดยนักวิเคราะห์/สูตร)
-                    - **Margin of Safety**: ส่วนลดจากราคาจริง (ยิ่งเยอะยิ่งดี = มีแต้มต่อ)
-                """
-            }
-        }
-    }
-    
-    # Render Intro
-    st.info(HOWTO_DATA['Intro'][lang])
-    st.markdown("---")
-    
-    # Render Steps
-    st.header(HOWTO_DATA['Step1'][lang]['title'])
-    st.write(HOWTO_DATA['Step1'][lang]['desc'])
-    
-    st.header(HOWTO_DATA['Step2'][lang]['title'])
-    st.write(HOWTO_DATA['Step2'][lang]['desc'])
-    
-    st.header(HOWTO_DATA['Step3'][lang]['title'])
-    st.write(HOWTO_DATA['Step3'][lang]['desc'])
 
 # ---------------------------------------------------------
 if __name__ == "__main__":
@@ -3469,15 +3369,14 @@ if __name__ == "__main__":
 
     # --- TOP TABS NAVIGATION (CFA Style) ---
     # Define Tabs (Rendered at the very top)
-    tab_home, tab_scan, tab_ai, tab_single, tab_port, tab_health, tab_gloss, tab_help = st.tabs([
+    tab_home, tab_scan, tab_ai, tab_single, tab_port, tab_health, tab_gloss = st.tabs([
         get_text('nav_home'),
         get_text('nav_scanner'), 
         get_text('nav_ai'), 
         get_text('nav_single'), 
         get_text('aifolio_title'), 
         get_text('nav_health'), 
-        get_text('nav_glossary'), 
-        get_text('nav_help')
+        get_text('nav_glossary')
     ]) 
  
     c_logo, c_lang = st.columns([8, 2])
@@ -3524,5 +3423,3 @@ if __name__ == "__main__":
     with tab_gloss:
         page_glossary()
         
-    with tab_help:
-        page_howto()
