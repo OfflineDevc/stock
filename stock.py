@@ -2150,8 +2150,16 @@ def page_ai_analysis():
     
     st.info("Powered by **Gemini 3.0 Flash**. This module provides a 360-degree investment research report with **Real-time Data Context**.")
 
-    # API Key Handling (HIDDEN)
-    api_key = "AIzaSyB5BS9mqnaelxkkwYdYyleSFqh7vqTZbj4" 
+    # API Key Handling (Secure)
+    if 'GEMINI_API_KEY' in st.secrets:
+        api_key = st.secrets['GEMINI_API_KEY']
+    else:
+        st.error("🚨 Missing API Key. Please add `GEMINI_API_KEY` to `.streamlit/secrets.toml`.")
+        return
+
+    if api_key == "PASTE_YOUR_NEW_API_KEY_HERE":
+        st.error("⚠️ Please update `.streamlit/secrets.toml` with your actual Google Gemini API Key.")
+        return 
     
     # Input Ticker
     col_input, col_btn = st.columns([3, 1])
