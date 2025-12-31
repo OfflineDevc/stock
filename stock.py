@@ -221,7 +221,7 @@ TRANS = {
         'stage1_msg': "📡 Stage 1: Fetching Universe...",
         'stage2_msg': "✅ Stage 1 Complete. Analyzing Top Candidates...",
         'no_data': "❌ No stocks matched your STRICT criteria.",
-        'deep_dive_title': "🔍Deep Dive Kub",
+        'deep_dive_title': "🔍Financial Analysis",
         'glossary_title': "📚 Investment Glossary",
         'search_ticker': "Enter Stock Ticker (e.g. AAPL, PTT.BK)",
         'analyze_btn': "Analyze Stock",
@@ -321,7 +321,7 @@ TRANS = {
         'select_stock_view': "Select Stock to View:",
         'nav_scanner': "Market Scanner",
         'nav_ai': "Fundamental AI",
-        'nav_single': "DeepDive",
+        'nav_single': "Finance",
         'nav_portfolio': "Portfoliokub",
         'nav_health': "Health",
         'nav_glossary': "Glossary",
@@ -1029,7 +1029,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
             
     return pd.DataFrame(data_list)
 
-# --- Stage 2: Deep Dive (Historical) ---
+# --- Stage 2: Financial Analysis (Historical) ---
 def analyze_history_deep(df_candidates, progress_bar, status_text):
     """
     Takes the surviving candidates and pulls history for deeper insight strings
@@ -1515,7 +1515,7 @@ def page_scanner():
                 width="stretch"
             ) 
 
-        # --- Manual Deep Dive Section ---
+        # --- Manual Financial Analysis Section ---
         st.markdown("---")
         st.header("🔬 Interactive Historical Charts")
         st.info("Select a stock to visualize 10-year trends.")
@@ -2437,7 +2437,7 @@ def page_ai_analysis():
                     st.divider()
                     st.divider()
 
-                    # 3. Deep Dive Tabs
+                    # 3. Financial Analysis Tabs
                     t_swot, t_future, t_bus, t_ind, t_mgmt, t_fin, t_comp = st.tabs(["🛡️ SWOT", "🚀 Growth & Future", "🏭 Business", "🌏 Industry", "🧠 Mgmt (CEO)", "💰 Financials", "⚔️ Competition"])
                     
                     with t_swot:
@@ -2455,7 +2455,7 @@ def page_ai_analysis():
                             for t in swot.get('threats', []): st.warning(f"- {t}")
 
                     with t_future:
-                        # Now integrated into Business Deep Dive or specific Product Tab, but let's keep Future Radar for products
+                        # Now integrated into Business Financial Analysis or specific Product Tab, but let's keep Future Radar for products
                         bus = data.get('business_deep_dive', {})
                         products = bus.get('product_portfolio', [])
                         
@@ -3041,7 +3041,7 @@ def page_scanner():
             
             top_candidates = filtered.head(top_n_deep)
             
-            # --- STAGE 2: DEEP DIVE ---
+            # --- STAGE 2: Financial Analysis ---
             time.sleep(0.5)
             deep_metrics = analyze_history_deep(top_candidates, st.progress(0), st.empty())
             final_df = top_candidates.merge(deep_metrics, on='Symbol', how='left')
@@ -3642,14 +3642,14 @@ def page_howto():
              This tool is designed to help you **find good stocks quickly** without reading 100 annual reports.  
              It works in 2 stages:  
              1. **Wide Scan**: Checks hundreds of stocks for basic criteria (Price, P/E).  
-             2. **Deep Dive**: Digs into the history of the best ones to find "consistency".
+             2. **Financial Analysis**: Digs into the history of the best ones to find "consistency".
             """,
             'TH': """
             **ยินดีต้อนรับสู่โปรแกรมสแกนหุ้น!**  
             เครื่องมือนี้ช่วยให้คุณ **หาหุ้นดีๆ ได้ในไม่กี่วินาที** โดยไม่ต้องนั่งอ่านงบเองเป็นร้อยบริษัท  
             หลักการทำงานมี 2 ขั้นตอน:  
             1. **สแกนกว้าง (Wide Scan)**: กวาดดูหุ้นทั้งตลาด เพื่อคัดตัวที่เข้าเกณฑ์พื้นฐาน (เช่น P/E ต่ำ).  
-            2. **เจาะลึก (Deep Dive)**: เอาตัวที่เข้ารอบมาดูประวัติย้อนหลังว่า "ดีจริงไหม" หรือแค่ฟลุ๊ค
+            2. **เจาะลึก (Financial Analysis)**: เอาตัวที่เข้ารอบมาดูประวัติย้อนหลังว่า "ดีจริงไหม" หรือแค่ฟลุ๊ค
             """
         },
         'Step1': {
