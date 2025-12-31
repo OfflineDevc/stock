@@ -1312,8 +1312,6 @@ def page_scanner():
     c_title, c_link = st.columns([3, 1])
     with c_title:
         st.title(get_text('main_title'))
-    with c_link:
-
     st.info(get_text('about_desc'))
 
     # --- PROFESSIONAL UI: MAIN CONFIGURATION ---
