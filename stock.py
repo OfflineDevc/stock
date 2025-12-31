@@ -3181,7 +3181,7 @@ def page_portfolio():
         status_box = st.status(get_text('ai_thinking'), expanded=True)
         
         try:
-            model = genai.GenerativeModel("gemini-2.0-flash-exp")
+            model = genai.GenerativeModel("models/gemini-3-flash-preview")
             
             # Construct Prompt
             prompt = f"""
