@@ -217,7 +217,7 @@ TRANS = {
         'execute_btn': "🚀 Execute 2-Stage Screen",
         'qscan_title': "Market Scanner",
         'home_title': "Stockdeck",
-        'nav_home': "Home", 
+        'nav_home': "Home",
         'home_welcome': "Welcome to Stockdeck",
         'home_intro': "Stockdeck is your AI-Powered Investment Co-Pilot, designed to simplify professional-grade stock analysis.",
         'workflow_single': "🔍 **Single Thematic Analysis Workflow**",
@@ -2923,9 +2923,9 @@ def page_glossary():
 
 
 def page_home():
-    left_co, cent_co,last_co = st.columns([1, 8, 1])
+    left_co, cent_co,last_co = st.columns(3)
     with cent_co:
-        st.image("stockdeck.png", use_container_width=True)
+        st.image("stockdeck.png")
 
 
     st.subheader(get_text('home_welcome'))
