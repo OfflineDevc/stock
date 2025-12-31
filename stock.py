@@ -3473,25 +3473,18 @@ if __name__ == "__main__":
     current_lang_sel = st.session_state.get('lang_choice_key', "English (EN)")
     st.session_state['lang'] = 'EN' if "English" in current_lang_sel else 'TH'
 
-    # --- BRANDING (Explicit Fallback) ---
-    # We create a top header row to force the logo visibility
-    c_brand_a, c_brand_b = st.columns([1, 20]) # Adjusted for Semi-Wide 
-    with c_brand_a:
-         st.image("logo.png", width=45) # Visible Logo
-    
-    with c_brand_b: 
-         # --- TOP TABS NAVIGATION (CFA Style) ---
-         # Define Tabs (Rendered at the very top)
-         tab_home, tab_scan, tab_ai, tab_single, tab_port, tab_health, tab_gloss, tab_help = st.tabs([
-            get_text('nav_home'),
-            get_text('nav_scanner'), 
-            get_text('nav_ai'), 
-            get_text('nav_single'), 
-            get_text('aifolio_title'), 
-            get_text('nav_health'), 
-            get_text('nav_glossary'), 
-            get_text('nav_help')
-         ])
+    # --- TOP TABS NAVIGATION (CFA Style) ---
+    # Define Tabs (Rendered at the very top)
+    tab_home, tab_scan, tab_ai, tab_single, tab_port, tab_health, tab_gloss, tab_help = st.tabs([
+        get_text('nav_home'),
+        get_text('nav_scanner'), 
+        get_text('nav_ai'), 
+        get_text('nav_single'), 
+        get_text('aifolio_title'), 
+        get_text('nav_health'), 
+        get_text('nav_glossary'), 
+        get_text('nav_help')
+    ])
 
     c_logo, c_lang = st.columns([8, 2])
     with c_logo:
