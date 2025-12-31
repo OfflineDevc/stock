@@ -3200,7 +3200,7 @@ def page_portfolio():
             **TASK:**
             1. Analyze this profile using "Chain of Thought" reasoning.
             2. Design a portfolio allocation (Stocks/Asset Classes) that matches this risk/return profile.
-            3. Select specific TICKERS (US or Thai mostly, unless specified otherwise). 
+            3. Select specific TICKERS (US or Thai mostly, unless specified otherwise). IMPORTANT: For Thai stocks, YOU MUST append ".BK" (e.g., PTT.BK, CPALL.BK, ADVANC.BK). For US stocks, use standard tickers (e.g. AAPL, TSLA). 
             4. Provide specific advice.
 
             **OUTPUT FORMAT:**
@@ -3293,7 +3293,7 @@ def page_portfolio():
     st.caption(get_text('backtest_desc'))
     
     # Define currency_fmt for this scope
-    currency_fmt = "฿" if "SET" in market_choice else "$"
+    currency_fmt = "฿" if st.session_state.get('lang') == 'TH' else "$"
     
     with st.expander(get_text('backtest_config'), expanded=True):
         c_bt1, c_bt2, c_bt3 = st.columns(3)
