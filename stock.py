@@ -386,6 +386,23 @@ TRANS = {
         'bucket_interm_bonds': "Interm Bonds",
         'bucket_gold': "Gold",
         'bucket_commodity': "Commodities",
+        
+        # --- AIFOLIO KEYS ---
+        'aifolio_title': "AIfolio (Wealth Architect)",
+        'ai_form_header': "📝 Investor Profile Interview",
+        'f_target': "Target Amount",
+        'f_horizon': "Time Horizon (Years)", 
+        'f_objective': "Primary Objective",
+        'f_capital': "Initial Capital",
+        'f_dca': "Monthly Contribution (DCA)",
+        'f_risk': "Max Risk Tolerance (Drawdown %)",
+        'f_exp': "Investment Experience",
+        'f_liquid': "Do you have an Emergency Fund?",
+        'f_constraint': "Constraints / Special Preferences",
+        'gen_plan_btn': "💡 Generate AI Investment Plan",
+        'ai_thinking': "🧠 AI Fund Manager is devising your strategy... (Chain of Thought)",
+        'alloc_header': "📊 Recommended Allocation",
+
     },
     'TH': {
         'sidebar_title': "🏛️ ตั้งค่าการสแกน",
@@ -572,6 +589,23 @@ TRANS = {
         'bucket_interm_bonds': "พันธบัตรระยะกลาง",
         'bucket_gold': "ทองคำ",
         'bucket_commodity': "สินค้าโภคภัณฑ์",
+
+        # --- AIFOLIO KEYS ---
+        'aifolio_title': "AIfolio (สถาปนิกความมั่งคั่ง)",
+        'ai_form_header': "📝 แบบสอบถามวัดระดับการลงทุน",
+        'f_target': "เป้าหมายการเงิน (บาท)",
+        'f_horizon': "ระยะเวลาลงทุน (ปี)", 
+        'f_objective': "วัตถุประสงค์ (เช่น เกษียณ, ทุนการศึกษา)",
+        'f_capital': "เงินตั้งต้น (บาท)",
+        'f_dca': "เงินเติมรายเดือน (DCA)",
+        'f_risk': "รับการขาดทุนสูงสุดได้กี่ % (Drawdown)",
+        'f_exp': "ประสบการณ์การลงทุน",
+        'f_liquid': "มีเงินสำรองฉุกเฉินแยกต่างหากแล้ว?",
+        'f_constraint': "ข้อจำกัด / สินทรัพย์ที่ชอบหรือห้ามลงทุน",
+        'gen_plan_btn': "💡 สร้างแผนการลงทุนด้วย AI",
+        'ai_thinking': "🧠 ผู้จัดการกองทุน AI กำลังวิเคราะห์ข้อมูลของคุณ...",
+        'alloc_header': "📊 สัดส่วนพอร์ตที่แนะนำ",
+
     }
 }
 
@@ -3110,309 +3144,146 @@ def page_scanner():
 
 def page_portfolio():
     c_t, c_l = st.columns([3, 1])
-    with c_t: st.title(get_text('port_title'))
+    with c_t: st.title(get_text('aifolio_title'))
     with c_l: st.markdown("<br>👉 [**Check out Bidnow 🪙**](https://Bidnow.streamlit.app/)", unsafe_allow_html=True)
     st.markdown("---")
-    
-    
-    # 1. Configuration Panel (Professional Layout)
-    with st.expander(get_text('port_config'), expanded=True):
-        c1, c2 = st.columns([1, 1])
+
+    # --- INPUT FORM ---
+    with st.form("aifolio_form"):
+        st.subheader(get_text('ai_form_header'))
         
+        c1, c2 = st.columns(2)
         with c1:
-             st.subheader(get_text('asset_univ'))
-             market_choice = st.radio(get_text('market_label'), ["S&P 500", "SET 100", "NASDAQ 100"], horizontal=True, key="p_market")
-             n_stocks = st.slider(get_text('max_holdings'), 5, 50, 20, key="p_n")
-             
+            target = st.number_input(get_text('f_target'), min_value=0, value=1000000, step=100000)
+            horizon = st.number_input(get_text('f_horizon'), min_value=1, value=10, step=1)
+            objective = st.text_input(get_text('f_objective'), value="Retirement / Wealth Accumulation")
+            capital = st.number_input(get_text('f_capital'), min_value=0, value=100000, step=10000)
+            dca = st.number_input(get_text('f_dca'), min_value=0, value=5000, step=1000)
+            
         with c2:
-             st.subheader(get_text('strat_prof'))
+            risk_tol = st.slider(get_text('f_risk'), 0, 100, 20, help="If the port drops this much, I will start to panic.")
+            experience = st.selectbox(get_text('f_exp'), ["Beginner (0-2 Years)", "Intermediate (2-5 Years)", "Advanced (5+ Years)", "Pro"])
+            liquid = st.radio(get_text('f_liquid'), ["Yes, I'm safe.", "No, this is all I have."])
+            constraints = st.text_area(get_text('f_constraint'), placeholder="e.g. No Crypto, Focus on US Tech, ESG only...", height=100)
+        
+        submitted = st.form_submit_button(get_text('gen_plan_btn'), type="primary", use_container_width=True)
+
+    # --- AI GENERATION LOGIC ---
+    if submitted:
+        # Secure API Key Check
+        if 'GEMINI_API_KEY' not in st.secrets:
+             st.error("🚨 Missing API Key in `.streamlit/secrets.toml`")
+             return
              
-             # Map internal values to translations for display
-             risk_options = {
-                "Low (Defensive)": "🛡️ Low (Defensive)", 
-                "Medium (Balanced)": "⚖️ Medium (Balanced)", 
-                "High (Aggressive)": "🚀 High (Aggressive)", 
-                "All Weather (Ray Dalio Proxy)": "🌤️ All Weather"
-             }
-             
-             risk_choice_display = st.select_slider(
-                get_text('risk_tol'), 
-                options=list(risk_options.values()),
-                value=risk_options["Medium (Balanced)"],
-                key="p_risk"
-             )
-             
-             # Reverse map display to internal key
-             risk_choice = [k for k, v in risk_options.items() if v == risk_choice_display][0]
-             
-             risk_descs = {
-                "Low (Defensive)": get_text('risk_low_desc'),
-                "Medium (Balanced)": get_text('risk_med_desc'),
-                "High (Aggressive)": get_text('risk_high_desc'),
-                "All Weather (Ray Dalio Proxy)": get_text('risk_all_desc')
-             }
-             st.info(risk_descs.get(risk_choice, ""))
-
-
-    # Action Area
-    col_btn, col_info = st.columns([1, 3])
-    with col_btn:
-        generate_btn = st.button(get_text('gen_port_btn'), type="primary", use_container_width=True)
-    with col_info:
-        st.caption(f"**Target**: Top {n_stocks} stocks in **{market_choice}**. {get_text('port_target_caption')}")
-    
-    if generate_btn:
-        # Modern Status Container
-        with st.status(get_text('status_processing'), expanded=True) as status_box:
-            # 1. Get Tickers
-            st.write(get_text('status_fetch'))
-            if "S&P" in market_choice: tickers = get_sp500_tickers()
-            elif "NASDAQ" in market_choice: tickers = get_nasdaq_tickers()
-            else: tickers = get_set100_tickers()
-            
-            # 2. Scanning
-            st.write(f"{get_text('status_scan')} ({len(tickers)})")
-            prog = st.progress(0)
-            
-            scan_placeholder = st.empty()
-            df_scan = scan_market_basic(tickers, prog, scan_placeholder)
-            
-            if df_scan.empty:
-                status_box.update(label=get_text('status_scan_fail'), state="error")
-                st.error(get_text('no_data'))
-                return
-            status_box.update(label=get_text('status_scan_complete'), state="complete")
+        api_key = st.secrets['GEMINI_API_KEY']
+        genai.configure(api_key=api_key)
         
-        # 3.5 Enrichment
-        with st.status(get_text('status_deep'), expanded=True) as enrich_status:
-            enrich_prog = st.progress(0)
+        status_box = st.status(get_text('ai_thinking'), expanded=True)
         
-            # Helper to process row
-            def enrich_row(row):
-                # ... (Logic identical to before)
-                stock = row['YF_Obj']
-                updates = {}
-                try:
-                    fin = stock.financials
-                    if not fin.empty: # ... Logic
-                        fin = fin.T.sort_index()
-                        years = len(fin)
-                        if years >= 3:
-                            # Rev CAGR
-                            try:
-                                s = float(fin['Total Revenue'].iloc[0])
-                                e = float(fin['Total Revenue'].iloc[-1])
-                                if s > 0 and e > 0:
-                                    updates['Rev_CAGR_5Y'] = ((e/s)**(1/(years-1)) - 1) * 100
-                                else: updates['Rev_CAGR_5Y'] = None
-                            except: updates['Rev_CAGR_5Y'] = None
-                            
-                            # NI CAGR
-                            try:
-                                s = float(fin['Net Income'].iloc[0])
-                                e = float(fin['Net Income'].iloc[-1])
-                                if s > 0 and e > 0: # Ensure positive for power calc
-                                    updates['NI_CAGR_5Y'] = ((e/s)**(1/(years-1)) - 1) * 100
-                                else: updates['NI_CAGR_5Y'] = None
-                            except: updates['NI_CAGR_5Y'] = None
-                except: pass
+        try:
+            model = genai.GenerativeModel("gemini-2.0-flash-exp")
+            
+            # Construct Prompt
+            prompt = f"""
+            Act as a World-Class Asset Manager (like Ray Dalio or Warren Buffett).
+            Your client has provided the following profile:
+            
+            - **Goal**: Target {target:.2f} in {horizon} Years.
+            - **Objective**: {objective}
+            - **Current Capital**: {capital:.2f}
+            - **Monthly DCA**: {dca:.2f}
+            - **Risk Tolerance (Max Drawdown)**: -{risk_tol}%
+            - **Experience**: {experience}
+            - **Liquidity Status**: {liquid}
+            - **Constraints/Preferences**: {constraints}
+            
+            **TASK:**
+            1. Analyze this profile using "Chain of Thought" reasoning.
+            2. Design a portfolio allocation (Stocks/Asset Classes) that matches this risk/return profile.
+            3. Select specific TICKERS (US or Thai mostly, unless specified otherwise). 
+            4. Provide specific advice.
+
+            **OUTPUT FORMAT:**
+            Strictly JSON. No Markdown Code blocks.
+            
+            {{
+              "analysis": {{
+                "risk_profile_assessment": "String",
+                "strategy_name": "String (e.g. Aggressive Growth)",
+                "expected_return_cagr": "String (estimated %)",
+                "advice_summary": "String (2-3 paragraphs of professional advice)"
+              }},
+              "portfolio": [
+                {{ "ticker": "SPY", "name": "S&P 500 ETF", "asset_class": "Equity", "weight_percent": 40, "rationale": "Core Foundation" }},
+                {{ "ticker": "AAPL", "name": "Apple Inc.", "asset_class": "Equity", "weight_percent": 10, "rationale": "Growth Kicker" }}
+                ... (Sum of weight_percent MUST be 100)
+              ]
+            }}
+            
+             Response Language: {st.session_state.get('lang', 'EN')} (Thai if TH selected, English if EN selected).
+            """
+            
+            response = model.generate_content(prompt)
+            clean_json = response.text.replace("```json", "").replace("```", "").strip()
+            plan = json.loads(clean_json)
+            
+            status_box.update(label="✅ Analysis Complete!", state="complete")
+            
+            # --- RENDER RESULTS ---
+            ana = plan['analysis']
+            st.header(f"🎯 Strategy: {ana['strategy_name']}")
+            
+            # 1. Analysis Block
+            with st.container():
+                k1, k2, k3 = st.columns(3)
+                k1.info(f"**Risk Profile**: {ana['risk_profile_assessment']}")
+                k2.success(f"**Est. CAGR**: {ana.get('expected_return_cagr', 'N/A')}")
+                k3.warning(f"**Max Drawdown Limit**: -{risk_tol}%")
                 
-                # Smart PEG Fill (using historical Growth if avail)
-                if pd.isna(row.get('PEG')) or row.get('PEG') == 0:
-                    pe = row.get('PE')
-                    cagr = updates.get('NI_CAGR_5Y')
-                    if pe and cagr and cagr > 0:
-                         updates['PEG'] = pe / cagr
+                st.write(f"### 💡 Professional Advice")
+                st.write(ana['advice_summary'])
                 
-                enrich_prog.progress(0.5) # Simulated progress
-                return pd.Series(updates)
-
-            # Apply Enrichment
-            if not df_scan.empty:
-                enriched = df_scan.apply(enrich_row, axis=1)
-                for col in enriched.columns:
-                    df_scan[col] = enriched[col]
+            st.markdown("---")
             
-            enrich_status.update(label=get_text('status_deep_complete'), state="complete")
-            enrich_prog.progress(1.0)
-            enrich_prog.empty()
-
-
-        # 4. Strategy Mapping (Logic remains same)
-        targets_map = {
-             "Low (Defensive)": [('Div_Yield', 0.03, '>'), ('PE', 20.0, '<'), ('Debt_Equity', 100.0, '<'), ('ROE', 10.0, '>')],
-             "Medium (Balanced)": [('PEG', 1.5, '<'), ('PE', 30.0, '<'), ('ROE', 12.0, '>'), ('Op_Margin', 10.0, '>')],
-             "High (Aggressive)": [('Rev_Growth', 15.0, '>'), ('PEG', 2.0, '<'), ('ROE', 5.0, '>')],
-             "All Weather (Ray Dalio Proxy)": [('ROE', 12.0, '>'), ('Debt_Equity', 80.0, '<'), ('PE', 25.0, '<'), ('Op_Margin', 10.0, '>')]
-        }
-        
-        targets = targets_map[risk_choice]
-        st.subheader(get_text('ai_analysis_header').format(risk=risk_choice))
-        
-        # ... (Fit Score & Sort Logic Same) ...
-        if 'Ticker' not in df_scan.columns: df_scan['Ticker'] = df_scan['Symbol']
-        results = df_scan.apply(lambda row: calculate_fit_score(row, targets), axis=1)
-        df_scan['Fit Score'] = results.apply(lambda x: x[0])
-        df_scan['Type'] = df_scan.apply(classify_lynch, axis=1)
-        final_df = df_scan[df_scan['Fit Score'] >= 50].sort_values(by=['Fit Score', 'Market_Cap'], ascending=[False, False])
-        
-        portfolio = final_df.head(n_stocks).copy()
-        
-        if portfolio.empty:
-            st.warning(get_text('no_data'))
-            return
-
-        # ... (Weighting Logic Same) ...
-        total_mcap = portfolio['Market_Cap'].sum()
-        full_portfolio = pd.DataFrame()
-        assets_df = pd.DataFrame()
-        
-        # ... (All Weather Logic Same) ...
-        if risk_choice == "All Weather (Ray Dalio Proxy)":
-            equity_weight = 0.30
-            if total_mcap > 0:
-                portfolio['Weight_Raw'] = portfolio['Market_Cap'] / total_mcap
-                portfolio['Weight %'] = portfolio['Weight_Raw'] * equity_weight * 100
-                portfolio['Bucket'] = get_text('bucket_equity')
-            else:
-                portfolio['Weight %'] = (equity_weight * 100) / len(portfolio)
-                portfolio['Bucket'] = get_text('bucket_equity')
-
-            assets_data = [
-                {'Ticker': 'TLT', 'Bucket': get_text('bucket_long_bonds'), 'Weight %': 40.0, 'Price': 95.0, 'Company': 'iShares 20+ Year Treasury Bond ETF', 'Sector': 'ETF'},
-                {'Ticker': 'IEF', 'Bucket': get_text('bucket_interm_bonds'), 'Weight %': 15.0, 'Price': 92.0, 'Company': 'iShares 7-10 Year Treasury Bond ETF', 'Sector': 'ETF'},
-                {'Ticker': 'GLD', 'Bucket': get_text('bucket_gold'), 'Weight %': 7.5, 'Price': 185.0, 'Company': 'SPDR Gold Shares', 'Sector': 'ETF'},
-                {'Ticker': 'DBC', 'Bucket': get_text('bucket_commodity'), 'Weight %': 7.5, 'Price': 22.0, 'Company': 'Invesco DB Commodity Index', 'Sector': 'ETF'}
-            ]
-            assets_df = pd.DataFrame(assets_data)
-            full_portfolio = pd.concat([portfolio, assets_df], ignore_index=True)
-        else:
-            if total_mcap > 0:
-                portfolio['Weight_Raw'] = portfolio['Market_Cap'] / total_mcap
-                portfolio['Weight %'] = portfolio['Weight_Raw'] * 100
-            else:
-                portfolio['Weight %'] = 100 / len(portfolio)
-            portfolio['Bucket'] = portfolio['Sector']
-            full_portfolio = portfolio.copy()
-
-
-        # 7. Visualization
-        st.success(get_text('gen_success').format(n=len(portfolio)))
-        
-        # PERSIST FOR BACKTEST
-        st.session_state['gen_portfolio'] = portfolio
-        st.session_state['gen_market'] = market_choice
-        st.session_state['gen_risk'] = risk_choice
-        st.session_state['gen_assets'] = assets_df if not assets_df.empty else None
-        st.session_state['gen_full'] = full_portfolio
-
-    # --- PERSISTENT DISPLAY LOGIC ---
-    if 'gen_portfolio' in st.session_state:
-        portfolio = st.session_state['gen_portfolio']
-        risk_choice_saved = st.session_state.get('gen_risk', risk_choice)
-        full_portfolio = st.session_state.get('gen_full', portfolio)
-        assets_df = st.session_state.get('gen_assets', pd.DataFrame())
-        
-        # Portfolio Stats (Equity Only)
-        avg_pe = portfolio['PE'].mean()
-        avg_div = portfolio['Div_Yield'].mean()/100
-        avg_roe = portfolio['ROE'].mean()
-        
-        # Top Level Metrics
-        m1, m2, m3, m4 = st.columns(4)
-        m1.metric(get_text('avg_pe_label'), f"{avg_pe:.1f}")
-        m2.metric(get_text('equity_yield_label'), f"{avg_div:.2%}")
-        m3.metric(get_text('quality_roe_label'), f"{avg_roe:.1f}%")
-        m4.metric(get_text('strategy_label'), risk_choice_saved)
-        
-        # --- TABBED ANALYSIS ---
-        tab1, tab2, tab3 = st.tabs([get_text('tab_holders'), get_text('tab_alloc'), get_text('tab_logic')])
-        
-        with tab1:
-            cols_to_show = ['Ticker', 'Company', 'Bucket', 'Type', 'Sector', 'Price', 'Fit Score', 'PE', 'PEG', 'Rev_CAGR_5Y', 'NI_CAGR_5Y', 'Div_Yield', 'Weight %']
-            col_cfg = {
-                "Ticker": st.column_config.TextColumn(get_text('ticker_label')),
-                "Bucket": st.column_config.TextColumn(get_text('asset_class_label')), 
-                "Price": st.column_config.NumberColumn(format="%.2f"),
-                "Fit Score": st.column_config.ProgressColumn(get_text('score_label'), format="%d", min_value=0, max_value=100),
-                "PE": st.column_config.NumberColumn(format="%.1f"),
-                "PEG": st.column_config.NumberColumn(format="%.2f"),
-                "Rev_CAGR_5Y": st.column_config.NumberColumn(get_text('rev_cagr_label'), format="%.1f%%"),
-                "NI_CAGR_5Y": st.column_config.NumberColumn(get_text('ni_cagr_label'), format="%.1f%%"),
-                "Div_Yield": st.column_config.NumberColumn(get_text('yield_label'), format="%.2f%%"),
-                "Weight %": st.column_config.NumberColumn(get_text('weight_label'), format="%.2f%%")
-            }
+            # 2. Allocation
+            st.subheader(get_text('alloc_header'))
             
-            if risk_choice_saved == "All Weather (Ray Dalio Proxy)":
-                st.subheader(get_text('equity_holdings'))
-                valid_cols = [c for c in cols_to_show if c in portfolio.columns]
-                st.dataframe(portfolio[valid_cols], column_config=col_cfg, width="stretch", hide_index=True)
+            df_port = pd.DataFrame(plan['portfolio'])
+            
+            c_chart, c_table = st.columns([1, 1])
+            
+            with c_chart:
+                # Altair Donut
+                base = alt.Chart(df_port).encode(theta=alt.Theta("weight_percent", stack=True))
+                pie = base.mark_arc(outerRadius=120, innerRadius=60).encode(
+                    color=alt.Color("asset_class"),
+                    order=alt.Order("weight_percent", sort="descending"),
+                    tooltip=["ticker", "name", "weight_percent", "asset_class"]
+                )
+                text = base.mark_text(radius=140).encode(
+                    text=alt.Text("weight_percent", format=".1f"),
+                    order=alt.Order("weight_percent", sort="descending"), 
+                    color=alt.value("white")  
+                )
+                st.altair_chart(pie + text, use_container_width=True)
                 
-                st.subheader(get_text('core_assets'))
-                st.info(get_text('core_assets_desc'))
-                asset_cols = ['Ticker', 'Company', 'Bucket', 'Weight %', 'Price']
-                if not assets_df.empty:
-                    st.dataframe(assets_df[asset_cols], column_config=col_cfg, width="stretch", hide_index=True)
+            with c_table:
+                st.dataframe(
+                    df_port[['ticker', 'name', 'weight_percent', 'rationale']],
+                    column_config={
+                        "weight_percent": st.column_config.NumberColumn("Weight %", format="%.1f%%"),
+                        "rationale": st.column_config.TextColumn("Why?", width="medium")
+                    },
+                    hide_index=True,
+                    use_container_width=True
+                )
                 
-            else:
-                valid_cols = [c for c in cols_to_show if c in portfolio.columns]
-                st.dataframe(portfolio[valid_cols], column_config=col_cfg, width="stretch", height=500, hide_index=True)
+            # Disclaimer
+            st.caption("⚠️ **Disclaimer**: This portfolio is generated by AI for educational purposes only. It does not constitute financial advice. Please do your own research before investing.")
 
-            
-        with tab2:
-             c1, c2 = st.columns([2, 1])
-             with c1:
-                 st.subheader(get_text('port_alloc_title'))
-                 st.caption(get_text('port_alloc_caption'))
-                 
-                 # Prepare Chart Data
-                 if risk_choice_saved == "All Weather (Ray Dalio Proxy)":
-                     chart_df = full_portfolio.copy()
-                     color_col = "Bucket"
-                     legend_title = get_text('asset_class_label')
-                 else:
-                     chart_df = portfolio.copy()
-                     chart_df['Bucket'] = chart_df['Sector'] 
-                     color_col = "Bucket" 
-                     legend_title = get_text('sector_label_short')
-
-                 # Drop YF_Obj for Altair (Fix Arrow Error)
-                 if 'YF_Obj' in chart_df.columns:
-                     chart_df = chart_df.drop(columns=['YF_Obj'])
-
-                 # Create Label for Chart
-                 chart_df['Label'] = chart_df['Ticker'] + " (" + chart_df['Weight %'].map('{:.1f}%'.format) + ")"
-
-                 # Donut Chart (Altair) - Individual Stocks
-                 base = alt.Chart(chart_df).encode(theta=alt.Theta("Weight %", stack=True))
-                 
-                 pie = base.mark_arc(outerRadius=120, innerRadius=60).encode(
-                    color=alt.Color(color_col, legend=alt.Legend(title=legend_title)), 
-                    order=alt.Order("Weight %", sort="descending"),
-                    tooltip=["Ticker", "Bucket", "Weight %", "Sector"] 
-                 )
-                 
-                 text = base.mark_text(radius=160).encode( # Increased radius for visibility
-                    text=alt.Text("Label"), 
-                    order=alt.Order("Weight %", sort="descending"),
-                    color=alt.value("white") 
-                 )
-                 
-                 st.altair_chart(pie + text, use_container_width=True)
-             
-             with c2:
-                 st.subheader(get_text('type_alloc_title'))
-                 st.bar_chart(portfolio['Type'].value_counts())
-
-                
-        with tab3:
-            st.info(f"""
-            {get_text('why_mcap_title')}
-            {get_text('why_mcap_desc')}
-            
-            {get_text('how_works_title')}
-            {get_text('how_works_desc')}
-             """)
+        except Exception as e:
+            status_box.update(label="❌ Error generating plan", state="error")
+            st.error(f"AI Error: {str(e)}")
 
     # ------------------------------------------------------------------
     # 8. BACKTEST & SIMULATION (NEW)
@@ -3759,7 +3630,7 @@ if __name__ == "__main__":
             get_text('nav_scanner'), 
             get_text('nav_ai'), 
             get_text('nav_single'), 
-            get_text('nav_portfolio'), 
+            get_text('aifolio_title'), 
             get_text('nav_health'), 
             get_text('nav_glossary'), 
             get_text('nav_help')
