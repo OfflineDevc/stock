@@ -217,7 +217,7 @@ TRANS = {
         'execute_btn': "🚀 Execute 2-Stage Screen",
         'qscan_title': "Market Scanner",
         'home_title': "Stockdeck",
-        'nav_home': "Home",
+        'nav_home': "Home", 
         'home_welcome': "Welcome to Stockdeck",
         'home_intro': "Stockdeck is your AI-Powered Investment Co-Pilot, designed to simplify professional-grade stock analysis.",
         'workflow_single': "🔍 **Single Thematic Analysis Workflow**",
