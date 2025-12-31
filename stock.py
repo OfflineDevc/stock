@@ -2961,13 +2961,12 @@ def page_home():
         st.info(get_text('feat_qhealth'))
     
     st.markdown("---")
+    st.info(get_text('about_desc'))
 
 
 def page_scanner():
     c_t, c_l = st.columns([3, 1])
     with c_t: st.title(get_text('qscan_title'))
-
-    st.info(get_text('about_desc'))
 
     # NEW: Market Dashboard
     render_market_dashboard()
