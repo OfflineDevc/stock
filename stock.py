@@ -86,7 +86,7 @@ def fetch_cached_history(ticker, period='5y'):
                     time.sleep((2 ** attempt))
                     continue
             return pd.DataFrame()
-    return pd.DataFrame()
+    return pd.DataFrame() 
 
 # --- PROFESSIONAL UI OVERHAUL ---
 def inject_custom_css():
