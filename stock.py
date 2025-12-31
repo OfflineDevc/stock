@@ -2923,9 +2923,9 @@ def page_glossary():
 
 
 def page_home():
-    left_co, cent_co,last_co = st.columns(3)
+    left_co, cent_co,last_co = st.columns([1, 8, 1])
     with cent_co:
-        st.image("stockdeck.png")
+        st.image("stockdeck.png", use_container_width=True)
 
 
     st.subheader(get_text('home_welcome'))
