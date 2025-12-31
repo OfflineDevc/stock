@@ -215,13 +215,13 @@ TRANS = {
         'sector_label': "Select Sectors (Optional)",
         'lynch_label': "Select Lynch Categories (Optional)",
         'execute_btn': "🚀 Execute 2-Stage Screen",
-        'main_title': "Stockub (AI updated)",
+        'main_title': "Quantik",
         'scan_limit': "Scan Limit",
         'results_header': "🏆 Top Picks (Deep Analyzed)",
         'stage1_msg': "📡 Stage 1: Fetching Universe...",
         'stage2_msg': "✅ Stage 1 Complete. Analyzing Top Candidates...",
         'no_data': "❌ No stocks matched your STRICT criteria.",
-        'deep_dive_title': "🔍Financial Analysis",
+        'deep_dive_title': "QFin",
         'glossary_title': "📚 Investment Glossary",
         'search_ticker': "Enter Stock Ticker (e.g. AAPL, PTT.BK)",
         'analyze_btn': "Analyze Stock",
@@ -263,7 +263,7 @@ TRANS = {
         'risk_high_desc': "🚀 **Aggressive**: Focus on **High Growth**. Ignores Dividends. Higher Risk (Debt/Volatility) accepted for max returns.",
         'risk_all_desc': "🌤️ **All Weather**: Balanced across seasons. **40% Bonds** (Utilities), **30% Stocks** (Tech), **15% Cmdty** (Energy), **15% Cash** (Finance).",
         
-        'menu_health': "Portfolio HealthCheck",
+        'menu_health': "QHealth",
         'menu_ai': "Stock AI Analysis",
         'under_dev': "🚧 Feature Under Development 🚧",
         'dev_soon': "Check back soon for AI-powered diagnostics!",
@@ -298,7 +298,7 @@ TRANS = {
         'min_rev_growth': "Min Revenue Growth %",
         'max_de': "Max Debt/Equity %",
         'debug_logs': "🛠️ Debug Logs (Open if No Data)",
-        'port_title': "Portfoliokub",
+        'port_title': "QWealth",
         'ai_analysis_header': "🧠 AI Analysis Result ({risk})",
         'gen_success': "✅ Generated Professional Portfolio: {n} Stocks",
         'avg_pe_label': "Avg P/E (Equity)",
@@ -319,11 +319,11 @@ TRANS = {
         'run_backtest_btn': "🚀 Run Backtest",
         'historical_chart_title': "### 🔬 Interactive Historical Charts",
         'select_stock_view': "Select Stock to View:",
-        'nav_scanner': "Market Scanner",
-        'nav_ai': "Fundamental AI",
-        'nav_single': "Finance",
-        'nav_portfolio': "Portfoliokub",
-        'nav_health': "Health",
+        'nav_scanner': "QScan",
+        'nav_ai': "QAI",
+        'nav_single': "QFin",
+        'nav_portfolio': "QWealth",
+        'nav_health': "QHealth",
         'nav_glossary': "Glossary",
         'nav_help': "How to Use",
         'footer_caption': "Professional Stock Analytics Platform",
@@ -388,7 +388,7 @@ TRANS = {
         'bucket_commodity': "Commodities",
         
         # --- AIFOLIO KEYS ---
-        'aifolio_title': "AIfolio (Wealth Architect)",
+        'aifolio_title': "QWealth",
         'ai_form_header': "📝 Investor Profile Interview",
         'f_target': "Target Amount",
         'f_horizon': "Time Horizon (Years)", 
@@ -424,13 +424,13 @@ TRANS = {
         'sector_desc': "กลุ่มอุตสาหกรรม (เช่น เทคโนโลยี, พลังงาน) ช่วยให้เปรียบเทียบ P/E ได้ถูกต้อง",
         
         'execute_btn': "🚀 เริ่มสแกนหุ้น (2 ขั้นตอน)",
-        'main_title': "Stockub (Ai updated)",
+        'main_title': "Quantik",
         'scan_limit': "จำกัดจำนวนสแกน", 
         'results_header': "🏆 หุ้นเด่น (วิเคราะห์เจาะลึก)",
         'stage1_msg': "📡 ขั้นแรก: ดึงข้อมูลหุ้น...",
         'stage2_msg': "✅ ขั้นแรกเสร็จสิ้น กำลังวิเคราะห์เจาะลึก...",
         'no_data': "❌ ไม่พบหุ้นที่ผ่านเกณฑ์ Strict ของคุณ",
-        'deep_dive_title': "ดีบไดป์คับ",
+        'deep_dive_title': "QFin",
         'glossary_title': "📚 คลังความรู้การลงทุน",
         'search_ticker': "พิมพ์ชื่อหุ้น (เช่น AAPL, PTT.BK)",
         'analyze_btn': "วิเคราะห์หุ้นนี้",
@@ -472,7 +472,7 @@ TRANS = {
         'risk_high_desc': "🚀 **Aggressive (เชิงรุก)**: เน้น **การเติบโตสูง**. ไม่สนปันผล. ยอมรับความเสี่ยงสูง (หนี้/ความผันผวน) เพื่อแลกผลตอบแทนสูงสุด.",
         'risk_all_desc': "🌤️ **All Weather (ทุกสภาวะ)**: สมดุลทุกฤดูกาล. **40% พันธบัตร** (หรือ Utility), **30% หุ้น** (Tech), **15% สินค้าโภคภัณฑ์** (Energy), **15% เงินสด** (Finance).",
         
-        'menu_health': "ตรวจสุขภาพพอร์ต (HealthCheck)",
+        'menu_health': "QHealth",
         'menu_ai': "วิเคราะห์หุ้นด้วย AI",
         'under_dev': "🚧 ระบบกำลังพัฒนา 🚧",
         'dev_soon': "พบกับระบบตรวจสุขภาพพอร์ตด้วย AI เร็วๆ นี้!",
@@ -507,7 +507,7 @@ TRANS = {
         'min_rev_growth': "การเติบโตรายได้ขั้นต่ำ %",
         'max_de': "หนี้สินต่อทุนสูงสุด (D/E) %",
         'debug_logs': "🛠️ บันทึกการตรวจสอบ (Debug Logs)",
-        'port_title': "พอร์ตฟอลิโอคับ",
+        'port_title': "QWealth",
         'ai_analysis_header': "🧠 ผลการวิเคราะห์ด้วย AI ({risk})",
         'gen_success': "✅ สร้างพอร์ตการลงทุนสำเร็จ: {n} หุ้น",
         'avg_pe_label': "P/E เฉลี่ย (เฉพาะหุ้น)",
@@ -522,11 +522,11 @@ TRANS = {
         'run_backtest_btn': "🚀 เริ่มทดสอบย้อนหลัง",
         'historical_chart_title': "### 🔬 กราฟราคาย้อนหลัง",
         'select_stock_view': "เลือกหุ้นเพื่อดูรายละเอียด:",
-        'nav_scanner': "สแกนหุ้นดาวเด่น",
-        'nav_ai': "วิเคราะห์ AI",
-        'nav_single': "วิเคราะห์รายตัว",
-        'nav_portfolio': "พอร์ตอัตโนมัติ (Portfoliokub)",
-        'nav_health': "สุขภาพพอร์ต",
+        'nav_scanner': "QScan",
+        'nav_ai': "QAI",
+        'nav_single': "QFin",
+        'nav_portfolio': "QWealth",
+        'nav_health': "QHealth",
         'nav_glossary': "คลังคำศัพท์",
         'nav_help': "วิธีใช้งาน",
         'footer_caption': "แพลตฟอร์มวิเคราะห์หุ้นระดับมืออาชีพ",
@@ -591,7 +591,7 @@ TRANS = {
         'bucket_commodity': "สินค้าโภคภัณฑ์",
 
         # --- AIFOLIO KEYS ---
-        'aifolio_title': "AIfolio (สถาปนิกความมั่งคั่ง)",
+        'aifolio_title': "QWealth",
         'ai_form_header': "📝 แบบสอบถามวัดระดับการลงทุน",
         'f_target': "เป้าหมายการเงิน (บาท)",
         'f_horizon': "ระยะเวลาลงทุน (ปี)", 
@@ -1313,7 +1313,7 @@ def page_scanner():
     with c_title:
         st.title(get_text('main_title'))
     with c_link:
-        st.markdown("<br>👉 [**Check out Bidnow 🪙**](https://Bidnow.streamlit.app/)", unsafe_allow_html=True)
+
     st.info(get_text('about_desc'))
 
     # --- PROFESSIONAL UI: MAIN CONFIGURATION ---
@@ -1667,7 +1667,7 @@ def calculate_dcf(current_fcf, growth_rate, discount_rate, terminal_growth=0.025
 def page_single_stock():
     c_t, c_l = st.columns([3, 1])
     with c_t: st.title(get_text('deep_dive_title'))
-    with c_l: st.markdown("<br>👉 [**Check out bidnow 🪙**](https://bidnow.streamlit.app/)", unsafe_allow_html=True)
+
     ticker = st.text_input(get_text('search_ticker'))
     
     # Initialize df to prevent UnboundLocalError
@@ -2179,8 +2179,8 @@ def fetch_google_news(ticker):
 
 def page_ai_analysis():
     c_t, c_l = st.columns([3, 1])
-    with c_t: st.title("🧠 AI Stock Analysis")
-    with c_l: st.markdown("<br>👉 [**Check out Bidnow 🪙**](https://bidnow.streamlit.app/)", unsafe_allow_html=True)
+    with c_t: st.title("🧠 QAI")
+
     
     st.info("Powered by **Gemini 3.0 Flash**. This module provides a 360-degree investment research report with **Real-time Data Context**.")
 
@@ -2902,7 +2902,7 @@ def page_glossary():
 def page_scanner():
     c_t, c_l = st.columns([3, 1])
     with c_t: st.title(get_text('main_title'))
-    with c_l: st.markdown("<br>[**Check out Bidnow 🪙**](https://bidnow.streamlit.app/)", unsafe_allow_html=True)
+
     st.info(get_text('about_desc'))
 
     # NEW: Market Dashboard
@@ -3143,9 +3143,8 @@ def page_scanner():
 
 
 def page_portfolio():
-    c_t, c_l = st.columns([3, 1])
-    with c_t: st.title(get_text('aifolio_title'))
-    with c_l: st.markdown("<br>👉 [**Check out Bidnow 🪙**](https://Bidnow.streamlit.app/)", unsafe_allow_html=True)
+    st.markdown(f"<h1 style='text-align: center;'>{get_text('aifolio_title')}</h1>", unsafe_allow_html=True)
+
     st.markdown("---")
 
     # --- INPUT FORM ---
@@ -3296,7 +3295,7 @@ def page_portfolio():
 def page_howto():
     c_t, c_l = st.columns([3, 1])
     with c_t: st.title("📖 How to Use / คู่มือการใช้งาน")
-    with c_l: st.markdown("<br>👉 [**Check out Bidnow 🪙**](https://Bidnow.streamlit.app/)", unsafe_allow_html=True)
+
     lang = st.session_state.get('lang', 'EN')
     
     HOWTO_DATA = {
