@@ -215,7 +215,20 @@ TRANS = {
         'sector_label': "Select Sectors (Optional)",
         'lynch_label': "Select Lynch Categories (Optional)",
         'execute_btn': "🚀 Execute 2-Stage Screen",
-        'main_title': "Quantik",
+        'qscan_title': "QScan (Market Scanner)",
+        'home_title': "Quantik",
+        'nav_home': "Home",
+        'home_welcome': "Welcome to Quantik",
+        'home_intro': "Quantik is your AI-Powered Investment Co-Pilot, designed to simplify professional-grade stock analysis.",
+        'workflow_single': "🔍 **Single Thematic Analysis Workflow**",
+        'workflow_single_desc': "For analyzing individual stocks, follow this proven path:",
+        'workflow_port': "🏗️ **Portfolio Construction Workflow**",
+        'workflow_port_desc': "For building and monitoring a portfolio:",
+        'feat_qscan': "**1. QScan (Scanner)**: Filter the entire market (S&P 500 / SET 100) to find hidden gems based on Strategy (Value, Growth, Dividend).",
+        'feat_qai': "**2. QAI (Analyst)**: Let AI (Gemini) read the financial reports and news for you to give a deep qualitative grading.",
+        'feat_qfin': "**3. QFin (Deep Dive)**: Check the raw financial numbers, analyst targets, and institutional holdings manually.",
+        'feat_qwealth': "**QWealth (Architect)**: Design a personalized portfolio based on your life goals using AI.",
+        'feat_qhealth': "**QHealth (Doctor)**: Perform a regular check-up on your portfolio health (Coming Soon).",
         'scan_limit': "Scan Limit",
         'results_header': "🏆 Top Picks (Deep Analyzed)",
         'stage1_msg': "📡 Stage 1: Fetching Universe...",
@@ -424,7 +437,20 @@ TRANS = {
         'sector_desc': "กลุ่มอุตสาหกรรม (เช่น เทคโนโลยี, พลังงาน) ช่วยให้เปรียบเทียบ P/E ได้ถูกต้อง",
         
         'execute_btn': "🚀 เริ่มสแกนหุ้น (2 ขั้นตอน)",
-        'main_title': "Quantik",
+        'qscan_title': "QScan (สแกนหุ้น)",
+        'home_title': "Quantik",
+        'nav_home': "หน้าแรก",
+        'home_welcome': "ยินดีต้อนรับสู่ Quantik",
+        'home_intro': "Quantik คือผู้ช่วยการลงทุนพลัง AI ที่ออกแบบมาเพื่อยกระดับการวิเคราะห์หุ้นระดับมืออาชีพให้เป็นเรื่องง่าย",
+        'workflow_single': "🔍 **ขั้นตอนการวิเคราะห์หุ้นรายตัว**",
+        'workflow_single_desc': "เพื่อให้ได้ผลลัพธ์ที่ดีที่สุด แนะนำให้ใช้งานตามลำดับนี้:",
+        'workflow_port': "🏗️ **ขั้นตอนการจัดพอร์ต**",
+        'workflow_port_desc': "สำหรับผู้ที่ต้องการสร้างพอร์ตการลงทุน:",
+        'feat_qscan': "**1. QScan (Culling)**: กรองหุ้นทั้งตลาด (S&P 500 / SET 100) เพื่อหาหุ้นช้างเผือกตามกลยุทธ์ที่คุณชอบ (Value, Growth, Dividend)",
+        'feat_qai': "**2. QAI (Analysis)**: ให้ AI (Gemini) อ่านงบการเงินและข่าวแทนคุณ พร้อมให้เกรดและบทวิเคราะห์เชิงคุณภาพ",
+        'feat_qfin': "**3. QFin (Deep Dive)**: เจาะดูตัวเลขทางการเงินย้อนหลัง ความเห็นนักวิเคราะห์ และรายชื่อกองทุนที่ถือหุ้นด้วยตาคุณเอง",
+        'feat_qwealth': "**QWealth (Architect)**: ออกแบบพอร์ตโฟลิโอส่วนตัวตามเป้าหมายชีวิตของคุณด้วยสมองกล AI",
+        'feat_qhealth': "**QHealth (Doctor)**: ตรวจสุขภาพพอร์ตโฟลิโอหาความเสี่ยงและจุดบกพร่อง (พบกันเร็วๆ นี้)",
         'scan_limit': "จำกัดจำนวนสแกน", 
         'results_header': "🏆 หุ้นเด่น (วิเคราะห์เจาะลึก)",
         'stage1_msg': "📡 ขั้นแรก: ดึงข้อมูลหุ้น...",
@@ -2177,7 +2203,7 @@ def fetch_google_news(ticker):
 
 def page_ai_analysis():
     c_t, c_l = st.columns([3, 1])
-    with c_t: st.title("🧠 QAI")
+    with c_t: st.title("QAI")
 
     
     st.info("Powered by **Gemini 3.0 Flash**. This module provides a 360-degree investment research report with **Real-time Data Context**.")
@@ -2897,9 +2923,49 @@ def page_glossary():
 # ---------------------------------------------------------
 
 
+
+def page_home():
+    c_t, c_l = st.columns([3, 1])
+    with c_t: st.title(get_text('home_title'))
+    with c_l: 
+        # Optional: Add logo or branding here
+        pass
+
+    st.subheader(get_text('home_welcome'))
+    st.info(get_text('home_intro'))
+    
+    st.markdown("---")
+    
+    # Workflow 1: Single Stock
+    st.markdown(get_text('workflow_single'))
+    st.caption(get_text('workflow_single_desc'))
+    
+    c1, c2, c3 = st.columns(3)
+    with c1:
+        st.success(get_text('feat_qscan'))
+    with c2:
+        st.warning(get_text('feat_qai'))
+    with c3:
+        st.error(get_text('feat_qfin'))
+        
+    st.markdown("---")
+    
+    # Workflow 2: Portfolio
+    st.markdown(get_text('workflow_port'))
+    st.caption(get_text('workflow_port_desc'))
+    
+    c4, c5 = st.columns(2)
+    with c4:
+        st.success(get_text('feat_qwealth'))
+    with c5:
+        st.info(get_text('feat_qhealth'))
+    
+    st.markdown("---")
+
+
 def page_scanner():
     c_t, c_l = st.columns([3, 1])
-    with c_t: st.title(get_text('main_title'))
+    with c_t: st.title(get_text('qscan_title'))
 
     st.info(get_text('about_desc'))
 
@@ -3416,7 +3482,8 @@ if __name__ == "__main__":
     with c_brand_b: 
          # --- TOP TABS NAVIGATION (CFA Style) ---
          # Define Tabs (Rendered at the very top)
-         tab_scan, tab_ai, tab_single, tab_port, tab_health, tab_gloss, tab_help = st.tabs([
+         tab_home, tab_scan, tab_ai, tab_single, tab_port, tab_health, tab_gloss, tab_help = st.tabs([
+            get_text('nav_home'),
             get_text('nav_scanner'), 
             get_text('nav_ai'), 
             get_text('nav_single'), 
@@ -3445,6 +3512,10 @@ if __name__ == "__main__":
             st.session_state.clear()
             st.success("Cache Cleared!")
             st.rerun()
+
+
+    with tab_home:
+        page_home()
 
     with tab_scan:
         page_scanner()
