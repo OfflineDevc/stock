@@ -1689,8 +1689,8 @@ def calculate_dcf(current_fcf, growth_rate, discount_rate, terminal_growth=0.025
 # ---------------------------------------------------------
 
 def page_single_stock():
-    c_t, c_l = st.columns([3, 1])
-    with c_t: st.title(get_text('deep_dive_title'))
+    st.markdown(f"<h1 style='text-align: center;'>{get_text('deep_dive_title')}</h1>", unsafe_allow_html=True)
+
 
     ticker = st.text_input(get_text('search_ticker'))
     
@@ -2202,8 +2202,7 @@ def fetch_google_news(ticker):
         return f"Error fetching fallback news: {str(e)}"
 
 def page_ai_analysis():
-    c_t, c_l = st.columns([3, 1])
-    with c_t: st.title("QAI")
+    st.markdown(f"<h1 style='text-align: center;'>QAI</h1>", unsafe_allow_html=True)
 
     
     st.info("Powered by **Gemini 3.0 Flash**. This module provides a 360-degree investment research report with **Real-time Data Context**.")
@@ -2621,8 +2620,7 @@ def page_ai_analysis():
 
 
 def page_glossary():
-    c_t, c_l = st.columns([3, 1])
-    with c_t: st.title(get_text('glossary_title'))
+    st.markdown(f"<h1 style='text-align: center;'>{get_text('glossary_title')}</h1>", unsafe_allow_html=True)
     lang = st.session_state.get('lang', 'EN')
 
     tab1, tab2, tab3 = st.tabs([get_text('tab_settings'), get_text('tab_metrics'), get_text('tab_lynch')])
@@ -2925,11 +2923,8 @@ def page_glossary():
 
 
 def page_home():
-    c_t, c_l = st.columns([3, 1])
-    with c_t: st.title(get_text('home_title'))
-    with c_l: 
-        # Optional: Add logo or branding here
-        pass
+    st.markdown(f"<h1 style='text-align: center;'>{get_text('home_title')}</h1>", unsafe_allow_html=True)
+
 
     st.subheader(get_text('home_welcome'))
     st.info(get_text('home_intro'))
@@ -2965,8 +2960,7 @@ def page_home():
 
 
 def page_scanner():
-    c_t, c_l = st.columns([3, 1])
-    with c_t: st.title(get_text('qscan_title'))
+    st.markdown(f"<h1 style='text-align: center;'>{get_text('qscan_title')}</h1>", unsafe_allow_html=True)
 
     # NEW: Market Dashboard
     render_market_dashboard()
@@ -3356,8 +3350,7 @@ def page_portfolio():
 
 
 def page_howto():
-    c_t, c_l = st.columns([3, 1])
-    with c_t: st.title("📖 How to Use / คู่มือการใช้งาน")
+    st.markdown(f"<h1 style='text-align: center;'>📖 How to Use / คู่มือการใช้งาน</h1>", unsafe_allow_html=True)
 
     lang = st.session_state.get('lang', 'EN')
     
@@ -3519,7 +3512,7 @@ if __name__ == "__main__":
         page_single_stock()
         
     with tab_health:
-        st.title(get_text('menu_health'))
+        st.markdown(f"<h1 style='text-align: center;'>{get_text('menu_health')}</h1>", unsafe_allow_html=True)
         st.markdown("---")
         st.info(get_text('health_coming_soon'))
         
