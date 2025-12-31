@@ -2143,7 +2143,7 @@ def fetch_google_news(ticker):
     except Exception as e:
         return f"Error fetching fallback news: {str(e)}"
 
-def page_ai_analysis(): 
+def page_ai_analysis():
     c_t, c_l = st.columns([3, 1])
     with c_t: st.title("🧠 AI Stock Analysis")
     with c_l: st.markdown("<br>👉 [**Check out Bidnow 🪙**](https://bidnow.streamlit.app/)", unsafe_allow_html=True)
