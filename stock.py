@@ -3485,7 +3485,7 @@ if __name__ == "__main__":
         get_text('nav_glossary'), 
         get_text('nav_help')
     ]) 
-
+ 
     c_logo, c_lang = st.columns([8, 2])
     with c_logo:
         st.caption(get_text('footer_caption'))
