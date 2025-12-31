@@ -2923,7 +2923,9 @@ def page_glossary():
 
 
 def page_home():
-    st.markdown(f"<h1 style='text-align: center;'>{get_text('home_title')}</h1>", unsafe_allow_html=True)
+    left_co, cent_co,last_co = st.columns(3)
+    with cent_co:
+        st.image("stockdeck.png")
 
 
     st.subheader(get_text('home_welcome'))
