@@ -3412,7 +3412,14 @@ def page_health():
         st.rerun()
 
     # --- 2. EXECUTION ---
-    if st.button("🏥 Run Health Check (AI)", type="primary", use_container_width=True):
+    c_btn, c_lang = st.columns([3, 1])
+    with c_lang:
+        health_lang = st.radio("Response Language", ["English", "Thai"], horizontal=True, label_visibility="collapsed")
+        
+    with c_btn:
+        run_btn = st.button("🏥 Run Health Check (AI)", type="primary", use_container_width=True)
+
+    if run_btn:
         if edited_df.empty:
             st.error("Please add at least one stock.")
             return
@@ -3488,7 +3495,7 @@ def page_health():
                     ...
                 ]
             }}
-            Response Language: {st.session_state.get('lang', 'EN')} (Thai if TH selected).
+            Response Language: {health_lang}
             """
             
             response = model.generate_content(prompt)
