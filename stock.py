@@ -3708,6 +3708,9 @@ if __name__ == "__main__":
     if 'authenticated' not in st.session_state:
         st.session_state['authenticated'] = False
         st.session_state['tier'] = 'standard'
+        
+    if 'tier' not in st.session_state:
+        st.session_state['tier'] = 'standard'
     
     # --- LANGUAGE SETUP (Public) ---
     if 'lang_choice_key' in st.session_state:
@@ -3732,7 +3735,10 @@ if __name__ == "__main__":
     c_logo, c_lang = st.columns([8, 2])
     with c_logo:
         if st.session_state['authenticated']:
-             st.caption(f"👤 **{st.session_state.get('user_name')}** | 🏷️ **{st.session_state.get('tier').upper()} Member**")
+             user_tier = st.session_state.get('tier', 'standard')
+             # Handle case where tier might be None in DB
+             if user_tier is None: user_tier = 'standard'
+             st.caption(f"👤 **{st.session_state.get('user_name')}** | 🏷️ **{user_tier.upper()} Member**")
         else:
              st.caption("Guest Mode")
     with c_lang:
