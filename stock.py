@@ -3752,7 +3752,9 @@ def page_profile(cookie_manager=None):
                     for p in ports:
                         with st.expander(f"📁 {p['name']} ({p['created_at'].strftime('%Y-%m-%d %H:%M')})"):
                             # Simple View
-                            st.json(p.get('data', {}).get('analysis', {}).get('advice_summary', 'No summary'))
+                            summary = p.get('data', {}).get('analysis', {}).get('advice_summary', 'No summary')
+                            st.info(summary)
+                            
                             st.write("**Allocations:**")
                             st.dataframe(pd.DataFrame(p.get('data', {}).get('portfolio', [])))
 
