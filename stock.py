@@ -3387,7 +3387,7 @@ def page_health():
     # If not, we update and trigger a rerun so the user sees the new value immediately.
     # Note: data_editor returns a dataframe. We check this dataframe.
     
-    # Vectorized calc for speed 
+    # Vectorized calc for speed (faster than apply)
     if not edited_df.empty:
         # Avoid division by zero
         calculated_upl = edited_df.apply(
