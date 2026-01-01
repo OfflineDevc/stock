@@ -3729,9 +3729,18 @@ def page_profile(cookie_manager=None):
              with open("pf.jpg", "rb") as img_file:
                  b64_string = base64.b64encode(img_file.read()).decode()
              
+             # Determine Border Color based on Tier
+             tier = st.session_state.get('tier', 'standard').lower()
+             if tier == 'admin':
+                 border_color = "#ff4b4b" # Red
+             elif tier == 'pro':
+                 border_color = "#d4af37" # Gold
+             else:
+                 border_color = "#2196F3" # Blue
+             
              st.markdown(f"""
                  <div style="display: flex; justify-content: center;">
-                     <img src="data:image/jpeg;base64,{b64_string}" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid #d4af37; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                     <img src="data:image/jpeg;base64,{b64_string}" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid {border_color}; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
                  </div>
                  """, unsafe_allow_html=True)
         except Exception:
