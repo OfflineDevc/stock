@@ -683,7 +683,7 @@ def fetch_market_indicators():
             indicators['Trend_Diff'] = ((current - ma200) / ma200) * 100
             
     except Exception as e:
-        print(f"Market Data Error: {e}")
+        pass
         
     return indicators
 
@@ -856,9 +856,9 @@ def retry_api_call(func, retries=3, delay=2):
         except Exception as e:
             last_exception = e
             error_str = str(e).lower()
-            if "429" in error_str or "too many requests" in error_str or "rate limit" in error_str:
+                if "429" in error_str or "too many requests" in error_str or "rate limit" in error_str:
                 sleep_time = delay * (2 ** i) # Exponential Backoff: 2s, 4s, 8s
-                print(f"⚠️ Rate Limit Hit. Retrying in {sleep_time}s...")
+                # Rate Limit Hit. Retrying...
                 time.sleep(sleep_time)
                 continue
             else:
@@ -866,7 +866,7 @@ def retry_api_call(func, retries=3, delay=2):
     raise last_exception
 
 # --- Stage 1: Fast Scan (Basic Metrics) ---
-def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
+def scan_market_basic(tickers, progress_bar, status_text):
     data_list = []
     total = len(tickers)
     
@@ -896,15 +896,10 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
             stock = yf.Ticker(formatted_ticker)
 
             # DEBUG: Inspect "Info" for problematic tickers
-            if (ticker in ['AAPL', 'NVDA', 'GOOGL', 'META', 'TSLA'] or '__error__' in info) and debug_container:
-                debug_container.write(f"--- DEBUG: {ticker} ---")
-                if '__error__' in info:
-                    debug_container.error(f"Fetch Error: {info['__error__']}")
-                else:
-                    debug_container.json(info) # Use JSON for better readability
+            # Removed Debug Logic
             
             # DEBUG: Log first item to see what's happening on Cloud
-            if i == 0 and debug_container:
+            if i == 0:
                 pass # Clean logs
             
             # Price from Bulk or Info
@@ -919,7 +914,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                 except: pass
             
             if not price:
-                print(f"FAILED {ticker}: No Price Data") 
+                # FAILED No Price Data 
                 continue
             
             # Found data (Price at least)
@@ -966,8 +961,8 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                         inc = fetch_cached_financials(formatted_ticker) # Use cached financials
                         bal = stock.quarterly_balance_sheet # Quarterly balance sheet is not cached yet
                         
-                        if i == 0 and debug_container:
-                            debug_container.write(f"🔍 Analying {formatted_ticker} (Cloud Recovery Mode)")
+                        if i == 0:
+                            pass # Analying (Cloud Recovery Mode)
                         
                         eps_ttm = None
                         
@@ -1030,7 +1025,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                         # if div_yield is None: ... (Removed)
 
                     except Exception as e:
-                        if i == 0 and debug_container: debug_container.error(f"Recovery ERROR: {e}")
+                        # Recovery ERROR
                         pass
                 
                 # --- NEW: REALISTIC FAIR VALUE ---
@@ -1437,7 +1432,7 @@ def page_scanner():
 
     
     # DEBUG EXPANDER
-    debug_container = st.expander("Debug Logs (Open if No Data)", expanded=False)
+    # Removed Debug Container
 
     run_scan = st.button(get_text('execute_btn'), use_container_width=True, type="primary")
 
@@ -1462,7 +1457,7 @@ def page_scanner():
             tickers = tickers[:num_stocks]
         
         st.info(f"Stage 1: Scanning {len(tickers)} stocks...")
-        df = scan_market_basic(tickers, st.progress(0), st.empty(), debug_container)
+        df = scan_market_basic(tickers, st.progress(0), st.empty())
 
         if not df.empty:
             original_len = len(df)
@@ -1632,10 +1627,7 @@ def page_scanner():
                         st.warning("No financial history available for this stock.")
 
         # Cache Clearing for Debugging
-        if st.checkbox("Show Advanced Options"):
-            if st.button("Clear Data Cache"):
-                st.cache_data.clear()
-                st.success("Cache Cleared! Rerun the scan.")
+        # Removed Advanced Options (Clear Cache)
 
         else:
             st.error(get_text('no_data'))
@@ -3142,7 +3134,7 @@ def page_scanner():
     
     # DEBUG EXPANDER
     if 'deep_results' not in st.session_state: st.session_state['deep_results'] = None
-    debug_container = st.expander(get_text('debug_logs'), expanded=False)
+    # Removed Debug Logs
 
     # 2-Stage Scan Execution
     if st.button(get_text('execute_btn'), type="primary", use_container_width=True):
@@ -3158,7 +3150,7 @@ def page_scanner():
         tickers = tickers[:num_stocks] # Limit scan
         
         # 2. Stage 1 Scan
-        df_basic = scan_market_basic(tickers, prog, status, debug_container)
+        df_basic = scan_market_basic(tickers, prog, status)
         
         if df_basic.empty:
             st.error("No data fetched.")
@@ -3901,11 +3893,7 @@ if __name__ == "__main__":
             st.info("Guest Mode. Please Login in the top-right tab.")
 
         st.divider()
-        st.caption("System Tools")
-        if st.button("Clear Cache", use_container_width=True):
-            st.cache_data.clear()
-            st.session_state.clear()
-            st.rerun()
+
 
     # --- HELPER: STRICT LOGIN CARD ---
     def render_login_card(feature_name):
