@@ -1437,7 +1437,22 @@ def page_scanner():
     # DEBUG EXPANDER
     debug_container = st.expander("🛠️ Debug Logs (Open if No Data)", expanded=False)
 
-    if st.button(get_text('execute_btn'), type="primary"):
+    run_scan = st.button(get_text('execute_btn'), use_container_width=True, type="primary")
+
+    if run_scan:
+        # --- QUOTA CHECK ---
+        user_id = st.session_state.get('username')
+        allowed, msg, count, limit = auth_mongo.check_quota(user_id, 'scanner')
+        
+        if not allowed:
+            st.error(msg)
+            return
+
+        # Increment Usage AFTER successful check (or after successful run? Let's debit on click for now to suppress spam)
+        auth_mongo.increment_quota(user_id, 'scanner')
+        st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
+
+        # --- EXECUTE SCAN ---
         # --- STAGE 1 ---
         tickers = []
         with st.spinner(get_text('stage1_msg')):
@@ -1713,8 +1728,18 @@ def page_single_stock():
         def empty(self): pass
 
     # State Persistence Logic
-    if st.button(get_text('analyze_btn')) and ticker:
-        with st.spinner(f"Analyzing {ticker}..."):
+    run_deep_dive = st.button(get_text('analyze_btn'))
+    if run_deep_dive and ticker:
+        # --- QUOTA CHECK ---
+        user_id = st.session_state.get('username')
+        allowed, msg, count, limit = auth_mongo.check_quota(user_id, 'deep_dive')
+        if not allowed:
+            st.error(msg)
+        else:
+            auth_mongo.increment_quota(user_id, 'deep_dive')
+            st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
+
+            with st.spinner(f"Analyzing {ticker}..."):
             new_df = scan_market_basic([ticker], MockProgress(), st.empty())
             if not new_df.empty:
                 new_df['Lynch_Category'] = new_df.apply(classify_lynch, axis=1) # Apply Lynch Logic locally
@@ -2237,6 +2262,16 @@ def page_ai_analysis():
         analyze_click = st.button("✨ Analyze with AI", type="primary", use_container_width=True)
 
     if analyze_click and ticker:
+        # --- QUOTA CHECK ---
+        user_id = st.session_state.get('username')
+        allowed, msg, count, limit = auth_mongo.check_quota(user_id, 'ai_analysis')
+        if not allowed:
+            st.error(msg)
+            return
+        
+        auth_mongo.increment_quota(user_id, 'ai_analysis')
+        st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
+
         try:
             # 1. FETCH LIVE DATA
             with st.spinner(f"📡 Fetching Live Data for {ticker}..."):
@@ -3271,6 +3306,16 @@ def page_portfolio():
 
     # --- AI GENERATION LOGIC ---
     if submitted:
+        # --- QUOTA CHECK ---
+        user_id = st.session_state.get('username')
+        allowed, msg, count, limit = auth_mongo.check_quota(user_id, 'wealth')
+        if not allowed:
+            st.error(msg)
+            return
+        
+        auth_mongo.increment_quota(user_id, 'wealth')
+        st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
+
         # Secure API Key Check
         if 'GEMINI_API_KEY' not in st.secrets:
              st.error("🚨 Missing API Key in `.streamlit/secrets.toml`")
@@ -3343,6 +3388,13 @@ def page_portfolio():
             plan = json.loads(clean_json)
             
             status_box.update(label="✅ Analysis Complete!", state="complete")
+            
+            # --- AUTO SAVE PORTFOLIO ---
+            user_id = st.session_state.get('username')
+            if user_id:
+                auth_mongo.save_portfolio(user_id, plan)
+                st.toast("Portfolio Saved to Profile!", icon="💾")
+
             
             # --- RENDER RESULTS ---
             ana = plan['analysis']
@@ -3475,10 +3527,49 @@ def page_health():
     with c_lang:
         health_lang = st.radio("Response Language", ["English", "Thai"], horizontal=True, label_visibility="collapsed")
         
+        # --- LOAD HISTORY BUTTON ---
+        user_id = st.session_state.get('username')
+        if user_id:
+            with st.popover("📂 Load Saved Portfolio"):
+                saved_ports = auth_mongo.get_user_portfolios(user_id)
+                if not saved_ports:
+                    st.info("No saved portfolios.")
+                else:
+                    for p in saved_ports:
+                        if st.button(f"{p['name']} ({len(p.get('data',{}).get('portfolio',[]))} stocks)", key=p['_id']):
+                            # Convert JSON portfolio to DF structure for HealthDeck
+                            # HealthDeck expects: Ticker, Avg (Price), Market (Price), Qty (optional, implied 1?)
+                            # Saved portfolio: ticker, name, weight_percent... no entry price/market price usually?
+                            # Wait, AIfolio generates 'Allocation', not a real position with cost basis.
+                            # So we can only prepopulate 'Ticker' and 'Market Price' (current). 'Avg Price' will be 0.
+                            
+                            new_data = []
+                            for asset in p.get('data', {}).get('portfolio', []):
+                                if asset.get('asset_class') == 'Equity': # Only stocks
+                                    new_data.append({
+                                        'Ticker': asset['ticker'],
+                                        'Avg': 0.0, # Unknown
+                                        'Market': 0.0, # Unknown, user fill, or we fetch live? Let's leave 0
+                                        'U.PL': 0.0,
+                                        'Weight': asset['weight_percent']
+                                    })
+                            
+                            st.session_state['health_data'] = pd.DataFrame(new_data)
+                            st.rerun()
+
     with c_btn:
         run_btn = st.button("🏥 Run Health Check (AI)", type="primary", use_container_width=True)
 
     if run_btn:
+        # --- QUOTA CHECK ---
+        user_id = st.session_state.get('username')
+        allowed, msg, count, limit = auth_mongo.check_quota(user_id, 'health')
+        if not allowed:
+            st.error(msg)
+            return
+        
+        auth_mongo.increment_quota(user_id, 'health')
+        st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
         if edited_df.empty:
             st.error("Please add at least one stock.")
             return
@@ -3611,136 +3702,143 @@ def page_health():
 # ---------------------------------------------------------
 # ---------------------------------------------------------
 if __name__ == "__main__":
-    inject_custom_css() # Apply Professional Styles
+    inject_custom_css() 
     
-    # --- AUTHENTICATION CHECK ---
+    # Init Auth State
     if 'authenticated' not in st.session_state:
         st.session_state['authenticated'] = False
-        
-    if not st.session_state['authenticated']:
-        # --- LOGIN / SIGNUP PAGE ---
-        c1, c2, c3 = st.columns([1, 2, 1])
-        with c2:
-            st.title("🔐 StockDeck Sign In")
-            st.info("Please log in to access your professional investment tools.")
-            
-            tab_login, tab_signup = st.tabs(["Login", "Sign Up"])
-            
-            with tab_login:
-                with st.form("login_form"):
-                    username = st.text_input("Username")
-                    password = st.text_input("Password", type="password")
-                    submit_login = st.form_submit_button("Log In", use_container_width=True, type="primary")
-                    
-                    if submit_login:
-                        if username and password:
-                            success, name = auth_mongo.check_login(username, password)
-                            if success:
-                                st.session_state['authenticated'] = True
-                                st.session_state['user_name'] = name
-                                st.success(f"Welcome back, {name}!")
-                                st.rerun()
-                            else:
-                                st.error("❌ Invalid username or password")
-                        else:
-                            st.warning("Please enter both username and password")
-                            
-            with tab_signup:
-                with st.form("signup_form"):
-                    new_user = st.text_input("Choose a Username")
-                    new_name = st.text_input("Your Name (Display)")
-                    new_pass = st.text_input("Choose a Password", type="password")
-                    confirm_pass = st.text_input("Confirm Password", type="password")
-                    submit_signup = st.form_submit_button("Create Account", use_container_width=True)
-                    
-                    if submit_signup:
-                        if new_pass != confirm_pass:
-                            st.error("Passwords do not match!")
-                        elif new_user and new_pass and new_name:
-                            success, msg = auth_mongo.sign_up(new_user, new_pass, new_name)
-                            if success:
-                                st.success(msg)
-                            else:
-                                st.error(msg)
-                        else:
-                            st.warning("Please fill in all fields.")
-
-    else:
-        # --- MAIN APPLICATION (AUTHENTICATED) ---
-        
-        # --- PRE-CALCULATE LANGUAGE STATE ---
-        # We must determine language BEFORE rendering tabs, otherwise they lag one step behind.
-        # Check if widget was interacted with (it's in session state as 'lang_choice_key')
-        if 'lang_choice_key' in st.session_state:
-            # Update immediately based on widget value
-            pass # Widget triggers rerun, so we read it below or use key
-            
-        # Hack: Render the radio button logic-first but UI-later? No, can't move UI easily.
-        # Better: Use key to read state at top.
-        
-        current_lang_sel = st.session_state.get('lang_choice_key', "English (EN)")
-        st.session_state['lang'] = 'EN' if "English" in current_lang_sel else 'TH'
+        st.session_state['tier'] = 'standard'
     
-        # --- TOP TABS NAVIGATION (CFA Style) ---
-        # Define Tabs (Rendered at the very top)
-        tab_home, tab_scan, tab_ai, tab_single, tab_port, tab_health, tab_gloss = st.tabs([
-            get_text('nav_home'),
-            get_text('nav_scanner'), 
-            get_text('nav_ai'), 
-            get_text('nav_single'), 
-            get_text('aifolio_title'), 
-            get_text('nav_health'), 
-            get_text('nav_glossary')
-        ]) 
-     
-        c_logo, c_lang = st.columns([8, 2])
-        with c_logo:
-             # Show User Name
-            st.caption(f"{get_text('footer_caption')} | User: {st.session_state.get('user_name', 'Guest')}")
+    # --- LANGUAGE SETUP (Public) ---
+    if 'lang_choice_key' in st.session_state:
+        pass 
+    current_lang_sel = st.session_state.get('lang_choice_key', "English (EN)")
+    st.session_state['lang'] = 'EN' if "English" in current_lang_sel else 'TH'
+
+    # --- TABS (Public Navigation) ---
+    tab_names = [
+        get_text('nav_home'),
+        get_text('nav_scanner') + (f" 🔒" if not st.session_state['authenticated'] else ""),
+        get_text('nav_ai') + (f" 🔒" if not st.session_state['authenticated'] else ""),
+        get_text('nav_single') + (f" 🔒" if not st.session_state['authenticated'] else ""),
+        get_text('aifolio_title') + (f" 🔒" if not st.session_state['authenticated'] else ""),
+        get_text('nav_health') + (f" 🔒" if not st.session_state['authenticated'] else ""),
+        get_text('nav_glossary')
+    ]
+    
+    tab_home, tab_scan, tab_ai, tab_single, tab_port, tab_health, tab_gloss = st.tabs(tab_names) 
+
+    # --- TOP BAR ---
+    c_logo, c_lang = st.columns([8, 2])
+    with c_logo:
+        if st.session_state['authenticated']:
+             st.caption(f"👤 **{st.session_state.get('user_name')}** | 🏷️ **{st.session_state.get('tier').upper()} Member**")
+        else:
+             st.caption("Guest Mode")
+    with c_lang:
+        lang_choice = st.radio(get_text('lang_label'), ["English (EN)", "Thai (TH)"], horizontal=True, label_visibility="collapsed", key="lang_choice_key")
+
+    # --- SIDEBAR (Profile / Login) ---
+    with st.sidebar:
+        st.divider()
+        if st.session_state['authenticated']:
+            st.subheader(f"👤 {st.session_state.get('user_name')}")
+            st.code(f"TIER: {st.session_state.get('tier').upper()}")
             
-        with c_lang:
-            # Move Language Switcher to Top Right
-            # KEY is vital for pre-calculation
-            lang_choice = st.radio(get_text('lang_label'), ["English (EN)", "Thai (TH)"], horizontal=True, label_visibility="collapsed", key="lang_choice_key")
-            # No need to manually set session_state['lang'] here, we did it at top.
-        
-        # --- GLOBAL SIDEBAR SETTINGS ---
-        with st.sidebar:
-            st.divider()
-            st.caption("🔧 System Tools")
+            # Show Quota Usage (fetch live?)
+            # Valid features: scanner, deep_dive, ai_analysis, wealth, health
             
             if st.button("🚪 Logout", use_container_width=True):
                 st.session_state.clear()
                 st.rerun()
-                
-            if st.button("🗑️ Clear Cache / Reset", use_container_width=True):
-                st.cache_data.clear()
-                # Keep auth when clearing cache? Maybe not for full reset.
-                # But let's keep it consistent with "Clear Cache" usually meaning data.
-                # However, st.session_state.clear() wipes auth. So it acts as logout too.
-                st.session_state.clear()
-                st.success("Cache Cleared!")
-                st.rerun()
-    
-    
-        with tab_home:
-            page_home()
-    
-        with tab_scan:
-            page_scanner()
+        else:
+            st.info("Member Login")
+            with st.form("sidebar_login"):
+                username = st.text_input("Username")
+                password = st.text_input("Password", type="password")
+                if st.form_submit_button("Log In"):
+                    success, name, tier = auth_mongo.check_login(username, password)
+                    if success:
+                        st.session_state['authenticated'] = True
+                        st.session_state['user_name'] = name
+                        st.session_state['username'] = username # Store ID for DB calls
+                        st.session_state['tier'] = tier
+                        st.success("Login Success!")
+                        st.rerun()
+                    else:
+                        st.error("Invalid Credentials")
             
-        with tab_port:
+            with st.expander("New User? Sign Up"):
+                with st.form("sidebar_signup"):
+                    new_user = st.text_input("Username")
+                    new_name = st.text_input("Display Name")
+                    new_pass = st.text_input("Password", type="password")
+                    if st.form_submit_button("Sign Up"):
+                        success, msg = auth_mongo.sign_up(new_user, new_pass, new_name)
+                        if success: st.success(msg)
+                        else: st.error(msg)
+
+        st.divider()
+        st.caption("🔧 System Tools")
+        if st.button("🗑️ Clear Cache", use_container_width=True):
+            st.cache_data.clear()
+            st.session_state.clear()
+            st.rerun()
+
+    # --- HELPER: LOCKED OVERLAY ---
+    def render_locked_overlay(feature_name):
+        st.warning(f"🔒 **Login Required** to access {feature_name}")
+        st.info("Please Log In or Sign Up in the Sidebar to unlock professional tools.")
+        # blurred effect is hard in pure streamlit without custom components, sticking to warning for now.
+        st.markdown("---")
+        st.markdown("<div style='filter: blur(4px); pointer-events: none; opacity: 0.4;'>", unsafe_allow_html=True)
+        # We start the blur div here, and MUST close it at the end of the page function
+        return True
+
+    # --- PAGES ---
+
+    with tab_home:
+        page_home() # Always Public
+
+    with tab_scan:
+        if not st.session_state['authenticated']:
+            render_locked_overlay("Scanner")
+            page_scanner() # Render blocked/blurred
+            st.markdown("</div>", unsafe_allow_html=True) # Close blur
+        else:
+            page_scanner()
+
+    with tab_ai:
+        if not st.session_state['authenticated']:
+             render_locked_overlay("AI Analysis")
+             # Don't even render content if sensitive
+             st.markdown("</div>", unsafe_allow_html=True)
+        else:
+             page_ai_analysis()
+             
+    with tab_single:
+        if not st.session_state['authenticated']:
+            render_locked_overlay("Deep Dive")
+            page_single_stock()
+            st.markdown("</div>", unsafe_allow_html=True)
+        else:
+            page_single_stock()
+
+    with tab_port:
+        if not st.session_state['authenticated']:
+            render_locked_overlay("Wealth")
+            st.markdown("</div>", unsafe_allow_html=True)
+        else:
             page_portfolio()
             
-        with tab_single:
-            page_single_stock()
+    with tab_health:
+        if not st.session_state['authenticated']:
+             render_locked_overlay("HealthDeck")
+             st.markdown("</div>", unsafe_allow_html=True)
+        else:
+             page_health()
             
-        with tab_health:
-            page_health()
-            
-        with tab_ai:
-            page_ai_analysis()
-            
-        with tab_gloss:
-            page_glossary()
+    with tab_gloss:
+        page_glossary() # Always Public
+
         
