@@ -3663,7 +3663,7 @@ def page_health():
             status_box.update(label="✅ Diagnosis Complete!", state="complete")
             
             # --- AUTO SAVE HEALTH CHECK ---
-            user_id = st.session_state.get('username')
+            user_id = st.session_state.get('username') 
             if user_id:
                 # We save the raw input DF (structure) + the AI Analysis text/score
                 auth_mongo.save_health_check(user_id, edited_df, result.get('diagnosis_summary', 'No Summary'), result.get('portfolio_gpa', 'N/A'))
