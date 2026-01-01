@@ -10,6 +10,10 @@ import xml.etree.ElementTree as ET
 import datetime
 from datetime import timedelta
 import extra_streamlit_components as stx
+from streamlit_cropper import st_cropper
+from PIL import Image
+import io
+import base64
 
 from deep_translator import GoogleTranslator
 import google.generativeai as genai
@@ -3723,9 +3727,89 @@ def page_profile(cookie_manager=None):
     # --- HEADER ---
     c1, c2 = st.columns([1, 4])
     with c1:
-        # Placeholder Avatar
-        st.write("")
-        st.markdown("<div style='text-align:center; font_size: 60px;'>User</div>", unsafe_allow_html=True) 
+        # 1. Load Profile Image
+        user_id = st.session_state.get('username')
+        db_image = auth_mongo.get_profile_image(user_id)
+        
+        # Default to pf.jpg if no DB image
+        if db_image:
+            # Reconstruct image from base64
+            img_data = base64.b64decode(db_image)
+            # Display rounded image via HTML/CSS
+            st.markdown(
+                f"""
+                <style>
+                .profile-pic {{
+                    display: block;
+                    margin-left: auto;
+                    margin-right: auto;
+                    width: 100px;
+                    height: 100px;
+                    border-radius: 50%;
+                    object-fit: cover;
+                    border: 2px solid #ccc;
+                }}
+                </style>
+                <img src="data:image/png;base64,{db_image}" class="profile-pic">
+                """,
+                unsafe_allow_html=True
+            )
+        else:
+             # Load default pf.jpg
+             try:
+                 with open("pf.jpg", "rb") as f:
+                     encoded_string = base64.b64encode(f.read()).decode()
+                 st.markdown(
+                    f"""
+                    <style>
+                    .profile-pic {{
+                        display: block;
+                        margin-left: auto;
+                        margin-right: auto;
+                        width: 100px;
+                        height: 100px;
+                        border-radius: 50%;
+                        object-fit: cover;
+                        border: 2px solid #ccc;
+                    }}
+                    </style>
+                    <img src="data:image/jpeg;base64,{encoded_string}" class="profile-pic">
+                    """,
+                    unsafe_allow_html=True
+                )
+             except:
+                 st.markdown("<div style='text-align:center; font_size: 60px;'>👤</div>", unsafe_allow_html=True) 
+
+        # Edit Button (Popover)
+        with st.popover("Edit Photo"):
+            st.write("Upload New Profile Picture")
+            uploaded_file = st.file_uploader("Choose an image...", type=["jpg", "png", "jpeg"])
+            
+            if uploaded_file:
+                image = Image.open(uploaded_file)
+                # Cropper
+                st.write("Crop Image (Drag box)")
+                cropped_img = st_cropper(image, aspectRatio=1, box_color='blue', key='profile_cropper')
+                
+                # Preview
+                st.write("Preview:")
+                st.image(cropped_img, width=100)
+                
+                if st.button("Save Profile Picture", type="primary"):
+                    # Convert to Base64
+                    buf = io.BytesIO()
+                    cropped_img.save(buf, format="PNG")
+                    img_bytes = buf.getvalue()
+                    img_str = base64.b64encode(img_bytes).decode()
+                    
+                    # Save to DB
+                    success = auth_mongo.save_profile_image(user_id, img_str)
+                    if success:
+                        st.success("Updated!")
+                        time.sleep(1)
+                        st.rerun()
+                    else:
+                        st.error("Failed to save.")
     with c2:
         st.write(f"### {st.session_state.get('user_name', 'User')}")
         st.caption(f"Member Tier: **{st.session_state.get('tier','standard').upper()}**")
