@@ -3,6 +3,7 @@ import pymongo
 import bcrypt
 import time
 from datetime import datetime, date
+import re
 
 # --- DATABASE CONNECTION ---
 @st.cache_resource
@@ -24,13 +25,37 @@ def get_db():
 
 # --- AUTHENTICATION ---
 
+def validate_email(email):
+    # Basic Regex for Email
+    pattern = r"^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$"
+    return re.match(pattern, email) is not None
+
+def validate_password(password):
+    """
+    >8 chars, Upper, Lower, Number, Special Char
+    """
+    if len(password) < 8: return False
+    if not re.search(r"[A-Z]", password): return False
+    if not re.search(r"[a-z]", password): return False
+    if not re.search(r"\d", password): return False
+    if not re.search(r"[ !@#$%^&*()_+\-=\[\]{};':\"\\|,.<>\/?]", password): return False
+    return True
+
 def sign_up(username, password, name):
     db = get_db()
     if db is None: return False, "Database connection failed."
 
+    # 1. Validate Email
+    if not validate_email(username):
+        return False, "Invalid Email Format. Please use a valid email (e.g. user@gmail.com)."
+
+    # 2. Validate Password
+    if not validate_password(password):
+        return False, "Weak Password. Must be >8 chars, include Upper, Lower, Number, and Special Char (@#$%...)."
+
     users = db.users
     if users.find_one({'username': username}):
-        return False, "Username already exists."
+        return False, "Email already exists."
     
     hashed = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
     

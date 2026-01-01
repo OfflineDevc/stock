@@ -3879,7 +3879,7 @@ if __name__ == "__main__":
                 
                 with tab_login:
                     with st.form(f"login_form_{feature_name}"):
-                        username = st.text_input("Username")
+                        username = st.text_input("Email Address")
                         password = st.text_input("Password", type="password")
                         if st.form_submit_button("Log In", use_container_width=True, type="primary"):
                             success, name, tier = auth_mongo.check_login(username, password)
@@ -3895,7 +3895,7 @@ if __name__ == "__main__":
 
                 with tab_signup:
                     with st.form(f"signup_form_{feature_name}"):
-                        new_user = st.text_input("Choose Username")
+                        new_user = st.text_input("Email Address")
                         new_name = st.text_input("Display Name")
                         new_pass = st.text_input("Password", type="password")
                         if st.form_submit_button("Sign Up", use_container_width=True):
@@ -3954,7 +3954,7 @@ if __name__ == "__main__":
                    l_tab1, l_tab2 = st.tabs(["Log In", "Sign Up"])
                    with l_tab1:
                         with st.form("main_login_form"):
-                            username = st.text_input("Username")
+                            username = st.text_input("Email Address")
                             password = st.text_input("Password", type="password")
                             if st.form_submit_button("Log In", use_container_width=True, type="primary"):
                                 success, name, tier = auth_mongo.check_login(username, password)
@@ -3970,7 +3970,7 @@ if __name__ == "__main__":
                                     
                    with l_tab2:
                        with st.form("main_signup_form"):
-                           new_user = st.text_input("Choose Username")
+                           new_user = st.text_input("Email Address")
                            new_name = st.text_input("Display Name")
                            new_pass = st.text_input("Password", type="password")
                            if st.form_submit_button("Create Account", use_container_width=True):
