@@ -16,6 +16,15 @@ warnings.filterwarnings("ignore", category=FutureWarning, module="google.generat
 import json
 
 
+# --- CONFIGURATION (Must be First) ---
+st.set_page_config(
+    page_title="StockDeck",
+    page_icon="🏛️",
+    layout="wide",
+    initial_sidebar_state="collapsed"
+)
+
+
 # --- TRANSLATION HELPER ---
 @st.cache_data(ttl=86400, show_spinner=False)
 def translate_text(text, target_lang='th'):
@@ -339,7 +348,7 @@ TRANS = {
         'nav_health': "HealthDeck",
         'nav_glossary': "Glossary",
         'footer_caption': "Professional Stock Analytics Platform",
-        'health_check_title': "🔍 Financial HealthDeck",
+        'health_check_title': "HealthDeck",
         'val_label': "Valuation",
         'qual_label': "Quality",
         'guru_intel_title': "🧠 Guru & Analyst Intel",
