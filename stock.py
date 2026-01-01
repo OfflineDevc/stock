@@ -1450,9 +1450,7 @@ def page_scanner():
             st.error(msg)
             return
 
-        # Increment Usage AFTER successful check (or after successful run? Let's debit on click for now to suppress spam)
-        auth_mongo.increment_quota(user_id, 'scanner')
-        st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
+        # Increment Usage MOVED to End of Success Block
 
         # --- EXECUTE SCAN ---
         # --- STAGE 1 ---
@@ -1531,6 +1529,10 @@ def page_scanner():
                 
                 st.session_state['scan_results'] = df
                 st.session_state['deep_results'] = final_df
+                
+                # CHARGE QUOTA (Success)
+                auth_mongo.increment_quota(user_id, 'scanner')
+                st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
             else:
                 st.error(get_text('no_data'))
         else: st.error("No data found.")
@@ -1738,14 +1740,15 @@ def page_single_stock():
         if not allowed:
             st.error(msg)
         else:
-            auth_mongo.increment_quota(user_id, 'deep_dive')
-            st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
-
             with st.spinner(f"Analyzing {ticker}..."):
                 new_df = scan_market_basic([ticker], MockProgress(), st.empty())
                 if not new_df.empty:
                     new_df['Lynch_Category'] = new_df.apply(classify_lynch, axis=1) # Apply Lynch Logic locally
                 st.session_state['single_stock_cache'] = new_df
+                
+                # CHARGE QUOTA (Success)
+                auth_mongo.increment_quota(user_id, 'deep_dive')
+                st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
             
     # Display Logic (Wrapper to maintain indentation of subsequent block)
     # We use st.container() to provide the indentation level previously held by 'with st.spinner'
@@ -2271,8 +2274,7 @@ def page_ai_analysis():
             st.error(msg)
             return
         
-        auth_mongo.increment_quota(user_id, 'ai_analysis')
-        st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
+        
 
         try:
             # 1. FETCH LIVE DATA
@@ -2515,6 +2517,10 @@ def page_ai_analysis():
                     response = retry_api_call(lambda: model.generate_content(prompt, generation_config=generation_config))
                     # Try to parse JSON from text (handle potential markdown ticks)
                     text_out = response.text
+                    
+                    # CHARGE QUOTA (Success)
+                    auth_mongo.increment_quota(user_id, 'ai_analysis')
+                    st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
                     clean_json = text_out.replace("```json", "").replace("```", "").strip()
                     data = json.loads(clean_json)
                     
@@ -3315,8 +3321,7 @@ def page_portfolio():
             st.error(msg)
             return
         
-        auth_mongo.increment_quota(user_id, 'wealth')
-        st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
+        
 
         # Secure API Key Check
         if 'GEMINI_API_KEY' not in st.secrets:
@@ -3388,6 +3393,10 @@ def page_portfolio():
             response = model.generate_content(prompt, generation_config=generation_config)
             clean_json = response.text.replace("```json", "").replace("```", "").strip()
             plan = json.loads(clean_json)
+            
+            # CHARGE QUOTA (Success)
+            auth_mongo.increment_quota(user_id, 'wealth')
+            st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
             
             status_box.update(label="✅ Analysis Complete!", state="complete")
             
@@ -3570,8 +3579,6 @@ def page_health():
             st.error(msg)
             return
         
-        auth_mongo.increment_quota(user_id, 'health')
-        st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
         if edited_df.empty:
             st.error("Please add at least one stock.")
             return
@@ -3661,6 +3668,10 @@ def page_health():
             response = model.generate_content(prompt, generation_config=generation_config)
             clean_json = response.text.replace("```json", "").replace("```", "").strip()
             result = json.loads(clean_json)
+            
+            # CHARGE QUOTA (Success)
+            auth_mongo.increment_quota(user_id, 'health')
+            st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
             
             status_box.update(label="✅ Diagnosis Complete!", state="complete")
             
