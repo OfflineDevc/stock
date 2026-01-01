@@ -3290,7 +3290,7 @@ def page_portfolio():
             1. **Mega Trend**: Prioritize "Sunrise" industries (AI, Healthcare, Green Energy) over "Sunset" ones (unless Deep Value).
             2. **Growth Driver**: Look for companies with a "New S-Curve" or new revenue engines.
             3. **Moat**: Prefer "Blue Ocean" or strong pricing power.
-            4. **Macro**: Consider the economic cycle (Inflation/Rates).
+            4. **Macro**: Consider the economic cycle (Inflation/Rates). 
 
             **TASK:**
             1. Analyze this profile using "Chain of Thought" reasoning.
