@@ -2198,7 +2198,7 @@ def fetch_google_news(ticker):
         return "\\n".join(news_items)
     except Exception as e:
         return f"Error fetching fallback news: {str(e)}"
-
+ 
 def page_ai_analysis():
     st.markdown(f"<h1 style='text-align: center;'>AI Analysis</h1>", unsafe_allow_html=True)
 
