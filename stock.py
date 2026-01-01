@@ -3350,7 +3350,7 @@ def page_portfolio():
 
 
 
-
+ 
 def page_health():
     st.markdown(f"<h1 style='text-align: center;'>{get_text('health_check_title')}</h1>", unsafe_allow_html=True)
     st.markdown("---")
