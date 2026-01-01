@@ -3803,17 +3803,11 @@ if __name__ == "__main__":
     current_lang_sel = st.session_state.get('lang_choice_key', "English (EN)")
     st.session_state['lang'] = 'EN' if "English" in current_lang_sel else 'TH'
 
-    # --- TABS (Public Navigation) ---
-    # --- TABS (Public Navigation) ---
-    tab_names = [
-        get_text('nav_home'),
-        get_text('nav_scanner'),
-        get_text('nav_ai'),
-        get_text('nav_single'),
-        get_text('aifolio_title'),
-        get_text('nav_health'),
-        get_text('nav_glossary')
-    ]
+    # --- TABS (Concise names for alignment) ---
+    if st.session_state['lang'] == 'EN':
+        tab_names = ["Home", "Scan", "AI", "Dive", "Wealth", "Health", "Glossary"]
+    else:
+        tab_names = ["หน้าหลัก", "สแกน", "AI", "เจาะลึก", "ความมั่งคั่ง", "ตรวจสุขภาพ", "ศัพท์"]
     
     # DYNAMIC LAST TAB: Login (Guest) vs Profile (User)
     if st.session_state['authenticated']:
