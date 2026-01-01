@@ -2443,7 +2443,14 @@ def page_ai_analysis():
             
             with st.spinner("🤖 AI is analyzing... (This may take 10-20 seconds)"):
                 try:
-                    response = retry_api_call(lambda: model.generate_content(prompt))
+                    generation_config = genai.types.GenerationConfig(
+                        temperature=0.1,
+                        top_p=0.95,
+                        top_k=40,
+                        max_output_tokens=8192,
+                    )
+                    
+                    response = retry_api_call(lambda: model.generate_content(prompt, generation_config=generation_config))
                     # Try to parse JSON from text (handle potential markdown ticks)
                     text_out = response.text
                     clean_json = text_out.replace("```json", "").replace("```", "").strip()
@@ -3279,7 +3286,15 @@ def page_portfolio():
              Response Language: {st.session_state.get('lang', 'EN')} (Thai if TH selected, English if EN selected).
             """
             
-            response = model.generate_content(prompt)
+            
+            generation_config = genai.types.GenerationConfig(
+                temperature=0.2, # Slightly higher for creativity in advice
+                top_p=0.95,
+                top_k=40,
+                max_output_tokens=8192,
+            )
+
+            response = model.generate_content(prompt, generation_config=generation_config)
             clean_json = response.text.replace("```json", "").replace("```", "").strip()
             plan = json.loads(clean_json)
             
@@ -3498,7 +3513,15 @@ def page_health():
             Response Language: {health_lang}
             """
             
-            response = model.generate_content(prompt)
+            
+            generation_config = genai.types.GenerationConfig(
+                temperature=0.1,
+                top_p=0.95,
+                top_k=40,
+                max_output_tokens=8192,
+            )
+            
+            response = model.generate_content(prompt, generation_config=generation_config)
             clean_json = response.text.replace("```json", "").replace("```", "").strip()
             result = json.loads(clean_json)
             
