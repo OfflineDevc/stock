@@ -2363,13 +2363,13 @@ def page_ai_analysis():
 
             **JSON Schema:**
 
-            {
-              "stock_identity": {
+            {{
+              "stock_identity": {{
                 "symbol": "String",
                 "company_name": "String",
                 "business_nature": "String"
-              },
-              "fundamental_grading_report": {
+              }},
+              "fundamental_grading_report": {{
                 "overall_grade": "String (A / B+ / B / C / D / F)",
                 "score_summary": "String (Short justification: Why did it get this grade?)",
                 "key_strengths": [
@@ -2380,37 +2380,37 @@ def page_ai_analysis():
                     "String",
                     "String"
                 ]
-              },
-              "strategic_positioning": {
+              }},
+              "strategic_positioning": {{
                  "mega_trend": "String (Sunrise/Sunset analysis)",
                  "growth_driver": "String (S-Curve analysis)",
                  "moat_opportunity": "String (Red/Blue Ocean)",
                  "macro_context": "String (Country/Economic context)"
-              },
-              "business_deep_dive": {
+              }},
+              "business_deep_dive": {{
                 "what_they_do": "String (Very Detailed 2-3 paragraphs explanation of business model)",
                 "revenue_sources": "String (Detailed breakdown)",
-                "customer_ecosystem": {
+                "customer_ecosystem": {{
                     "key_customers": ["String (Customer Group 1)", "String (Group 2)"],
                     "dependence_level": "String (High/Low & Explanation of Importance to Customers)"
-                },
+                }},
                 "product_portfolio": [
-                    {
+                    {{
                         "name": "String (Product Name)",
                         "description": "String (What is it?)",
                         "current_performance": "String (Is it selling well? Cash cow?)",
                         "future_outlook": "String (Growth potential/Next gen version)"
-                    },
-                    {
+                    }},
+                    {{
                         "name": "String (Product Name)",
                         "description": "String (What is it?)",
                         "current_performance": "String",
                          "future_outlook": "String"
-                    }
+                    }}
                 ],
                 "pricing_power": "String (High/Low - Maker or Taker)"
-              },
-              "industry_overview": {
+              }},
+              "industry_overview": {{
                 "industry_landscape": "String (Fragmented/Consolidated, Key Players)",
                 "sector_outlook": "String (Growing, Stagnant, Disrupted?)",
                 "growth_drivers": ["String (Driver 1)", "String (Driver 2)"],
