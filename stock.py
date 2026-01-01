@@ -3804,13 +3804,14 @@ if __name__ == "__main__":
     st.session_state['lang'] = 'EN' if "English" in current_lang_sel else 'TH'
 
     # --- TABS (Public Navigation) ---
+    # --- TABS (Public Navigation) ---
     tab_names = [
         get_text('nav_home'),
-        get_text('nav_scanner') + (f" 🔒" if not st.session_state['authenticated'] else ""),
-        get_text('nav_ai') + (f" 🔒" if not st.session_state['authenticated'] else ""),
-        get_text('nav_single') + (f" 🔒" if not st.session_state['authenticated'] else ""),
-        get_text('aifolio_title') + (f" 🔒" if not st.session_state['authenticated'] else ""),
-        get_text('nav_health') + (f" 🔒" if not st.session_state['authenticated'] else ""),
+        get_text('nav_scanner'),
+        get_text('nav_ai'),
+        get_text('nav_single'),
+        get_text('aifolio_title'),
+        get_text('nav_health'),
         get_text('nav_glossary')
     ]
     
