@@ -64,6 +64,47 @@ def check_login(username, password):
     
     return False, None, "standard"
 
+# --- ACCOUNT MANAGEMENT ---
+
+def change_password(username, old_pass, new_pass):
+    db = get_db()
+    if not db: return False, "Database Error"
+    
+    user = db.users.find_one({'username': username})
+    if not user: return False, "User not found"
+    
+    # Verify Old
+    if not bcrypt.checkpw(old_pass.encode('utf-8'), user['password']):
+        return False, "Incorrect old password"
+        
+    # Set New
+    new_hashed = bcrypt.hashpw(new_pass.encode('utf-8'), bcrypt.gensalt())
+    db.users.update_one({'username': username}, {'$set': {'password': new_hashed}})
+    return True, "Password updated successfully!"
+
+# --- HISTORY MANAGEMENT ---
+
+def save_health_check(username, input_df, analysis_text, gpa):
+    """Save HealthDeck Analysis Result"""
+    db = get_db()
+    if not db: return False
+    
+    doc = {
+        'username': username,
+        'created_at': datetime.now(),
+        'portfolio_json': input_df.to_dict(orient='records'), # Save input portfolio
+        'analysis': analysis_text,
+        'gpa': gpa,
+        'name': f"Health Check {date.today().isoformat()}"
+    }
+    db.health_history.insert_one(doc)
+    return True
+
+def get_health_history(username):
+    db = get_db()
+    if not db: return []
+    return list(db.health_history.find({'username': username}).sort('created_at', -1))
+
 # --- TIER & QUOTA MANAGEMENT ---
 
 def get_user_tier(username):

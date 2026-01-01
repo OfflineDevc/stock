@@ -3662,6 +3662,14 @@ def page_health():
             
             status_box.update(label="✅ Diagnosis Complete!", state="complete")
             
+            # --- AUTO SAVE HEALTH CHECK ---
+            user_id = st.session_state.get('username')
+            if user_id:
+                # We save the raw input DF (structure) + the AI Analysis text/score
+                auth_mongo.save_health_check(user_id, edited_df, result.get('diagnosis_summary', 'No Summary'), result.get('portfolio_gpa', 'N/A'))
+                st.toast("Health Check Saved to Profile!", icon="💾")
+
+            
             # --- 3. RENDER RESULTS ---
             
             # Score
@@ -3701,6 +3709,83 @@ def page_health():
 
 # ---------------------------------------------------------
 # ---------------------------------------------------------
+# ---------------------------------------------------------
+# PAGE: PROFILES
+# ---------------------------------------------------------
+def page_profile():
+    st.markdown("## 👤 My Profile")
+    
+    # --- HEADER ---
+    c1, c2 = st.columns([1, 4])
+    with c1:
+        # Placeholder Avatar
+        st.write("")
+        st.markdown("<div style='text-align:center; font_size: 60px;'>👤</div>", unsafe_allow_html=True) 
+    with c2:
+        st.write(f"### {st.session_state.get('user_name', 'User')}")
+        st.caption(f"Member Tier: **{st.session_state.get('tier','standard').upper()}**")
+        if st.button("🚪 Logout", key="profile_logout"):
+            st.session_state.clear()
+            st.rerun()
+
+    st.markdown("---")
+
+    tab_hist, tab_acc = st.tabs(["📜 History", "⚙️ Account Settings"])
+
+    # --- HISTORY TAB ---
+    with tab_hist:
+        h_tab1, h_tab2 = st.tabs(["Wealth Portfolios", "Health Reports"])
+        
+        # 1. Wealth History
+        with h_tab1:
+            st.subheader("Saved AI Portfolios")
+            user_id = st.session_state.get('username')
+            if user_id:
+                ports = auth_mongo.get_user_portfolios(user_id)
+                if not ports:
+                    st.info("No saved portfolios yet.")
+                else:
+                    for p in ports:
+                        with st.expander(f"📁 {p['name']} ({p['created_at'].strftime('%Y-%m-%d %H:%M')})"):
+                            # Simple View
+                            st.json(p.get('data', {}).get('analysis', {}).get('advice_summary', 'No summary'))
+                            st.write("**Allocations:**")
+                            st.dataframe(pd.DataFrame(p.get('data', {}).get('portfolio', [])))
+
+        # 2. Health History
+        with h_tab2:
+            st.subheader("Past Health Checks")
+            if user_id:
+                checks = auth_mongo.get_health_history(user_id)
+                if not checks:
+                    st.info("No health checks run yet.")
+                else:
+                    for c in checks:
+                        gpa_color = "red"
+                        if str(c.get('gpa')).startswith("A"): gpa_color = "green"
+                        elif str(c.get('gpa')).startswith("B"): gpa_color = "orange"
+                        
+                        with st.expander(f"🩺 {c['name']} - GPA: :{gpa_color}[{c.get('gpa')}]"):
+                            st.write(c.get('analysis'))
+                            st.caption("Input Data:")
+                            st.dataframe(pd.DataFrame(c.get('portfolio_json')))
+
+    # --- SETTINGS TAB ---
+    with tab_acc:
+        st.subheader("Change Password")
+        with st.form("pwd_change_form"):
+            curr_pass = st.text_input("Current Password", type="password")
+            new_pass1 = st.text_input("New Password", type="password")
+            new_pass2 = st.text_input("Confirm New Password", type="password")
+            
+            if st.form_submit_button("Update Password"):
+                if new_pass1 != new_pass2:
+                    st.error("New passwords do not match.")
+                else:
+                    success, msg = auth_mongo.change_password(st.session_state.get('username'), curr_pass, new_pass1)
+                    if success: st.success(msg)
+                    else: st.error(msg)
+
 if __name__ == "__main__":
     inject_custom_css() 
     
@@ -3729,35 +3814,23 @@ if __name__ == "__main__":
         get_text('nav_glossary')
     ]
     
-    tab_home, tab_scan, tab_ai, tab_single, tab_port, tab_health, tab_gloss = st.tabs(tab_names) 
+    # Add Profile Tab if Authenticated
+    if st.session_state['authenticated']:
+        tab_names.append("👤 Profile")
+    
+    tabs = st.tabs(tab_names) 
 
     # --- TOP BAR ---
     c_logo, c_lang = st.columns([8, 2])
     with c_logo:
-        if st.session_state['authenticated']:
-             user_tier = st.session_state.get('tier', 'standard')
-             # Handle case where tier might be None in DB
-             if user_tier is None: user_tier = 'standard'
-             st.caption(f"👤 **{st.session_state.get('user_name')}** | 🏷️ **{user_tier.upper()} Member**")
-        else:
-             st.caption("Guest Mode")
+        pass # Clean look
     with c_lang:
         lang_choice = st.radio(get_text('lang_label'), ["English (EN)", "Thai (TH)"], horizontal=True, label_visibility="collapsed", key="lang_choice_key")
 
-    # --- SIDEBAR (Profile / Login) ---
+    # --- SIDEBAR (Login Only) ---
     with st.sidebar:
         st.divider()
-        if st.session_state['authenticated']:
-            st.subheader(f"👤 {st.session_state.get('user_name')}")
-            st.code(f"TIER: {st.session_state.get('tier').upper()}")
-            
-            # Show Quota Usage (fetch live?)
-            # Valid features: scanner, deep_dive, ai_analysis, wealth, health
-            
-            if st.button("🚪 Logout", use_container_width=True):
-                st.session_state.clear()
-                st.rerun()
-        else:
+        if not st.session_state['authenticated']:
             st.info("Member Login")
             with st.form("sidebar_login"):
                 username = st.text_input("Username")
@@ -3783,6 +3856,11 @@ if __name__ == "__main__":
                         success, msg = auth_mongo.sign_up(new_user, new_pass, new_name)
                         if success: st.success(msg)
                         else: st.error(msg)
+        else:
+            # Minimized Sidebar for Logged In Users
+            st.success(f"Logged in as {st.session_state.get('user_name')}")
+            st.caption(f"Tier: {st.session_state.get('tier', 'Standard').upper()}")
+            st.info("Go to 'Profile' tab for settings & history.")
 
         st.divider()
         st.caption("🔧 System Tools")
@@ -3795,56 +3873,53 @@ if __name__ == "__main__":
     def render_locked_overlay(feature_name):
         st.warning(f"🔒 **Login Required** to access {feature_name}")
         st.info("Please Log In or Sign Up in the Sidebar to unlock professional tools.")
-        # blurred effect is hard in pure streamlit without custom components, sticking to warning for now.
         st.markdown("---")
         st.markdown("<div style='filter: blur(4px); pointer-events: none; opacity: 0.4;'>", unsafe_allow_html=True)
-        # We start the blur div here, and MUST close it at the end of the page function
         return True
 
     # --- PAGES ---
-
-    with tab_home:
-        page_home() # Always Public
-
-    with tab_scan:
+    
+    # Map tabs to content
+    with tabs[0]: page_home()
+    
+    with tabs[1]:
         if not st.session_state['authenticated']:
             render_locked_overlay("Scanner")
-            page_scanner() # Render blocked/blurred
-            st.markdown("</div>", unsafe_allow_html=True) # Close blur
-        else:
             page_scanner()
+            st.markdown("</div>", unsafe_allow_html=True)
+        else: page_scanner()
 
-    with tab_ai:
+    with tabs[2]:
         if not st.session_state['authenticated']:
              render_locked_overlay("AI Analysis")
-             # Don't even render content if sensitive
              st.markdown("</div>", unsafe_allow_html=True)
-        else:
-             page_ai_analysis()
+        else: page_ai_analysis()
              
-    with tab_single:
+    with tabs[3]:
         if not st.session_state['authenticated']:
             render_locked_overlay("Deep Dive")
             page_single_stock()
             st.markdown("</div>", unsafe_allow_html=True)
-        else:
-            page_single_stock()
+        else: page_single_stock()
 
-    with tab_port:
+    with tabs[4]:
         if not st.session_state['authenticated']:
             render_locked_overlay("Wealth")
             st.markdown("</div>", unsafe_allow_html=True)
-        else:
-            page_portfolio()
+        else: page_portfolio()
             
-    with tab_health:
+    with tabs[5]:
         if not st.session_state['authenticated']:
              render_locked_overlay("HealthDeck")
              st.markdown("</div>", unsafe_allow_html=True)
-        else:
-             page_health()
+        else: page_health()
             
-    with tab_gloss:
-        page_glossary() # Always Public
+    with tabs[6]:
+        page_glossary()
+
+    # Profile Tab (Index 7)
+    if st.session_state['authenticated'] and len(tabs) > 7:
+        with tabs[7]:
+            page_profile()
 
         
