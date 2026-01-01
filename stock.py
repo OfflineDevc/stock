@@ -16,6 +16,7 @@ import google.generativeai as genai
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning, module="google.generativeai")
 import json
+import base64 # For image encoding
 import auth_mongo # MongoDB Authentication Module
 
 
@@ -3723,9 +3724,19 @@ def page_profile(cookie_manager=None):
     # --- HEADER ---
     c1, c2 = st.columns([1, 4])
     with c1:
-        # Placeholder Avatar
-        st.write("")
-        st.markdown("<div style='text-align:center; font_size: 60px;'>User</div>", unsafe_allow_html=True) 
+        # Avatar Image with Base64 for Circular Masking
+        try:
+             with open("pf.jpg", "rb") as img_file:
+                 b64_string = base64.b64encode(img_file.read()).decode()
+             
+             st.markdown(f"""
+                 <div style="display: flex; justify-content: center;">
+                     <img src="data:image/jpeg;base64,{b64_string}" style="width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 4px solid #d4af37; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                 </div>
+                 """, unsafe_allow_html=True)
+        except Exception:
+             st.markdown("<div style='text-align:center; font_size: 60px;'>👤</div>", unsafe_allow_html=True)
+ 
     with c2:
         st.write(f"### {st.session_state.get('user_name', 'User')}")
         st.caption(f"Member Tier: **{st.session_state.get('tier','standard').upper()}**")
