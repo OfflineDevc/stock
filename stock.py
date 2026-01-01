@@ -14,6 +14,7 @@ import google.generativeai as genai
 import warnings
 warnings.filterwarnings("ignore", category=FutureWarning, module="google.generativeai")
 import json
+import auth_mongo # MongoDB Authentication Module
 
 
 # --- CONFIGURATION (Must be First) ---
@@ -3608,73 +3609,138 @@ def page_health():
 
 
 # ---------------------------------------------------------
+# ---------------------------------------------------------
 if __name__ == "__main__":
     inject_custom_css() # Apply Professional Styles
     
-    # --- PRE-CALCULATE LANGUAGE STATE ---
-    # We must determine language BEFORE rendering tabs, otherwise they lag one step behind.
-    # Check if widget was interacted with (it's in session state as 'lang_choice_key')
-    if 'lang_choice_key' in st.session_state:
-        # Update immediately based on widget value
-        pass # Widget triggers rerun, so we read it below or use key
+    # --- AUTHENTICATION CHECK ---
+    if 'authenticated' not in st.session_state:
+        st.session_state['authenticated'] = False
         
-    # Hack: Render the radio button logic-first but UI-later? No, can't move UI easily.
-    # Better: Use key to read state at top.
+    if not st.session_state['authenticated']:
+        # --- LOGIN / SIGNUP PAGE ---
+        c1, c2, c3 = st.columns([1, 2, 1])
+        with c2:
+            st.title("🔐 StockDeck Sign In")
+            st.info("Please log in to access your professional investment tools.")
+            
+            tab_login, tab_signup = st.tabs(["Login", "Sign Up"])
+            
+            with tab_login:
+                with st.form("login_form"):
+                    username = st.text_input("Username")
+                    password = st.text_input("Password", type="password")
+                    submit_login = st.form_submit_button("Log In", use_container_width=True, type="primary")
+                    
+                    if submit_login:
+                        if username and password:
+                            success, name = auth_mongo.check_login(username, password)
+                            if success:
+                                st.session_state['authenticated'] = True
+                                st.session_state['user_name'] = name
+                                st.success(f"Welcome back, {name}!")
+                                st.rerun()
+                            else:
+                                st.error("❌ Invalid username or password")
+                        else:
+                            st.warning("Please enter both username and password")
+                            
+            with tab_signup:
+                with st.form("signup_form"):
+                    new_user = st.text_input("Choose a Username")
+                    new_name = st.text_input("Your Name (Display)")
+                    new_pass = st.text_input("Choose a Password", type="password")
+                    confirm_pass = st.text_input("Confirm Password", type="password")
+                    submit_signup = st.form_submit_button("Create Account", use_container_width=True)
+                    
+                    if submit_signup:
+                        if new_pass != confirm_pass:
+                            st.error("Passwords do not match!")
+                        elif new_user and new_pass and new_name:
+                            success, msg = auth_mongo.sign_up(new_user, new_pass, new_name)
+                            if success:
+                                st.success(msg)
+                            else:
+                                st.error(msg)
+                        else:
+                            st.warning("Please fill in all fields.")
+
+    else:
+        # --- MAIN APPLICATION (AUTHENTICATED) ---
+        
+        # --- PRE-CALCULATE LANGUAGE STATE ---
+        # We must determine language BEFORE rendering tabs, otherwise they lag one step behind.
+        # Check if widget was interacted with (it's in session state as 'lang_choice_key')
+        if 'lang_choice_key' in st.session_state:
+            # Update immediately based on widget value
+            pass # Widget triggers rerun, so we read it below or use key
+            
+        # Hack: Render the radio button logic-first but UI-later? No, can't move UI easily.
+        # Better: Use key to read state at top.
+        
+        current_lang_sel = st.session_state.get('lang_choice_key', "English (EN)")
+        st.session_state['lang'] = 'EN' if "English" in current_lang_sel else 'TH'
     
-    current_lang_sel = st.session_state.get('lang_choice_key', "English (EN)")
-    st.session_state['lang'] = 'EN' if "English" in current_lang_sel else 'TH'
-
-    # --- TOP TABS NAVIGATION (CFA Style) ---
-    # Define Tabs (Rendered at the very top)
-    tab_home, tab_scan, tab_ai, tab_single, tab_port, tab_health, tab_gloss = st.tabs([
-        get_text('nav_home'),
-        get_text('nav_scanner'), 
-        get_text('nav_ai'), 
-        get_text('nav_single'), 
-        get_text('aifolio_title'), 
-        get_text('nav_health'), 
-        get_text('nav_glossary')
-    ]) 
- 
-    c_logo, c_lang = st.columns([8, 2])
-    with c_logo:
-        st.caption(get_text('footer_caption'))
+        # --- TOP TABS NAVIGATION (CFA Style) ---
+        # Define Tabs (Rendered at the very top)
+        tab_home, tab_scan, tab_ai, tab_single, tab_port, tab_health, tab_gloss = st.tabs([
+            get_text('nav_home'),
+            get_text('nav_scanner'), 
+            get_text('nav_ai'), 
+            get_text('nav_single'), 
+            get_text('aifolio_title'), 
+            get_text('nav_health'), 
+            get_text('nav_glossary')
+        ]) 
+     
+        c_logo, c_lang = st.columns([8, 2])
+        with c_logo:
+             # Show User Name
+            st.caption(f"{get_text('footer_caption')} | User: {st.session_state.get('user_name', 'Guest')}")
+            
+        with c_lang:
+            # Move Language Switcher to Top Right
+            # KEY is vital for pre-calculation
+            lang_choice = st.radio(get_text('lang_label'), ["English (EN)", "Thai (TH)"], horizontal=True, label_visibility="collapsed", key="lang_choice_key")
+            # No need to manually set session_state['lang'] here, we did it at top.
         
-    with c_lang:
-        # Move Language Switcher to Top Right
-        # KEY is vital for pre-calculation
-        lang_choice = st.radio(get_text('lang_label'), ["English (EN)", "Thai (TH)"], horizontal=True, label_visibility="collapsed", key="lang_choice_key")
-        # No need to manually set session_state['lang'] here, we did it at top.
+        # --- GLOBAL SIDEBAR SETTINGS ---
+        with st.sidebar:
+            st.divider()
+            st.caption("🔧 System Tools")
+            
+            if st.button("🚪 Logout", use_container_width=True):
+                st.session_state.clear()
+                st.rerun()
+                
+            if st.button("🗑️ Clear Cache / Reset", use_container_width=True):
+                st.cache_data.clear()
+                # Keep auth when clearing cache? Maybe not for full reset.
+                # But let's keep it consistent with "Clear Cache" usually meaning data.
+                # However, st.session_state.clear() wipes auth. So it acts as logout too.
+                st.session_state.clear()
+                st.success("Cache Cleared!")
+                st.rerun()
     
-    # --- GLOBAL SIDEBAR SETTINGS ---
-    with st.sidebar:
-        st.divider()
-        st.caption("🔧 System Tools")
-        if st.button("🗑️ Clear Cache / Reset", use_container_width=True):
-            st.cache_data.clear()
-            st.session_state.clear()
-            st.success("Cache Cleared!")
-            st.rerun()
-
-
-    with tab_home:
-        page_home()
-
-    with tab_scan:
-        page_scanner()
-        
-    with tab_port:
-        page_portfolio()
-        
-    with tab_single:
-        page_single_stock()
-        
-    with tab_health:
-        page_health()
-        
-    with tab_ai:
-        page_ai_analysis()
-        
-    with tab_gloss:
-        page_glossary()
+    
+        with tab_home:
+            page_home()
+    
+        with tab_scan:
+            page_scanner()
+            
+        with tab_port:
+            page_portfolio()
+            
+        with tab_single:
+            page_single_stock()
+            
+        with tab_health:
+            page_health()
+            
+        with tab_ai:
+            page_ai_analysis()
+            
+        with tab_gloss:
+            page_glossary()
         
