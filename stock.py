@@ -3350,6 +3350,158 @@ def page_portfolio():
 
 
 
+
+def page_health():
+    st.markdown(f"<h1 style='text-align: center;'>{get_text('health_check_title')}</h1>", unsafe_allow_html=True)
+    st.markdown("---")
+
+    # --- 1. INPUT SECTION ---
+    st.subheader("1. 📋 Portfolio Input")
+    st.info("Enter your portfolio details below for a comprehensive AI Health Check.")
+
+    # Initialize data if not needed
+    if 'health_data' not in st.session_state:
+        st.session_state['health_data'] = pd.DataFrame(
+            [{"Symbol": "AAPL", "AvailVol": 100, "Avg": 150.0, "Market": 175.0, "U.PL": 16.6}],
+            columns=["Symbol", "AvailVol", "Avg", "Market", "U.PL"]
+        )
+
+    edited_df = st.data_editor(
+        st.session_state['health_data'],
+        num_rows="dynamic",
+        use_container_width=True,
+        column_config={
+            "Symbol": st.column_config.TextColumn("Symbol (Ticker)", help="Stock Symbol (e.g. AAPL, PTT.BK)", required=True),
+            "AvailVol": st.column_config.NumberColumn("Vol", min_value=1, format="%d"),
+            "Avg": st.column_config.NumberColumn("Avg Cost", min_value=0.0, format="%.2f"),
+            "Market": st.column_config.NumberColumn("Market Price", min_value=0.0, format="%.2f"),
+            "U.PL": st.column_config.NumberColumn("% Unrealized P/L", format="%.2f%%")
+        }
+    )
+
+    # --- 2. EXECUTION ---
+    if st.button("🏥 Run Health Check (AI)", type="primary", use_container_width=True):
+        if edited_df.empty:
+            st.error("Please add at least one stock.")
+            return
+
+        # Secure API Key Check
+        if 'GEMINI_API_KEY' not in st.secrets:
+             st.error("🚨 Missing API Key in `.streamlit/secrets.toml`")
+             return
+             
+        api_key = st.secrets['GEMINI_API_KEY']
+        genai.configure(api_key=api_key)
+        
+        status_box = st.status("🧠 " + get_text('ai_thinking'), expanded=True)
+        
+        try:
+            model = genai.GenerativeModel("gemini-1.5-flash") # optimized for speed/cost, or use pro if needed
+            
+            # Construct Prompt
+            portfolio_str = edited_df.to_json(orient="records")
+            
+            prompt = f"""
+            Act as a Global Macro Strategist and Fundamental Investor (Chain of Thought Analysis).
+            
+            Analyze the following portfolio for "Health Assessment" based on the future 10-20 year outlook.
+            Be brutally honest, unbiased, and direct. Do not flatter.
+
+            **PORTFOLIO DATA:**
+            {portfolio_str}
+
+            **ANALYSIS FRAMEWORK (Must Apply to EACH Stock):**
+
+            1. **Dimension 1: Mega Trend Alignment (Swimming with or against the tide?)**
+               - **Sunset vs Sunrise**: Will demand decrease or increase? (e.g. Fossil Fuels = Sunset, AI/Healthcare = Sunrise).
+               - **Disruption Check**: Will AI/Robot/Blockchain kill this business or boost it?
+               - *Red Flag*: Fighting the trend.
+
+            2. **Dimension 2: Missing Growth Driver (Engine Status)**
+               - **Old S-Curve vs New S-Curve**: Is the old growth engine exhausted? (e.g. saturated expansion).
+               - **New Revenue %**: Is there a new significant revenue stream (>5%) or just cost-cutting?
+               - *Red Flag*: Stagnant revenue + focus only on cost cutting.
+
+            3. **Dimension 3: Market Opportunity & Moat**
+               - **Red vs Blue Ocean**: Price war (Commoditized) or Pricing Power (Brand/Tech)?
+               - **TAM (Total Addressable Market)**: Is market share already maxed out (70-80%)?
+            
+            4. **Country/Macro Context (If applicable, e.g. for .BK stocks check Thailand context):**
+               - **Economic Engine**: Old Economy (Low Growth, Cyclical) vs New Economy (High Growth).
+               - **Demographic Destiny**: Aging Society (De-rating P/E) vs Young Society (Premium P/E).
+               - **Zombie Index Check**: Has the country index EPS grown in 5 years?
+               - **Fund Flow**: Currency stability and Foreign flow outlook.
+
+            **TASK:**
+            1. Analyze every stock using the framework above.
+            2. Assign a **Portfolio Health Score** (0-100).
+            3. Provide a **Verdict** for EACH stock: "SELL", "HOLD", or "ACCUMULATE".
+               - Suggest if they should convert to Cash to reinvest in better markets.
+            
+            **OUTPUT FORMAT:**
+            Strictly JSON.
+            {{
+                "portfolio_score": 75,
+                "portfolio_summary": "Overall assessment of the portfolio...",
+                "stocks": [
+                    {{
+                        "symbol": "AAPL",
+                        "mega_trend": "Sunrise (AI/Services)...",
+                        "growth_driver": "New S-Curve in Services/Wearables...",
+                        "moat_opportunity": "Blue Ocean in ecosystem...",
+                        "macro_context": "US Economy strong...",
+                        "verdict": "HOLD",
+                        "action_reason": "Strong moat but high valuation..."
+                    }},
+                    ...
+                ]
+            }}
+            Response Language: {st.session_state.get('lang', 'EN')} (Thai if TH selected).
+            """
+            
+            response = model.generate_content(prompt)
+            clean_json = response.text.replace("```json", "").replace("```", "").strip()
+            result = json.loads(clean_json)
+            
+            status_box.update(label="✅ Diagnosis Complete!", state="complete")
+            
+            # --- 3. RENDER RESULTS ---
+            
+            # Score
+            score = result.get('portfolio_score', 0)
+            st.metric("Portfolio Health Score", f"{score}/100")
+            st.progress(score / 100)
+            
+            st.write(f"### 📝 {get_text('backtest_summary')}")
+            st.info(result.get('portfolio_summary', ''))
+            
+            st.markdown("---")
+            st.subheader("🔬 Indivdual Stock Diagnosis")
+            
+            for item in result.get('stocks', []):
+                with st.expander(f"**{item['symbol']}** - {item['verdict']}", expanded=True):
+                    c1, c2 = st.columns([1, 2])
+                    with c1:
+                        if item['verdict'] == "SELL":
+                            st.error(f"**VERDICT: {item['verdict']}**")
+                        elif item['verdict'] == "ACCUMULATE":
+                            st.success(f"**VERDICT: {item['verdict']}**")
+                        else:
+                            st.warning(f"**VERDICT: {item['verdict']}**")
+                            
+                        st.write(f"**Reason:** {item['action_reason']}")
+                        
+                    with c2:
+                        st.write(f"**🌊 Mega Trend:** {item['mega_trend']}")
+                        st.write(f"**🚀 Growth Driver:** {item['growth_driver']}")
+                        st.write(f"**🏰 Moat/Market:** {item['moat_opportunity']}")
+                        st.write(f"**🌍 Macro:** {item['macro_context']}")
+
+        except Exception as e:
+            status_box.update(label="❌ Error", state="error")
+            st.error(f"Analysis Failed: {str(e)}")
+
+
 # ---------------------------------------------------------
 if __name__ == "__main__":
     inject_custom_css() # Apply Professional Styles
@@ -3413,9 +3565,7 @@ if __name__ == "__main__":
         page_single_stock()
         
     with tab_health:
-        st.markdown(f"<h1 style='text-align: center;'>{get_text('menu_health')}</h1>", unsafe_allow_html=True)
-        st.markdown("---")
-        st.info(get_text('health_coming_soon'))
+        page_health()
         
     with tab_ai:
         page_ai_analysis()
