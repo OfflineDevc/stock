@@ -2327,7 +2327,7 @@ def page_ai_analysis():
                 [END CONTEXT]
                 """
 
-            # 2. AI ANALYSIS
+            # 2. AI ANALYSIS    
             genai.configure(api_key=api_key)
             model_name = "models/gemini-3-flash-preview"
             model = genai.GenerativeModel(model_name)
