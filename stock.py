@@ -2341,28 +2341,35 @@ def page_ai_analysis():
             **INPUT CONTEXT:**
             {context_data}
 
+            **GLOBAL MACRO & STRATEGIC FRAMEWORK (Must Factor into Grading):**
+            1. **Dimension 1: Mega Trend Alignment:** Sunset vs Sunrise Industry? (e.g. AI/Healthcare = Sunrise). Disruption Check.
+            2. **Dimension 2: Missing Growth Driver:** Old S-Curve (Exhausted) vs New S-Curve. New Revenue stream > 5%.
+            3. **Dimension 3: Market Opportunity & Moat:** Red Ocean (Price War) vs Blue Ocean (Pricing Power). TAM Saturation.
+            4. **Dimension 4: Country/Macro Context:** Economic Engine, Demographics, Fund Flow (especially for .BK stocks).
+
             **Core Instructions:**
             1. **Chain of Thought:** Think step-by-step. First analyze the financials, then the business model, then the management, and finally synthesize everything into a grade.
-            2. **Analyze Deeply:** Look at the business model, moat, and financial health structure based on the provided context.
+            2. **Analyze Deeply:** Look at the business model, moat, and financial health structure based on the provided context AND the Global Macro Framework above.
             3. **CEO & Management Focus:** specifically analyze the **CEO** (Who are they? Pros/Cons). If CEO data is missing in the context, **USE YOUR KNOWLEDGE** to identify the current CEO.
             4. **Detailed Business Model:** Explain heavily what they do. Do not summarize in 1 line. Write 2-3 paragraphs.
             5. **Product Portfolio:** Analyze key products/services. What are they? How are they performing? What is the future outlook?
             6. **Customer Ecosystem:** Identify key customer groups (Who buys?). How important is this company to them? (Critical supplier or easily replaceable?).
             7. **Industry Landscape:** Analyze the industry structure, growth drivers, outlook, and market share.
             8. **SWOT Analysis:** Conduct a detailed SWOT Analysis.
-            9. **Assign a Grade (A-F):** Based on business quality.
-            10. **NO HALLUCINATION:** Do NOT invent data EXCEPT for the CEO if missing. For other fields, state "No Data" if unsure.
-            11. **Output:** Strictly in valid JSON format. Use Thai language for content values.
+            9. **Strategic Positioning:** Analyze the stock using the 4 Dimensions of the Global Macro Framework.
+            10. **Assign a Grade (A-F):** Based on business quality and Macro alignment.
+            11. **NO HALLUCINATION:** Do NOT invent data EXCEPT for the CEO if missing. For other fields, state "No Data" if unsure.
+            12. **Output:** Strictly in valid JSON format. Use Thai language for content values.
 
             **JSON Schema:**
 
-            {{
-              "stock_identity": {{
+            {
+              "stock_identity": {
                 "symbol": "String",
                 "company_name": "String",
                 "business_nature": "String"
-              }},
-              "fundamental_grading_report": {{
+              },
+              "fundamental_grading_report": {
                 "overall_grade": "String (A / B+ / B / C / D / F)",
                 "score_summary": "String (Short justification: Why did it get this grade?)",
                 "key_strengths": [
@@ -2373,31 +2380,37 @@ def page_ai_analysis():
                     "String",
                     "String"
                 ]
-              }},
-              "business_deep_dive": {{
+              },
+              "strategic_positioning": {
+                 "mega_trend": "String (Sunrise/Sunset analysis)",
+                 "growth_driver": "String (S-Curve analysis)",
+                 "moat_opportunity": "String (Red/Blue Ocean)",
+                 "macro_context": "String (Country/Economic context)"
+              },
+              "business_deep_dive": {
                 "what_they_do": "String (Very Detailed 2-3 paragraphs explanation of business model)",
                 "revenue_sources": "String (Detailed breakdown)",
-                "customer_ecosystem": {{
+                "customer_ecosystem": {
                     "key_customers": ["String (Customer Group 1)", "String (Group 2)"],
                     "dependence_level": "String (High/Low & Explanation of Importance to Customers)"
-                }},
+                },
                 "product_portfolio": [
-                    {{
+                    {
                         "name": "String (Product Name)",
                         "description": "String (What is it?)",
                         "current_performance": "String (Is it selling well? Cash cow?)",
                         "future_outlook": "String (Growth potential/Next gen version)"
-                    }},
-                    {{
+                    },
+                    {
                         "name": "String (Product Name)",
                         "description": "String (What is it?)",
                         "current_performance": "String",
                          "future_outlook": "String"
-                    }}
+                    }
                 ],
                 "pricing_power": "String (High/Low - Maker or Taker)"
-              }},
-              "industry_overview": {{
+              },
+              "industry_overview": {
                 "industry_landscape": "String (Fragmented/Consolidated, Key Players)",
                 "sector_outlook": "String (Growing, Stagnant, Disrupted?)",
                 "growth_drivers": ["String (Driver 1)", "String (Driver 2)"],
@@ -2500,7 +2513,20 @@ def page_ai_analysis():
                     st.divider()
 
                     # 3. Financial Analysis Tabs
-                    t_swot, t_future, t_bus, t_ind, t_mgmt, t_fin, t_comp = st.tabs(["🛡️ SWOT", "🚀 Growth & Future", "🏭 Business", "🌏 Industry", "🧠 Mgmt (CEO)", "💰 Financials", "⚔️ Competition"])
+                    t_swot, t_strat, t_future, t_bus, t_ind, t_mgmt, t_fin, t_comp = st.tabs(["🛡️ SWOT", "🧠 Strategy", "🚀 Growth & Future", "🏭 Business", "🌏 Industry", "🧠 Mgmt (CEO)", "💰 Financials", "⚔️ Competition"])
+                    
+                    with t_strat:
+                        strat = data.get('strategic_positioning', {})
+                        st.subheader("🌐 Global Macro & Strategic Fit")
+                        
+                        c_strat1, c_strat2 = st.columns(2)
+                        with c_strat1:
+                            st.info(f"**🌊 Mega Trend:** {strat.get('mega_trend', 'N/A')}")
+                            st.info(f"**🚀 Growth Driver:** {strat.get('growth_driver', 'N/A')}")
+                        with c_strat2:
+                            st.success(f"**🏰 Moat:** {strat.get('moat_opportunity', 'N/A')}")
+                            st.warning(f"**🌍 Macro:** {strat.get('macro_context', 'N/A')}")
+
                     
                     with t_swot:
                         swot = data.get('swot_analysis', {})
@@ -3260,9 +3286,15 @@ def page_portfolio():
             - **Liquidity Status**: {liquid}
             - **Constraints/Preferences**: {constraints}
             
+            **INVESTMENT FRAMEWORK (Must Guide Selection):**
+            1. **Mega Trend**: Prioritize "Sunrise" industries (AI, Healthcare, Green Energy) over "Sunset" ones (unless Deep Value).
+            2. **Growth Driver**: Look for companies with a "New S-Curve" or new revenue engines.
+            3. **Moat**: Prefer "Blue Ocean" or strong pricing power.
+            4. **Macro**: Consider the economic cycle (Inflation/Rates).
+
             **TASK:**
             1. Analyze this profile using "Chain of Thought" reasoning.
-            2. Design a portfolio allocation (Stocks/Asset Classes) that matches this risk/return profile.
+            2. Design a portfolio allocation (Stocks/Asset Classes) regarding the Framework above.
             3. Select specific TICKERS (US or Thai mostly, unless specified otherwise). IMPORTANT: For Thai stocks, YOU MUST append ".BK" (e.g., PTT.BK, CPALL.BK, ADVANC.BK). For US stocks, use standard tickers (e.g. AAPL, TSLA). 
             4. Provide specific advice.
 
@@ -3277,8 +3309,8 @@ def page_portfolio():
                 "advice_summary": "String (2-3 paragraphs of professional advice)"
               }},
               "portfolio": [
-                {{ "ticker": "SPY", "name": "S&P 500 ETF", "asset_class": "Equity", "weight_percent": 40, "rationale": "Core Foundation" }},
-                {{ "ticker": "AAPL", "name": "Apple Inc.", "asset_class": "Equity", "weight_percent": 10, "rationale": "Growth Kicker" }}
+                {{ "ticker": "SPY", "name": "S&P 500 ETF", "asset_class": "Equity", "weight_percent": 40, "rationale": "Core Foundation (Mega Trend: US Econ)" }},
+                {{ "ticker": "AAPL", "name": "Apple Inc.", "asset_class": "Equity", "weight_percent": 10, "rationale": "Growth Kicker (New S-Curve: Services)" }}
                 ... (Sum of weight_percent MUST be 100)
               ]
             }}
