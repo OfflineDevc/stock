@@ -3803,11 +3803,16 @@ if __name__ == "__main__":
     current_lang_sel = st.session_state.get('lang_choice_key', "English (EN)")
     st.session_state['lang'] = 'EN' if "English" in current_lang_sel else 'TH'
 
-    # --- TABS (Concise names for alignment) ---
-    if st.session_state['lang'] == 'EN':
-        tab_names = ["Home", "Scan", "AI", "Dive", "Wealth", "Health", "Glossary"]
-    else:
-        tab_names = ["หน้าหลัก", "สแกน", "AI", "เจาะลึก", "ความมั่งคั่ง", "ตรวจสุขภาพ", "ศัพท์"]
+    # --- TABS (Public Navigation) ---
+    tab_names = [
+        get_text('nav_home'),
+        get_text('nav_scanner'),
+        get_text('nav_ai'),
+        get_text('nav_single'),
+        get_text('aifolio_title'),
+        get_text('nav_health'),
+        get_text('nav_glossary')
+    ]
     
     # DYNAMIC LAST TAB: Login (Guest) vs Profile (User)
     if st.session_state['authenticated']:
@@ -3842,68 +3847,61 @@ if __name__ == "__main__":
 
     # --- HELPER: STRICT LOGIN CARD ---
     def render_login_card(feature_name):
-        # CSS to center the login card and create a blurred background effect
+        # CSS to center the login card
+        # REMOVED .stTabs { width: 400px; } as it broke global layout
         st.markdown("""
             <style>
-            .login-container {
-                display: flex; 
-                justify-content: center; 
-                align-items: center;
-                height: 70vh;
-                width: 100%;
+            .login-container-box {
                 background: rgba(255, 255, 255, 0.6);
                 backdrop-filter: blur(10px);
                 border-radius: 20px;
                 border: 1px solid rgba(255, 255, 255, 0.3);
-            }
-            .stTabs {
-                background: white;
-                padding: 30px;
-                border-radius: 15px;
-                box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
-                width: 400px;
+                padding: 20px;
+                margin: auto;
+                max-width: 500px;
             }
             </style>
         """, unsafe_allow_html=True)
         
-        c1, c2, c3 = st.columns([1, 2, 1])
+        c1, c2, c3 = st.columns([1, 1, 1])
         with c2:
-            st.warning(f"🔒 **{feature_name}** is a Professional Feature. ")
+            st.warning(f"🔒 **{feature_name}** is a Professional Feature.")
             
-            # Use columns to mimic centering vertical (via padding used above or simple spacing)
             st.write("")
             st.write("")
             
             # CARD UI
             st.markdown(f"<h3 style='text-align: center;'>🔐 Access Required</h3>", unsafe_allow_html=True)
             
-            tab_login, tab_signup = st.tabs(["🔒 Log In", "📝 Register"])
-            
-            with tab_login:
-                with st.form(f"login_form_{feature_name}"):
-                    username = st.text_input("Username")
-                    password = st.text_input("Password", type="password")
-                    if st.form_submit_button("Log In", use_container_width=True, type="primary"):
-                        success, name, tier = auth_mongo.check_login(username, password)
-                        if success:
-                            st.session_state['authenticated'] = True
-                            st.session_state['user_name'] = name
-                            st.session_state['username'] = username
-                            st.session_state['tier'] = tier
-                            st.success(f"Welcome {name}!")
-                            st.rerun()
-                        else:
-                            st.error("Invalid Credentials")
+            # We use a container for spacing/width control naturally via columns
+            with st.container():
+                tab_login, tab_signup = st.tabs(["🔒 Log In", "📝 Register"])
+                
+                with tab_login:
+                    with st.form(f"login_form_{feature_name}"):
+                        username = st.text_input("Username")
+                        password = st.text_input("Password", type="password")
+                        if st.form_submit_button("Log In", use_container_width=True, type="primary"):
+                            success, name, tier = auth_mongo.check_login(username, password)
+                            if success:
+                                st.session_state['authenticated'] = True
+                                st.session_state['user_name'] = name
+                                st.session_state['username'] = username
+                                st.session_state['tier'] = tier
+                                st.success(f"Welcome {name}!")
+                                st.rerun()
+                            else:
+                                st.error("Invalid Credentials")
 
-            with tab_signup:
-                with st.form(f"signup_form_{feature_name}"):
-                    new_user = st.text_input("Choose Username")
-                    new_name = st.text_input("Display Name")
-                    new_pass = st.text_input("Password", type="password")
-                    if st.form_submit_button("Sign Up", use_container_width=True):
-                        success, msg = auth_mongo.sign_up(new_user, new_pass, new_name)
-                        if success: st.success(msg)
-                        else: st.error(msg)
+                with tab_signup:
+                    with st.form(f"signup_form_{feature_name}"):
+                        new_user = st.text_input("Choose Username")
+                        new_name = st.text_input("Display Name")
+                        new_pass = st.text_input("Password", type="password")
+                        if st.form_submit_button("Sign Up", use_container_width=True):
+                            success, msg = auth_mongo.sign_up(new_user, new_pass, new_name)
+                            if success: st.success(msg)
+                            else: st.error(msg)
         return True
 
     # --- PAGES ---
