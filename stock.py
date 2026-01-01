@@ -3375,9 +3375,39 @@ def page_health():
             "AvailVol": st.column_config.NumberColumn("Vol", min_value=1, format="%d"),
             "Avg": st.column_config.NumberColumn("Avg Cost", min_value=0.0, format="%.2f"),
             "Market": st.column_config.NumberColumn("Market Price", min_value=0.0, format="%.2f"),
-            "U.PL": st.column_config.NumberColumn("% Unrealized P/L", format="%.2f%%")
+            "U.PL": st.column_config.NumberColumn("% Unrealized P/L", format="%.2f%%", disabled=True)
         }
     )
+
+    # --- Auto-Calculate %U.PL and Update State ---
+    needs_rerun = False
+    
+    # Check if calculation matches inputs
+    # We iterate and check if the displayed U.PL matches the math
+    # If not, we update and trigger a rerun so the user sees the new value immediately.
+    # Note: data_editor returns a dataframe. We check this dataframe.
+    
+    # Vectorized calc for speed
+    if not edited_df.empty:
+        # Avoid division by zero
+        calculated_upl = edited_df.apply(
+            lambda row: ((row['Market'] - row['Avg']) / row['Avg'] * 100) if row['Avg'] > 0 else 0.0, 
+            axis=1
+        )
+        
+        # Check for differences (tolerance for float)
+        # We replace the U.PL column with calculated values
+        # If the new Series is significantly different from the old one, we update.
+        if not edited_df['U.PL'].equals(calculated_upl):
+             # Deep comparison with tolerance to avoid infinite loops on tiny float diffs
+             diff = (edited_df['U.PL'] - calculated_upl).abs()
+             if (diff > 0.01).any():
+                 edited_df['U.PL'] = calculated_upl
+                 st.session_state['health_data'] = edited_df
+                 needs_rerun = True
+
+    if needs_rerun:
+        st.rerun()
 
     # --- 2. EXECUTION ---
     if st.button("🏥 Run Health Check (AI)", type="primary", use_container_width=True):
@@ -3396,7 +3426,7 @@ def page_health():
         status_box = st.status("🧠 " + get_text('ai_thinking'), expanded=True)
         
         try:
-            model = genai.GenerativeModel("gemini-1.5-flash") # optimized for speed/cost, or use pro if needed
+            model = genai.GenerativeModel("models/gemini-3-flash-preview") # optimized for speed/cost, or use pro if needed
             
             # Construct Prompt
             portfolio_str = edited_df.to_json(orient="records")
