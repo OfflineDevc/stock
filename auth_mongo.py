@@ -220,27 +220,3 @@ def get_user_portfolios(username):
     
     cursor = db.portfolios.find({'username': username}).sort('created_at', -1)
     return list(cursor)
-    
-def save_profile_image(username, image_base64):
-    db = get_db()
-    if db is None: return False
-    try:
-        db.users.update_one(
-            {"username": username},
-            {"$set": {"profile_image": image_base64}}
-        )
-        return True
-    except Exception as e:
-        print(f"DB Error: {e}")
-        return False
-
-def get_profile_image(username):
-    db = get_db()
-    if db is None: return None
-    try:
-        user = db.users.find_one({"username": username}, {"profile_image": 1})
-        if user and "profile_image" in user:
-            return user["profile_image"]
-        return None
-    except:
-        return None
