@@ -856,7 +856,7 @@ def retry_api_call(func, retries=3, delay=2):
         except Exception as e:
             last_exception = e
             error_str = str(e).lower()
-                if "429" in error_str or "too many requests" in error_str or "rate limit" in error_str:
+            if "429" in error_str or "too many requests" in error_str or "rate limit" in error_str:
                 sleep_time = delay * (2 ** i) # Exponential Backoff: 2s, 4s, 8s
                 # Rate Limit Hit. Retrying...
                 time.sleep(sleep_time)
