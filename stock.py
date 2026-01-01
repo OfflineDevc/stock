@@ -3370,11 +3370,12 @@ def page_health():
         st.session_state['health_data'],
         num_rows="dynamic",
         use_container_width=True,
+        key="health_editor",
         column_config={
             "Symbol": st.column_config.TextColumn("Symbol (Ticker)", help="Stock Symbol (e.g. AAPL, PTT.BK)", required=True),
-            "AvailVol": st.column_config.NumberColumn("Vol", min_value=1, format="%d"),
-            "Avg": st.column_config.NumberColumn("Avg Cost", min_value=0.0, format="%.2f"),
-            "Market": st.column_config.NumberColumn("Market Price", min_value=0.0, format="%.2f"),
+            "AvailVol": st.column_config.NumberColumn("Vol", min_value=1, format="%d", default=100),
+            "Avg": st.column_config.NumberColumn("Avg Cost", min_value=0.0, format="%.2f", default=0.0),
+            "Market": st.column_config.NumberColumn("Market Price", min_value=0.0, format="%.2f", default=0.0),
             "U.PL": st.column_config.NumberColumn("% Unrealized P/L", format="%.2f%%", disabled=True)
         }
     )
@@ -3382,29 +3383,30 @@ def page_health():
     # --- Auto-Calculate %U.PL and Update State ---
     needs_rerun = False
     
-    # Check if calculation matches inputs
-    # We iterate and check if the displayed U.PL matches the math
-    # If not, we update and trigger a rerun so the user sees the new value immediately.
-    # Note: data_editor returns a dataframe. We check this dataframe.
-    
-    # Vectorized calc for speed (faster than apply)
     if not edited_df.empty:
-        # Avoid division by zero
-        calculated_upl = edited_df.apply(
-            lambda row: ((row['Market'] - row['Avg']) / row['Avg'] * 100) if row['Avg'] > 0 else 0.0, 
-            axis=1
-        )
+        # Cast to numeric safely (handle strings/None from new rows)
+        for col in ['Avg', 'Market']:
+            edited_df[col] = pd.to_numeric(edited_df[col], errors='coerce').fillna(0.0)
+            
+        # Calculate U.PL
+        # Logic: (Market - Avg) / Avg * 100. If Avg is 0, result is 0.
+        def calc_upl(row):
+            if row['Avg'] > 0:
+                return ((row['Market'] - row['Avg']) / row['Avg']) * 100
+            return 0.0
+
+        new_upl = edited_df.apply(calc_upl, axis=1)
         
-        # Check for differences (tolerance for float)
-        # We replace the U.PL column with calculated values
-        # If the new Series is significantly different from the old one, we update.
-        if not edited_df['U.PL'].equals(calculated_upl):
-             # Deep comparison with tolerance to avoid infinite loops on tiny float diffs
-             diff = (edited_df['U.PL'] - calculated_upl).abs()
-             if (diff > 0.01).any():
-                 edited_df['U.PL'] = calculated_upl
-                 st.session_state['health_data'] = edited_df
-                 needs_rerun = True
+        # Compare with existing U.PL (handle potential NaNs in existing)
+        current_upl = pd.to_numeric(edited_df['U.PL'], errors='coerce').fillna(0.0)
+        
+        if not current_upl.equals(new_upl):
+            # Check deviation
+            diff = (current_upl - new_upl).abs()
+            if (diff > 0.05).any(): # 0.05% tolerance
+                edited_df['U.PL'] = new_upl
+                st.session_state['health_data'] = edited_df
+                needs_rerun = True
 
     if needs_rerun:
         st.rerun()
