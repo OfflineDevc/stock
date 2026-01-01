@@ -3829,7 +3829,11 @@ if __name__ == "__main__":
     
     # --- COOKIE MANAGER (Persistence) ---
     # Key added to prevent component reloading issues
-    cookie_manager = stx.CookieManager(key="auth_cookie_manager")
+    @st.cache_resource(experimental_allow_widgets=True)
+    def get_manager():
+        return stx.CookieManager(key="auth_cookie_manager")
+
+    cookie_manager = get_manager()
     
     # Init Auth State
     if 'authenticated' not in st.session_state:
