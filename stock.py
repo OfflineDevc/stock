@@ -3679,7 +3679,7 @@ def page_health():
             user_id = st.session_state.get('username') 
             if user_id:
                 # We save the raw input DF (structure) + the AI Analysis text/score
-                auth_mongo.save_health_check(user_id, edited_df, result.get('portfolio_summary', 'No Summary'), result.get('portfolio_score', 'N/A'))
+                auth_mongo.save_health_check(user_id, edited_df, result.get('portfolio_summary', 'No Summary'), result.get('portfolio_score', 'N/A'), result.get('stocks', []))
                 st.toast("Health Check Saved to Profile!", icon="💾")
 
             
@@ -3797,6 +3797,24 @@ def page_profile(cookie_manager=None):
                             st.write(c.get('analysis'))
                             st.caption("Input Data:")
                             st.dataframe(pd.DataFrame(c.get('portfolio_json')))
+                            
+                            details = c.get('details', [])
+                            if details:
+                                st.markdown("---")
+                                st.subheader("🔬 Diagnosis")
+                                for item in details:
+                                    with st.container():
+                                        st.markdown(f"**{item['symbol']}** - {item['verdict']}")
+                                        c1, c2 = st.columns([1, 2])
+                                        with c1:
+                                            if item['verdict'] == "SELL": st.error(f"**{item['verdict']}**")
+                                            elif item['verdict'] == "ACCUMULATE": st.success(f"**{item['verdict']}**")
+                                            else: st.warning(f"**{item['verdict']}**")
+                                            st.caption(item['action_reason'])
+                                        with c2:
+                                            st.write(f"**Mega Trend:** {item['mega_trend']}")
+                                            st.write(f"**Moat:** {item['moat_opportunity']}")
+                                        st.divider()
 
     # --- SETTINGS TAB ---
     with tab_acc:
@@ -3818,7 +3836,8 @@ if __name__ == "__main__":
     inject_custom_css() 
     
     # --- COOKIE MANAGER (Persistence) ---
-    cookie_manager = stx.CookieManager()
+    # Key added to prevent component reloading issues
+    cookie_manager = stx.CookieManager(key="auth_cookie_manager")
     
     # Init Auth State
     if 'authenticated' not in st.session_state:

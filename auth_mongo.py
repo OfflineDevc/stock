@@ -109,7 +109,7 @@ def change_password(username, old_pass, new_pass):
 
 # --- HISTORY MANAGEMENT ---
 
-def save_health_check(username, input_df, analysis_text, gpa):
+def save_health_check(username, input_df, analysis_text, gpa, details=None):
     """Save HealthDeck Analysis Result"""
     db = get_db()
     if db is None: return False
@@ -120,6 +120,7 @@ def save_health_check(username, input_df, analysis_text, gpa):
         'portfolio_json': input_df.to_dict(orient='records'), # Save input portfolio
         'analysis': analysis_text,
         'gpa': gpa,
+        'details': details if details else [],
         'name': f"Health Check {date.today().isoformat()}"
     }
     db.health_history.insert_one(doc)
