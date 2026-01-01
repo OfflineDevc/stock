@@ -1,0 +1,15 @@
+streamlit
+yfinance
+pandas
+numpy
+altair
+requests
+beautifulsoup4
+lxml
+deep-translator
+google-generativeai
+pymongo
+bcrypt
+python-dotenv
+sh
+extra-streamlit-components
