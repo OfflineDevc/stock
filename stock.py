@@ -2334,9 +2334,10 @@ def page_ai_analysis():
             
             # Construct Prompt with Context
             prompt = f"""
-            Act as a Senior Equity Analyst and Rating Agency (like Moody's).
-
-            Your task is to analyze the structural fundamentals of the stock ticker: "{ticker}".
+            Act as a Senior Equity Analyst and Rating Agency (like Moody's) but with the mindset of a **Skeptical Hedge Fund Short Seller**.
+            
+            Your goal is NOT to flatter the company. Your goal is to **Stress Test** the investment thesis.
+            You must be BRUTALLY HONEST, UNBIASED, and DIRECT.
             
             **INPUT CONTEXT:**
             {context_data}
@@ -2348,18 +2349,19 @@ def page_ai_analysis():
             4. **Dimension 4: Country/Macro Context:** Economic Engine, Demographics, Fund Flow (especially for .BK stocks).
 
             **Core Instructions:**
-            1. **Chain of Thought:** Think step-by-step. First analyze the financials, then the business model, then the management, and finally synthesize everything into a grade.
-            2. **Analyze Deeply:** Look at the business model, moat, and financial health structure based on the provided context AND the Global Macro Framework above.
-            3. **CEO & Management Focus:** specifically analyze the **CEO** (Who are they? Pros/Cons). If CEO data is missing in the context, **USE YOUR KNOWLEDGE** to identify the current CEO.
-            4. **Detailed Business Model:** Explain heavily what they do. Do not summarize in 1 line. Write 2-3 paragraphs.
-            5. **Product Portfolio:** Analyze key products/services. What are they? How are they performing? What is the future outlook?
-            6. **Customer Ecosystem:** Identify key customer groups (Who buys?). How important is this company to them? (Critical supplier or easily replaceable?).
-            7. **Industry Landscape:** Analyze the industry structure, growth drivers, outlook, and market share.
-            8. **SWOT Analysis:** Conduct a detailed SWOT Analysis.
-            9. **Strategic Positioning:** Analyze the stock using the 4 Dimensions of the Global Macro Framework.
-            10. **Assign a Grade (A-F):** Based on business quality and Macro alignment.
-            11. **NO HALLUCINATION:** Do NOT invent data EXCEPT for the CEO if missing. For other fields, state "No Data" if unsure.
-            12. **Output:** Strictly in valid JSON format. Use Thai language for content values.
+            1. **Persona:** Adopt a "Devil's Advocate" view. Why might this stock FAIL? What are the hidden risks?
+            2. **Chain of Thought:** Think step-by-step. First analyze the financials, then the business model, then the management, and finally synthesize everything into a grade.
+            3. **Analyze Deeply:** Look at the business model, moat, and financial health structure based on the provided context AND the Global Macro Framework above.
+            4. **CEO & Management Focus:** specifically analyze the **CEO** (Who are they? Pros/Cons). If CEO data is missing in the context, **USE YOUR KNOWLEDGE** to identify the current CEO.
+            5. **Detailed Business Model:** Explain heavily what they do. Do not summarize in 1 line. Write 2-3 paragraphs.
+            6. **Product Portfolio:** Analyze key products/services. What are they? How are they performing? What is the future outlook?
+            7. **Customer Ecosystem:** Identify key customer groups (Who buys?). How important is this company to them? (Critical supplier or easily replaceable?).
+            8. **Industry Landscape:** Analyze the industry structure, growth drivers, outlook, and market share.
+            9. **SWOT Analysis:** Conduct a detailed SWOT Analysis. Focus on **THREATS** and **WEAKNESSES**.
+            10. **Strategic Positioning:** Analyze the stock using the 4 Dimensions of the Global Macro Framework.
+            11. **Assign a Grade (A-F):** Be strict. An 'A' is reserved for World-Class Monopolies only. 'C' is Average. 'F' is Dangerous.
+            12. **NO HALLUCINATION:** Do NOT invent data EXCEPT for the CEO if missing. For other fields, state "No Data" if unsure.
+            13. **Output:** Strictly in valid JSON format. Use Thai language for content values.
 
             **JSON Schema:**
 
