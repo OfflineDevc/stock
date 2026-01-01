@@ -3897,7 +3897,7 @@ if __name__ == "__main__":
         
         c1, c2, c3 = st.columns([1, 2, 1])
         with c2:
-            st.warning(f"🔒 **{feature_name}** is a Professional Feature.")
+            st.warning(f"🔒 **{feature_name}** is a Professional Feature. ")
             
             # Use columns to mimic centering vertical (via padding used above or simple spacing)
             st.write("")
