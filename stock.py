@@ -22,7 +22,7 @@ import auth_mongo # MongoDB Authentication Module
 # --- CONFIGURATION (Must be First) ---
 st.set_page_config(
     page_title="StockDeck",
-    page_icon="🏛️",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="collapsed"
 )
@@ -215,26 +215,26 @@ def inject_custom_css():
 
 TRANS = {
     'EN': {
-        'sidebar_title': "🏛️ Scanner Controls",
+        'sidebar_title': "Scanner Controls",
         'market_label': "Market Index",
         'strategy_label': "Strategy Preset",
         'mode_header': "3. Mode",
         'strict_label': "Select Strictly Enforced Metrics",
         'perf_label': "Select Performance Metrics",
-        'val_header': "📊 Valuation Metrics",
-        'prof_header': "📈 Profitability & Growth",
-        'risk_header': "🛡️ Risk",
+        'val_header': "Valuation Metrics",
+        'prof_header': "Profitability & Growth",
+        'risk_header': "Risk",
         'sector_label': "Select Sectors (Optional)",
         'lynch_label': "Select Lynch Categories (Optional)",
-        'execute_btn': "🚀 Execute 2-Stage Screen",
+        'execute_btn': "Execute 2-Stage Screen",
         'qscan_title': "Market Scanner",
         'home_title': "Stockdeck",
         'nav_home': "Home", 
         'home_welcome': "Welcome to Stockdeck",
         'home_intro': "Stockdeck is your AI-Powered Investment Analyser, designed to simplify professional-grade stock analysis.",
-        'workflow_single': "🔍 **Single Thematic Analysis Workflow**",
+        'workflow_single': "**Single Thematic Analysis Workflow**",
         'workflow_single_desc': "For analyzing individual stocks, follow this proven path:",
-        'workflow_port': "🏗️ **Portfolio Construction Workflow**",
+        'workflow_port': "**Portfolio Construction Workflow**",
         'workflow_port_desc': "For building and monitoring a portfolio:",
         'feat_qscan': "**1. Market Scanner (Culling)**: Filter the entire market (S&P 500 / SET 100) to find hidden gems based on Strategy (Value, Growth, Dividend).",
         'feat_qai': "**2. StockDeck AI**: An LLM optimized for detailed fundamental analysis of companies.",
@@ -242,73 +242,73 @@ TRANS = {
         'feat_qwealth': "**Portfolio Architect**: Design a personalized portfolio based on your life goals using AI.",
         'feat_qhealth': "**HealthDeck (Doctor)**: Perform a detailed portfolio check-up using AI to analyze risks, compare with Mega Trends, and find hidden weaknesses.",
         'scan_limit': "Scan Limit",
-        'results_header': "🏆 Top Picks (Deep Analyzed)",
-        'stage1_msg': "📡 Stage 1: Fetching Universe...",
-        'stage2_msg': "✅ Stage 1 Complete. Analyzing Top Candidates...",
-        'no_data': "❌ No stocks matched your STRICT criteria.",
+        'results_header': "Top Picks (Deep Analyzed)",
+        'stage1_msg': "Stage 1: Fetching Universe...",
+        'stage2_msg': "Stage 1 Complete. Analyzing Top Candidates...",
+        'no_data': "No stocks matched your STRICT criteria.",
         'deep_dive_title': "Deep Dive (Finance)",
-        'glossary_title': "📚 Investment Glossary",
+        'glossary_title': "Investment Glossary",
         'search_ticker': "Enter Stock Ticker (e.g. AAPL, PTT.BK)",
         'analyze_btn': "Analyze Stock",
-        'about_title': "ℹ️ About This Project",
+        'about_title': "About This Project",
         'about_desc': "This program was created by Mr. Kun Poonkasetvatana. It was developed to solve the pain point that finding data is difficult, analyzing every stock takes too long, and similar tools are unreasonably expensive. Fetches data from Yahoo Finance to screen quickly. Currently developing AI to analyze fundamentals further, obeying 'Invest on what you know' and regular portfolio health checks.",
         
-        'scanner_config': "🛠️ Scanner Configuration & Settings",
+        'scanner_config': "Scanner Configuration & Settings",
         'univ_scale': "1. Universe & Scale",
         'strat_mandate': "2. Strategy Mandate",
         'crit_thresh': "3. Criteria Thresholds",
         'opt_filters': "Optional Filters",
         'analyze_top_n': "Analyze Top N Deeply (Stage 2)",
         
-        'port_config': "⚙️ Portfolio Configuration & Settings",
+        'port_config': "Portfolio Configuration & Settings",
         'asset_univ': "1. Asset Universe",
         'strat_prof': "2. Strategic Profile",
         'risk_tol': "Risk Tolerance / Strategy",
         'max_holdings': "Max Holdings Count",
-        'gen_port_btn': "🚀 Generate Portfolio",
+        'gen_port_btn': "Generate Portfolio",
         'port_target_caption': "Allocating to top stocks using Market Cap Weighting.",
         
-        'status_processing': "🔄 Processing Market Data...",
-        'status_fetch': "📡 Fetching Ticker List...",
-        'status_scan': "🔬 Scanning stocks for fundamentals...",
-        'status_scan_fail': "❌ Scan Failed: No data found.",
-        'status_scan_complete': "✅ Market Scan Complete!",
-        'status_deep': "🔍 Deep Analysis (Financials & CAGR)...",
-        'status_deep_complete': "✅ Deep Analysis Complete!",
+        'status_processing': "Processing Market Data...",
+        'status_fetch': "Fetching Ticker List...",
+        'status_scan': "Scanning stocks for fundamentals...",
+        'status_scan_fail': "Scan Failed: No data found.",
+        'status_scan_complete': "Market Scan Complete!",
+        'status_deep': "Deep Analysis (Financials & CAGR)...",
+        'status_deep_complete': "Deep Analysis Complete!",
         
-        'tab_holdings': "📋 Holdings",
-        'tab_alloc': "🍕 Allocation (Sector)",
-        'tab_logic': "⚖️ Weighting Logic",
+        'tab_holdings': "Holdings",
+        'tab_alloc': "Allocation (Sector)",
+        'tab_logic': "Weighting Logic",
         'equity_holdings': "1. Equity Holdings (30%)",
         'core_assets': "2. Core Asset Allocation (70%)",
         'core_assets_desc': "These are standard ETF Proxies for the Asset Classes.",
         
-        'risk_low_desc': "🛡️ **Defensive**: Focus on **Dividends** and **Stability**. Low Debt, steady Cash Flow. Good for preserving capital.",
-        'risk_med_desc': "⚖️ **Balanced (GARP)**: Growth at Reasonable Price. Mix of **Value** and **Growth**. The sweet spot for most investors.",
-        'risk_high_desc': "🚀 **Aggressive**: Focus on **High Growth**. Ignores Dividends. Higher Risk (Debt/Volatility) accepted for max returns.",
-        'risk_all_desc': "🌤️ **All Weather**: Balanced across seasons. **40% Bonds** (Utilities), **30% Stocks** (Tech), **15% Cmdty** (Energy), **15% Cash** (Finance).",
+        'risk_low_desc': "**Defensive**: Focus on **Dividends** and **Stability**. Low Debt, steady Cash Flow. Good for preserving capital.",
+        'risk_med_desc': "**Balanced (GARP)**: Growth at Reasonable Price. Mix of **Value** and **Growth**. The sweet spot for most investors.",
+        'risk_high_desc': "**Aggressive**: Focus on **High Growth**. Ignores Dividends. Higher Risk (Debt/Volatility) accepted for max returns.",
+        'risk_all_desc': "**All Weather**: Balanced across seasons. **40% Bonds** (Utilities), **30% Stocks** (Tech), **15% Cmdty** (Energy), **15% Cash** (Finance).",
         
         'menu_health': "HealthDeck",
         'menu_ai': "Stock AI Analysis",
-        'under_dev': "🚧 Feature Under Development 🚧",
+        'under_dev': "Feature Under Development",
         'dev_soon': "Check back soon for AI-powered diagnostics!",
         'dev_dl': "Coming soon: Deep Learning Fundamental Analysis.",
-        'biz_summary': "📝 **Business Summary**",
+        'biz_summary': "**Business Summary**",
         'lynch_type': "Lynch Type",
         'score_garp': "GARP Score",
         'score_value': "Deep Value Score",
         'score_div': "Dividend Score",
-        'score_multi': "🚀 Multibagger Score",
+        'score_multi': "Multibagger Score",
 
         # --- NEW DASHBOARD & UI ---
-        'market_sentiment_title': "### 🧭 Market Sentiment (CNN-Style Proxy)",
+        'market_sentiment_title': "### Market Sentiment (CNN-Style Proxy)",
         'fear_greed_title': "Fear & Greed Index (Proxy)",
         'vix_caption': "Driven by VIX: {vix:.2f} (Lower VIX = Higher Greed)",
-        'state_extreme_fear': "🥶 Extreme Fear",
-        'state_fear': "😨 Fear",
-        'state_neutral': "😐 Neutral",
-        'state_greed': "😎 Greed",
-        'state_extreme_greed': "🤑 Extreme Greed",
+        'state_extreme_fear': "Extreme Fear",
+        'state_fear': "Fear",
+        'state_neutral': "Neutral",
+        'state_greed': "Greed",
+        'state_extreme_greed': "Extreme Greed",
         'buffett_title': "Buffett Indicator (Q3 2025)",
         'buffett_caption': "Ratio of Total US Stock Market ($70.68T) to GDP ($30.77T).",
         'buffett_status': "Status: 2.4 Std Dev above historical average.",
@@ -322,10 +322,10 @@ TRANS = {
         'min_div': "Min Dividend Yield %",
         'min_rev_growth': "Min Revenue Growth %",
         'max_de': "Max Debt/Equity %",
-        'debug_logs': "🛠️ Debug Logs (Open if No Data)",
+        'debug_logs': "Debug Logs (Open if No Data)",
         'port_title': "StockDeck Wealth",
-        'ai_analysis_header': "🧠 AI Analysis Result ({risk})",
-        'gen_success': "✅ Generated Professional Portfolio: {n} Stocks",
+        'ai_analysis_header': "AI Analysis Result ({risk})",
+        'gen_success': "Generated Professional Portfolio: {n} Stocks",
         'avg_pe_label': "Avg P/E (Equity)",
         'equity_yield_label': "Equity Yield",
         'quality_roe_label': "Quality (ROE)",
@@ -335,14 +335,14 @@ TRANS = {
         'lynch_desc': "Peter Lynch Categories:\n- Fast Grower: Earnings >20%\n- Asset Play: Asset Rich (P/B < 1)\n- Turnaround: Recovering\n- Cyclical: Economy tied\n- Slow Grower: Dividend payers",
         'sector_tooltip': "",
         'sector_desc': "Industry Group (e.g. Tech, Energy). Important for relative valuation.",
-        'backtest_title': "🕑 Historical Backtest & Simulation",
+        'backtest_title': "Historical Backtest & Simulation",
         'backtest_desc': "See how this portfolio would have performed in the past vs S&P 500.",
-        'backtest_config': "⚙️ Backtest Configuration",
+        'backtest_config': "Backtest Configuration",
         'invest_mode': "Investment Mode",
         'time_period': "Time Period",
         'invest_amount': "Investment Amount",
-        'run_backtest_btn': "🚀 Run Backtest",
-        'historical_chart_title': "### 🔬 Interactive Historical Charts",
+        'run_backtest_btn': "Run Backtest",
+        'historical_chart_title': "### Interactive Historical Charts",
         'select_stock_view': "Select Stock to View:",
         'nav_scanner': "Scanner",
         'nav_ai': "StockDeck AI",
@@ -354,9 +354,9 @@ TRANS = {
         'health_check_title': "HealthDeck",
         'val_label': "Valuation",
         'qual_label': "Quality",
-        'guru_intel_title': "🧠 Guru & Analyst Intel",
-        'tab_holders': "🏛️ Institutional Holders (Guru Proxy)",
-        'tab_recs': "🗣️ Analyst Recommendations",
+        'guru_intel_title': "Guru & Analyst Intel",
+        'tab_holders': "Institutional Holders (Guru Proxy)",
+        'tab_recs': "Analyst Recommendations",
         'holders_desc': "Top funds and institutions holding this stock.",
         'no_holders': "No institutional holding data available.",
         'err_holders': "Could not fetch institutional data.",
@@ -364,9 +364,9 @@ TRANS = {
         'vs_current': "vs Current",
         'no_target': "No analyst target price available.",
         'err_recs': "Could not fetch recommendations.",
-        'price_trend_title': "📉 5-Year Price Trend",
+        'price_trend_title': "5-Year Price Trend",
         'err_fetch': "Could not fetch data.",
-        'perfect_match': "✅ Perfect Match",
+        'perfect_match': "Perfect Match",
         'backtest_summary': "Performance Summary",
         'final_val_label': "Final Portfolio Value",
         'bench_val_label': "S&P 500 Benchmark",
@@ -384,11 +384,11 @@ TRANS = {
         'lang_label': "Language / ภาษา",
         'health_coming_soon': "Coming soon in Q1 2026. This module will analyze your upload portfolio for risk factors.",
         'ai_coming_soon': "Deep Learning module integration in progress.",
-        'tab_settings': "🎛️ Settings & Tools",
-        'tab_metrics': "📊 Financial Metrics",
-        'tab_lynch': "🧠 Peter Lynch Categories",
+        'tab_settings': "Settings & Tools",
+        'tab_metrics': "Financial Metrics",
+        'tab_lynch': "Peter Lynch Categories",
         
-        'port_alloc_title': "🌍 Portfolio Allocation",
+        'port_alloc_title': "Portfolio Allocation",
         'port_alloc_caption': "Breakdown by Individual Holding & Group",
         'type_alloc_title': "Type Allocation",
         'equity_only': "Equity Only",
@@ -413,7 +413,7 @@ TRANS = {
         
         # --- AIFOLIO KEYS ---
         'aifolio_title': "StockDeck Wealth",
-        'ai_form_header': "📝 Investor Profile Interview",
+        'ai_form_header': "Investor Profile Interview",
         'f_target': "Target Amount",
         'f_horizon': "Time Horizon (Years)", 
         'f_objective': "Primary Objective",
@@ -423,39 +423,39 @@ TRANS = {
         'f_exp': "Investment Experience",
         'f_liquid': "Do you have an Emergency Fund?",
         'f_constraint': "Constraints / Special Preferences",
-        'gen_plan_btn': "💡 Generate AI Investment Plan",
-        'ai_thinking': "🧠 AI Fund Manager is devising your strategy... (Chain of Thought)",
-        'alloc_header': "📊 Recommended Allocation",
+        'gen_plan_btn': "Generate AI Investment Plan",
+        'ai_thinking': "AI Fund Manager is devising your strategy... (Chain of Thought)",
+        'alloc_header': "Recommended Allocation",
 
     },
     'TH': {
-        'sidebar_title': "🏛️ ตั้งค่าการสแกน",
+        'sidebar_title': "ตั้งค่าการสแกน",
         'market_label': "เลือกตลาดหุ้น",
         'strategy_label': "เลือกกลยุทธ์การลงทุน",
         'mode_header': "3. โหมดคัดกรอง",
         'strict_label': "เลือกค่าที่ต้องผ่านเกณฑ์ (Strict)",
         'perf_label': "เลือกช่วงเวลาวัดผลตอบแทน",
-        'val_header': "📊 ค่าความถูกแพง (Valuation)",
-        'prof_header': "📈 การทำกำไรและการเติบโต",
-        'risk_header': "🛡️ ความเสี่ยง (หนี้สิน)",
+        'val_header': "ค่าความถูกแพง (Valuation)",
+        'prof_header': "การทำกำไรและการเติบโต",
+        'risk_header': "ความเสี่ยง (หนี้สิน)",
         'sector_label': "เลือกกลุ่มอุตสาหกรรม (Optional)",
         'lynch_label': "เลือกประเภทหุ้นตาม Lynch (Optional)",
         
         # Tooltips
-        'lynch_tooltip': "ℹ️",
+        'lynch_tooltip': "",
         'lynch_desc': "ประเภทหุ้นตาม Peter Lynch:\n- Fast Grower: โตเร็ว (กำไร >20%)\n- Asset Play: หุ้นสินทรัพย์เยอะ (P/B < 1)\n- Turnaround: หุ้นพลิกฟื้น\n- Cyclical: หุ้นวัฏจักร\n- Slow Grower: หุ้นปันผล",
-        'sector_tooltip': "ℹ️",
+        'sector_tooltip': "",
         'sector_desc': "กลุ่มอุตสาหกรรม (เช่น เทคโนโลยี, พลังงาน) ช่วยให้เปรียบเทียบ P/E ได้ถูกต้อง",
         
-        'execute_btn': "🚀 เริ่มสแกนหุ้น (2 ขั้นตอน)",
+        'execute_btn': "เริ่มสแกนหุ้น (2 ขั้นตอน)",
         'qscan_title': "Market Scanner (สแกนหุ้น)",
         'home_title': "Stockdeck",
         'nav_home': "หน้าแรก",
         'home_welcome': "ยินดีต้อนรับสู่ Stockdeck",
         'home_intro': "Stockdeck คือผู้ช่วยการลงทุนพลัง AI ที่ออกแบบมาเพื่อยกระดับการวิเคราะห์หุ้นระดับมืออาชีพให้เป็นเรื่องง่าย",
-        'workflow_single': "🔍 **ขั้นตอนการวิเคราะห์หุ้นรายตัว**",
+        'workflow_single': "**ขั้นตอนการวิเคราะห์หุ้นรายตัว**",
         'workflow_single_desc': "เพื่อให้ได้ผลลัพธ์ที่ดีที่สุด แนะนำให้ใช้งานตามลำดับนี้:",
-        'workflow_port': "🏗️ **ขั้นตอนการจัดพอร์ต**",
+        'workflow_port': "**ขั้นตอนการจัดพอร์ต**",
         'workflow_port_desc': "สำหรับผู้ที่ต้องการสร้างพอร์ตการลงทุน:",
         'feat_qscan': "**1. Market Scanner (Culling)**: กรองหุ้นทั้งตลาด (S&P 500 / SET 100) เพื่อหาหุ้นช้างเผือกตามกลยุทธ์ที่คุณชอบ (Value, Growth, Dividend)",
         'feat_qai': "**2. StockDeck AI**: เป็น LLM ที่ผ่านการ optimized สำหรับการวิเคราะห์ข้อมูลเชิงปัจจัยพื้นฐานบริษัทอย่างละเอียด",
@@ -463,78 +463,78 @@ TRANS = {
         'feat_qwealth': "**StockDeck Wealth**: ออกแบบพอร์ตโฟลิโอส่วนตัวตามเป้าหมายชีวิตของคุณด้วยสมองกล AI",
         'feat_qhealth': "**HealthDeck (Doctor)**: ตรวจสุขภาพพอร์ตโฟลิโอของคุณอย่างละเอียด โดยใช้ AI วิเคราะห์ความเสี่ยงรายตัว เทียบกับ Mega Trend และค้นหาจุดอ่อนที่อาจซ่อนอยู่ในพอร์ตของคุณ",
         'scan_limit': "จำกัดจำนวนสแกน", 
-        'results_header': "🏆 หุ้นเด่น (วิเคราะห์เจาะลึก)",
-        'stage1_msg': "📡 ขั้นแรก: ดึงข้อมูลหุ้น...",
-        'stage2_msg': "✅ ขั้นแรกเสร็จสิ้น กำลังวิเคราะห์เจาะลึก...",
-        'no_data': "❌ ไม่พบหุ้นที่ผ่านเกณฑ์ Strict ของคุณ",
+        'results_header': "หุ้นเด่น (วิเคราะห์เจาะลึก)",
+        'stage1_msg': "ขั้นแรก: ดึงข้อมูลหุ้น...",
+        'stage2_msg': "ขั้นแรกเสร็จสิ้น กำลังวิเคราะห์เจาะลึก...",
+        'no_data': "ไม่พบหุ้นที่ผ่านเกณฑ์ Strict ของคุณ",
         'deep_dive_title': "Deep Dive (Finance)",
-        'glossary_title': "📚 คลังความรู้การลงทุน",
+        'glossary_title': "คลังความรู้การลงทุน",
         'search_ticker': "พิมพ์ชื่อหุ้น (เช่น AAPL, PTT.BK)",
         'analyze_btn': "วิเคราะห์หุ้นนี้",
-        'about_title': "ℹ️ เกี่ยวกับโปรเจกต์นี้",
+        'about_title': "เกี่ยวกับโปรเจกต์นี้",
         'about_desc': "โปรแกรมนี้ ถูกจัดทำโดย นาย กัญจน์ พูนเกษตรวัฒนา โปรเจคนี้ถูกพัฒนาเพื่อการใช้งานส่วนตัวจากการเจอ pain point ที่ว่าการหาข้อมูลมันยุ่งยากมากๆ และ การที่จะนั่งวิเคราะห์หุ้นทุกๆตัวใช้เวลานานเกินไป และ เว็ปที่ทำคล้ายๆแบบนี้ก็เสียเงินแพงเกินใช่เหตุ จึงดึงข้อมูลมาจาก yahoo finance เพื่อคัดหุ้นจากข้อมูลพื้นฐานอย่างรวดเร็ว สิ่งที่กำลังพัฒนาอยู่ตอนนี้คือเรื่องของ ปัญญาประดิษฐ์ที่นำมาวิเคราะห์เรื่องปัจจัยพื้นฐานอีกที และ ทำให้เราเข้าใจสิ่งที่เราจะลงทุนก่อน โดยอิงจาก Invest on what you know และจะมีการตรวจเช็คสภาพรถเสมอ ในหุ้นในพอร์ตฟอลิโอ",
         
-        'scanner_config': "🛠️ ตั้งค่าตัวสแกนหุ้น (Scanner Configuration)",
+        'scanner_config': "ตั้งค่าตัวสแกนหุ้น (Scanner Configuration)",
         'univ_scale': "1. เลือกตลาดและขอบเขต (Universe)",
         'strat_mandate': "2. กลยุทธ์การลงทุน (Strategy)",
         'crit_thresh': "3. เกณฑ์ชี้วัด (Criteria Thresholds)",
         'opt_filters': "ตัวกรองเพิ่มเติม (Optional)",
         'analyze_top_n': "จำนวนหุ้นที่จะวิเคราะห์เจาะลึก (Stage 2)",
         
-        'port_config': "⚙️ ตั้งค่าพอร์ตการลงทุน (Portfolio Settings)",
+        'port_config': "ตั้งค่าพอร์ตการลงทุน (Portfolio Settings)",
         'asset_univ': "1. เลือกสินทรัพย์ (Asset Universe)",
         'strat_prof': "2. รูปแบบกลยุทธ์ (Strategy Profile)",
         'risk_tol': "ระดับความเสี่ยง / กลยุทธ์",
         'max_holdings': "จำนวนหุ้นสูงสุดในพอร์ต",
-        'gen_port_btn': "🚀 สร้างพอร์ตการลงทุน (Generate)",
+        'gen_port_btn': "สร้างพอร์ตการลงทุน (Generate)",
         'port_target_caption': "จัดสรรเงินลงทุนในหุ้นชั้นนำ โดยใช้น้ำหนักตามมูลค่าตลาด (Market Cap Weighting)",
         
-        'status_processing': "🔄 กำลังประมวลผลข้อมูลตลาด...",
-        'status_fetch': "📡 กำลังดึงรายชื่อหุ้น...",
-        'status_scan': "🔬 กำลังสแกนงบการเงินและพื้นฐาน...",
-        'status_scan_fail': "❌ สแกนล้มเหลว: ไม่พบข้อมูล",
-        'status_scan_complete': "✅ สแกนตลาดเรียบร้อย!",
-        'status_deep': "🔍 วิเคราะห์เจาะลึก (งบการเงิน & CAGR)...",
-        'status_deep_complete': "✅ วิเคราะห์เจาะลึกเสร็จสิ้น!",
+        'status_processing': "กำลังประมวลผลข้อมูลตลาด...",
+        'status_fetch': "กำลังดึงรายชื่อหุ้น...",
+        'status_scan': "กำลังสแกนงบการเงินและพื้นฐาน...",
+        'status_scan_fail': "สแกนล้มเหลว: ไม่พบข้อมูล",
+        'status_scan_complete': "สแกนตลาดเรียบร้อย!",
+        'status_deep': "วิเคราะห์เจาะลึก (งบการเงิน & CAGR)...",
+        'status_deep_complete': "วิเคราะห์เจาะลึกเสร็จสิ้น!",
         
-        'tab_holdings': "📋 รายชื่อหุ้นในพอร์ต",
-        'tab_alloc': "🍕 สัดส่วนการลงทุน (Allocation)",
-        'tab_logic': "⚖️ ตรรกะการจัดพอร์ต",
+        'tab_holdings': "รายชื่อหุ้นในพอร์ต",
+        'tab_alloc': "สัดส่วนการลงทุน (Allocation)",
+        'tab_logic': "ตรรกะการจัดพอร์ต",
         'equity_holdings': "1. ส่วนของหุ้น (Equity Holdings 30%)",
         'core_assets': "2. สินทรัพย์หลัก (Core Assets 70%)",
         'core_assets_desc': "นี่คือ ETF ตัวแทนของสินทรัพย์ประเภทต่างๆ (พันธบัตร, ทองคำ, etc.)",
         
-        'risk_low_desc': "🛡️ **Defensive (ปลอดภัยไว้ก่อน)**: เน้น **ปันผล** และ **ความมั่นคง**. หนี้ต่ำ, กระแสเงินสดนิ่ง. เหมาะสำหรับรักษาเงินต้น.",
-        'risk_med_desc': "⚖️ **Balanced (สายกลาง GARP)**: เติบโตในราคาที่เหมาะสม. ผสมผสานระหว่าง **ความคุ้มค่า** และ **การเติบโต**. จุดที่ลงตัวสำหรับนักลงทุนส่วนใหญ่.",
-        'risk_high_desc': "🚀 **Aggressive (เชิงรุก)**: เน้น **การเติบโตสูง**. ไม่สนปันผล. ยอมรับความเสี่ยงสูง (หนี้/ความผันผวน) เพื่อแลกผลตอบแทนสูงสุด.",
-        'risk_all_desc': "🌤️ **All Weather (ทุกสภาวะ)**: สมดุลทุกฤดูกาล. **40% พันธบัตร** (หรือ Utility), **30% หุ้น** (Tech), **15% สินค้าโภคภัณฑ์** (Energy), **15% เงินสด** (Finance).",
+        'risk_low_desc': "**Defensive (ปลอดภัยไว้ก่อน)**: เน้น **ปันผล** และ **ความมั่นคง**. หนี้ต่ำ, กระแสเงินสดนิ่ง. เหมาะสำหรับรักษาเงินต้น.",
+        'risk_med_desc': "**Balanced (สายกลาง GARP)**: เติบโตในราคาที่เหมาะสม. ผสมผสานระหว่าง **ความคุ้มค่า** และ **การเติบโต**. จุดที่ลงตัวสำหรับนักลงทุนส่วนใหญ่.",
+        'risk_high_desc': "**Aggressive (เชิงรุก)**: เน้น **การเติบโตสูง**. ไม่สนปันผล. ยอมรับความเสี่ยงสูง (หนี้/ความผันผวน) เพื่อแลกผลตอบแทนสูงสุด.",
+        'risk_all_desc': "**All Weather (ทุกสภาวะ)**: สมดุลทุกฤดูกาล. **40% พันธบัตร** (หรือ Utility), **30% หุ้น** (Tech), **15% สินค้าโภคภัณฑ์** (Energy), **15% เงินสด** (Finance).",
         
         'menu_health': "HealthDeck",
         'menu_ai': "วิเคราะห์หุ้นด้วย AI",
-        'under_dev': "🚧 ระบบกำลังพัฒนา 🚧",
+        'under_dev': "ระบบกำลังพัฒนา",
         'dev_soon': "พบกับระบบตรวจสุขภาพพอร์ตด้วย AI เร็วๆ นี้!",
         'dev_dl': "พบกับการวิเคราะห์ปัจจัยพื้นฐานด้วย Deep Learning เร็วๆ นี้",
-        'biz_summary': "📝 **สรุปข้อมูลธุรกิจ** (จาก Yahoo Finance)",
+        'biz_summary': "**สรุปข้อมูลธุรกิจ** (จาก Yahoo Finance)",
         'lynch_type': "ประเภท Lynch",
         'score_garp': "คะแนน GARP (เติบโตรอบคอบ)",
         'score_value': "คะแนน Value (หุ้นคุณค่า)",
         'score_div': "คะแนน Dividend (ปันผล)",
-        'score_multi': "🚀 คะแนน Multibagger (หุ้นเด้ง)",
+        'score_multi': "คะแนน Multibagger (หุ้นเด้ง)",
 
         # --- NEW DASHBOARD & UI ---
-        'market_sentiment_title': "### 🧭 สภาวะตลาด (Market Sentiment)",
+        'market_sentiment_title': "### สภาวะตลาด (Market Sentiment)",
         'fear_greed_title': "ดัชนี Fear & Greed (Proxy)",
         'vix_caption': "คำนวณจาก VIX: {vix:.2f} (ยิ่ง VIX ต่ำ = ตลาดพึงพอใจ/โลภ)",
-        'state_extreme_fear': "🥶 กลัวสุดขีด (Extreme Fear)",
-        'state_fear': "😨 กลัว (Fear)",
-        'state_neutral': "😐 ปกติ (Neutral)",
-        'state_greed': "😎 โลภ (Greed)",
-        'state_extreme_greed': "🤑 โลภสุดขีด (Extreme Greed)",
+        'state_extreme_fear': "กลัวสุดขีด (Extreme Fear)",
+        'state_fear': "กลัว (Fear)",
+        'state_neutral': "ปกติ (Neutral)",
+        'state_greed': "โลภ (Greed)",
+        'state_extreme_greed': "โลภสุดขีด (Extreme Greed)",
         'buffett_title': "ดัชนีบัฟเฟตต์ (Buffett Indicator - Q3 2025)",
         'buffett_caption': "สัดส่วนมูลค่าตลาดหุ้น US ($70.68T) ต่อ GDP ($30.77T)",
         'buffett_status': "สถานะ: สูงกว่าค่าเฉลี่ย 2.4 Standard Deviation",
         'buffett_val_desc': "แพงมาก (Strongly Overvalued)",
-        'faq_title': "📚 คำนิยามและระเบียบวิธี (FAQs)",
+        'faq_title': "คำนิยามและระเบียบวิธี (FAQs)",
         'max_pe': "ค่า P/E สูงสุดที่ยอมรับได้",
         'max_peg': "ค่า PEG สูงสุดที่ยอมรับได้",
         'max_evebitda': "ค่า EV/EBITDA สูงสุด",
@@ -543,10 +543,10 @@ TRANS = {
         'min_div': "อัตราปันผลขั้นต่ำ %",
         'min_rev_growth': "การเติบโตรายได้ขั้นต่ำ %",
         'max_de': "หนี้สินต่อทุนสูงสุด (D/E) %",
-        'debug_logs': "🛠️ บันทึกการตรวจสอบ (Debug Logs)",
+        'debug_logs': "บันทึกการตรวจสอบ (Debug Logs)",
         'port_title': "StockDeck Wealth",
-        'ai_analysis_header': "🧠 ผลการวิเคราะห์ด้วย AI ({risk})",
-        'gen_success': "✅ สร้างพอร์ตการลงทุนสำเร็จ: {n} หุ้น",
+        'ai_analysis_header': "ผลการวิเคราะห์ด้วย AI ({risk})",
+        'gen_success': "สร้างพอร์ตการลงทุนสำเร็จ: {n} หุ้น",
         'avg_pe_label': "P/E เฉลี่ย (เฉพาะหุ้น)",
         'equity_yield_label': "ปันผลเฉลี่ย",
         'quality_roe_label': "คุณภาพ (ROE เฉลี่ย)",
@@ -764,7 +764,7 @@ def render_market_dashboard():
 # ---------------------------------------------------------
 st.set_page_config(
     page_title=get_text('StockDeck'),
-    page_icon="🏛️",
+    page_icon=None,
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -899,7 +899,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
             if (ticker in ['AAPL', 'NVDA', 'GOOGL', 'META', 'TSLA'] or '__error__' in info) and debug_container:
                 debug_container.write(f"--- DEBUG: {ticker} ---")
                 if '__error__' in info:
-                    debug_container.error(f"⚠️ Fetch Error: {info['__error__']}")
+                    debug_container.error(f"Fetch Error: {info['__error__']}")
                 else:
                     debug_container.json(info) # Use JSON for better readability
             
@@ -923,7 +923,7 @@ def scan_market_basic(tickers, progress_bar, status_text, debug_container=None):
                 continue
             
             # Found data (Price at least)
-            status_text.caption(f"Stage 1: Analyzing **{ticker}** | ✅ Found: {len(data_list)+1}")
+            status_text.caption(f"Stage 1: Analyzing **{ticker}** | Found: {len(data_list)+1}")
             
             # Use found price, treat info as optional but preferred
             if price:
@@ -1137,9 +1137,9 @@ def analyze_history_deep(df_candidates, progress_bar, status_text):
                     consistency_str = f"{pos_years}/{total_intervals} Yrs"
                     
                     if pos_years == total_intervals:
-                        insight_str += "✅ Consistent Growth "
+                        insight_str += "Consistent Growth "
                     elif pos_years <= total_intervals / 2:
-                        insight_str += "⚠️ Earnings Volatile "
+                        insight_str += "Earnings Volatile "
                         
                 # CAGR Calculation
                 try:
@@ -1187,8 +1187,8 @@ def analyze_history_deep(df_candidates, progress_bar, status_text):
                     
                     if streak > 0:
                         div_streak_str = f"{streak} Yrs"
-                        if streak >= 10: div_streak_str = f"💎 {streak} Yrs"
-                        elif streak >= 5: div_streak_str = f"⭐ {streak} Yrs"
+                        if streak >= 10: div_streak_str = f"{streak} Yrs"
+                        elif streak >= 5: div_streak_str = f"{streak} Yrs"
                     else:
                         div_streak_str = "0 Yrs"
                 else:
@@ -1266,13 +1266,13 @@ def classify_lynch(row):
     sector = row.get('Sector')
     
     if growth is None: return "⚪ Unknown"
-    if growth >= 0.20: return "🚀 Fast Grower"
-    if pb is not None and pb < 1.0: return "🏰 Asset Play"
-    if growth < 0.10 and yield_pct is not None and yield_pct > 0.03: return "🐢 Slow Grower"
-    if 0.10 <= growth < 0.20: return "🐘 Stalwart"
+    if growth >= 0.20: return "Fast Grower"
+    if pb is not None and pb < 1.0: return "Asset Play"
+    if growth < 0.10 and yield_pct is not None and yield_pct > 0.03: return "Slow Grower"
+    if 0.10 <= growth < 0.20: return "Stalwart"
     cyclical_sectors = ['Energy', 'Basic Materials', 'Consumer Cyclical', 'Real Estate', 'Industrials']
-    if sector in cyclical_sectors: return "🔄 Cyclical"
-    return "😐 Average"
+    if sector in cyclical_sectors: return "Cyclical"
+    return "Average"
 
 def calculate_fit_score(row, targets):
     score = 0
@@ -1328,16 +1328,16 @@ def calculate_fit_score(row, targets):
         if not hit:
             if is_missing:
                  # Explicit N/A Failure
-                 details.append(f"❌ {metric} (N/A -> Fail)")
+                 details.append(f"{metric} (N/A -> Fail)")
             else:
                  pct_off = (diff / target_val) * 100 if target_val != 0 else 0
-                 details.append(f"❌ {metric} ({pct_off:+.0f}%)")
+                 details.append(f"{metric} ({pct_off:+.0f}%)")
         else:
-             details.append(f"✅ {metric}")
+             details.append(f"{metric}")
 
     max_score = valid_targets_count * 10
     final_score = int((score / max_score) * 100) if max_score > 0 else 0
-    analysis_str = ", ".join(details) if details else "✅ Perfect Match"
+    analysis_str = ", ".join(details) if details else "Perfect Match"
     return final_score, analysis_str
 
 # ---------------------------------------------------------
@@ -1352,7 +1352,7 @@ def page_scanner():
 
     # --- PROFESSIONAL UI: MAIN CONFIGURATION ---
     # Moved all controls from Sidebar to Main Page Expander
-    with st.expander("🛠️ **Scanner Configuration & Settings**", expanded=True):
+    with st.expander("**Scanner Configuration & Settings**", expanded=True):
         
         # Row 1: High Level Strategy
         c_uni, c_strat = st.columns(2)
@@ -1437,7 +1437,7 @@ def page_scanner():
 
     
     # DEBUG EXPANDER
-    debug_container = st.expander("🛠️ Debug Logs (Open if No Data)", expanded=False)
+    debug_container = st.expander("Debug Logs (Open if No Data)", expanded=False)
 
     run_scan = st.button(get_text('execute_btn'), use_container_width=True, type="primary")
 
@@ -1532,7 +1532,7 @@ def page_scanner():
                 
                 # CHARGE QUOTA (Success)
                 auth_mongo.increment_quota(user_id, 'scanner')
-                st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
+                st.toast(f"Usage: {count+1}/{limit}")
             else:
                 st.error(get_text('no_data'))
         else: st.error("No data found.")
@@ -1576,13 +1576,13 @@ def page_scanner():
         
         # Cloud Warning Check
         if 'Fit_Score' in final_df.columns and (final_df['Fit_Score'] == 0).all():
-            st.warning("⚠️ **Data Recovery Mode Active**: Advanced metrics (P/E, ROE) were manually calculated due to Cloud restrictions.")
+            st.warning("**Data Recovery Mode Active**: Advanced metrics (P/E, ROE) were manually calculated due to Cloud restrictions.")
         else:
             if final_df.shape[0] > 0 and 'YF_Obj' not in final_df.columns:
                  if final_df['PE'].isna().sum() > len(final_df) * 0.5:
-                      st.warning("⚠️ **Cloud Data Limitation**: Some advanced metrics might be missing.")
+                      st.warning("**Cloud Data Limitation**: Some advanced metrics might be missing.")
         
-        with st.expander("📋 View Stage 1 Data (All Scanned Stocks)"):
+        with st.expander("View Stage 1 Data (All Scanned Stocks)"):
             dump_df = df.drop(columns=['YF_Obj'], errors='ignore')
             
             st.dataframe(
@@ -1602,7 +1602,7 @@ def page_scanner():
 
         # --- Manual Financial Analysis Section ---
         st.markdown("---")
-        st.header("🔬 Interactive Historical Charts")
+        st.header("Interactive Historical Charts")
         st.info("Select a stock to visualize 10-year trends.")
         
         if 'Symbol' in df.columns:
@@ -1624,7 +1624,7 @@ def page_scanner():
                         fin_T = fin_stmt.T.sort_index(ascending=True)
                         fin_T.index = pd.to_datetime(fin_T.index).year
                         
-                        st.subheader(f"📊 {selected_ticker} Financials")
+                        st.subheader(f"{selected_ticker} Financials")
                         chart_cols = [c for c in ['Total Revenue', 'Net Income', 'EBITDA'] if c in fin_T.columns]
                         if chart_cols: st.line_chart(fin_T[chart_cols])
                         st.dataframe(fin_T.style.format("{:,.0f}")) # No currency symbol to be safe
@@ -1633,7 +1633,7 @@ def page_scanner():
 
         # Cache Clearing for Debugging
         if st.checkbox("Show Advanced Options"):
-            if st.button("🗑️ Clear Data Cache"):
+            if st.button("Clear Data Cache"):
                 st.cache_data.clear()
                 st.success("Cache Cleared! Rerun the scan.")
 
@@ -1748,7 +1748,7 @@ def page_single_stock():
                 
                 # CHARGE QUOTA (Success)
                 auth_mongo.increment_quota(user_id, 'deep_dive')
-                st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
+                st.toast(f"Usage: {count+1}/{limit}")
             
     # Display Logic (Wrapper to maintain indentation of subsequent block)
     # We use st.container() to provide the indentation level previously held by 'with st.spinner'
@@ -1967,7 +1967,7 @@ def page_single_stock():
                 
                 years_proj = 10
                 
-                with st.expander("💎 Intrinsic Value Range (Professional Analysis)", expanded=True):
+                with st.expander("Intrinsic Value Range (Professional Analysis)", expanded=True):
                     # We no longer need columns here because the Card itself will use columns internally 
                     # for the grid layout. We stack them vertically: FCF Card then EPS Card.
                     
@@ -2249,11 +2249,11 @@ def page_ai_analysis():
     if 'GEMINI_API_KEY' in st.secrets:
         api_key = st.secrets['GEMINI_API_KEY']
     else:
-        st.error("🚨 Missing API Key. Please add `GEMINI_API_KEY` to `.streamlit/secrets.toml`.")
+        st.error("Error: Missing API Key. Please add `GEMINI_API_KEY` to `.streamlit/secrets.toml`.")
         return
 
     if api_key == "PASTE_YOUR_NEW_API_KEY_HERE":
-        st.error("⚠️ Please update `.streamlit/secrets.toml` with your actual Google Gemini API Key.")
+        st.error("Please update `.streamlit/secrets.toml` with your actual Google Gemini API Key.")
         return 
     
     # Input Ticker
@@ -2264,7 +2264,7 @@ def page_ai_analysis():
     with col_btn:
         st.write("") # Spacer
         st.write("")
-        analyze_click = st.button("✨ Analyze with AI", type="primary", use_container_width=True)
+        analyze_click = st.button("Analyze with AI", type="primary", use_container_width=True)
 
     if analyze_click and ticker:
         # --- QUOTA CHECK ---
@@ -2278,7 +2278,7 @@ def page_ai_analysis():
 
         try:
             # 1. FETCH LIVE DATA
-            with st.spinner(f"📡 Fetching Live Data for {ticker}..."):
+            with st.spinner(f"Fetching Live Data for {ticker}..."):
                 # Clean Ticker
                 if ".BK" in ticker: formatted_ticker = ticker
                 else: formatted_ticker = ticker.replace('.', '-')
@@ -2505,7 +2505,7 @@ def page_ai_analysis():
             """
 
             
-            with st.spinner("🤖 AI is analyzing... (This may take 10-20 seconds)"):
+            with st.spinner("AI is analyzing... (This may take 10-20 seconds)"):
                 try:
                     generation_config = genai.types.GenerationConfig(
                         temperature=0.1,
@@ -2520,7 +2520,7 @@ def page_ai_analysis():
                     
                     # CHARGE QUOTA (Success)
                     auth_mongo.increment_quota(user_id, 'ai_analysis')
-                    st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
+                    st.toast(f"Usage: {count+1}/{limit}")
                     clean_json = text_out.replace("```json", "").replace("```", "").strip()
                     data = json.loads(clean_json)
                     
@@ -2551,12 +2551,12 @@ def page_ai_analysis():
                     # 2. Key Grades Details
                     k1, k2 = st.columns(2)
                     with k1:
-                        st.subheader("✅ Key Strengths")
+                        st.subheader("Key Strengths")
                         for s in data['fundamental_grading_report']['key_strengths']:
                             st.success(f"- {s}")
                             
                     with k2:
-                        st.subheader("⚠️ Key Risks")
+                        st.subheader("Key Risks")
                         for w in data['fundamental_grading_report']['key_weaknesses']:
                             st.error(f"- {w}")
 
@@ -2568,33 +2568,33 @@ def page_ai_analysis():
                     st.divider()
 
                     # 3. Financial Analysis Tabs
-                    t_swot, t_strat, t_future, t_bus, t_ind, t_mgmt, t_fin, t_comp = st.tabs(["🛡️ SWOT", "🧠 Strategy", "🚀 Growth & Future", "🏭 Business", "🌏 Industry", "🧠 Mgmt (CEO)", "💰 Financials", "⚔️ Competition"])
+                    t_swot, t_strat, t_future, t_bus, t_ind, t_mgmt, t_fin, t_comp = st.tabs(["SWOT", "Strategy", "Growth & Future", "Business", "Industry", "Mgmt (CEO)", "Financials", "Competition"])
                     
                     with t_strat:
                         strat = data.get('strategic_positioning', {})
-                        st.subheader("🌐 Global Macro & Strategic Fit")
+                        st.subheader("Global Macro & Strategic Fit")
                         
                         c_strat1, c_strat2 = st.columns(2)
                         with c_strat1:
-                            st.info(f"**🌊 Mega Trend:** {strat.get('mega_trend', 'N/A')}")
-                            st.info(f"**🚀 Growth Driver:** {strat.get('growth_driver', 'N/A')}")
+                            st.info(f"**Mega Trend:** {strat.get('mega_trend', 'N/A')}")
+                            st.info(f"**Growth Driver:** {strat.get('growth_driver', 'N/A')}")
                         with c_strat2:
-                            st.success(f"**🏰 Moat:** {strat.get('moat_opportunity', 'N/A')}")
-                            st.warning(f"**🌍 Macro:** {strat.get('macro_context', 'N/A')}")
+                            st.success(f"**Moat:** {strat.get('moat_opportunity', 'N/A')}")
+                            st.warning(f"**Macro:** {strat.get('macro_context', 'N/A')}")
 
                     
                     with t_swot:
                         swot = data.get('swot_analysis', {})
                         c_s, c_w = st.columns(2)
                         with c_s:
-                            st.subheader("💪 Strengths")
+                            st.subheader("Strengths")
                             for s in swot.get('strengths', []): st.success(f"- {s}")
-                            st.subheader("⚠️ Weaknesses")
+                            st.subheader("Weaknesses")
                             for w in swot.get('weaknesses', []): st.error(f"- {w}")
                         with c_w:
-                            st.subheader("🌟 Opportunities")
+                            st.subheader("Opportunities")
                             for o in swot.get('opportunities', []): st.info(f"- {o}")
-                            st.subheader("⚡ Threats")
+                            st.subheader("Threats")
                             for t in swot.get('threats', []): st.warning(f"- {t}")
 
                     with t_future:
@@ -2602,9 +2602,9 @@ def page_ai_analysis():
                         bus = data.get('business_deep_dive', {})
                         products = bus.get('product_portfolio', [])
                         
-                        st.subheader("🚀 Product & Service Portfolio")
+                        st.subheader("Product & Service Portfolio")
                         for p in products:
-                            with st.expander(f"📦 {p.get('name', 'Product')}", expanded=True):
+                            with st.expander(f"{p.get('name', 'Product')}", expanded=True):
                                 st.markdown(f"**Description:** {p.get('description', '-')}")
                                 c1, c2 = st.columns(2)
                                 c1.info(f"**Current:** {p.get('current_performance', '-')}")
@@ -2614,25 +2614,25 @@ def page_ai_analysis():
                         bus = data['business_deep_dive']
                         cust = bus.get('customer_ecosystem', {})
                         
-                        st.subheader("🏢 Business Model")
+                        st.subheader("Business Model")
                         st.markdown(bus['what_they_do'])  # Markdown handles long text wrapping better
                         
                         st.divider()
                         
                         c_rev, c_cust = st.columns(2)
                         with c_rev:
-                             st.write(f"**💰 Revenue Sources:** {bus['revenue_sources']}")
-                             st.markdown(f"**🏷️ Pricing Power:** {bus['pricing_power']}")
+                             st.write(f"**Revenue Sources:** {bus['revenue_sources']}")
+                             st.markdown(f"**Pricing Power:** {bus['pricing_power']}")
                         
                         with c_cust:
-                             st.subheader("👥 Customer Ecosystem")
+                             st.subheader("Customer Ecosystem")
                              st.info(f"**Dependence Level:** {cust.get('dependence_level', '-')}")
                              if 'key_customers' in cust:
                                  for c in cust['key_customers']:
-                                     st.write(f"👤 {c}")
+                                     st.write(f"- {c}")
 
                         st.markdown("---")
-                        st.subheader("🔭 Outlook")
+                        st.subheader("Outlook")
                         c_bull, c_bear = st.columns(2)
                         with c_bull: 
                             st.success(f"**Bull Case:** {data['long_term_outlook']['bull_case']}")
@@ -2641,19 +2641,19 @@ def page_ai_analysis():
 
                     with t_ind:
                         ind = data.get('industry_overview', {})
-                        st.subheader("🌏 Industry Landscape")
+                        st.subheader("Industry Landscape")
                         st.markdown(ind.get('industry_landscape', '-'))
                         
-                        st.markdown("### 🔮 Sector Outlook")
+                        st.markdown("### Sector Outlook")
                         st.info(ind.get('sector_outlook', '-'))
                         
                         c_d, c_m = st.columns(2)
                         with c_d:
-                            st.subheader("🚀 Growth Drivers")
+                            st.subheader("Growth Drivers")
                             for d in ind.get('growth_drivers', []):
-                                st.success(f"📈 {d}")
+                                st.success(f"- {d}")
                         with c_m:
-                            st.subheader("🍰 Market Share")
+                            st.subheader("Market Share")
                             st.markdown(ind.get('market_share_analysis', '-'))
 
                     with t_mgmt:
@@ -2786,7 +2786,7 @@ def page_glossary():
         
         for key, data in SETTINGS_DATA.items():
             content = data[lang]
-            with st.expander(f"⚙️ {content['title']}"):
+            with st.expander(f"{content['title']}"):
                 st.write(content['desc'])
                 for line in content['details']:
                     st.markdown(f"- {line}")
@@ -2908,11 +2908,11 @@ def page_glossary():
 
         for key, data in METRICS_DATA.items():
             content = data[lang]
-            with st.expander(f"📊 {content['title']} - {content['concept']}"):
+            with st.expander(f"{content['title']} - {content['concept']}"):
                 st.write(content['desc'])
                 st.info(f"Target: {content['rule']}")
                 if 'guru' in content:
-                    st.warning(f"💬 {content['guru']}")
+                    st.warning(f"{content['guru']}")
                 st.markdown(content['formula'])
 
 
@@ -2920,19 +2920,19 @@ def page_glossary():
     # 3. PETER LYNCH
     # ==========================================
     with tab3:
-        st.markdown("### 🧠 The Six Categories of Peter Lynch")
+        st.markdown("### The Six Categories of Peter Lynch")
         st.caption("From the book 'One Up on Wall Street'. Knowing what you own is key.")
         
         LYNCH_DATA = {
             'FastGrower': {
                 'EN': {
-                    'title': "🚀 Fast Growers",
+                    'title': "Fast Growers",
                     'desc': "Aggressive growth companies (20-25% a year).",
                     'strat': "The big winners. Land of the 10-baggers. Volatile but rewarding.",
                     'risk': "If growth slows, price crashes hard."
                 },
                 'TH': {
-                    'title': "🚀 Fast Growers (หุ้นโตเร็ว)",
+                    'title': "Fast Growers (หุ้นโตเร็ว)",
                     'desc': "บริษัทขนาดเล็ก-กลาง ที่เติบโตปีละ 20-25%",
                     'strat': "นี่คือกลุ่มที่จะเปลี่ยนชีวิต (10 เด้ง) ซื้อเมื่อยังโต ขายเมื่อหยุดโต",
                     'risk': "ถ้าไตรมาสไหนโตน้อยกว่าคาด ราคาจะร่วงหนักมาก"
@@ -2940,13 +2940,13 @@ def page_glossary():
             },
             'Stalwart': {
                 'EN': {
-                    'title': "🐘 Stalwarts",
+                    'title': "Stalwarts",
                     'desc': "Large, old companies (Coca-Cola, PTT). Grow 10-12%.",
                     'strat': "Buy for recession protection and steady 30-50% gains.",
                     'risk': "Don't expect them to double quickly."
                 },
                 'TH': {
-                    'title': "🐘 Stalwarts (หุ้นแข็งแกร่ง)",
+                    'title': "Stalwarts (หุ้นแข็งแกร่ง)",
                     'desc': "ยักษ์ใหญ่ที่โตช้าลง (10-12%) เช่น PTT, SCC, Coke",
                     'strat': "เอาไว้หลบภัยเศรษฐกิจ กินกำไรเรื่อยๆ 30-50% พอได้ ไม่หวือหวา",
                     'risk': "อย่าไปหวังให้มันโตเป็นเด้งในเวลาสั้นๆ"
@@ -2954,13 +2954,13 @@ def page_glossary():
             },
             'SlowGrower': {
                 'EN': {
-                    'title': "🐢 Slow Growers",
+                    'title': "Slow Growers",
                     'desc': "Grow slightly faster than GDP. Usually pay high dividends.",
                     'strat': "Buy for the Dividend Yield only.",
                     'risk': "Capital appreciation is minimal."
                 },
                 'TH': {
-                    'title': "🐢 Slow Growers (หุ้นโตช้า)",
+                    'title': "Slow Growers (หุ้นโตช้า)",
                     'desc': "โตเท่าๆกับ GDP ประเทศ เน้นจ่ายปันผล",
                     'strat': "ซื้อเพื่อกินปันผลอย่างเดียว อย่าหวังส่วนต่างราคา",
                     'risk': "ถ้าราคาไม่ขึ้น และปันผลก็งด = จบเห่"
@@ -2968,13 +2968,13 @@ def page_glossary():
             },
             'Cyclical': {
                 'EN': {
-                    'title': "🔄 Cyclicals",
+                    'title': "Cyclicals",
                     'desc': "Rise and fall with the economy (Cars, Steel, Airlines).",
                     'strat': "Timing is everything. Buy when P/E is HIGH (earnings low), Sell when P/E is LOW.",
                     'risk': "Holding them at the wrong cycle can lose 80%."
                 },
                 'TH': {
-                    'title': "🔄 Cyclicals (หุ้นวัฏจักร)",
+                    'title': "Cyclicals (หุ้นวัฏจักร)",
                     'desc': "กำไรขึ้นลงตามรอบศก. (น้ำมัน, เรือ, เหล็ก)",
                     'strat': "จังหวะคือทุกอย่าง! ซื้อเมื่อ P/E สูง (กำไรตกต่ำสุดขีด) ขายเมื่อ P/E ต่ำ",
                     'risk': "ถ้าถือผิดรอบ อาจขาดทุนยับและรอนานเป็นปีกว่าจะหลุดดอย"
@@ -2982,13 +2982,13 @@ def page_glossary():
             },
              'AssetPlay': {
                 'EN': {
-                    'title': "🏰 Asset Plays",
+                    'title': "Asset Plays",
                     'desc': "Company sitting on valuable assets (Land, Cash) worth more than stock price.",
                     'strat': "Buy and wait for the value to be unlocked.",
                     'risk': "The 'Value Trap'. Management might never sell the assets."
                 },
                 'TH': {
-                    'title': "🏰 Asset Plays (หุ้นทรัพย์สินมาก)",
+                    'title': "Asset Plays (หุ้นทรัพย์สินมาก)",
                     'desc': "มีที่ดิน, เงินสด หรือของมีค่า ที่มูลค่ามากกว่าราคาหุ้นทั้งบริษัท",
                     'strat': "ซื้อแล้วรอให้ตลาดรับรู้ หรือมีการขายสินทรัพย์",
                     'risk': "อาจจะเป็นกับดัก ถ้าผู้บริหารกอดสมบัติไว้ไม่ยอมทำอะไร"
@@ -3131,8 +3131,8 @@ def page_scanner():
              selected_sectors = st.multiselect(get_text('sector_label'), SECTORS, default=[])
             
              LYNCH_TYPES = [
-                "🚀 Fast Grower", "🏰 Asset Play", "🐢 Slow Grower", 
-                "🐘 Stalwart", "🔄 Cyclical", "😐 Average", "⚪ Unknown"
+                "Fast Grower", "Asset Play", "Slow Grower", 
+                "Stalwart", "Cyclical", "Average", "Unknown"
             ]
              selected_lynch = st.multiselect(get_text('lynch_label'), LYNCH_TYPES, default=[])
 
@@ -3396,15 +3396,15 @@ def page_portfolio():
             
             # CHARGE QUOTA (Success)
             auth_mongo.increment_quota(user_id, 'wealth')
-            st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
+            st.toast(f"Usage: {count+1}/{limit}")
             
-            status_box.update(label="✅ Analysis Complete!", state="complete")
+            status_box.update(label="Analysis Complete!", state="complete")
             
             # --- AUTO SAVE PORTFOLIO ---
             user_id = st.session_state.get('username')
             if user_id:
                 auth_mongo.save_portfolio(user_id, plan)
-                st.toast("Portfolio Saved to Profile!", icon="💾")
+                st.toast("Portfolio Saved to Profile!")
 
             
             # --- RENDER RESULTS ---
@@ -3418,7 +3418,7 @@ def page_portfolio():
                 k2.success(f"**Est. CAGR**: {ana.get('expected_return_cagr', 'N/A')}")
                 k3.warning(f"**Max Drawdown Limit**: -{risk_tol}%")
                 
-                st.write(f"### 💡 Professional Advice")
+                st.write(f"### Professional Advice")
                 st.write(ana['advice_summary'])
                 
             st.markdown("---")
@@ -3457,10 +3457,10 @@ def page_portfolio():
                 )
                 
             # Disclaimer
-            st.caption("⚠️ **Disclaimer**: This portfolio is generated by AI for educational purposes only. It does not constitute financial advice. Please do your own research before investing.")
+            st.caption("**Disclaimer**: This portfolio is generated by AI for educational purposes only. It does not constitute financial advice. Please do your own research before investing.")
 
         except Exception as e:
-            status_box.update(label="❌ Error generating plan", state="error")
+            status_box.update(label="Error generating plan", state="error")
             st.error(f"AI Error: {str(e)}")
 
 
@@ -3591,7 +3591,7 @@ def page_health():
         api_key = st.secrets['GEMINI_API_KEY']
         genai.configure(api_key=api_key)
         
-        status_box = st.status("🧠 " + get_text('ai_thinking'), expanded=True)
+        status_box = st.status(get_text('ai_thinking'), expanded=True)
         
         try:
             model = genai.GenerativeModel("models/gemini-3-flash-preview") # optimized for speed/cost, or use pro if needed
@@ -3671,16 +3671,16 @@ def page_health():
             
             # CHARGE QUOTA (Success)
             auth_mongo.increment_quota(user_id, 'health')
-            st.toast(f"Usage: {count+1}/{limit}", icon="🎫")
+            st.toast(f"Usage: {count+1}/{limit}")
             
-            status_box.update(label="✅ Diagnosis Complete!", state="complete")
+            status_box.update(label="Diagnosis Complete!", state="complete")
             
             # --- AUTO SAVE HEALTH CHECK ---
             user_id = st.session_state.get('username') 
             if user_id:
                 # We save the raw input DF (structure) + the AI Analysis text/score
                 auth_mongo.save_health_check(user_id, edited_df, result.get('portfolio_summary', 'No Summary'), result.get('portfolio_score', 'N/A'), result.get('stocks', []))
-                st.toast("Health Check Saved to Profile!", icon="💾")
+                st.toast("Health Check Saved to Profile!")
 
             
             # --- 3. RENDER RESULTS ---
@@ -3690,11 +3690,11 @@ def page_health():
             st.metric("Portfolio Health Score", f"{score}/100")
             st.progress(score / 100)
             
-            st.write(f"### 📝 {get_text('backtest_summary')}")
+            st.write(f"### {get_text('backtest_summary')}")
             st.info(result.get('portfolio_summary', ''))
             
             st.markdown("---")
-            st.subheader("🔬 Indivdual Stock Diagnosis")
+            st.subheader("Indivdual Stock Diagnosis")
             
             for item in result.get('stocks', []):
                 with st.expander(f"**{item['symbol']}** - {item['verdict']}", expanded=True):
@@ -3710,13 +3710,13 @@ def page_health():
                         st.write(f"**Reason:** {item['action_reason']}")
                         
                     with c2:
-                        st.write(f"**🌊 Mega Trend:** {item['mega_trend']}")
-                        st.write(f"**🚀 Growth Driver:** {item['growth_driver']}")
-                        st.write(f"**🏰 Moat/Market:** {item['moat_opportunity']}")
-                        st.write(f"**🌍 Macro:** {item['macro_context']}")
+                        st.write(f"**Mega Trend:** {item['mega_trend']}")
+                        st.write(f"**Growth Driver:** {item['growth_driver']}")
+                        st.write(f"**Moat/Market:** {item['moat_opportunity']}")
+                        st.write(f"**Macro:** {item['macro_context']}")
 
         except Exception as e:
-            status_box.update(label="❌ Error", state="error")
+            status_box.update(label="Error", state="error")
             st.error(f"Analysis Failed: {str(e)}")
 
 
@@ -3726,18 +3726,18 @@ def page_health():
 # PAGE: PROFILES
 # ---------------------------------------------------------
 def page_profile(cookie_manager=None):
-    st.markdown("## 👤 My Profile")
+    st.markdown("## My Profile")
     
     # --- HEADER ---
     c1, c2 = st.columns([1, 4])
     with c1:
         # Placeholder Avatar
         st.write("")
-        st.markdown("<div style='text-align:center; font_size: 60px;'>👤</div>", unsafe_allow_html=True) 
+        st.markdown("<div style='text-align:center; font_size: 60px;'>User</div>", unsafe_allow_html=True) 
     with c2:
         st.write(f"### {st.session_state.get('user_name', 'User')}")
         st.caption(f"Member Tier: **{st.session_state.get('tier','standard').upper()}**")
-        if st.button("🚪 Logout", key="profile_logout"):
+        if st.button("Logout", key="profile_logout"):
             if cookie_manager:
                 cookie_manager.delete('user_session')
             st.session_state.clear()
@@ -3745,7 +3745,7 @@ def page_profile(cookie_manager=None):
 
     st.markdown("---")
 
-    tab_hist, tab_acc = st.tabs(["📜 History", "⚙️ Account Settings"])
+    tab_hist, tab_acc = st.tabs(["History", "Account Settings"])
 
     # --- HISTORY TAB ---
     with tab_hist:
@@ -3761,7 +3761,7 @@ def page_profile(cookie_manager=None):
                     st.info("No saved portfolios yet.")
                 else:
                     for p in ports:
-                        with st.expander(f"📁 {p['name']} ({p['created_at'].strftime('%Y-%m-%d %H:%M')})"):
+                        with st.expander(f"{p['name']} ({p['created_at'].strftime('%Y-%m-%d %H:%M')})"):
                             # Simple View
                             summary = p.get('data', {}).get('analysis', {}).get('advice_summary', 'No summary')
                             st.info(summary)
@@ -3793,7 +3793,7 @@ def page_profile(cookie_manager=None):
                             if str(val).startswith("A"): gpa_color = "green"
                             elif str(val).startswith("B"): gpa_color = "orange"
 
-                        with st.expander(f"🩺 {c['name']} - :{gpa_color}[{label_text}]"):
+                        with st.expander(f"{c['name']} - :{gpa_color}[{label_text}]"):
                             st.write(c.get('analysis'))
                             st.caption("Input Data:")
                             st.dataframe(pd.DataFrame(c.get('portfolio_json')))
@@ -3801,7 +3801,7 @@ def page_profile(cookie_manager=None):
                             details = c.get('details', [])
                             if details:
                                 st.markdown("---")
-                                st.subheader("🔬 Diagnosis")
+                                st.subheader("Diagnosis")
                                 for item in details:
                                     with st.container():
                                         st.markdown(f"**{item['symbol']}** - {item['verdict']}")
@@ -3878,9 +3878,9 @@ if __name__ == "__main__":
     
     # DYNAMIC LAST TAB: Login (Guest) vs Profile (User)
     if st.session_state['authenticated']:
-        tab_names.append("👤 Profile")
+        tab_names.append("Profile")
     else:
-        tab_names.append("🔐 Login")
+        tab_names.append("Login")
     
     tabs = st.tabs(tab_names) 
 
@@ -3901,8 +3901,8 @@ if __name__ == "__main__":
             st.info("Guest Mode. Please Login in the top-right tab.")
 
         st.divider()
-        st.caption("🔧 System Tools")
-        if st.button("🗑️ Clear Cache", use_container_width=True):
+        st.caption("System Tools")
+        if st.button("Clear Cache", use_container_width=True):
             st.cache_data.clear()
             st.session_state.clear()
             st.rerun()
@@ -3927,17 +3927,17 @@ if __name__ == "__main__":
         
         c1, c2, c3 = st.columns([1, 1, 1])
         with c2:
-            st.warning(f"🔒 **{feature_name}** is a Professional Feature.")
+            st.warning(f"**{feature_name}** is a Professional Feature.")
             
             st.write("")
             st.write("")
             
             # CARD UI
-            st.markdown(f"<h3 style='text-align: center;'>🔐 Access Required</h3>", unsafe_allow_html=True)
+            st.markdown(f"<h3 style='text-align: center;'>Access Required</h3>", unsafe_allow_html=True)
             
             # We use a container for spacing/width control naturally via columns
             with st.container():
-                tab_login, tab_signup = st.tabs(["🔒 Log In", "📝 Register"])
+                tab_login, tab_signup = st.tabs(["Log In", "Register"])
                 
                 with tab_login:
                     with st.form(f"login_form_{feature_name}"):
@@ -4012,7 +4012,7 @@ if __name__ == "__main__":
                 page_profile(cookie_manager)
             else:
                 # Render Standalone Login Page
-                st.markdown("<h2 style='text-align: center;'>🔐 Member Login</h2>", unsafe_allow_html=True)
+                st.markdown("<h2 style='text-align: center;'>Member Login</h2>", unsafe_allow_html=True)
                 
                 # Use columns to center
                 cl, cc, cr = st.columns([1, 2, 1])

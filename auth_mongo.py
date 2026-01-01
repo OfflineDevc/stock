@@ -10,7 +10,7 @@ import re
 def init_connection():
     try:
         if 'MONGO_URI' not in st.secrets:
-            # st.error("🚨 Missing 'MONGO_URI' in .streamlit/secrets.toml")
+            # st.error("Missing 'MONGO_URI' in .streamlit/secrets.toml")
             return None
         return pymongo.MongoClient(st.secrets["MONGO_URI"])
     except Exception as e:
@@ -161,7 +161,7 @@ def check_quota(username, feature_name):
     pro_features = ['ai_analysis', 'wealth', 'health']
     
     if tier == 'standard' and feature_name in pro_features:
-        return False, "🔒 Upgrade to Pro to use this feature.", 0, 0
+        return False, "Upgrade to Pro to use this feature.", 0, 0
 
     # --- QUOTA LIMITS ---
     LIMIT = 3 # 3 times per day for both Standard and Pro
@@ -176,7 +176,7 @@ def check_quota(username, feature_name):
         current_count = usage_doc[feature_name]
         
     if current_count >= LIMIT:
-        return False, f"⚠️ Daily limit reached ({LIMIT}/{LIMIT}). Come back tomorrow!", current_count, LIMIT
+        return False, f"Daily limit reached ({LIMIT}/{LIMIT}). Come back tomorrow!", current_count, LIMIT
         
     return True, "Access Granted", current_count, LIMIT
 
