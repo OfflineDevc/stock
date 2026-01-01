@@ -3869,12 +3869,70 @@ if __name__ == "__main__":
             st.session_state.clear()
             st.rerun()
 
-    # --- HELPER: LOCKED OVERLAY ---
-    def render_locked_overlay(feature_name):
-        st.warning(f"🔒 **Login Required** to access {feature_name}")
-        st.info("Please Log In or Sign Up in the Sidebar to unlock professional tools.")
-        st.markdown("---")
-        st.markdown("<div style='filter: blur(4px); pointer-events: none; opacity: 0.4;'>", unsafe_allow_html=True)
+    # --- HELPER: STRICT LOGIN CARD ---
+    def render_login_card(feature_name):
+        # CSS to center the login card and create a blurred background effect
+        st.markdown("""
+            <style>
+            .login-container {
+                display: flex; 
+                justify-content: center; 
+                align-items: center;
+                height: 70vh;
+                width: 100%;
+                background: rgba(255, 255, 255, 0.6);
+                backdrop-filter: blur(10px);
+                border-radius: 20px;
+                border: 1px solid rgba(255, 255, 255, 0.3);
+            }
+            .stTabs {
+                background: white;
+                padding: 30px;
+                border-radius: 15px;
+                box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+                width: 400px;
+            }
+            </style>
+        """, unsafe_allow_html=True)
+        
+        c1, c2, c3 = st.columns([1, 2, 1])
+        with c2:
+            st.warning(f"🔒 **{feature_name}** is a Professional Feature.")
+            
+            # Use columns to mimic centering vertical (via padding used above or simple spacing)
+            st.write("")
+            st.write("")
+            
+            # CARD UI
+            st.markdown(f"<h3 style='text-align: center;'>🔐 Access Required</h3>", unsafe_allow_html=True)
+            
+            tab_login, tab_signup = st.tabs(["🔒 Log In", "📝 Register"])
+            
+            with tab_login:
+                with st.form(f"login_form_{feature_name}"):
+                    username = st.text_input("Username")
+                    password = st.text_input("Password", type="password")
+                    if st.form_submit_button("Log In", use_container_width=True, type="primary"):
+                        success, name, tier = auth_mongo.check_login(username, password)
+                        if success:
+                            st.session_state['authenticated'] = True
+                            st.session_state['user_name'] = name
+                            st.session_state['username'] = username
+                            st.session_state['tier'] = tier
+                            st.success(f"Welcome {name}!")
+                            st.rerun()
+                        else:
+                            st.error("Invalid Credentials")
+
+            with tab_signup:
+                with st.form(f"signup_form_{feature_name}"):
+                    new_user = st.text_input("Choose Username")
+                    new_name = st.text_input("Display Name")
+                    new_pass = st.text_input("Password", type="password")
+                    if st.form_submit_button("Sign Up", use_container_width=True):
+                        success, msg = auth_mongo.sign_up(new_user, new_pass, new_name)
+                        if success: st.success(msg)
+                        else: st.error(msg)
         return True
 
     # --- PAGES ---
@@ -3884,34 +3942,27 @@ if __name__ == "__main__":
     
     with tabs[1]:
         if not st.session_state['authenticated']:
-            render_locked_overlay("Scanner")
-            page_scanner()
-            st.markdown("</div>", unsafe_allow_html=True)
+            render_login_card("Scanner")
         else: page_scanner()
 
     with tabs[2]:
         if not st.session_state['authenticated']:
-             render_locked_overlay("AI Analysis")
-             st.markdown("</div>", unsafe_allow_html=True)
+             render_login_card("AI Analysis")
         else: page_ai_analysis()
              
     with tabs[3]:
         if not st.session_state['authenticated']:
-            render_locked_overlay("Deep Dive")
-            page_single_stock()
-            st.markdown("</div>", unsafe_allow_html=True)
+            render_login_card("Deep Dive")
         else: page_single_stock()
 
     with tabs[4]:
         if not st.session_state['authenticated']:
-            render_locked_overlay("Wealth")
-            st.markdown("</div>", unsafe_allow_html=True)
+            render_login_card("Wealth")
         else: page_portfolio()
             
     with tabs[5]:
         if not st.session_state['authenticated']:
-             render_locked_overlay("HealthDeck")
-             st.markdown("</div>", unsafe_allow_html=True)
+             render_login_card("HealthDeck")
         else: page_health()
             
     with tabs[6]:
