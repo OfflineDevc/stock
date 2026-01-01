@@ -3146,7 +3146,7 @@ def page_scanner():
             targets = [('PEG', val_peg, '<'), ('PE', val_pe, '<'), ('ROE', prof_roe, '>'),
                        ('Op_Margin', prof_margin, '>'), ('Div_Yield', prof_div, '>'), ('Debt_Equity', risk_de, '<')]
         
-        # 6. Calc Score
+        # 6. Calc Score 
         results = filtered.apply(lambda row: calculate_fit_score(row, targets), axis=1, result_type='expand')
         if not filtered.empty:
             filtered['Fit_Score'] = results[0]
