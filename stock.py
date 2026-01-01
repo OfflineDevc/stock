@@ -3886,8 +3886,8 @@ if __name__ == "__main__":
     tab_names = [
         get_text('nav_home'),
         get_text('nav_scanner'),
-        get_text('nav_ai'),
         get_text('nav_single'),
+        get_text('nav_ai'),
         get_text('aifolio_title'),
         get_text('nav_health'),
         get_text('nav_glossary')
@@ -3997,13 +3997,13 @@ if __name__ == "__main__":
 
     with tabs[2]:
         if not st.session_state['authenticated']:
-             render_login_card("AI Analysis")
-        else: page_ai_analysis()
-             
-    with tabs[3]:
-        if not st.session_state['authenticated']:
             render_login_card("Deep Dive")
         else: page_single_stock()
+
+    with tabs[3]:
+        if not st.session_state['authenticated']:
+             render_login_card("AI Analysis")
+        else: page_ai_analysis()
 
     with tabs[4]:
         if not st.session_state['authenticated']:
