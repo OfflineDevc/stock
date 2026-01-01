@@ -8,6 +8,8 @@ import requests
 import xml.etree.ElementTree as ET
 
 import datetime
+from datetime import timedelta
+import extra_streamlit_components as stx
 
 from deep_translator import GoogleTranslator
 import google.generativeai as genai
@@ -3712,7 +3714,7 @@ def page_health():
 # ---------------------------------------------------------
 # PAGE: PROFILES
 # ---------------------------------------------------------
-def page_profile():
+def page_profile(cookie_manager=None):
     st.markdown("## 👤 My Profile")
     
     # --- HEADER ---
@@ -3725,6 +3727,8 @@ def page_profile():
         st.write(f"### {st.session_state.get('user_name', 'User')}")
         st.caption(f"Member Tier: **{st.session_state.get('tier','standard').upper()}**")
         if st.button("🚪 Logout", key="profile_logout"):
+            if cookie_manager:
+                cookie_manager.delete('user_session')
             st.session_state.clear()
             st.rerun()
 
@@ -3789,11 +3793,26 @@ def page_profile():
 if __name__ == "__main__":
     inject_custom_css() 
     
+    # --- COOKIE MANAGER (Persistence) ---
+    cookie_manager = stx.CookieManager()
+    
     # Init Auth State
     if 'authenticated' not in st.session_state:
         st.session_state['authenticated'] = False
         st.session_state['tier'] = 'standard'
         
+        # Check Cookie for Auto-Login
+        cookie_user = cookie_manager.get('user_session')
+        if cookie_user:
+            # Verify user exists and get tier (Simple Trust for now as requested)
+            tier = auth_mongo.get_user_tier(cookie_user)
+            st.session_state['authenticated'] = True
+            st.session_state['user_name'] = cookie_user # Should fetch real name but cookie has ID.
+            st.session_state['username'] = cookie_user
+            st.session_state['tier'] = tier
+            # No rerun needed here usually, but if state changes drastically...
+            # st.rerun() 
+
     if 'tier' not in st.session_state:
         st.session_state['tier'] = 'standard'
     
@@ -3888,7 +3907,13 @@ if __name__ == "__main__":
                                 st.session_state['user_name'] = name
                                 st.session_state['username'] = username
                                 st.session_state['tier'] = tier
+                                
+                                # SET COOKIE (8 Hours)
+                                expires = datetime.datetime.now() + timedelta(hours=8)
+                                cookie_manager.set('user_session', username, expires_at=expires)
+                                
                                 st.success(f"Welcome {name}!")
+                                time.sleep(0.5)
                                 st.rerun()
                             else:
                                 st.error("Invalid Credentials")
@@ -3941,7 +3966,7 @@ if __name__ == "__main__":
     if len(tabs) > 7:
         with tabs[7]:
             if st.session_state['authenticated']:
-                page_profile()
+                page_profile(cookie_manager)
             else:
                 # Render Standalone Login Page
                 st.markdown("<h2 style='text-align: center;'>🔐 Member Login</h2>", unsafe_allow_html=True)
@@ -3958,12 +3983,18 @@ if __name__ == "__main__":
                             password = st.text_input("Password", type="password")
                             if st.form_submit_button("Log In", use_container_width=True, type="primary"):
                                 success, name, tier = auth_mongo.check_login(username, password)
-                                if success:
+                            if success:
                                     st.session_state['authenticated'] = True
                                     st.session_state['user_name'] = name
                                     st.session_state['username'] = username
                                     st.session_state['tier'] = tier
+                                    
+                                    # SET COOKIE
+                                    expires = datetime.datetime.now() + timedelta(hours=8)
+                                    cookie_manager.set('user_session', username, expires_at=expires)
+                                    
                                     st.success(f"Welcome {name}!")
+                                    time.sleep(0.5)
                                     st.rerun()
                                 else:
                                     st.error("Invalid Credentials")
