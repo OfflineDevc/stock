@@ -3814,9 +3814,11 @@ if __name__ == "__main__":
         get_text('nav_glossary')
     ]
     
-    # Add Profile Tab if Authenticated
+    # DYNAMIC LAST TAB: Login (Guest) vs Profile (User)
     if st.session_state['authenticated']:
         tab_names.append("👤 Profile")
+    else:
+        tab_names.append("🔐 Login")
     
     tabs = st.tabs(tab_names) 
 
@@ -3827,40 +3829,14 @@ if __name__ == "__main__":
     with c_lang:
         lang_choice = st.radio(get_text('lang_label'), ["English (EN)", "Thai (TH)"], horizontal=True, label_visibility="collapsed", key="lang_choice_key")
 
-    # --- SIDEBAR (Login Only) ---
+    # --- SIDEBAR (Tools Only) ---
     with st.sidebar:
         st.divider()
-        if not st.session_state['authenticated']:
-            st.info("Member Login")
-            with st.form("sidebar_login"):
-                username = st.text_input("Username")
-                password = st.text_input("Password", type="password")
-                if st.form_submit_button("Log In"):
-                    success, name, tier = auth_mongo.check_login(username, password)
-                    if success:
-                        st.session_state['authenticated'] = True
-                        st.session_state['user_name'] = name
-                        st.session_state['username'] = username # Store ID for DB calls
-                        st.session_state['tier'] = tier
-                        st.success("Login Success!")
-                        st.rerun()
-                    else:
-                        st.error("Invalid Credentials")
-            
-            with st.expander("New User? Sign Up"):
-                with st.form("sidebar_signup"):
-                    new_user = st.text_input("Username")
-                    new_name = st.text_input("Display Name")
-                    new_pass = st.text_input("Password", type="password")
-                    if st.form_submit_button("Sign Up"):
-                        success, msg = auth_mongo.sign_up(new_user, new_pass, new_name)
-                        if success: st.success(msg)
-                        else: st.error(msg)
-        else:
-            # Minimized Sidebar for Logged In Users
+        if st.session_state['authenticated']:
             st.success(f"Logged in as {st.session_state.get('user_name')}")
             st.caption(f"Tier: {st.session_state.get('tier', 'Standard').upper()}")
-            st.info("Go to 'Profile' tab for settings & history.")
+        else:
+            st.info("Guest Mode. Please Login in the top-right tab.")
 
         st.divider()
         st.caption("🔧 System Tools")
@@ -3968,9 +3944,45 @@ if __name__ == "__main__":
     with tabs[6]:
         page_glossary()
 
-    # Profile Tab (Index 7)
-    if st.session_state['authenticated'] and len(tabs) > 7:
+    # DYNAMIC TAB CONTENT (Index 7)
+    if len(tabs) > 7:
         with tabs[7]:
-            page_profile()
+            if st.session_state['authenticated']:
+                page_profile()
+            else:
+                # Render Standalone Login Page
+                st.markdown("<h2 style='text-align: center;'>🔐 Member Login</h2>", unsafe_allow_html=True)
+                
+                # Use columns to center
+                cl, cc, cr = st.columns([1, 2, 1])
+                with cc:
+                   st.info("Log In to access professional features.")
+                   
+                   l_tab1, l_tab2 = st.tabs(["Log In", "Sign Up"])
+                   with l_tab1:
+                        with st.form("main_login_form"):
+                            username = st.text_input("Username")
+                            password = st.text_input("Password", type="password")
+                            if st.form_submit_button("Log In", use_container_width=True, type="primary"):
+                                success, name, tier = auth_mongo.check_login(username, password)
+                                if success:
+                                    st.session_state['authenticated'] = True
+                                    st.session_state['user_name'] = name
+                                    st.session_state['username'] = username
+                                    st.session_state['tier'] = tier
+                                    st.success(f"Welcome {name}!")
+                                    st.rerun()
+                                else:
+                                    st.error("Invalid Credentials")
+                                    
+                   with l_tab2:
+                       with st.form("main_signup_form"):
+                           new_user = st.text_input("Choose Username")
+                           new_name = st.text_input("Display Name")
+                           new_pass = st.text_input("Password", type="password")
+                           if st.form_submit_button("Create Account", use_container_width=True):
+                               success, msg = auth_mongo.sign_up(new_user, new_pass, new_name)
+                               if success: st.success(msg)
+                               else: st.error(msg)
 
         

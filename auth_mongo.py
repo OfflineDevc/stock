@@ -68,7 +68,7 @@ def check_login(username, password):
 
 def change_password(username, old_pass, new_pass):
     db = get_db()
-    if not db: return False, "Database Error"
+    if db is None: return False, "Database Error"
     
     user = db.users.find_one({'username': username})
     if not user: return False, "User not found"
@@ -87,7 +87,7 @@ def change_password(username, old_pass, new_pass):
 def save_health_check(username, input_df, analysis_text, gpa):
     """Save HealthDeck Analysis Result"""
     db = get_db()
-    if not db: return False
+    if db is None: return False
     
     doc = {
         'username': username,
@@ -102,14 +102,14 @@ def save_health_check(username, input_df, analysis_text, gpa):
 
 def get_health_history(username):
     db = get_db()
-    if not db: return []
+    if db is None: return []
     return list(db.health_history.find({'username': username}).sort('created_at', -1))
 
 # --- TIER & QUOTA MANAGEMENT ---
 
 def get_user_tier(username):
     db = get_db()
-    if not db: return 'standard'
+    if db is None: return 'standard'
     user = db.users.find_one({'username': username})
     return user.get('tier', 'standard') if user else 'standard'
 
@@ -119,7 +119,7 @@ def check_quota(username, feature_name):
     Returns: (Allowed: bool, Message: str, UsageCount: int, MaxLimit: int)
     """
     db = get_db()
-    if not db: return True, "Offline", 0, 99
+    if db is None: return True, "Offline", 0, 99
 
     user = db.users.find_one({'username': username})
     if not user: return False, "User not found", 0, 0
@@ -157,7 +157,7 @@ def check_quota(username, feature_name):
 def increment_quota(username, feature_name):
     """Call this AFTER successfully running a feature."""
     db = get_db()
-    if not db: return
+    if db is None: return
     
     # Don't count for admins (optional, but let's track anyway or skip)
     # user = db.users.find_one({'username': username})
@@ -176,7 +176,7 @@ def increment_quota(username, feature_name):
 def save_portfolio(username, portfolio_data):
     """Save generated AI portfolio."""
     db = get_db()
-    if not db: return False
+    if db is None: return False
     
     doc = {
         'username': username,
@@ -190,7 +190,7 @@ def save_portfolio(username, portfolio_data):
 def get_user_portfolios(username):
     """Fetch user's saved portfolios."""
     db = get_db()
-    if not db: return []
+    if db is None: return []
     
     cursor = db.portfolios.find({'username': username}).sort('created_at', -1)
     return list(cursor)
