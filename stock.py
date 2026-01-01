@@ -3679,7 +3679,7 @@ def page_health():
             user_id = st.session_state.get('username') 
             if user_id:
                 # We save the raw input DF (structure) + the AI Analysis text/score
-                auth_mongo.save_health_check(user_id, edited_df, result.get('diagnosis_summary', 'No Summary'), result.get('portfolio_gpa', 'N/A'))
+                auth_mongo.save_health_check(user_id, edited_df, result.get('portfolio_summary', 'No Summary'), result.get('portfolio_score', 'N/A'))
                 st.toast("Health Check Saved to Profile!", icon="💾")
 
             
@@ -3778,11 +3778,22 @@ def page_profile(cookie_manager=None):
                     st.info("No health checks run yet.")
                 else:
                     for c in checks:
+                        val = c.get('gpa')
                         gpa_color = "red"
-                        if str(c.get('gpa')).startswith("A"): gpa_color = "green"
-                        elif str(c.get('gpa')).startswith("B"): gpa_color = "orange"
+                        label_text = str(val)
                         
-                        with st.expander(f"🩺 {c['name']} - GPA: :{gpa_color}[{c.get('gpa')}]"):
+                        # Handle Numeric Score (New) vs Legacy GPA String
+                        try:
+                            score = float(val)
+                            if score >= 80: gpa_color = "green"
+                            elif score >= 50: gpa_color = "orange"
+                            label_text = f"Score: {int(score)}/100"
+                        except:
+                            # Legacy String (e.g. A, B+)
+                            if str(val).startswith("A"): gpa_color = "green"
+                            elif str(val).startswith("B"): gpa_color = "orange"
+
+                        with st.expander(f"🩺 {c['name']} - :{gpa_color}[{label_text}]"):
                             st.write(c.get('analysis'))
                             st.caption("Input Data:")
                             st.dataframe(pd.DataFrame(c.get('portfolio_json')))
