@@ -228,7 +228,7 @@ TRANS = {
         'home_title': "Stockdeck",
         'nav_home': "Home",
         'home_welcome': "Welcome to Stockdeck",
-        'home_intro': "Stockdeck is your AI-Powered Investment Co-Pilot, designed to simplify professional-grade stock analysis.",
+        'home_intro': "Stockdeck is your AI-Powered Investment Analyser, designed to simplify professional-grade stock analysis.",
         'workflow_single': "🔍 **Single Thematic Analysis Workflow**",
         'workflow_single_desc': "For analyzing individual stocks, follow this proven path:",
         'workflow_port': "🏗️ **Portfolio Construction Workflow**",
