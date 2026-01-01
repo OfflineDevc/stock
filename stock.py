@@ -237,7 +237,7 @@ TRANS = {
         'feat_qai': "**2. StockDeck AI**: An LLM optimized for detailed fundamental analysis of companies.",
         'feat_qfin': "**3. Deep Dive (Financials)**: Check the raw financial numbers, analyst targets, and institutional holdings manually.",
         'feat_qwealth': "**Portfolio Architect**: Design a personalized portfolio based on your life goals using AI.",
-        'feat_qhealth': "**HealthDeck (Doctor)**: Perform a regular check-up on your portfolio health (Coming Soon).",
+        'feat_qhealth': "**HealthDeck (Doctor)**: Perform a detailed portfolio check-up using AI to analyze risks, compare with Mega Trends, and find hidden weaknesses.",
         'scan_limit': "Scan Limit",
         'results_header': "🏆 Top Picks (Deep Analyzed)",
         'stage1_msg': "📡 Stage 1: Fetching Universe...",
