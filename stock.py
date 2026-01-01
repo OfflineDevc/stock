@@ -3983,7 +3983,7 @@ if __name__ == "__main__":
                             password = st.text_input("Password", type="password")
                             if st.form_submit_button("Log In", use_container_width=True, type="primary"):
                                 success, name, tier = auth_mongo.check_login(username, password)
-                            if success:
+                                if success:
                                     st.session_state['authenticated'] = True
                                     st.session_state['user_name'] = name
                                     st.session_state['username'] = username
