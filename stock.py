@@ -3342,12 +3342,14 @@ def page_portfolio():
             - **Experience**: {experience}
             - **Liquidity Status**: {liquid}
             - **Constraints/Preferences**: {constraints}
-            
+             
             **INVESTMENT FRAMEWORK (Must Guide Selection):**
             1. **Mega Trend**: Prioritize "Sunrise" industries (AI, Healthcare, Green Energy) over "Sunset" ones (unless Deep Value).
             2. **Growth Driver**: Look for companies with a "New S-Curve" or new revenue engines.
             3. **Moat**: Prefer "Blue Ocean" or strong pricing power.
+            3. **Moat**: Prefer "Blue Ocean" or strong pricing power.
             4. **Macro**: Consider the economic cycle (Inflation/Rates). 
+            5. **Overlap & Concentration Check**: Check if the selected individual stocks are already Top 10 holdings in the selected ETFs. Moderate overlap is acceptable (High Conviction), but excessive overlap (Redundant Exposure) is inefficient. Warn if too much. 
 
             **TASK:**
             1. Analyze this profile using "Chain of Thought" reasoning.
@@ -3622,6 +3624,10 @@ def page_health():
                - **Demographic Destiny**: Aging Society (De-rating P/E) vs Young Society (Premium P/E).
                - **Zombie Index Check**: Has the country index EPS grown in 5 years?
                - **Fund Flow**: Currency stability and Foreign flow outlook.
+
+            5. **Dimension 5: Concentration & Overlap Risk (ETF check)**
+               - **Double Exposure**: Check if this stock is already a top holding in the ETFs held in the portfolio (e.g. holding AAPL + QQQ).
+               - **Verdict**: Moderate overlap is okay (High Conviction), but excessive overlap is a risk. Warn if the user is unknowingly over-exposed.
 
             **TASK:**
             1. Analyze every stock using the framework above.
