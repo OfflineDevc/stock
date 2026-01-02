@@ -3349,7 +3349,7 @@ def page_portfolio():
             3. **Moat**: Prefer "Blue Ocean" or strong pricing power.
             3. **Moat**: Prefer "Blue Ocean" or strong pricing power.
             4. **Macro**: Consider the economic cycle (Inflation/Rates). 
-            5. **Overlap & Concentration Check**: Check if the selected individual stocks are already Top 10 holdings in the selected ETFs. Moderate overlap is acceptable (High Conviction), but excessive overlap (Redundant Exposure) is inefficient. Warn if too much. 
+            5. **Overlap & Core-Satellite**: Use the **Core-Satellite** strategy. Core (ETFs) provides Beta, Satellite (Stocks) provides Alpha. **Overlap is ACCEPTABLE** if it represents an intentional 'Overweight' position on a high-conviction stock. Do not treat overlap as inherently bad. Only warn if it creates dangerous concentration risk. 
 
             **TASK:**
             1. Analyze this profile using "Chain of Thought" reasoning.
@@ -3625,9 +3625,9 @@ def page_health():
                - **Zombie Index Check**: Has the country index EPS grown in 5 years?
                - **Fund Flow**: Currency stability and Foreign flow outlook.
 
-            5. **Dimension 5: Concentration & Overlap Risk (ETF check)**
-               - **Double Exposure**: Check if this stock is already a top holding in the ETFs held in the portfolio (e.g. holding AAPL + QQQ).
-               - **Verdict**: Moderate overlap is okay (High Conviction), but excessive overlap is a risk. Warn if the user is unknowingly over-exposed.
+            5. **Dimension 5: Portfolio Structure (Core-Satellite)**
+               - **Concept**: Core (ETFs) for stability, Satellite (Stocks) for Alpha.
+               - **Overlap Analysis**: Holding a stock that is also in a Core ETF is **valid** (Intentional Overweight). Do not penalize for overlap unless it leads to extreme concentration risk. Determine if this 'Double Weighting' is justified by the stock's growth potential.
 
             **TASK:**
             1. Analyze every stock using the framework above.
