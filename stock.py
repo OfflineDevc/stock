@@ -3343,19 +3343,49 @@ def page_portfolio():
             - **Liquidity Status**: {liquid}
             - **Constraints/Preferences**: {constraints}
              
-            **INVESTMENT FRAMEWORK (Must Guide Selection):**
-            1. **Mega Trend**: Prioritize "Sunrise" industries (AI, Healthcare, Green Energy) over "Sunset" ones (unless Deep Value).
-            2. **Growth Driver**: Look for companies with a "New S-Curve" or new revenue engines.
-            3. **Moat**: Prefer "Blue Ocean" or strong pricing power.
-            3. **Moat**: Prefer "Blue Ocean" or strong pricing power.
-            4. **Macro**: Consider the economic cycle (Inflation/Rates). 
-            5. **Overlap & Core-Satellite**: Use the **Core-Satellite** strategy. Core (ETFs) provides Beta, Satellite (Stocks) provides Alpha. **Overlap is ACCEPTABLE** if it represents an intentional 'Overweight' position on a high-conviction stock. Do not treat overlap as inherently bad. Only warn if it creates dangerous concentration risk. 
+            **STRATEGIC KNOWLEDGE BASE (ARCHETYPES):**
+            
+            1. **Passive / Index (The Bogle Way)**:
+               - *Core*: "Don't try to beat the market."
+               - *Alloc*: 70-100% Index ETFs (VT, VTI, VOO), 0-30% Bonds (BND).
+               - *Rules*: Dollar Cost Average (DCA), Rebalance yearly. No timing.
+               - *Pitfalls*: Panic selling, over-tinkering.
+
+            2. **Value Investor (Buffett/Graham)**:
+               - *Core*: "Buy good business at a discount (Margin of Safety)."
+               - *Alloc*: 60-90% Value Stocks (Low PE/PB, High ROE), 10-40% Cash (Dry Powder).
+               - *Rules*: Focus on Moat, Low Debt. Hold 3-10 years.
+               - *Pitfalls*: Value Trap (dying business), selling too early.
+
+            3. **Growth Investor (Cathie Wood/VC)**:
+               - *Core*: "Pay up for future explosion."
+               - *Alloc*: 70-100% Growth Stocks, 0-30% Cash (for volatility buffer).
+               - *Rules*: Rev Growth >15%, Large TAM. Accept 40-60% drawdowns.
+               - *Pitfalls*: Buying hype/fads, holding slowing growth.
+
+            4. **Income Investor (Cash Flow)**:
+               - *Core*: "Port must feed me."
+               - *Alloc*: 30-50% Div Stocks, 20-40% REITs/Infra, 20-40% Bonds.
+               - *Rules*: Focus on "Dividend Growth" not just yield. Payout ratio check.
+               - *Pitfalls*: Yield Traps (unsustainable high yield), ignoring inflation.
+
+            5. **Balanced / Asset Allocation (Ray Dalio)**:
+               - *Core*: "All Weather."
+               - *Alloc*: 40-60% Stocks, 20-40% Bonds, 10-20% Gold/Alts.
+               - *Rules*: Rebalance strictly. Non-correlated assets.
+               - *Pitfalls*: Over-diversifying (Diworsification), fear of risk.
+
+            6. **Goal-Based**:
+               - *Core*: "Money serves life."
+               - *Short Term (1-3y)*: Cash/Bonds.
+               - *Medium (5-10y)*: Balanced.
+               - *Long/Retire*: Growth + Income layers.
 
             **TASK:**
-            1. Analyze this profile using "Chain of Thought" reasoning.
-            2. Design a portfolio allocation (Stocks/Asset Classes) regarding the Framework above.
-            3. Select specific TICKERS (US or Thai mostly, unless specified otherwise). IMPORTANT: For Thai stocks, YOU MUST append ".BK" (e.g., PTT.BK, CPALL.BK, ADVANC.BK). For US stocks, use standard tickers (e.g. AAPL, TSLA). 
-            4. Provide specific advice.
+            1. **Classify**: Match the user's profile to the BEST fitting Archetype above.
+            2. **Construct**: Design the portfolio following THAT archetype's specific Allocation & Rules.
+            3. **Select**: Pick tickers (US/Thai) that fit the Strategy (e.g. Value buys PTT/BBL, Growth buys DELTA/HANA).
+            4. **Advice**: Provide advice and warn about the specific **Pitfalls** of that strategy.
 
             **OUTPUT FORMAT:**
             Strictly JSON. No Markdown Code blocks.
@@ -3630,25 +3660,31 @@ def page_health():
                - **Overlap Analysis**: Holding a stock that is also in a Core ETF is **valid** (Intentional Overweight). Do not penalize for overlap unless it leads to extreme concentration risk. Determine if this 'Double Weighting' is justified by the stock's growth potential.
 
             **TASK:**
-            1. Analyze every stock using the framework above.
-            2. Assign a **Portfolio Health Score** (0-100).
-            3. Provide a **Verdict** for EACH stock: "SELL", "HOLD", or "ACCUMULATE".
-               - Suggest if they should convert to Cash to reinvest in better markets.
+            1. **Identify Strategy**: What is this portfolio TRYING to be? (e.g. Passive, Value, Growth, dividend).
+            2. **Dynamic Scoring**: Score it based on its OWN strategy. 
+               - A Value port should NOT be penalized for low growth if it has high quality.
+               - A Growth port should NOT be penalized for volatility if it has high growth.
+            3. **Path to 100**: Provide concrete steps to improve the score to 100. (e.g. "Sell Speculative Stock A, Buy Bond ETF B").
             
             **OUTPUT FORMAT:**
             Strictly JSON.
             {{
                 "portfolio_score": 75,
-                "portfolio_summary": "Overall assessment of the portfolio...",
+                "strategy_detected": "Growth Oriented (High Risk)",
+                "portfolio_summary": "Overall assessment...",
+                "path_to_100": [
+                    "Action 1: Sell X to reduce concentration.",
+                    "Action 2: Buy Y to fix lack of defensive assets."
+                ],
                 "stocks": [
                     {{
                         "symbol": "AAPL",
-                        "mega_trend": "Sunrise (AI/Services)...",
-                        "growth_driver": "New S-Curve in Services/Wearables...",
-                        "moat_opportunity": "Blue Ocean in ecosystem...",
-                        "macro_context": "US Economy strong...",
+                        "mega_trend": "Sunrise...",
+                        "growth_driver": "Services...",
+                        "moat_opportunity": "Global Ecosystem...",
+                        "macro_context": "...",
                         "verdict": "HOLD",
-                        "action_reason": "Strong moat but high valuation..."
+                        "action_reason": "..."
                     }},
                     ...
                 ]
@@ -3686,12 +3722,19 @@ def page_health():
             
             # Score
             score = result.get('portfolio_score', 0)
-            st.metric("Portfolio Health Score", f"{score}/100")
             st.progress(score / 100)
             
-            st.write(f"### {get_text('backtest_summary')}")
-            st.info(result.get('portfolio_summary', ''))
+            st.info(f"**Detected Strategy**: {result.get('strategy_detected', 'General')}")
             
+            st.write(f"### {get_text('backtest_summary')}")
+            st.write(result.get('portfolio_summary', ''))
+            
+            # Path to 100
+            if 'path_to_100' in result and result['path_to_100']:
+                with st.expander("🚀 Path to 100 (How to fix this metrics)", expanded=True):
+                    for step in result['path_to_100']:
+                        st.markdown(f"- {step}")
+
             st.markdown("---")
             st.subheader("Indivdual Stock Diagnosis")
             
