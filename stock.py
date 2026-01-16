@@ -3684,8 +3684,9 @@ def page_health():
         status_box = st.status(get_text('ai_thinking'), expanded=True)
         
         try:
-            model = genai.GenerativeModel("models/gemini-3-flash-preview") # optimized for speed/cost, or use pro if needed
-            
+        try:
+            model = genai.GenerativeModel("models/gemini-2.0-flash-exp") # Updated to 2.0 Flash Exp for stability
+
             # Construct Prompt
             portfolio_str = edited_df.to_json(orient="records")
             
@@ -3758,15 +3759,22 @@ def page_health():
             Response Language: {health_lang}
             """
             
-            
+            safety_settings = [
+                {"category": "HARM_CATEGORY_HARASSMENT", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_HATE_SPEECH", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_SEXUALLY_EXPLICIT", "threshold": "BLOCK_NONE"},
+                {"category": "HARM_CATEGORY_DANGEROUS_CONTENT", "threshold": "BLOCK_NONE"},
+            ]
+
             generation_config = genai.types.GenerationConfig(
                 temperature=0.1,
                 top_p=0.95,
                 top_k=40,
                 max_output_tokens=8192,
+                response_mime_type="application/json",
             )
             
-            response = model.generate_content(prompt, generation_config=generation_config)
+            response = model.generate_content(prompt, generation_config=generation_config, safety_settings=safety_settings)
             clean_json = response.text.replace("```json", "").replace("```", "").strip()
             result = json.loads(clean_json)
             
