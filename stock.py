@@ -3570,6 +3570,13 @@ def page_health():
             columns=["Symbol", "AvailVol", "Avg", "Market", "U.PL"]
         )
 
+    # --- GOAL INPUT ---
+    user_goal = st.text_input(
+        "🎯 Your Portfolio Goal / Strategy (Optional)", 
+        placeholder="e.g. Passive Income 5%/yr, Aggressive AI Growth, Capital Preservation...",
+        help="The AI will audit your portfolio based on how well it fits this specific goal."
+    )
+
     edited_df = st.data_editor(
         st.session_state['health_data'],
         num_rows="dynamic",
@@ -3686,6 +3693,10 @@ def page_health():
             Act as a **Quantitative Investment Officer (CIO)** and **CFA Charterholder**.
             Analyze the following portfolio using the detailed **CFA & Quant Curriculum**.
             
+            **USER STATED GOAL:**
+            "{user_goal}" 
+            (IMPORTANT: Judge the suitability of the portfolio strictly against this specific goal. If the user wants Safety but holds Meme stocks, FAIL them.)
+
             **PORTFOLIO DATA:**
             {portfolio_str}
 
@@ -3715,11 +3726,11 @@ def page_health():
 
 
             **TASK:**
-            1. **Identify Strategy**: What is this portfolio TRYING to be? (e.g. Passive, Value, Growth, dividend).
-            2. **Dynamic Scoring**: Score it based on its OWN strategy. 
-               - A Value port should NOT be penalized for low growth if it has high quality.
-               - A Growth port should NOT be penalized for volatility if it has high growth.
-            3. **Path to 100**: Provide concrete steps to improve the score to 100. (e.g. "Sell Speculative Stock A, Buy Bond ETF B").
+            1. **Alignment Check**: Explicitly state if the portfolio matches the "{user_goal}".
+            2. **Dynamic Scoring**: Score it based on its ability to achieve the "{user_goal}". 
+               - A "Dividend" goal requires High Yield + Low Volatility.
+               - A "Growth" goal requires High CAGR + Scalability.
+            3. **Path to 100**: Provide concrete steps to align it perfectly with the goal. (e.g. "To achieve {user_goal}, you must swap X for Y").
             
             **OUTPUT FORMAT:**
             Strictly JSON.
