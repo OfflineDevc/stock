@@ -3691,6 +3691,24 @@ def page_health():
             **PORTFOLIO DATA:**
             {portfolio_str}
 
+            **KNOWLEDGE BASE (Financial Theory):**
+            1. **Risk & Return**:
+               - **Systematic Risk**: Market-wide (Inflation, War). Measured by Beta. Cannot diversify away.
+               - **Unsystematic Risk**: Company-specific (Fire, Fraud). Can eliminate via diversification.
+            
+            2. **CAPM (Capital Asset Pricing Model)**:
+               - $E(R_i) = R_f + \\beta (R_m - R_f)$
+               - Return depends ONLY on Systematic Risk (Beta).
+            
+            3. **SML (Security Market Line)**:
+               - **Over SML**: Undervalued (Buy). Return > Risk.
+               - **Under SML**: Overvalued (Sell). Return < Risk.
+            
+            4. **Macroeconomics**:
+               - **Fiscal Policy**: Govt spending/tax.
+               - **Monetary Policy**: Central Bank interest rates/money supply.
+               - **Market Structure**: Monopoly vs Oligopoly vs Perfect Competition.
+
             **ANALYSIS FRAMEWORK (Must Apply to EACH Stock):**
 
             1. **Dimension 1: Mega Trend Alignment (Swimming with or against the tide?)**
@@ -3705,6 +3723,7 @@ def page_health():
 
             3. **Dimension 3: Market Opportunity & Moat**
                - **Red vs Blue Ocean**: Price war (Commoditized) or Pricing Power (Brand/Tech)?
+               - **Market Structure**: Is it a Monopoly/Oligopoly (Good) or Perfect Competition (Bad for margins)?
                - **TAM (Total Addressable Market)**: Is market share already maxed out (70-80%)?
             
             4. **Country/Macro Context (If applicable, e.g. for .BK stocks check Thailand context):**
@@ -3712,11 +3731,20 @@ def page_health():
                - **Demographic Destiny**: Aging Society (De-rating P/E) vs Young Society (Premium P/E).
                - **Zombie Index Check**: Has the country index EPS grown in 5 years?
                - **Fund Flow**: Currency stability and Foreign flow outlook.
+               - **SML Analysis**: Is the stock behaving like it's "Under SML" (Overvalued for its risk)?
 
             5. **Dimension 5: Portfolio Structure (Core-Satellite)**
                - **Concept**: Core (ETFs) for stability, Satellite (Stocks) for Alpha.
                - **Overlap Analysis**: Holding a stock that is also in a Core ETF is **valid** (Intentional Overweight). Do not penalize for overlap unless it leads to extreme concentration risk. Determine if this 'Double Weighting' is justified by the stock's growth potential.
+               - **Risk Check**: Reduce Unsystematic Risk through diversification?
 
+            **TASK:**
+            1. **Identify Strategy**: What is this portfolio TRYING to be? (e.g. Passive, Value, Growth, dividend).
+            2. **Dynamic Scoring**: Score it based on its OWN strategy. 
+               - A Value port should NOT be penalized for low growth if it has high quality.
+               - A Growth port should NOT be penalized for volatility if it has high growth.
+            3. **Path to 100**: Provide concrete steps to improve the score to 100. (e.g. "Sell Speculative Stock A, Buy Bond ETF B").
+            4. **Apply Theory**: Explicitly mention if a stock is "Under SML" (Overpriced) or "Over SML" (Cheap), or relate to Fiscal/Monetary cycles where relevant.
             **TASK:**
             1. **Identify Strategy**: What is this portfolio TRYING to be? (e.g. Passive, Value, Growth, dividend).
             2. **Dynamic Scoring**: Score it based on its OWN strategy. 
@@ -3790,6 +3818,9 @@ def page_health():
         
         # Score
         score = result.get('portfolio_score', 0)
+        
+        # Display Score as Metric + Progress Bar
+        st.metric("Portfolio Health Score", f"{score}/100")
         st.progress(score / 100)
         
         st.info(f"**Detected Strategy**: {result.get('strategy_detected', 'General')}")
