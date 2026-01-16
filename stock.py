@@ -3331,148 +3331,69 @@ def page_portfolio():
             
             # Construct Prompt
             prompt = f"""
-            Act as a **World-Class Quantitative Fund Manager** and **CFA Charterholder**.
-            You adhere strictly to the **CFA Institute Curriculum** and use **Quantitative Methods** to construct portfolios.
-            
+            Act as an **Elite Hedge Fund Portfolio Manager** (Global Macro & Quant Strategist).
+            Your goal is NOT just "maximum return". Your goal is **Maximum Sharpe Ratio** (Return per unit of Pain).
+            You build portfolios that are **Antifragile**—they survive crashes and compound in bull markets.
+
             **CLIENT PROFILE:**
             - **Goal**: Target {target:.2f} in {horizon} Years.
             - **Objective**: {objective}
-            - **Current Capital**: {capital:.2f}
-            - **Monthly DCA**: {dca:.2f}
-            - **Risk Tolerance (Max Drawdown)**: -{risk_tol}%
-            - **Experience**: {experience}
-            - **Liquidity Status**: {liquid}
-            - **Constraints/Preferences**: {constraints}
+            - **Capital**: {capital:.2f} | **DCA**: {dca:.2f}
+            - **Risk Tolerance**: {risk_tol}% Drawdown
+            - **Experience**: {experience} | **Constraints**: {constraints}
 
-            **TOP-DOWN ANALYSIS FRAMEWORK (MANDATORY):**
-            1. **Global Macro**: Analyze Interest Rates (Fed), Inflation, and GDP Growth. (e.g. If Rates High -> Prefer Quality/Cash flow).
-            2. **Sector Rotation**: Identify which Sectors outperform in the current Business Cycle (Early, Mid, Late, Recession).
-            3. **Stock Selection**: Only pick the BEST stocks within the favorable Sectors (Bottom-Up).
+            **THE HEDGE FUND ALGORITHM (STRICT EXECUTION RULES):**
 
-            **KNOWLEDGE BASE: THE QUANT & CFA CURRICULUM (must be used):**
+            **STEP 1: TOP-DOWN MACRO (The Regime & Cycle)**
+            - Analyze the current Regime: Are we in Inflation, Deflation, Growth, or Recession?
+            - **Rule**: If Rates are High -> Overweight Quality/Cash Flow. If Growth is scarce -> Overweight Secular Growth (AI).
             
-            **Ch 1: Quant Methods & Principles**
-            - **TVM**: Optimize for Future Value (FV) considering Inflation.
-            - **Stats**: Minimize Standard Deviation (Risk) for a given Expected Return. Focus on Low Correlation to reduce Portfolio Variance.
-            - **CAPM**: Seek "Alpha" (Excess Return) above the "Beta" (Market Risk).
-            
-            **Ch 2: Corporate Finance**
-            - For stock selection, favor companies with High ROIC > WACC (Value Creation).
-            - Look for efficient Capital Structure (optimum Debt/Equity).
-            
-            **Ch 3: Financial Reporting**
-            - **DuPont Analysis**: Is ROE driven by Margin, Turnover, or Leverage? (Prefer Margin/Turnover).
-            - **Cash Flow**: Focus on Free Cash Flow (FCF) > Net Income (High Quality Earnings).
-            
-            **Ch 4: Fixed Income**
-            - Manage Duration based on Interest Rate outlook (Short Duration if Rates rising).
-            - Use Bonds to dampen Convexity Risk.
-            
-            **Ch 5: Equity Valuation**
-            - **Valuation**: Use DCF (Intrinsic Value) and Relative Valuation (PE, PEG) to find "Margin of Safety".
-            - **Industry**: Identify if the sector is in Growth, Mature, or Shakeout phase.
-            
-            **Ch 6: Derivatives (Risk Mgmt)**
-            - Understand Hedging concepts. (Note: Our long-only port relies on Allocation for hedging).
-            
-            **Ch 7: Alternative Investments**
-            - Use REITs/Gold/Infra to lower Correlation with Equities.
-            
-            **Ch 8: Portfolio Management**
-            - **Asset Allocation**: Account for >90% of return variance.
-            - **IPS**: Adhere to the Client's Risk/Return constraints strictily.
-            - **Performance**: Aim for High Sharpe Ratio & Jensen's Alpha.
-            - **Core-Satellite**: Core (Index/ETF) for Beta, Satellite (Active Pick) for Alpha.
-            
-            **Ch 9: Ethics**
-            - Put Client Interest First. No conflict of interest. Integrity above all.
-             
-            **STRATEGIC KNOWLEDGE BASE (ARCHETYPES):**
-            
-            1. **Passive / Index (The Bogle Way)**:
-               - *Core*: "Don't try to beat the market."
-               - *Alloc*: 70-100% Index ETFs (VT, VTI, VOO), 0-30% Bonds (BND).
-               - *Rules*: Dollar Cost Average (DCA), Rebalance yearly. No timing.
-               - *Pitfalls*: Panic selling, over-tinkering.
+            **STEP 2: ASSET ALLOCATION (The 90% Driver)**
+            - **MANDATORY DIVERSIFICATION**: You CANNOT hold 100% Correlated Assets (e.g. All Tech Stocks).
+            - **THE HEDGE RULE**: You MUST include at least ONE "Crisis Alpha" or "Uncorrelated" asset (Gold, Gov Bonds, Managed Futures, or Low Vol Factor) if the Portfolio Beta > 1.0. 
+            - **Exception**: Unless the user explicitly banned non-equity assets, you MUST hedge to protect Sharpe.
 
-            2. **Value Investor (Buffett/Graham)**:
-               - *Core*: "Buy good business at a discount (Margin of Safety)."
-               - *Alloc*: 60-90% Value Stocks (Low PE/PB, High ROE), 10-40% Cash (Dry Powder).
-               - *Rules*: Focus on Moat, Low Debt. Hold 3-10 years.
-               - *Pitfalls*: Value Trap (dying business), selling too early.
+            **STEP 3: SECURITY SELECTION (Quant Filtering)**
+            - **Correlation Cap**: No two assets can have Correlation > 0.85 (e.g. QQQ and VUG is ILLEGAL). Pick the *better* one.
+            - **Concentration**: Max 15% in any single cyclical vertical (e.g. Semis).
+            - **Quality Filter**: ROIC > WACC is Non-Negotiable.
 
-            3. **Growth Investor (Cathie Wood/VC)**:
-               - *Core*: "Pay up for future explosion."
-               - *Alloc*: 70-100% Growth Stocks, 0-30% Cash (for volatility buffer).
-               - *Rules*: Rev Growth >15%, Large TAM. Accept 40-60% drawdowns.
-               - *Pitfalls*: Buying hype/fads, holding slowing growth.
+            **STEP 4: PORTFOLIO STRESS TEST (Self-Correction)**
+            - *Mental Simulation*: Imagine a 20% Market Crash tomorrow.
+            - If your portfolio falls > {risk_tol}%, **RE-ALLOCATE** immediately before outputting. Increase Cash/Bonds/Defensive.
 
-            4. **Income Investor (Cash Flow)**:
-               - *Core*: "Port must feed me."
-               - *Alloc*: 30-50% Div Stocks, 20-40% REITs/Infra, 20-40% Bonds.
-               - *Rules*: Focus on "Dividend Growth" not just yield. Payout ratio check.
-               - *Pitfalls*: Yield Traps (unsustainable high yield), ignoring inflation.
-
-            5. **Balanced / Asset Allocation (Ray Dalio)**:
-               - *Core*: "All Weather."
-               - *Alloc*: 40-60% Stocks, 20-40% Bonds, 10-20% Gold/Alts.
-               - *Rules*: Rebalance strictly. Non-correlated assets.
-               - *Pitfalls*: Over-diversifying (Diworsification), fear of risk.
-
-            6. **Goal-Based**:
-               - *Core*: "Money serves life."
-               - *Short Term (1-3y)*: Cash/Bonds.
-               - *Medium (5-10y)*: Balanced.
-               - *Long/Retire*: Growth + Income layers.
-
-            **ADVANCED QUANT MODELING:**
-            1. **Black-Litterman Model**: Combine Market Equilibrium (CAPM) with User Views (Constraints) to allocate assets.
-            2. **Fama-French 5-Factor**: Select stocks with positive exposure to Value, Size, Profitability, and Investment factors.
-            3. **Efficient Frontier**: Ensure NO other portfolio offers higher return for the same risk.
-            4. **Smart Beta & Tail Risk**: Use Factor Tilting (Low Volatility, Momentum) to enhance returns. Optimize for **Sortino Ratio** to minimize Downside Risk.
-
-            **HEDGE FUND MINDSET (SHARPE MODE ACTIVATED):**
-            - **Core Philosophy**: "We don't maximize return. We maximize return per unit of pain."
-            - **Mental Model**: Think in **Distributions**, not Averages. Fear **Volatility Clustering** and **Correlation Breakdowns**.
-            - **Mental Sharpe Formula**: (Survival × Consistency × Convexity) / (Volatility × Correlation)
-            - **Stress Test**: Before finalizing the portfolio, mentally simulate a **Market Crash** and **Rate Spike**. If the portfolio blows up, REJECT IT and re-allocate to defensive assets (Gold/Bonds/Quality).
-
-            **COMPLIANCE & PRE-AUDIT (HEALTHDECK STANDARDS):**
-            Your generated portfolio MUST pass the following Audit with a perfect score (90-100):
-            1.  **QUANTITATIVE DIVERSIFICATION**: Minimize **Pairwise Correlation** between assets. Do not introduce assets that simply duplicate the same risk factor (e.g. Diworsification).
-            2.  **FACTOR EXPOSURE (Fama-French)**: Do not rely on a single factor (e.g. Growth). You MUST diversify risk sources (Size, Value, Quality).
-            3.  **CONCENTRATION RISK**: Avoid excessive Sector Beta. If a sector is cyclical, cap weight to manage Drawdown Risk.
-            4.  **ACTIVE RISK**: Ensure 'Satellite' picks actually provide **Alpha** (Uncorrelated Return) and not just more Beta.
-            5.  **OVERLAP CHECK**: Statistically analyze the holdings of ETFs to ensure net overlap is minimal.
-            6.  **Quant**: Portfolio **Sharpe Ratio** must be > 1.0. 
+            **KNOWLEDGE BASE (CFA & QUANT METHODS):**
+            - **Fama-French**: Use Value/Quality factors to balance Growth.
+            - **Tail Risk Parity**: Equalize risk contribution, not just capital weight.
+            - **Barbell Strategy**: Combine High Risk (AI/Crypto) with 'Boring' Safety (Utilities/Bonds) to maximize Convexity.
 
             **TASK:**
-            1. **Classify**: Match the user's profile to the BEST fitting Archetype above.
-            2. **Construct**: Design the portfolio following THAT archetype's specific Allocation & Rules.
-            3. **Select**: Pick tickers (US/Thai) that fit the Strategy (e.g. Value buys PTT/BBL, Growth buys DELTA/HANA).
-            4. **Advice**: Provide advice and warn about the specific **Pitfalls** of that strategy.
-            5. **Metrics**: Estimate the **Ex-Ante Sharpe Ratio** (Risk-Free Rate = 3%). **TARGET SHARPE RATIO >= 1.0**. If < 1.0, re-optimize allocation to reduce volatility or find higher alpha assets.
+            1. **Classify**: Match user to the best Risk-Adjusted Strategy.
+            2. **Construct**: Build the portfolio using the Rules above.
+            3. **Optimize**: Ensure Expected Sharpe Ratio is > 1.2 (Institutional Grade).
+            4. **Metrics**: Calculate expected CAGR and Sharpe.
 
             **OUTPUT FORMAT:**
             Strictly JSON. No Markdown Code blocks.
             
             {{
               "analysis": {{
-                "risk_profile_assessment": "String",
-                "strategy_name": "String (e.g. Aggressive Growth)",
+                "risk_profile_assessment": "String (e.g. High Conviction - Hedge Fund Style)",
+                "strategy_name": "String (e.g. Barbell: AI Growth + Rates Hedge)",
                 "expected_return_cagr": "String (estimated %)",
-                "expected_sharpe_ratio": "Float (e.g. 1.25)",
-                "advice_summary": "String (2-3 paragraphs of professional advice referencing Fama-French/Black-Litterman)"
+                "expected_sharpe_ratio": "Float (e.g. 1.45)", 
+                "advice_summary": "String (Professional Hedge Fund Memo style. Explain strict hedging choices.)"
               }},
               "portfolio": [
-                {{ "ticker": "SPY", "name": "S&P 500 ETF", "asset_class": "Equity", "weight_percent": 40, "rationale": "Core Foundation (Mega Trend: US Econ)" }},
-                {{ "ticker": "AAPL", "name": "Apple Inc.", "asset_class": "Equity", "weight_percent": 10, "rationale": "Growth Kicker (New S-Curve: Services)" }}
-                ... (Sum of weight_percent MUST be 100)
+                {{ "ticker": "SPY", "name": "S&P 500", "asset_class": "Equity", "weight_percent": 40, "rationale": "Core Beta" }},
+                {{ "ticker": "GLD", "name": "Gold", "asset_class": "Commodity", "weight_percent": 10, "rationale": "Crisis Alpha / Inflation Hedge (Uncorrelated)" }}
+                ... (Sum MUST be 100)
               ]
             }}
             
              Response Language: {st.session_state.get('lang', 'EN')} (Thai if TH selected, English if EN selected).
             """
+
             
             
             generation_config = genai.types.GenerationConfig(
