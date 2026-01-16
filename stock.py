@@ -3331,9 +3331,10 @@ def page_portfolio():
             
             # Construct Prompt
             prompt = f"""
-            Act as a World-Class Asset Manager (like Ray Dalio or Warren Buffett).
-            Your client has provided the following profile:
+            Act as a **World-Class Quantitative Fund Manager** and **CFA Charterholder**.
+            You adhere strictly to the **CFA Institute Curriculum** and use **Quantitative Methods** to construct portfolios.
             
+            **CLIENT PROFILE:**
             - **Goal**: Target {target:.2f} in {horizon} Years.
             - **Objective**: {objective}
             - **Current Capital**: {capital:.2f}
@@ -3342,6 +3343,44 @@ def page_portfolio():
             - **Experience**: {experience}
             - **Liquidity Status**: {liquid}
             - **Constraints/Preferences**: {constraints}
+
+            **KNOWLEDGE BASE: THE QUANT & CFA CURRICULUM (must be used):**
+            
+            **Ch 1: Quant Methods & Principles**
+            - **TVM**: Optimize for Future Value (FV) considering Inflation.
+            - **Stats**: Minimize Standard Deviation (Risk) for a given Expected Return. Focus on Low Correlation to reduce Portfolio Variance.
+            - **CAPM**: Seek "Alpha" (Excess Return) above the "Beta" (Market Risk).
+            
+            **Ch 2: Corporate Finance**
+            - For stock selection, favor companies with High ROIC > WACC (Value Creation).
+            - Look for efficient Capital Structure (optimum Debt/Equity).
+            
+            **Ch 3: Financial Reporting**
+            - **DuPont Analysis**: Is ROE driven by Margin, Turnover, or Leverage? (Prefer Margin/Turnover).
+            - **Cash Flow**: Focus on Free Cash Flow (FCF) > Net Income (High Quality Earnings).
+            
+            **Ch 4: Fixed Income**
+            - Manage Duration based on Interest Rate outlook (Short Duration if Rates rising).
+            - Use Bonds to dampen Convexity Risk.
+            
+            **Ch 5: Equity Valuation**
+            - **Valuation**: Use DCF (Intrinsic Value) and Relative Valuation (PE, PEG) to find "Margin of Safety".
+            - **Industry**: Identify if the sector is in Growth, Mature, or Shakeout phase.
+            
+            **Ch 6: Derivatives (Risk Mgmt)**
+            - Understand Hedging concepts. (Note: Our long-only port relies on Allocation for hedging).
+            
+            **Ch 7: Alternative Investments**
+            - Use REITs/Gold/Infra to lower Correlation with Equities.
+            
+            **Ch 8: Portfolio Management**
+            - **Asset Allocation**: Account for >90% of return variance.
+            - **IPS**: Adhere to the Client's Risk/Return constraints strictily.
+            - **Performance**: Aim for High Sharpe Ratio & Jensen's Alpha.
+            - **Core-Satellite**: Core (Index/ETF) for Beta, Satellite (Active Pick) for Alpha.
+            
+            **Ch 9: Ethics**
+            - Put Client Interest First. No conflict of interest. Integrity above all.
              
             **STRATEGIC KNOWLEDGE BASE (ARCHETYPES):**
             
@@ -3625,39 +3664,36 @@ def page_health():
             portfolio_str = edited_df.to_json(orient="records")
             
             prompt = f"""
-            Act as a Global Macro Strategist and Fundamental Investor (Chain of Thought Analysis).
+            Act as a **Quantitative Investment Officer (CIO)** and **CFA Charterholder**.
+            Analyze the following portfolio using the detailed **CFA & Quant Curriculum**.
             
-            Analyze the following portfolio for "Health Assessment" based on the future 10-20 year outlook.
-            Be brutally honest, unbiased, and direct. Do not flatter.
-
             **PORTFOLIO DATA:**
             {portfolio_str}
 
-            **ANALYSIS FRAMEWORK (Must Apply to EACH Stock):**
+            **ANALYSIS FRAMEWORK (CFA CURRICULUM):**
 
-            1. **Dimension 1: Mega Trend Alignment (Swimming with or against the tide?)**
-               - **Sunset vs Sunrise**: Will demand decrease or increase? (e.g. Fossil Fuels = Sunset, AI/Healthcare = Sunrise).
-               - **Disruption Check**: Will AI/Robot/Blockchain kill this business or boost it?
-               - *Red Flag*: Fighting the trend.
-
-            2. **Dimension 2: Missing Growth Driver (Engine Status)**
-               - **Old S-Curve vs New S-Curve**: Is the old growth engine exhausted? (e.g. saturated expansion).
-               - **New Revenue %**: Is there a new significant revenue stream (>5%) or just cost-cutting?
-               - *Red Flag*: Stagnant revenue + focus only on cost cutting.
-
-            3. **Dimension 3: Market Opportunity & Moat**
-               - **Red vs Blue Ocean**: Price war (Commoditized) or Pricing Power (Brand/Tech)?
-               - **TAM (Total Addressable Market)**: Is market share already maxed out (70-80%)?
+            **I. Quantitative Analysis (Ch 1 & 8)**
+            - **Risk/Return**: Does the portfolio maximize Sharpe Ratio?
+            - **Diversification**: Are assets highly correlated? (Concentration Risk).
+            - **Beta**: Is the portfolio aggressive (High Beta) or defensive?
             
-            4. **Country/Macro Context (If applicable, e.g. for .BK stocks check Thailand context):**
-               - **Economic Engine**: Old Economy (Low Growth, Cyclical) vs New Economy (High Growth).
-               - **Demographic Destiny**: Aging Society (De-rating P/E) vs Young Society (Premium P/E).
-               - **Zombie Index Check**: Has the country index EPS grown in 5 years?
-               - **Fund Flow**: Currency stability and Foreign flow outlook.
+            **II. Fundamental Quality (Ch 2, 3 & 5)**
+            - **Value Creation**: Do the holdings generate ROIC > WACC?
+            - **Earnings Quality**: DuPont Analysis - is growth sustainable?
+            - **Valuation**: Is the portfolio overpriced (High P/E without Growth)?
+            - **Moat**: Do stocks possess Pricing Power?
+            
+            **III. Macro & Industry (Ch 1 & 5)**
+            - **Mega Trends**: Sunrise vs Sunset Industries.
+            - **Cyclicality**: Exposure to Economic Cycle (Inflation/Rates).
+            
+            **IV. Portfolio Construction (Ch 8)**
+            - **Core-Satellite**: Is there a stable Core foundation?
+            - **Overlap**: Check for "Diworsification" (Holding AAPL + QQQ + Tech ETF).
+            
+            **V. Ethics & Suitability (Ch 9)**
+            - **Fit**: Does this portfolio make sense for a serious investor?
 
-            5. **Dimension 5: Portfolio Structure (Core-Satellite)**
-               - **Concept**: Core (ETFs) for stability, Satellite (Stocks) for Alpha.
-               - **Overlap Analysis**: Holding a stock that is also in a Core ETF is **valid** (Intentional Overweight). Do not penalize for overlap unless it leads to extreme concentration risk. Determine if this 'Double Weighting' is justified by the stock's growth potential.
 
             **TASK:**
             1. **Identify Strategy**: What is this portfolio TRYING to be? (e.g. Passive, Value, Growth, dividend).
