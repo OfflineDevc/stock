@@ -3583,11 +3583,11 @@ def page_health():
                             for asset in p.get('data', {}).get('portfolio', []):
                                 if asset.get('asset_class') == 'Equity': # Only stocks
                                     new_data.append({
-                                        'Ticker': asset['ticker'],
+                                        'Symbol': asset['ticker'],
+                                        'AvailVol': 100, # Default
                                         'Avg': 0.0, # Unknown
-                                        'Market': 0.0, # Unknown, user fill, or we fetch live? Let's leave 0
-                                        'U.PL': 0.0,
-                                        'Weight': asset['weight_percent']
+                                        'Market': 0.0, # Unknown
+                                        'U.PL': 0.0
                                     })
                             
                             st.session_state['health_data'] = pd.DataFrame(new_data)
