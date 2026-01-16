@@ -3515,6 +3515,9 @@ def page_health():
 
     # --- 2. EXECUTION FORM ---
     with st.form("health_check_form"):
+        # User Strategy Input
+        portfolio_goal = st.text_input("🎯 Investment Goal", placeholder="e.g. Passive Income, High Growth, Retirement in 10 years...", help="Tell AI what this portfolio is for.")
+        
         edited_df = st.data_editor(
             st.session_state['health_data'],
             num_rows="dynamic",
@@ -3596,6 +3599,9 @@ def page_health():
             Act as a Global Macro Strategist and Fundamental Investor (Chain of Thought Analysis).
             
             Analyze the following portfolio for "Health Assessment" based on the future 10-20 year outlook.
+            
+            **USER GOAL:** {portfolio_goal if portfolio_goal else "General Wealth Building"}
+            
             Be brutally honest, unbiased, and direct. Do not flatter.
 
             **PORTFOLIO DATA:**
