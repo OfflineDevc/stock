@@ -3384,7 +3384,7 @@ def page_portfolio():
             **TASK:**
             1. **Classify**: Match the user's profile to the BEST fitting Archetype above.
             2. **Construct**: Design the portfolio following THAT archetype's specific Allocation & Rules.
-            3. **Select**: Pick tickers (US/Thai) that fit the Strategy (e.g. Value buys PTT/BBL, Growth buys DELTA/HANA).
+            3. **Select**: Pick tickers that fit the Strategy.
             4. **Advice**: Provide advice and warn about the specific **Pitfalls** of that strategy.
 
             **OUTPUT FORMAT:**
