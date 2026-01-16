@@ -3331,69 +3331,81 @@ def page_portfolio():
             
             # Construct Prompt
             prompt = f"""
-            Act as an **Elite Hedge Fund Portfolio Manager** (Global Macro & Quant Strategist).
-            Your goal is NOT just "maximum return". Your goal is **Maximum Sharpe Ratio** (Return per unit of Pain).
-            You build portfolios that are **Antifragile**—they survive crashes and compound in bull markets.
-
-            **CLIENT PROFILE:**
+            Act as a World-Class Asset Manager (like Ray Dalio or Warren Buffett).
+            Your client has provided the following profile:
+            
             - **Goal**: Target {target:.2f} in {horizon} Years.
             - **Objective**: {objective}
-            - **Capital**: {capital:.2f} | **DCA**: {dca:.2f}
-            - **Risk Tolerance**: {risk_tol}% Drawdown
-            - **Experience**: {experience} | **Constraints**: {constraints}
-
-            **THE HEDGE FUND ALGORITHM (STRICT EXECUTION RULES):**
-
-            **STEP 1: TOP-DOWN MACRO (The Regime & Cycle)**
-            - Analyze the current Regime: Are we in Inflation, Deflation, Growth, or Recession?
-            - **Rule**: If Rates are High -> Overweight Quality/Cash Flow. If Growth is scarce -> Overweight Secular Growth (AI).
+            - **Current Capital**: {capital:.2f}
+            - **Monthly DCA**: {dca:.2f}
+            - **Risk Tolerance (Max Drawdown)**: -{risk_tol}%
+            - **Experience**: {experience}
+            - **Liquidity Status**: {liquid}
+            - **Constraints/Preferences**: {constraints}
+             
+            **STRATEGIC KNOWLEDGE BASE (ARCHETYPES):**
             
-            **STEP 2: ASSET ALLOCATION (The 90% Driver)**
-            - **MANDATORY DIVERSIFICATION**: You CANNOT hold 100% Correlated Assets (e.g. All Tech Stocks).
-            - **THE HEDGE RULE**: You MUST include at least ONE "Crisis Alpha" or "Uncorrelated" asset (Gold, Gov Bonds, Managed Futures, or Low Vol Factor) if the Portfolio Beta > 1.0. 
-            - **Exception**: Unless the user explicitly banned non-equity assets, you MUST hedge to protect Sharpe.
+            1. **Passive / Index (The Bogle Way)**:
+               - *Core*: "Don't try to beat the market."
+               - *Alloc*: 70-100% Index ETFs (VT, VTI, VOO), 0-30% Bonds (BND).
+               - *Rules*: Dollar Cost Average (DCA), Rebalance yearly. No timing.
+               - *Pitfalls*: Panic selling, over-tinkering.
 
-            **STEP 3: SECURITY SELECTION (Quant Filtering)**
-            - **Correlation Cap**: No two assets can have Correlation > 0.85 (e.g. QQQ and VUG is ILLEGAL). Pick the *better* one.
-            - **Concentration**: Max 15% in any single cyclical vertical (e.g. Semis).
-            - **Quality Filter**: ROIC > WACC is Non-Negotiable.
+            2. **Value Investor (Buffett/Graham)**:
+               - *Core*: "Buy good business at a discount (Margin of Safety)."
+               - *Alloc*: 60-90% Value Stocks (Low PE/PB, High ROE), 10-40% Cash (Dry Powder).
+               - *Rules*: Focus on Moat, Low Debt. Hold 3-10 years.
+               - *Pitfalls*: Value Trap (dying business), selling too early.
 
-            **STEP 4: PORTFOLIO STRESS TEST (Self-Correction)**
-            - *Mental Simulation*: Imagine a 20% Market Crash tomorrow.
-            - If your portfolio falls > {risk_tol}%, **RE-ALLOCATE** immediately before outputting. Increase Cash/Bonds/Defensive.
+            3. **Growth Investor (Cathie Wood/VC)**:
+               - *Core*: "Pay up for future explosion."
+               - *Alloc*: 70-100% Growth Stocks, 0-30% Cash (for volatility buffer).
+               - *Rules*: Rev Growth >15%, Large TAM. Accept 40-60% drawdowns.
+               - *Pitfalls*: Buying hype/fads, holding slowing growth.
 
-            **KNOWLEDGE BASE (CFA & QUANT METHODS):**
-            - **Fama-French**: Use Value/Quality factors to balance Growth.
-            - **Tail Risk Parity**: Equalize risk contribution, not just capital weight.
-            - **Barbell Strategy**: Combine High Risk (AI/Crypto) with 'Boring' Safety (Utilities/Bonds) to maximize Convexity.
+            4. **Income Investor (Cash Flow)**:
+               - *Core*: "Port must feed me."
+               - *Alloc*: 30-50% Div Stocks, 20-40% REITs/Infra, 20-40% Bonds.
+               - *Rules*: Focus on "Dividend Growth" not just yield. Payout ratio check.
+               - *Pitfalls*: Yield Traps (unsustainable high yield), ignoring inflation.
+
+            5. **Balanced / Asset Allocation (Ray Dalio)**:
+               - *Core*: "All Weather."
+               - *Alloc*: 40-60% Stocks, 20-40% Bonds, 10-20% Gold/Alts.
+               - *Rules*: Rebalance strictly. Non-correlated assets.
+               - *Pitfalls*: Over-diversifying (Diworsification), fear of risk.
+
+            6. **Goal-Based**:
+               - *Core*: "Money serves life."
+               - *Short Term (1-3y)*: Cash/Bonds.
+               - *Medium (5-10y)*: Balanced.
+               - *Long/Retire*: Growth + Income layers.
 
             **TASK:**
-            1. **Classify**: Match user to the best Risk-Adjusted Strategy.
-            2. **Construct**: Build the portfolio using the Rules above.
-            3. **Optimize**: Ensure Expected Sharpe Ratio is > 1.2 (Institutional Grade).
-            4. **Metrics**: Calculate expected CAGR and Sharpe.
+            1. **Classify**: Match the user's profile to the BEST fitting Archetype above.
+            2. **Construct**: Design the portfolio following THAT archetype's specific Allocation & Rules.
+            3. **Select**: Pick tickers (US/Thai) that fit the Strategy (e.g. Value buys PTT/BBL, Growth buys DELTA/HANA).
+            4. **Advice**: Provide advice and warn about the specific **Pitfalls** of that strategy.
 
             **OUTPUT FORMAT:**
             Strictly JSON. No Markdown Code blocks.
             
             {{
               "analysis": {{
-                "risk_profile_assessment": "String (e.g. High Conviction - Hedge Fund Style)",
-                "strategy_name": "String (e.g. Barbell: AI Growth + Rates Hedge)",
+                "risk_profile_assessment": "String",
+                "strategy_name": "String (e.g. Aggressive Growth)",
                 "expected_return_cagr": "String (estimated %)",
-                "expected_sharpe_ratio": "Float (e.g. 1.45)", 
-                "advice_summary": "String (Professional Hedge Fund Memo style. Explain strict hedging choices.)"
+                "advice_summary": "String (2-3 paragraphs of professional advice)"
               }},
               "portfolio": [
-                {{ "ticker": "SPY", "name": "S&P 500", "asset_class": "Equity", "weight_percent": 40, "rationale": "Core Beta" }},
-                {{ "ticker": "GLD", "name": "Gold", "asset_class": "Commodity", "weight_percent": 10, "rationale": "Crisis Alpha / Inflation Hedge (Uncorrelated)" }}
-                ... (Sum MUST be 100)
+                {{ "ticker": "SPY", "name": "S&P 500 ETF", "asset_class": "Equity", "weight_percent": 40, "rationale": "Core Foundation (Mega Trend: US Econ)" }},
+                {{ "ticker": "AAPL", "name": "Apple Inc.", "asset_class": "Equity", "weight_percent": 10, "rationale": "Growth Kicker (New S-Curve: Services)" }}
+                ... (Sum of weight_percent MUST be 100)
               ]
             }}
             
              Response Language: {st.session_state.get('lang', 'EN')} (Thai if TH selected, English if EN selected).
             """
-
             
             
             generation_config = genai.types.GenerationConfig(
@@ -3426,11 +3438,10 @@ def page_portfolio():
             
             # 1. Analysis Block
             with st.container():
-                k1, k2, k3, k4 = st.columns(4)
+                k1, k2, k3 = st.columns(3)
                 k1.info(f"**Risk Profile**: {ana['risk_profile_assessment']}")
                 k2.success(f"**Est. CAGR**: {ana.get('expected_return_cagr', 'N/A')}")
-                k3.metric("Sharpe Ratio", ana.get('expected_sharpe_ratio', 'N/A'))
-                k4.warning(f"**Max Drawdown**: -{risk_tol}%")
+                k3.warning(f"**Max Drawdown Limit**: -{risk_tol}%")
                 
                 st.write(f"### Professional Advice")
                 st.write(ana['advice_summary'])
@@ -3516,9 +3527,6 @@ def page_health():
         }
     )
 
-    # Add Goal Input
-    user_goal_input = st.text_input("🎯 Your Portfolio Goal (Optional)", placeholder="e.g. Passive Income 5%/yr, Aggressive Growth for AI, Safe Retirement", help="Tell the AI what you want to achieve so it can score you accurately.")
-
     # --- Auto-Calculate %U.PL and Update State ---
     needs_rerun = False
     
@@ -3575,10 +3583,9 @@ def page_health():
                             for asset in p.get('data', {}).get('portfolio', []):
                                 if asset.get('asset_class') == 'Equity': # Only stocks
                                     new_data.append({
-                                        'Symbol': asset['ticker'],
-                                        'AvailVol': 100, # Default volume
-                                        'Avg': 0.0,
-                                        'Market': 0.0,
+                                        'Ticker': asset['ticker'],
+                                        'Avg': 0.0, # Unknown
+                                        'Market': 0.0, # Unknown, user fill, or we fetch live? Let's leave 0
                                         'U.PL': 0.0,
                                         'Weight': asset['weight_percent']
                                     })
@@ -3612,60 +3619,72 @@ def page_health():
         status_box = st.status(get_text('ai_thinking'), expanded=True)
         
         try:
-            model = genai.GenerativeModel("models/gemini-3-flash-preview") 
+            model = genai.GenerativeModel("models/gemini-3-flash-preview") # optimized for speed/cost, or use pro if needed
             
             # Construct Prompt
             portfolio_str = edited_df.to_json(orient="records")
             
             prompt = f"""
-            🧠 **SYSTEM / ROLE:**
-            You are a **Hedge Fund Portfolio Risk Manager** (and CFA Charterholder) whose sole objective is to **maximize long-term Sharpe ratio**, not nominal return.
-
-            **CORE PHILOSOPHY:**
-            "We don’t maximize return. We maximize return per unit of pain."
+            Act as a Global Macro Strategist and Fundamental Investor (Chain of Thought Analysis).
             
-            **YOUR MENTAL MODEL:**
-            - You think in **Distributions**, not Averages.
-            - **TOP-DOWN FIRST**: Always start with Macro (Rates/Growth) -> Sector trends -> then specific Company risks.
-            - You fear **Volatility Clustering** and **Correlation Breakdowns**.
-            - You prioritize **Capital Preservation** (Survival) first, Compounding second.
-            - **Mental Sharpe Formula**: (Survival × Consistency × Convexity) / (Volatility × Correlation)
+            Analyze the following portfolio for "Health Assessment" based on the future 10-20 year outlook.
+            Be brutally honest, unbiased, and direct. Do not flatter.
 
-            **USER GOAL:** "{user_goal_input}" (Use this to judge 'Suitability'. Does the risk profile match this goal?)
             **PORTFOLIO DATA:**
             {portfolio_str}
 
-            **ANALYSIS TASK:**
-            1. **Risk/Reward Audit**: Identify which assets destroy Sharpe (High volatility contribution without sufficient alpha).
-            2. **Correlation Check**: Find hidden "Diworsification" or overlap (e.g. QQQ + VUG).
-            3. **Stress Test**: Evaluate portfolio behavior under:
-               - **Equity Crash**: High Beta exposure?
-               - **Rate Shock**: Duration risk?
-               - **Correlation Convergence**: DO all assets fall together?
-            4. **Goal Alignment**: If User Goal is "{user_goal_input}", is this portfolio **fit for purpose**? 
-               - (e.g. If Goal="Safe Income", roasting a Crypto portfolio is correct.)
-               - (e.g. If Goal="Aggressive", ensure they aren't taking *stupid* risks like 100% in one stock).
+            **ANALYSIS FRAMEWORK (Must Apply to EACH Stock):**
 
-            **OUTPUT FORMAT (HEDGE FUND RISK MEMO):**
+            1. **Dimension 1: Mega Trend Alignment (Swimming with or against the tide?)**
+               - **Sunset vs Sunrise**: Will demand decrease or increase? (e.g. Fossil Fuels = Sunset, AI/Healthcare = Sunrise).
+               - **Disruption Check**: Will AI/Robot/Blockchain kill this business or boost it?
+               - *Red Flag*: Fighting the trend.
+
+            2. **Dimension 2: Missing Growth Driver (Engine Status)**
+               - **Old S-Curve vs New S-Curve**: Is the old growth engine exhausted? (e.g. saturated expansion).
+               - **New Revenue %**: Is there a new significant revenue stream (>5%) or just cost-cutting?
+               - *Red Flag*: Stagnant revenue + focus only on cost cutting.
+
+            3. **Dimension 3: Market Opportunity & Moat**
+               - **Red vs Blue Ocean**: Price war (Commoditized) or Pricing Power (Brand/Tech)?
+               - **TAM (Total Addressable Market)**: Is market share already maxed out (70-80%)?
+            
+            4. **Country/Macro Context (If applicable, e.g. for .BK stocks check Thailand context):**
+               - **Economic Engine**: Old Economy (Low Growth, Cyclical) vs New Economy (High Growth).
+               - **Demographic Destiny**: Aging Society (De-rating P/E) vs Young Society (Premium P/E).
+               - **Zombie Index Check**: Has the country index EPS grown in 5 years?
+               - **Fund Flow**: Currency stability and Foreign flow outlook.
+
+            5. **Dimension 5: Portfolio Structure (Core-Satellite)**
+               - **Concept**: Core (ETFs) for stability, Satellite (Stocks) for Alpha.
+               - **Overlap Analysis**: Holding a stock that is also in a Core ETF is **valid** (Intentional Overweight). Do not penalize for overlap unless it leads to extreme concentration risk. Determine if this 'Double Weighting' is justified by the stock's growth potential.
+
+            **TASK:**
+            1. **Identify Strategy**: What is this portfolio TRYING to be? (e.g. Passive, Value, Growth, dividend).
+            2. **Dynamic Scoring**: Score it based on its OWN strategy. 
+               - A Value port should NOT be penalized for low growth if it has high quality.
+               - A Growth port should NOT be penalized for volatility if it has high growth.
+            3. **Path to 100**: Provide concrete steps to improve the score to 100. (e.g. "Sell Speculative Stock A, Buy Bond ETF B").
+            
+            **OUTPUT FORMAT:**
             Strictly JSON.
             {{
-                "portfolio_score": 75, // Be strict. 60=Average, 80=Great, 90+=Institutional Grade.
-                "strategy_detected": "String (e.g. High Beta Speculative)",
-                "portfolio_summary": "Direct, skeptical, numbers-focused analysis. No motivational fluff. Highlight hidden risks.",
+                "portfolio_score": 75,
+                "strategy_detected": "Growth Oriented (High Risk)",
+                "portfolio_summary": "Overall assessment...",
                 "path_to_100": [
-                    "Action 1: Eliminate VUG (Redundant Exposure).",
-                    "Action 2: Add Treasuries to dampen volatility.",
-                    ...
+                    "Action 1: Sell X to reduce concentration.",
+                    "Action 2: Buy Y to fix lack of defensive assets."
                 ],
                 "stocks": [
                     {{
                         "symbol": "AAPL",
-                        "verdict": "HOLD/SELL",
-                        "action_reason": "High quality but crowded trade. Watch valuation.",
-                        "mega_trend": "String (e.g. AI, Green Energy)",
-                        "growth_driver": "String (e.g. Services Revenue)",
-                        "moat_opportunity": "String (e.g. Ecosystem Lock-in)",
-                        "macro_context": "String (e.g. Rate Sensitive)"
+                        "mega_trend": "Sunrise...",
+                        "growth_driver": "Services...",
+                        "moat_opportunity": "Global Ecosystem...",
+                        "macro_context": "...",
+                        "verdict": "HOLD",
+                        "action_reason": "..."
                     }},
                     ...
                 ]
@@ -3854,8 +3873,8 @@ def page_profile(cookie_manager=None):
                                             else: st.warning(f"**{item['verdict']}**")
                                             st.caption(item['action_reason'])
                                         with c2:
-                                            st.write(f"**Mega Trend:** {item.get('mega_trend', 'N/A')}")
-                                            st.write(f"**Moat:** {item.get('moat_opportunity', 'N/A')}")
+                                            st.write(f"**Mega Trend:** {item['mega_trend']}")
+                                            st.write(f"**Moat:** {item['moat_opportunity']}")
                                         st.divider()
 
     # --- SETTINGS TAB ---
