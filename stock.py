@@ -3509,8 +3509,8 @@ def page_health():
     # Initialize data if not needed
     if 'health_data' not in st.session_state:
         st.session_state['health_data'] = pd.DataFrame(
-            [{"Symbol": "AAPL", "AvailVol": 100, "Avg": 150.0, "Market": 175.0, "U.PL": 16.6}],
-            columns=["Symbol", "AvailVol", "Avg", "Market", "U.PL"]
+            [{"Symbol": "AAPL", "Weight": 20.0, "U.PL": 16.6, "Reason": "Strong Ecosystem"}],
+            columns=["Symbol", "Weight", "U.PL", "Reason"]
         )
 
     edited_df = st.data_editor(
@@ -3520,43 +3520,15 @@ def page_health():
         key="health_editor",
         column_config={
             "Symbol": st.column_config.TextColumn("Symbol (Ticker)", help="Stock Symbol (e.g. AAPL, PTT.BK)", required=True),
-            "AvailVol": st.column_config.NumberColumn("Vol", min_value=1, format="%d", default=100),
-            "Avg": st.column_config.NumberColumn("Avg Cost", min_value=0.0, format="%.2f", default=0.0),
-            "Market": st.column_config.NumberColumn("Market Price", min_value=0.0, format="%.2f", default=0.0),
-            "U.PL": st.column_config.NumberColumn("% Unrealized P/L", format="%.2f%%", disabled=True)
+            "Weight": st.column_config.NumberColumn("% Holding", min_value=0.0, max_value=100.0, format="%.1f%%"),
+            "U.PL": st.column_config.NumberColumn("% Unrealized P/L", format="%.2f%%"),
+            "Reason": st.column_config.TextColumn("Buy Reason", width="large", help="Why did you buy this? e.g. 'Growth Story', 'High Yield'")
         }
     )
 
-    # --- Auto-Calculate %U.PL and Update State ---
-    needs_rerun = False
-    
-    if not edited_df.empty:
-        # Cast to numeric safely (handle strings/None from new rows)
-        for col in ['Avg', 'Market']:
-            edited_df[col] = pd.to_numeric(edited_df[col], errors='coerce').fillna(0.0)
-            
-        # Calculate U.PL
-        # Logic: (Market - Avg) / Avg * 100. If Avg is 0, result is 0.
-        def calc_upl(row):
-            if row['Avg'] > 0:
-                return ((row['Market'] - row['Avg']) / row['Avg']) * 100
-            return 0.0
-
-        new_upl = edited_df.apply(calc_upl, axis=1)
-        
-        # Compare with existing U.PL (handle potential NaNs in existing)
-        current_upl = pd.to_numeric(edited_df['U.PL'], errors='coerce').fillna(0.0)
-        
-        if not current_upl.equals(new_upl):
-            # Check deviation
-            diff = (current_upl - new_upl).abs()
-            if (diff > 0.05).any(): # 0.05% tolerance
-                edited_df['U.PL'] = new_upl
-                st.session_state['health_data'] = edited_df
-                needs_rerun = True
-
-    if needs_rerun:
-        st.rerun()
+    # --- Sync State ---
+    if not edited_df.equals(st.session_state['health_data']):
+        st.session_state['health_data'] = edited_df
 
     # --- 2. EXECUTION ---
     c_btn, c_lang = st.columns([3, 1])
@@ -3574,20 +3546,14 @@ def page_health():
                     for p in saved_ports:
                         if st.button(f"{p['name']} ({len(p.get('data',{}).get('portfolio',[]))} stocks)", key=p['_id']):
                             # Convert JSON portfolio to DF structure for HealthDeck
-                            # HealthDeck expects: Ticker, Avg (Price), Market (Price), Qty (optional, implied 1?)
-                            # Saved portfolio: ticker, name, weight_percent... no entry price/market price usually?
-                            # Wait, AIfolio generates 'Allocation', not a real position with cost basis.
-                            # So we can only prepopulate 'Ticker' and 'Market Price' (current). 'Avg Price' will be 0.
-                            
                             new_data = []
                             for asset in p.get('data', {}).get('portfolio', []):
                                 if asset.get('asset_class') == 'Equity': # Only stocks
                                     new_data.append({
                                         'Symbol': asset['ticker'],
-                                        'AvailVol': 100, # Default
-                                        'Avg': 0.0, # Unknown
-                                        'Market': 0.0, # Unknown
-                                        'U.PL': 0.0
+                                        'Weight': asset.get('weight_percent', 0.0),
+                                        'U.PL': 0.0,
+                                        'Reason': asset.get('rationale', '')
                                     })
                             
                             st.session_state['health_data'] = pd.DataFrame(new_data)
