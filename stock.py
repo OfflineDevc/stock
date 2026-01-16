@@ -148,22 +148,30 @@ def inject_custom_css():
         }
 
         /* BUTTONS */
-        button[kind="primary"] {
+        /* Primary Buttons & Form Submit Buttons */
+        button[kind="primary"], 
+        div[data-testid="stFormSubmitButton"] > button {
             background: linear-gradient(135deg, var(--primary) 0%, #004494 100%) !important;
             border: none !important;
             border-radius: 8px !important;
             padding: 0.5rem 1rem !important;
             font-weight: 600 !important;
+            color: white !important; /* Ensure text is white */
             transition: transform 0.1s ease, box-shadow 0.2s ease !important;
         }
-        button[kind="primary"]:hover {
+        
+        button[kind="primary"]:hover,
+        div[data-testid="stFormSubmitButton"] > button:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3) !important;
         }
-        button[kind="primary"]:active {
+        
+        button[kind="primary"]:active,
+        div[data-testid="stFormSubmitButton"] > button:active {
             transform: translateY(0);
         }
 
+        /* Secondary Buttons */
         button[kind="secondary"] {
             border: 1px solid #d0d0d0 !important;
             color: var(--text-main) !important;
