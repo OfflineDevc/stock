@@ -3873,8 +3873,8 @@ def page_profile(cookie_manager=None):
                                             else: st.warning(f"**{item['verdict']}**")
                                             st.caption(item['action_reason'])
                                         with c2:
-                                            st.write(f"**Mega Trend:** {item['mega_trend']}")
-                                            st.write(f"**Moat:** {item['moat_opportunity']}")
+                                            st.write(f"**Mega Trend:** {item.get('mega_trend', 'N/A')}")
+                                            st.write(f"**Moat:** {item.get('moat_opportunity', 'N/A')}")
                                         st.divider()
 
     # --- SETTINGS TAB ---
