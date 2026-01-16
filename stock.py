@@ -3424,13 +3424,14 @@ def page_portfolio():
             1. **Black-Litterman Model**: Combine Market Equilibrium (CAPM) with User Views (Constraints) to allocate assets.
             2. **Fama-French 5-Factor**: Select stocks with positive exposure to Value, Size, Profitability, and Investment factors.
             3. **Efficient Frontier**: Ensure NO other portfolio offers higher return for the same risk.
+            4. **Smart Beta & Tail Risk**: Use Factor Tilting (Low Volatility, Momentum) to enhance returns. Optimize for **Sortino Ratio** to minimize Downside Risk.
 
             **TASK:**
             1. **Classify**: Match the user's profile to the BEST fitting Archetype above.
             2. **Construct**: Design the portfolio following THAT archetype's specific Allocation & Rules.
             3. **Select**: Pick tickers (US/Thai) that fit the Strategy (e.g. Value buys PTT/BBL, Growth buys DELTA/HANA).
             4. **Advice**: Provide advice and warn about the specific **Pitfalls** of that strategy.
-            5. **Metrics**: Estimate the **Ex-Ante Sharpe Ratio** (Risk-Free Rate = 3%).
+            5. **Metrics**: Estimate the **Ex-Ante Sharpe Ratio** (Risk-Free Rate = 3%). **TARGET SHARPE RATIO >= 1.0**. If < 1.0, re-optimize allocation to reduce volatility or find higher alpha assets.
 
             **OUTPUT FORMAT:**
             Strictly JSON. No Markdown Code blocks.
