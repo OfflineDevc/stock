@@ -3427,12 +3427,13 @@ def page_portfolio():
             4. **Smart Beta & Tail Risk**: Use Factor Tilting (Low Volatility, Momentum) to enhance returns. Optimize for **Sortino Ratio** to minimize Downside Risk.
 
             **COMPLIANCE & PRE-AUDIT (HEALTHDECK STANDARDS):**
-            Your generated portfolio MUST pass the following Audit with a perfect score (to ensure consistency with our HealthDeck Rating):
-            1.  **Fundamental**: All selected stocks must have **ROIC > WACC** (Value Creation) and Sustainable Growth.
-            2.  **Mega Trend**: Must be in **Sunrise Industries** (AI, Healthcare, Green). STRICTLY AVOID Sunset industries unless a Deep Value arbitrage exists.
-            3.  **Moat**: Must have **Pricing Power** (Blue Ocean strategy) and High Barriers to Entry.
-            4.  **Quant**: Portfolio **Sharpe Ratio** must be > 1.0. 
-            5.  **Score Goal**: Aim for a HealthDeck Score of **90-100**.
+            Your generated portfolio MUST pass the following Audit with a perfect score (90-100):
+            1.  **QUANTITATIVE DIVERSIFICATION**: Minimize **Pairwise Correlation** between assets. Do not introduce assets that simply duplicate the same risk factor (e.g. Diworsification).
+            2.  **FACTOR EXPOSURE (Fama-French)**: Do not rely on a single factor (e.g. Growth). You MUST diversify risk sources (Size, Value, Quality).
+            3.  **CONCENTRATION RISK**: Avoid excessive Sector Beta. If a sector is cyclical, cap weight to manage Drawdown Risk.
+            4.  **ACTIVE RISK**: Ensure 'Satellite' picks actually provide **Alpha** (Uncorrelated Return) and not just more Beta.
+            5.  **OVERLAP CHECK**: Statistically analyze the holdings of ETFs to ensure net overlap is minimal.
+            6.  **Quant**: Portfolio **Sharpe Ratio** must be > 1.0. 
 
             **TASK:**
             1. **Classify**: Match the user's profile to the BEST fitting Archetype above.
