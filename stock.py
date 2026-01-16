@@ -105,47 +105,115 @@ def fetch_cached_history(ticker, period='5y'):
 def inject_custom_css():
     st.markdown("""
         <style>
-        /* Main Font */
-        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap');
+
+        :root {
+            --primary: #0066CC;
+            --primary-hover: #0052a3;
+            --bg-light: #f8f9fa;
+            --card-bg: #ffffff;
+            --text-main: #2c3e50;
+            --text-sub: #546e7a;
+            --gold: #d4af37;
+        }
+
+        /* GENERAL RESET */
         html, body, [class*="css"] {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Inter', sans-serif !important;
+            color: var(--text-main);
+        }
+
+        /* ANIMATIONS */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        div.block-container {
+            animation: fadeIn 0.6s ease-out;
+            padding-top: 3rem;
+        }
+
+        /* CONTAINERS / CARDS */
+        div[data-testid="stExpander"], div.stContainer {
+            background: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #e0e0e0;
+            transition: all 0.3s ease;
         }
         
-        /* Custom Keyframes for Page Transitions */
-        @keyframes fadeInSlideUp {
-            0% { opacity: 0; transform: translateY(20px); filter: blur(5px); }
-            100% { opacity: 1; transform: translateY(0); filter: blur(0); }
+        div[data-testid="stExpander"]:hover {
+            box-shadow: 0 8px 15px rgba(0,0,0,0.1);
         }
 
-        @keyframes pulseGlow {
-            0% { box-shadow: 0 0 5px rgba(0, 51, 102, 0.2); }
-            50% { box-shadow: 0 0 15px rgba(0, 51, 102, 0.5); }
-            100% { box-shadow: 0 0 5px rgba(0, 51, 102, 0.2); }
+        /* BUTTONS */
+        button[kind="primary"] {
+            background: linear-gradient(135deg, var(--primary) 0%, #004494 100%) !important;
+            border: none !important;
+            border-radius: 8px !important;
+            padding: 0.5rem 1rem !important;
+            font-weight: 600 !important;
+            transition: transform 0.1s ease, box-shadow 0.2s ease !important;
+        }
+        button[kind="primary"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3) !important;
+        }
+        button[kind="primary"]:active {
+            transform: translateY(0);
         }
 
-        /* Apply Page Transition to the main content area */
-        .block-container {
-            padding-top: 1rem;
-            animation: fadeInSlideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            max_width: 1200px;
-            padding-left: 2rem;
-            padding-right: 2rem;
-            margin: auto;
+        button[kind="secondary"] {
+            border: 1px solid #d0d0d0 !important;
+            color: var(--text-main) !important;
+            border-radius: 8px !important;
+            background: white !important;
         }
 
-        /* Responsive Breakpoint for Large Screens to prevent stretching */
-        @media (min-width: 1200px) {
-            .block-container {
-                max-width: 1200px !important;
-            }
+        /* INPUTS */
+        input.st-ai, div[data-baseweb="select"] > div {
+            border-radius: 8px !important;
+            border: 1px solid #e0e0e0 !important;
+        }
+        input.st-ai:focus {
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 2px rgba(0, 102, 204, 0.2) !important;
+        }
+
+        /* HEADERS */
+        h1, h2, h3 {
+            font-weight: 700 !important;
+            letter-spacing: -0.5px;
+            color: #1a1a1a;
+        }
+        
+        /* TABS */
+        div[data-baseweb="tab-list"] {
+            gap: 20px;
+        }
+        div[data-baseweb="tab"] {
+            font-weight: 600;
+            border-radius: 8px 8px 0 0;
+            padding: 10px 20px;
+        }
+        div[data-baseweb="tab"][aria-selected="true"] {
+            color: var(--primary) !important;
+            background-color: transparent !important;
+            border-bottom: 3px solid var(--primary) !important;
+        }
+
+        /* SUCCESS/ERROR BOXES */
+        div[data-testid="stNotification"] {
+            border-radius: 8px;
+            border: none;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
         }
         
         /* Hide Streamlit Header/Toolbar */
         header {visibility: hidden;}
         [data-testid="stToolbar"] {visibility: hidden;}
         .stDeployButton {display:none;}
-
-        /* CFA-Style Blue Header for Tabs (Full Width) */
         .stTabs [data-baseweb="tab-list"] {
             gap: 0px; /* Remove gap between tabs */
             background-color: transparent; 
@@ -3425,68 +3493,76 @@ def page_portfolio():
             
             status_box.update(label="Analysis Complete!", state="complete")
             
+            # SAVE TO SESSION
+            st.session_state['wealth_result'] = plan
+            st.session_state['wealth_risk_tol'] = risk_tol # Save context for rendering
+            
             # --- AUTO SAVE PORTFOLIO ---
             user_id = st.session_state.get('username')
             if user_id:
                 auth_mongo.save_portfolio(user_id, plan)
                 st.toast("Portfolio Saved to Profile!")
 
-            
-            # --- RENDER RESULTS ---
-            ana = plan['analysis']
-            st.header(f"🎯 Strategy: {ana['strategy_name']}")
-            
-            # 1. Analysis Block
-            with st.container():
-                k1, k2, k3 = st.columns(3)
-                k1.info(f"**Risk Profile**: {ana['risk_profile_assessment']}")
-                k2.success(f"**Est. CAGR**: {ana.get('expected_return_cagr', 'N/A')}")
-                k3.warning(f"**Max Drawdown Limit**: -{risk_tol}%")
-                
-                st.write(f"### Professional Advice")
-                st.write(ana['advice_summary'])
-                
-            st.markdown("---")
-            
-            # 2. Allocation
-            st.subheader(get_text('alloc_header'))
-            
-            df_port = pd.DataFrame(plan['portfolio'])
-            
-            c_chart, c_table = st.columns([1, 1])
-            
-            with c_chart:
-                # Altair Donut
-                base = alt.Chart(df_port).encode(theta=alt.Theta("weight_percent", stack=True))
-                pie = base.mark_arc(outerRadius=120, innerRadius=60).encode(
-                    color=alt.Color("asset_class"),
-                    order=alt.Order("weight_percent", sort="descending"),
-                    tooltip=["ticker", "name", "weight_percent", "asset_class"]
-                )
-                text = base.mark_text(radius=140).encode(
-                    text=alt.Text("weight_percent", format=".1f"),
-                    order=alt.Order("weight_percent", sort="descending"), 
-                    color=alt.value("white")  
-                )
-                st.altair_chart(pie + text, use_container_width=True)
-                
-            with c_table:
-                st.dataframe(
-                    df_port[['ticker', 'name', 'weight_percent', 'rationale']],
-                    column_config={
-                        "weight_percent": st.column_config.NumberColumn("Weight %", format="%.1f%%"),
-                        "rationale": st.column_config.TextColumn("Buy Reason", width="medium")
-                    },
-                    hide_index=True,
-                    use_container_width=True
-                )
-                
-            # Disclaimer
-            st.caption("**Disclaimer**: This portfolio is generated by AI for educational purposes only. It does not constitute financial advice. Please do your own research before investing.")
-
         except Exception as e:
             status_box.update(label="Error generating plan", state="error")
             st.error(f"AI Error: {str(e)}")
+
+    # DISPLAY RESULT (Persistent)
+    if 'wealth_result' in st.session_state and st.session_state['wealth_result']:
+        plan = st.session_state['wealth_result']
+        risk_active = st.session_state.get('wealth_risk_tol', 20)
+        
+        # --- RENDER RESULTS ---
+        ana = plan['analysis']
+        st.header(f"🎯 Strategy: {ana['strategy_name']}")
+        
+        # 1. Analysis Block
+        with st.container():
+            k1, k2, k3 = st.columns(3)
+            k1.info(f"**Risk Profile**: {ana['risk_profile_assessment']}")
+            k2.success(f"**Est. CAGR**: {ana.get('expected_return_cagr', 'N/A')}")
+            k3.warning(f"**Max Drawdown Limit**: -{risk_active}%")
+            
+            st.write(f"### Professional Advice")
+            st.write(ana['advice_summary'])
+            
+        st.markdown("---")
+        
+        # 2. Allocation
+        st.subheader(get_text('alloc_header'))
+        
+        df_port = pd.DataFrame(plan['portfolio'])
+        
+        c_chart, c_table = st.columns([1, 1])
+        
+        with c_chart:
+            # Altair Donut
+            base = alt.Chart(df_port).encode(theta=alt.Theta("weight_percent", stack=True))
+            pie = base.mark_arc(outerRadius=120, innerRadius=60).encode(
+                color=alt.Color("asset_class"),
+                order=alt.Order("weight_percent", sort="descending"),
+                tooltip=["ticker", "name", "weight_percent", "asset_class"]
+            )
+            text = base.mark_text(radius=140).encode(
+                text=alt.Text("weight_percent", format=".1f"),
+                order=alt.Order("weight_percent", sort="descending"), 
+                color=alt.value("white")  
+            )
+            st.altair_chart(pie + text, use_container_width=True)
+            
+        with c_table:
+            st.dataframe(
+                df_port[['ticker', 'name', 'weight_percent', 'rationale']],
+                column_config={
+                    "weight_percent": st.column_config.NumberColumn("Weight %", format="%.1f%%"),
+                    "rationale": st.column_config.TextColumn("Buy Reason", width="medium")
+                },
+                hide_index=True,
+                use_container_width=True
+            )
+            
+        # Disclaimer
+        st.caption("**Disclaimer**: This portfolio is generated by AI for educational purposes only. It does not constitute financial advice. Please do your own research before investing.")
 
 
 
@@ -3684,6 +3760,9 @@ def page_health():
             
             status_box.update(label="Diagnosis Complete!", state="complete")
             
+            # SAVE TO SESSION
+            st.session_state['health_result'] = result
+            
             # --- AUTO SAVE HEALTH CHECK ---
             user_id = st.session_state.get('username') 
             if user_id:
@@ -3691,49 +3770,53 @@ def page_health():
                 auth_mongo.save_health_check(user_id, edited_df, result.get('portfolio_summary', 'No Summary'), result.get('portfolio_score', 'N/A'), result.get('stocks', []))
                 st.toast("Health Check Saved to Profile!")
 
-            
-            # --- 3. RENDER RESULTS ---
-            
-            # Score
-            score = result.get('portfolio_score', 0)
-            st.progress(score / 100)
-            
-            st.info(f"**Detected Strategy**: {result.get('strategy_detected', 'General')}")
-            
-            st.write(f"### {get_text('backtest_summary')}")
-            st.write(result.get('portfolio_summary', ''))
-            
-            # Path to 100
-            if 'path_to_100' in result and result['path_to_100']:
-                with st.expander("🚀 Path to 100 (How to fix this metrics)", expanded=True):
-                    for step in result['path_to_100']:
-                        st.markdown(f"- {step}")
-
-            st.markdown("---")
-            st.subheader("Indivdual Stock Diagnosis")
-            
-            for item in result.get('stocks', []):
-                with st.expander(f"**{item['symbol']}** - {item['verdict']}", expanded=True):
-                    c1, c2 = st.columns([1, 2])
-                    with c1:
-                        if item['verdict'] == "SELL":
-                            st.error(f"**VERDICT: {item['verdict']}**")
-                        elif item['verdict'] == "ACCUMULATE":
-                            st.success(f"**VERDICT: {item['verdict']}**")
-                        else:
-                            st.warning(f"**VERDICT: {item['verdict']}**")
-                            
-                        st.write(f"**Reason:** {item['action_reason']}")
-                        
-                    with c2:
-                        st.write(f"**Mega Trend:** {item['mega_trend']}")
-                        st.write(f"**Growth Driver:** {item['growth_driver']}")
-                        st.write(f"**Moat/Market:** {item['moat_opportunity']}")
-                        st.write(f"**Macro:** {item['macro_context']}")
-
         except Exception as e:
             status_box.update(label="Error", state="error")
             st.error(f"Analysis Failed: {str(e)}")
+
+    # DISPLAY RESULT (Persistent)
+    if 'health_result' in st.session_state and st.session_state['health_result']:
+        result = st.session_state['health_result']
+        
+        # --- 3. RENDER RESULTS ---
+        
+        # Score
+        score = result.get('portfolio_score', 0)
+        st.progress(score / 100)
+        
+        st.info(f"**Detected Strategy**: {result.get('strategy_detected', 'General')}")
+        
+        st.write(f"### {get_text('backtest_summary')}")
+        st.write(result.get('portfolio_summary', ''))
+        
+        # Path to 100
+        if 'path_to_100' in result and result['path_to_100']:
+            with st.expander("🚀 Path to 100 (How to fix this metrics)", expanded=True):
+                for step in result['path_to_100']:
+                    st.markdown(f"- {step}")
+
+        st.markdown("---")
+        st.subheader("Indivdual Stock Diagnosis")
+        
+        for item in result.get('stocks', []):
+            with st.expander(f"**{item['symbol']}** - {item['verdict']}", expanded=True):
+                c1, c2 = st.columns([1, 2])
+                with c1:
+                    if item['verdict'] == "SELL":
+                        st.error(f"**VERDICT: {item['verdict']}**")
+                    elif item['verdict'] == "ACCUMULATE":
+                        st.success(f"**VERDICT: {item['verdict']}**")
+                    else:
+                        st.warning(f"**VERDICT: {item['verdict']}**")
+                        
+                    st.write(f"**Reason:** {item['action_reason']}")
+                    
+                with c2:
+                    st.write(f"**Mega Trend:** {item.get('mega_trend', 'N/A')}")
+                    st.write(f"**Growth Driver:** {item.get('growth_driver', 'N/A')}")
+                    st.write(f"**Moat/Market:** {item.get('moat_opportunity', 'N/A')}")
+                    st.write(f"**Macro:** {item.get('macro_context', 'N/A')}")
+                st.divider()
 
 
 # ---------------------------------------------------------
@@ -3884,17 +3967,27 @@ if __name__ == "__main__":
         st.session_state['authenticated'] = False
         st.session_state['tier'] = 'standard'
         
-        # Check Cookie for Auto-Login
+    # --- AUTO-LOGIN CHECK (Persistence Fix) ---
+    # Always check cookie if not authenticated, to handle F5 refresh
+    if not st.session_state['authenticated']:
+        time.sleep(0.1) # Brief yield to ensure cookie manager is ready
         cookie_user = cookie_manager.get('user_session')
+        
         if cookie_user:
-            # Verify user exists and get tier (Simple Trust for now as requested)
-            tier = auth_mongo.get_user_tier(cookie_user)
+            # Validate user against DB (Optional but recommended)
+            # For speed, we trust the cookie or do a quick lookup
+            tier = auth_mongo.get_user_tier(cookie_user) 
+            
+            # RESTORE SESSION
             st.session_state['authenticated'] = True
-            st.session_state['user_name'] = cookie_user # Should fetch real name but cookie has ID.
+            st.session_state['user_name'] = cookie_user # Or fetch name
             st.session_state['username'] = cookie_user
             st.session_state['tier'] = tier
-            # No rerun needed here usually, but if state changes drastically...
-            # st.rerun() 
+            
+            # Optional: Rerun to update UI immediately from "Guest" to "Logged In"
+            # But since we are at top of script, it might flow down correctly. 
+            # If UI looks wrong on first load, uncomment st.rerun()
+            st.rerun() 
 
     if 'tier' not in st.session_state:
         st.session_state['tier'] = 'standard'
