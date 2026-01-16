@@ -3584,6 +3584,9 @@ def page_health():
         }
     )
 
+    # Add Goal Input
+    user_goal_input = st.text_input("🎯 Your Portfolio Goal (Optional)", placeholder="e.g. Passive Income 5%/yr, Aggressive Growth for AI, Safe Retirement", help="Tell the AI what you want to achieve so it can score you accurately.")
+
     # --- Auto-Calculate %U.PL and Update State ---
     needs_rerun = False
     
@@ -3677,7 +3680,7 @@ def page_health():
         status_box = st.status(get_text('ai_thinking'), expanded=True)
         
         try:
-            model = genai.GenerativeModel("models/gemini-3-flash-preview") # optimized for speed/cost, or use pro if needed
+            model = genai.GenerativeModel("models/gemini-pro") 
             
             # Construct Prompt
             portfolio_str = edited_df.to_json(orient="records")
@@ -3686,6 +3689,7 @@ def page_health():
             Act as a **Quantitative Investment Officer (CIO)** and **CFA Charterholder**.
             Analyze the following portfolio using the detailed **CFA & Quant Curriculum**.
             
+            **USER GOAL:** "{user_goal_input}" (If empty, infer the strategy based on holdings).
             **PORTFOLIO DATA:**
             {portfolio_str}
 
@@ -3711,22 +3715,21 @@ def page_health():
             - **Overlap**: Check for "Diworsification" (Holding AAPL + QQQ + Tech ETF).
             
             **V. Ethics & Suitability (Ch 9)**
-            - **Fit**: Does this portfolio make sense for a serious investor?
-
+            - **Fit**: Does this portfolio make sense for a serious investor attempting to achieve: "{user_goal_input}"?
 
             **TASK:**
-            1. **Identify Strategy**: What is this portfolio TRYING to be? (e.g. Passive, Value, Growth, dividend).
-            2. **Dynamic Scoring**: Score it based on its OWN strategy. 
-               - A Value port should NOT be penalized for low growth if it has high quality.
-               - A Growth port should NOT be penalized for volatility if it has high growth.
-            3. **Path to 100**: Provide concrete steps to improve the score to 100. (e.g. "Sell Speculative Stock A, Buy Bond ETF B").
+            1. **Strategy Check**: Compare the portfolio's reality vs the User's Goal ("{user_goal_input}").
+            2. **Dynamic Scoring**: Score it based on **Alignment with User Goal** and **Health**. 
+               - If Goal is "Safe Income" and portfolio is all Crypto/Tech -> LOW SCORE (Misalignment).
+               - If Goal is "Aggressive Growth" and portfolio is all Bonds -> LOW SCORE.
+            3. **Path to 100**: Provide concrete steps to align the portfolio with the Goal.
             
             **OUTPUT FORMAT:**
             Strictly JSON.
             {{
                 "portfolio_score": 75,
                 "strategy_detected": "Growth Oriented (High Risk)",
-                "portfolio_summary": "Overall assessment...",
+                "portfolio_summary": "Analysis of alignment with user goal...",
                 "path_to_100": [
                     "Action 1: Sell X to reduce concentration.",
                     "Action 2: Buy Y to fix lack of defensive assets."
