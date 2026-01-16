@@ -3680,7 +3680,7 @@ def page_health():
         status_box = st.status(get_text('ai_thinking'), expanded=True)
         
         try:
-            model = genai.GenerativeModel("models/gemini-pro") 
+            model = genai.GenerativeModel("models/gemini-3-flash-preview") 
             
             # Construct Prompt
             portfolio_str = edited_df.to_json(orient="records")
