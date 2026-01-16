@@ -3420,11 +3420,17 @@ def page_portfolio():
                - *Medium (5-10y)*: Balanced.
                - *Long/Retire*: Growth + Income layers.
 
+            **ADVANCED QUANT MODELING:**
+            1. **Black-Litterman Model**: Combine Market Equilibrium (CAPM) with User Views (Constraints) to allocate assets.
+            2. **Fama-French 5-Factor**: Select stocks with positive exposure to Value, Size, Profitability, and Investment factors.
+            3. **Efficient Frontier**: Ensure NO other portfolio offers higher return for the same risk.
+
             **TASK:**
             1. **Classify**: Match the user's profile to the BEST fitting Archetype above.
             2. **Construct**: Design the portfolio following THAT archetype's specific Allocation & Rules.
             3. **Select**: Pick tickers (US/Thai) that fit the Strategy (e.g. Value buys PTT/BBL, Growth buys DELTA/HANA).
             4. **Advice**: Provide advice and warn about the specific **Pitfalls** of that strategy.
+            5. **Metrics**: Estimate the **Ex-Ante Sharpe Ratio** (Risk-Free Rate = 3%).
 
             **OUTPUT FORMAT:**
             Strictly JSON. No Markdown Code blocks.
@@ -3434,7 +3440,8 @@ def page_portfolio():
                 "risk_profile_assessment": "String",
                 "strategy_name": "String (e.g. Aggressive Growth)",
                 "expected_return_cagr": "String (estimated %)",
-                "advice_summary": "String (2-3 paragraphs of professional advice)"
+                "expected_sharpe_ratio": "Float (e.g. 1.25)",
+                "advice_summary": "String (2-3 paragraphs of professional advice referencing Fama-French/Black-Litterman)"
               }},
               "portfolio": [
                 {{ "ticker": "SPY", "name": "S&P 500 ETF", "asset_class": "Equity", "weight_percent": 40, "rationale": "Core Foundation (Mega Trend: US Econ)" }},
@@ -3477,10 +3484,11 @@ def page_portfolio():
             
             # 1. Analysis Block
             with st.container():
-                k1, k2, k3 = st.columns(3)
+                k1, k2, k3, k4 = st.columns(4)
                 k1.info(f"**Risk Profile**: {ana['risk_profile_assessment']}")
                 k2.success(f"**Est. CAGR**: {ana.get('expected_return_cagr', 'N/A')}")
-                k3.warning(f"**Max Drawdown Limit**: -{risk_tol}%")
+                k3.metric("Sharpe Ratio", ana.get('expected_sharpe_ratio', 'N/A'))
+                k4.warning(f"**Max Drawdown**: -{risk_tol}%")
                 
                 st.write(f"### Professional Advice")
                 st.write(ana['advice_summary'])
@@ -3622,9 +3630,10 @@ def page_health():
                             for asset in p.get('data', {}).get('portfolio', []):
                                 if asset.get('asset_class') == 'Equity': # Only stocks
                                     new_data.append({
-                                        'Ticker': asset['ticker'],
-                                        'Avg': 0.0, # Unknown
-                                        'Market': 0.0, # Unknown, user fill, or we fetch live? Let's leave 0
+                                        'Symbol': asset['ticker'],
+                                        'AvailVol': 100, # Default volume
+                                        'Avg': 0.0,
+                                        'Market': 0.0,
                                         'U.PL': 0.0,
                                         'Weight': asset['weight_percent']
                                     })
