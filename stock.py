@@ -3475,7 +3475,7 @@ def page_portfolio():
                     df_port[['ticker', 'name', 'weight_percent', 'rationale']],
                     column_config={
                         "weight_percent": st.column_config.NumberColumn("Weight %", format="%.1f%%"),
-                        "rationale": st.column_config.TextColumn("Why?", width="medium")
+                        "rationale": st.column_config.TextColumn("Buy Reason", width="medium")
                     },
                     hide_index=True,
                     use_container_width=True
@@ -3513,54 +3513,56 @@ def page_health():
             columns=["Symbol", "Weight", "U.PL", "Reason"]
         )
 
-    edited_df = st.data_editor(
-        st.session_state['health_data'],
-        num_rows="dynamic",
-        use_container_width=True,
-        key="health_editor",
-        column_config={
-            "Symbol": st.column_config.TextColumn("Symbol (Ticker)", help="Stock Symbol (e.g. AAPL, PTT.BK)", required=True),
-            "Weight": st.column_config.NumberColumn("% Holding", min_value=0.0, max_value=100.0, format="%.1f%%"),
-            "U.PL": st.column_config.NumberColumn("% Unrealized P/L", format="%.2f%%"),
-            "Reason": st.column_config.TextColumn("Buy Reason", width="large", help="Why did you buy this? e.g. 'Growth Story', 'High Yield'")
-        }
-    )
+    # --- 2. EXECUTION FORM ---
+    with st.form("health_check_form"):
+        edited_df = st.data_editor(
+            st.session_state['health_data'],
+            num_rows="dynamic",
+            use_container_width=True,
+            key="health_editor",
+            column_config={
+                "Symbol": st.column_config.TextColumn("Symbol (Ticker)", help="Stock Symbol (e.g. AAPL, PTT.BK)", required=True),
+                "Weight": st.column_config.NumberColumn("% Holding", min_value=0.0, max_value=100.0, format="%.1f%%"),
+                "U.PL": st.column_config.NumberColumn("% Unrealized P/L", format="%.2f%%"),
+                "Reason": st.column_config.TextColumn("Buy Reason", width="large", help="Why did you buy this? e.g. 'Growth Story', 'High Yield'")
+            }
+        )
+        
+        c_btn, c_lang = st.columns([3, 1])
+        with c_lang:
+            health_lang = st.radio("Response Language", ["English", "Thai"], horizontal=True, label_visibility="collapsed")
+        
+        with c_btn:
+            run_btn = st.form_submit_button("🏥 Run Health Check (AI)", type="primary", use_container_width=True)
 
-    # --- Sync State ---
-    if not edited_df.equals(st.session_state['health_data']):
+    # --- Sync State ONLY on Submit ---
+    if run_btn:
         st.session_state['health_data'] = edited_df
 
-    # --- 2. EXECUTION ---
-    c_btn, c_lang = st.columns([3, 1])
-    with c_lang:
-        health_lang = st.radio("Response Language", ["English", "Thai"], horizontal=True, label_visibility="collapsed")
-        
-        # --- LOAD HISTORY BUTTON ---
-        user_id = st.session_state.get('username')
-        if user_id:
-            with st.popover("📂 Load Saved Portfolio"):
-                saved_ports = auth_mongo.get_user_portfolios(user_id)
-                if not saved_ports:
-                    st.info("No saved portfolios.")
-                else:
-                    for p in saved_ports:
-                        if st.button(f"{p['name']} ({len(p.get('data',{}).get('portfolio',[]))} stocks)", key=p['_id']):
-                            # Convert JSON portfolio to DF structure for HealthDeck
-                            new_data = []
-                            for asset in p.get('data', {}).get('portfolio', []):
-                                if asset.get('asset_class') == 'Equity': # Only stocks
-                                    new_data.append({
-                                        'Symbol': asset['ticker'],
-                                        'Weight': asset.get('weight_percent', 0.0),
-                                        'U.PL': 0.0,
-                                        'Reason': asset.get('rationale', '')
-                                    })
-                            
-                            st.session_state['health_data'] = pd.DataFrame(new_data)
-                            st.rerun()
-
-    with c_btn:
-        run_btn = st.button("🏥 Run Health Check (AI)", type="primary", use_container_width=True)
+    # --- LOAD HISTORY BUTTON (Outside Form) ---
+    st.write("") # Spacer
+    user_id = st.session_state.get('username')
+    if user_id:
+        with st.popover("📂 Load Saved Portfolio"):
+            saved_ports = auth_mongo.get_user_portfolios(user_id)
+            if not saved_ports:
+                st.info("No saved portfolios.")
+            else:
+                for p in saved_ports:
+                    if st.button(f"{p['name']} ({len(p.get('data',{}).get('portfolio',[]))} stocks)", key=p['_id']):
+                        # Convert JSON portfolio to DF structure for HealthDeck
+                        new_data = []
+                        for asset in p.get('data', {}).get('portfolio', []):
+                            if asset.get('asset_class') == 'Equity': # Only stocks
+                                new_data.append({
+                                    'Symbol': asset['ticker'],
+                                    'Weight': asset.get('weight_percent', 0.0),
+                                    'U.PL': 0.0,
+                                    'Reason': asset.get('rationale', '')
+                                })
+                        
+                        st.session_state['health_data'] = pd.DataFrame(new_data)
+                        st.rerun()
 
     if run_btn:
         # --- QUOTA CHECK ---
