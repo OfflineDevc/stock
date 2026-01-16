@@ -3684,7 +3684,6 @@ def page_health():
         status_box = st.status(get_text('ai_thinking'), expanded=True)
         
         try:
-        try:
             model = genai.GenerativeModel("models/gemini-2.0-flash-exp") # Updated to 2.0 Flash Exp for stability
 
             # Construct Prompt
