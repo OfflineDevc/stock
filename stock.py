@@ -3426,6 +3426,14 @@ def page_portfolio():
             3. **Efficient Frontier**: Ensure NO other portfolio offers higher return for the same risk.
             4. **Smart Beta & Tail Risk**: Use Factor Tilting (Low Volatility, Momentum) to enhance returns. Optimize for **Sortino Ratio** to minimize Downside Risk.
 
+            **COMPLIANCE & PRE-AUDIT (HEALTHDECK STANDARDS):**
+            Your generated portfolio MUST pass the following Audit with a perfect score (to ensure consistency with our HealthDeck Rating):
+            1.  **Fundamental**: All selected stocks must have **ROIC > WACC** (Value Creation) and Sustainable Growth.
+            2.  **Mega Trend**: Must be in **Sunrise Industries** (AI, Healthcare, Green). STRICTLY AVOID Sunset industries unless a Deep Value arbitrage exists.
+            3.  **Moat**: Must have **Pricing Power** (Blue Ocean strategy) and High Barriers to Entry.
+            4.  **Quant**: Portfolio **Sharpe Ratio** must be > 1.0. 
+            5.  **Score Goal**: Aim for a HealthDeck Score of **90-100**.
+
             **TASK:**
             1. **Classify**: Match the user's profile to the BEST fitting Archetype above.
             2. **Construct**: Design the portfolio following THAT archetype's specific Allocation & Rules.
