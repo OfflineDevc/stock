@@ -3740,7 +3740,11 @@ def page_health():
                     {{
                         "symbol": "AAPL",
                         "verdict": "HOLD/SELL",
-                        "action_reason": "High quality but crowded trade. Watch valuation."
+                        "action_reason": "High quality but crowded trade. Watch valuation.",
+                        "mega_trend": "String (e.g. AI, Green Energy)",
+                        "growth_driver": "String (e.g. Services Revenue)",
+                        "moat_opportunity": "String (e.g. Ecosystem Lock-in)",
+                        "macro_context": "String (e.g. Rate Sensitive)"
                     }},
                     ...
                 ]
@@ -3929,8 +3933,8 @@ def page_profile(cookie_manager=None):
                                             else: st.warning(f"**{item['verdict']}**")
                                             st.caption(item['action_reason'])
                                         with c2:
-                                            st.write(f"**Mega Trend:** {item['mega_trend']}")
-                                            st.write(f"**Moat:** {item['moat_opportunity']}")
+                                            st.write(f"**Mega Trend:** {item.get('mega_trend', 'N/A')}")
+                                            st.write(f"**Moat:** {item.get('moat_opportunity', 'N/A')}")
                                         st.divider()
 
     # --- SETTINGS TAB ---
