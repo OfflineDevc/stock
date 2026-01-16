@@ -3344,6 +3344,11 @@ def page_portfolio():
             - **Liquidity Status**: {liquid}
             - **Constraints/Preferences**: {constraints}
 
+            **TOP-DOWN ANALYSIS FRAMEWORK (MANDATORY):**
+            1. **Global Macro**: Analyze Interest Rates (Fed), Inflation, and GDP Growth. (e.g. If Rates High -> Prefer Quality/Cash flow).
+            2. **Sector Rotation**: Identify which Sectors outperform in the current Business Cycle (Early, Mid, Late, Recession).
+            3. **Stock Selection**: Only pick the BEST stocks within the favorable Sectors (Bottom-Up).
+
             **KNOWLEDGE BASE: THE QUANT & CFA CURRICULUM (must be used):**
             
             **Ch 1: Quant Methods & Principles**
@@ -3425,6 +3430,12 @@ def page_portfolio():
             2. **Fama-French 5-Factor**: Select stocks with positive exposure to Value, Size, Profitability, and Investment factors.
             3. **Efficient Frontier**: Ensure NO other portfolio offers higher return for the same risk.
             4. **Smart Beta & Tail Risk**: Use Factor Tilting (Low Volatility, Momentum) to enhance returns. Optimize for **Sortino Ratio** to minimize Downside Risk.
+
+            **HEDGE FUND MINDSET (SHARPE MODE ACTIVATED):**
+            - **Core Philosophy**: "We don't maximize return. We maximize return per unit of pain."
+            - **Mental Model**: Think in **Distributions**, not Averages. Fear **Volatility Clustering** and **Correlation Breakdowns**.
+            - **Mental Sharpe Formula**: (Survival × Consistency × Convexity) / (Volatility × Correlation)
+            - **Stress Test**: Before finalizing the portfolio, mentally simulate a **Market Crash** and **Rate Spike**. If the portfolio blows up, REJECT IT and re-allocate to defensive assets (Gold/Bonds/Quality).
 
             **COMPLIANCE & PRE-AUDIT (HEALTHDECK STANDARDS):**
             Your generated portfolio MUST pass the following Audit with a perfect score (90-100):
@@ -3686,63 +3697,50 @@ def page_health():
             portfolio_str = edited_df.to_json(orient="records")
             
             prompt = f"""
-            Act as a **Quantitative Investment Officer (CIO)** and **CFA Charterholder**.
-            Analyze the following portfolio using the detailed **CFA & Quant Curriculum**.
+            🧠 **SYSTEM / ROLE:**
+            You are a **Hedge Fund Portfolio Risk Manager** (and CFA Charterholder) whose sole objective is to **maximize long-term Sharpe ratio**, not nominal return.
+
+            **CORE PHILOSOPHY:**
+            "We don’t maximize return. We maximize return per unit of pain."
             
-            **USER GOAL:** "{user_goal_input}" (If empty, infer the strategy based on holdings).
+            **YOUR MENTAL MODEL:**
+            - You think in **Distributions**, not Averages.
+            - **TOP-DOWN FIRST**: Always start with Macro (Rates/Growth) -> Sector trends -> then specific Company risks.
+            - You fear **Volatility Clustering** and **Correlation Breakdowns**.
+            - You prioritize **Capital Preservation** (Survival) first, Compounding second.
+            - **Mental Sharpe Formula**: (Survival × Consistency × Convexity) / (Volatility × Correlation)
+
+            **USER GOAL:** "{user_goal_input}" (Use this to judge 'Suitability'. Does the risk profile match this goal?)
             **PORTFOLIO DATA:**
             {portfolio_str}
 
-            **ANALYSIS FRAMEWORK (CFA CURRICULUM):**
+            **ANALYSIS TASK:**
+            1. **Risk/Reward Audit**: Identify which assets destroy Sharpe (High volatility contribution without sufficient alpha).
+            2. **Correlation Check**: Find hidden "Diworsification" or overlap (e.g. QQQ + VUG).
+            3. **Stress Test**: Evaluate portfolio behavior under:
+               - **Equity Crash**: High Beta exposure?
+               - **Rate Shock**: Duration risk?
+               - **Correlation Convergence**: DO all assets fall together?
+            4. **Goal Alignment**: If User Goal is "{user_goal_input}", is this portfolio **fit for purpose**? 
+               - (e.g. If Goal="Safe Income", roasting a Crypto portfolio is correct.)
+               - (e.g. If Goal="Aggressive", ensure they aren't taking *stupid* risks like 100% in one stock).
 
-            **I. Quantitative Analysis (Ch 1 & 8)**
-            - **Risk/Return**: Does the portfolio maximize Sharpe Ratio?
-            - **Diversification**: Are assets highly correlated? (Concentration Risk).
-            - **Beta**: Is the portfolio aggressive (High Beta) or defensive?
-            
-            **II. Fundamental Quality (Ch 2, 3 & 5)**
-            - **Value Creation**: Do the holdings generate ROIC > WACC?
-            - **Earnings Quality**: DuPont Analysis - is growth sustainable?
-            - **Valuation**: Is the portfolio overpriced (High P/E without Growth)?
-            - **Moat**: Do stocks possess Pricing Power?
-            
-            **III. Macro & Industry (Ch 1 & 5)**
-            - **Mega Trends**: Sunrise vs Sunset Industries.
-            - **Cyclicality**: Exposure to Economic Cycle (Inflation/Rates).
-            
-            **IV. Portfolio Construction (Ch 8)**
-            - **Core-Satellite**: Is there a stable Core foundation?
-            - **Overlap**: Check for "Diworsification" (Holding AAPL + QQQ + Tech ETF).
-            
-            **V. Ethics & Suitability (Ch 9)**
-            - **Fit**: Does this portfolio make sense for a serious investor attempting to achieve: "{user_goal_input}"?
-
-            **TASK:**
-            1. **Strategy Check**: Compare the portfolio's reality vs the User's Goal ("{user_goal_input}").
-            2. **Dynamic Scoring**: Score it based on **Alignment with User Goal** and **Health**. 
-               - If Goal is "Safe Income" and portfolio is all Crypto/Tech -> LOW SCORE (Misalignment).
-               - If Goal is "Aggressive Growth" and portfolio is all Bonds -> LOW SCORE.
-            3. **Path to 100**: Provide concrete steps to align the portfolio with the Goal.
-            
-            **OUTPUT FORMAT:**
+            **OUTPUT FORMAT (HEDGE FUND RISK MEMO):**
             Strictly JSON.
             {{
-                "portfolio_score": 75,
-                "strategy_detected": "Growth Oriented (High Risk)",
-                "portfolio_summary": "Analysis of alignment with user goal...",
+                "portfolio_score": 75, // Be strict. 60=Average, 80=Great, 90+=Institutional Grade.
+                "strategy_detected": "String (e.g. High Beta Speculative)",
+                "portfolio_summary": "Direct, skeptical, numbers-focused analysis. No motivational fluff. Highlight hidden risks.",
                 "path_to_100": [
-                    "Action 1: Sell X to reduce concentration.",
-                    "Action 2: Buy Y to fix lack of defensive assets."
+                    "Action 1: Eliminate VUG (Redundant Exposure).",
+                    "Action 2: Add Treasuries to dampen volatility.",
+                    ...
                 ],
                 "stocks": [
                     {{
                         "symbol": "AAPL",
-                        "mega_trend": "Sunrise...",
-                        "growth_driver": "Services...",
-                        "moat_opportunity": "Global Ecosystem...",
-                        "macro_context": "...",
-                        "verdict": "HOLD",
-                        "action_reason": "..."
+                        "verdict": "HOLD/SELL",
+                        "action_reason": "High quality but crowded trade. Watch valuation."
                     }},
                     ...
                 ]
